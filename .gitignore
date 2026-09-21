@@ -1,0 +1,38 @@
+# Node
+node_modules/
+dist/
+dist-electron/
+release/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Storage (uploaded/generated documents)
+storage/expense_reports/*
+storage/trip_reports/*
+storage/excel/*
+storage/processed/*
+storage/logs/*
+!storage/**/.gitkeep
+
+# Env
+.env
+.env.local
+
+# Editor/OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
