@@ -7,6 +7,7 @@ here yet - each is built and tested as its own later phase:
     PDFProcessor            Phase 2/3 - page splitting, text vs. scanned detection
     OCREngine                Phase 3   - OCR for photographed/scanned bill pages
     ExpenseExtractor        Phase 3   - expense table + header extraction from ER PDFs
+    TripReportExtractor      Phase 3   - standalone Trip Report PDF field extraction
     BillExtractor            Phase 4   - supporting bill/receipt extraction
     BillMatcher              Phase 4   - expense-to-bill matching
     PolicyValidationEngine  Phase 5   - policy/limit/date/amount/category checks
@@ -51,6 +52,12 @@ class ExpenseExtractor(ABC):
     @abstractmethod
     def extract_embedded_trip_summary(self, pdf_path: Path) -> dict[str, Any] | None:
         """Extract an embedded TRIP SUMMARY section when present in the ER PDF itself."""
+
+
+class TripReportExtractor(ABC):
+    @abstractmethod
+    def extract_trip_details(self, pdf_path: Path) -> dict[str, Any]:
+        """Extract Trip ID, employee, travel period, origin/destination, purpose, approval, itinerary legs."""
 
 
 class BillExtractor(ABC):

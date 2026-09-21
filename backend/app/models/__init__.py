@@ -7,6 +7,7 @@ from app.models.trip import TripReport, Trip
 from app.models.validation import ValidationResult, ExceptionRecord
 from app.models.excel import ExcelReport
 from app.models.logs import ProcessingLog, AuditLog
+from app.models.evidence import SourceEvidence
 
 __all__ = [
     "User",
@@ -22,4 +23,5 @@ __all__ = [
     "ExcelReport",
     "ProcessingLog",
     "AuditLog",
+    "SourceEvidence",
 ]

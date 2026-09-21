@@ -5,10 +5,12 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.expense_report import ExpenseReport
-from app.models.trip import TripReport
+from app.models.evidence import SourceEvidence
+from app.models.expense_report import Expense, ExpenseReport
+from app.models.trip import Trip, TripReport
 from app.schemas.documents import DocumentDetail
-from app.services.document_ref import EXPENSE, InvalidDocumentId, decode_document_id
+from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
+from app.services.extraction.pipeline import run_extraction
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -42,6 +44,8 @@ def get_document(document_id: str, db: Session = Depends(get_db)):
         processing_status=row.processing_status,
         error_message=row.error_message,
         uploaded_at=row.uploaded_at,
+        extraction_status=row.extraction_status,
+        extraction_confidence=row.extraction_confidence,
         document_number=row.er_id if is_expense else row.trip_id,
         person_name=row.employee_name,
         employee_code=row.employee_code,
@@ -62,6 +66,142 @@ def get_document_file(document_id: str, download: bool = False, db: Session = De
         filename=row.original_filename,
         content_disposition_type="attachment" if download else "inline",
     )
+
+
+def _evidence_map(db: Session, document_type: str, document_ref_id: int) -> dict[str, int]:
+    rows = (
+        db.query(SourceEvidence)
+        .filter(SourceEvidence.document_type == document_type, SourceEvidence.document_ref_id == document_ref_id)
+        .all()
+    )
+    return {r.field_name: r.page_number for r in rows}
+
+
+def _leg_out(leg: Trip) -> dict:
+    return {
+        "leg_no": leg.leg_no,
+        "from_location": leg.from_location,
+        "from_date": leg.from_date,
+        "to_location": leg.to_location,
+        "to_date": leg.to_date,
+        "description": leg.description,
+    }
+
+
+def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
+    is_expense = ref.kind == EXPENSE
+    evidence = _evidence_map(db, EXPENSE if is_expense else TRIP, row.id)
+
+    base = {
+        "document_id": document_id,
+        "source_type": "EXPENSE_REPORT" if is_expense else "TRIP_REPORT",
+        "extraction_status": row.extraction_status,
+        "extraction_confidence": row.extraction_confidence,
+        "extraction_notes": row.extraction_notes,
+    }
+
+    if is_expense:
+        expenses = (
+            db.query(Expense).filter(Expense.expense_report_id == row.id).order_by(Expense.s_no).all()
+        )
+        embedded = (
+            db.query(TripReport)
+            .filter(TripReport.is_embedded.is_(True), TripReport.source_expense_report_id == row.id)
+            .first()
+        )
+        embedded_out = None
+        if embedded:
+            embedded_legs = db.query(Trip).filter(Trip.trip_report_id == embedded.id).order_by(Trip.leg_no).all()
+            embedded_out = {
+                "document_id": f"trip:{embedded.id}",
+                "trip_id": embedded.trip_id,
+                "destination": embedded.destination,
+                "start_date": embedded.start_date,
+                "end_date": embedded.end_date,
+                "source_page": embedded.embedded_source_page,
+                "extraction_status": embedded.extraction_status,
+                "extraction_confidence": embedded.extraction_confidence,
+                "legs": [_leg_out(leg) for leg in embedded_legs],
+            }
+
+        base.update(
+            {
+                "header": {
+                    "er_id": row.er_id,
+                    "er_id_source_page": evidence.get("er_id"),
+                    "employee_name": row.employee_name,
+                    "employee_name_source_page": evidence.get("employee_name"),
+                    "employee_code": row.employee_code,
+                    "employee_code_source_page": evidence.get("employee_code"),
+                    "department": row.department,
+                    "location": row.location,
+                    "report_month_label": row.report_month_label,
+                    "submitted_on": row.submitted_on,
+                    "submitted_on_source_page": evidence.get("submitted_on"),
+                    "total_claimed": row.total_claimed,
+                    "total_claimed_source_page": evidence.get("total_claimed"),
+                    "total_expenses": row.total_expenses,
+                },
+                "expenses": [
+                    {
+                        "s_no": e.s_no,
+                        "expense_date": e.expense_date,
+                        "category": e.category,
+                        "expense_details": e.expense_details,
+                        "claimed_amount": e.claimed_amount,
+                        "source_page": e.source_page,
+                        "extraction_status": e.extraction_status,
+                    }
+                    for e in expenses
+                ],
+                "embedded_trip_summary": embedded_out,
+            }
+        )
+    else:
+        legs = db.query(Trip).filter(Trip.trip_report_id == row.id).order_by(Trip.leg_no).all()
+        base.update(
+            {
+                "trip": {
+                    "trip_id": row.trip_id,
+                    "trip_id_source_page": evidence.get("trip_id"),
+                    "employee_name": row.employee_name,
+                    "employee_name_source_page": evidence.get("employee_name"),
+                    "employee_code": row.employee_code,
+                    "start_date": row.start_date,
+                    "end_date": row.end_date,
+                    "origin": row.origin,
+                    "destination": row.destination,
+                    "destination_source_page": evidence.get("destination"),
+                    "purpose": row.purpose,
+                    "purpose_source_page": evidence.get("purpose"),
+                    "approval_status": row.approval_status,
+                    "approval_date": row.approval_date,
+                    "approver": row.approver,
+                    "approver_source_page": evidence.get("approver"),
+                },
+                "legs": [_leg_out(leg) for leg in legs],
+            }
+        )
+
+    return base
+
+
+@router.get("/{document_id}/extraction")
+def get_document_extraction(document_id: str, db: Session = Depends(get_db)):
+    ref, row = _load(db, document_id)
+    return _build_extraction_detail(db, document_id, ref, row)
+
+
+@router.post("/{document_id}/extract")
+@router.post("/{document_id}/reprocess")
+def reprocess_document(document_id: str, db: Session = Depends(get_db)):
+    """Re-runs extraction for this document, replacing its previously extracted
+    fields/lines/evidence. Always updates the existing record - never creates a
+    duplicate document."""
+    ref, row = _load(db, document_id)
+    run_extraction(db, ref.kind, ref.pk)
+    db.refresh(row)
+    return _build_extraction_detail(db, document_id, ref, row)
 
 
 @router.delete("/{document_id}", status_code=204)

@@ -46,6 +46,18 @@ export async function fetchDocument(documentId) {
   return res.json()
 }
 
+export async function fetchExtraction(documentId) {
+  const res = await fetch(`${BASE_URL}/documents/${encodeURIComponent(documentId)}/extraction`)
+  if (!res.ok) throw new Error('Could not load extracted details.')
+  return res.json()
+}
+
+export async function reprocessDocument(documentId) {
+  const res = await fetch(`${BASE_URL}/documents/${encodeURIComponent(documentId)}/reprocess`, { method: 'POST' })
+  if (!res.ok) throw new Error('Could not reprocess this document.')
+  return res.json()
+}
+
 export function documentFileUrl(documentId, { download = false } = {}) {
   const query = download ? '?download=true' : ''
   return `${BASE_URL}/documents/${encodeURIComponent(documentId)}/file${query}`

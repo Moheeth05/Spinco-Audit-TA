@@ -4,3 +4,7 @@ sqlalchemy==2.0.36
 pydantic==2.10.4
 python-multipart==0.0.20
 pypdf==5.1.0
+pymupdf==1.24.14
+pdfplumber==0.11.4
+pytesseract==0.3.13
+pillow==11.0.0

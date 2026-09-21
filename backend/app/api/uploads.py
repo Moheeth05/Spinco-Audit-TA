@@ -8,6 +8,8 @@ from app.database import get_db
 from app.models.expense_report import ExpenseReport
 from app.models.trip import TripReport
 from app.schemas.uploads import UploadBatchResponse, UploadListItem, UploadResultItem
+from app.services.document_ref import EXPENSE, TRIP
+from app.services.extraction.pipeline import run_extraction
 from app.services.filename_ids import extract_er_id, extract_trip_id
 from app.services.pdf_validation import PdfValidationError, validate_pdf_upload
 from app.services.storage import EXPENSE_REPORTS_DIR, TRIP_REPORTS_DIR, save_upload
@@ -71,6 +73,17 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResul
     db.commit()
     db.refresh(row)
 
+    # Auto-extraction: the document enters extraction processing immediately after
+    # a successful upload, no manual step required (a manual reprocess endpoint
+    # also exists). A failure here is captured as extraction_status=FAILED on the
+    # row itself - it must never fail the upload response, since the file was
+    # genuinely received, validated, and stored successfully.
+    try:
+        run_extraction(db, EXPENSE if expense else TRIP, row.id)
+        db.refresh(row)
+    except Exception:  # noqa: BLE001 - upload succeeded regardless of extraction outcome
+        pass
+
     return UploadResultItem(
         filename=original_filename,
         success=True,
@@ -78,6 +91,7 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResul
         processing_status=row.processing_status,
         page_count=row.page_count,
         document_number=document_number,
+        extraction_status=row.extraction_status,
     )
 
 
@@ -94,7 +108,15 @@ def upload_trip_reports(files: list[UploadFile] = File(...), db: Session = Depen
 @router.get("/api/uploads", response_model=list[UploadListItem])
 def list_uploads(db: Session = Depends(get_db)):
     expense_rows = db.execute(select(ExpenseReport).order_by(ExpenseReport.uploaded_at.desc())).scalars().all()
-    trip_rows = db.execute(select(TripReport).order_by(TripReport.uploaded_at.desc())).scalars().all()
+    # Embedded trip summaries were never independently uploaded (no file of their own) -
+    # they're shown inside their parent Expense Report's Extracted Details, not here.
+    trip_rows = (
+        db.execute(
+            select(TripReport).where(TripReport.is_embedded.is_(False)).order_by(TripReport.uploaded_at.desc())
+        )
+        .scalars()
+        .all()
+    )
 
     items = [
         UploadListItem(
@@ -109,6 +131,7 @@ def list_uploads(db: Session = Depends(get_db)):
             page_count=r.page_count,
             processing_status=r.processing_status,
             error_message=r.error_message,
+            extraction_status=r.extraction_status,
             uploaded_at=r.uploaded_at,
         )
         for r in expense_rows
@@ -125,6 +148,7 @@ def list_uploads(db: Session = Depends(get_db)):
             page_count=r.page_count,
             processing_status=r.processing_status,
             error_message=r.error_message,
+            extraction_status=r.extraction_status,
             uploaded_at=r.uploaded_at,
         )
         for r in trip_rows

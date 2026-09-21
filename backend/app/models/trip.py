@@ -22,10 +22,17 @@ class TripReport(Base):
     processing_status: Mapped[str] = mapped_column(String(20), default="QUEUED", index=True)
     error_message: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
+    # Document-extraction lifecycle (Phase 3): NOT_PROCESSED | PROCESSING | EXTRACTED |
+    # REVIEW_REQUIRED | FAILED.
+    extraction_status: Mapped[str] = mapped_column(String(20), default="NOT_PROCESSED", index=True)
+    extraction_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW
+    extraction_notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+
     # True when this trip record was parsed out of an Expense Report PDF's own
     # embedded "TRIP SUMMARY" section rather than a standalone Trip Report PDF.
     is_embedded: Mapped[bool] = mapped_column(Boolean, default=False)
     source_expense_report_id: Mapped[int | None] = mapped_column(ForeignKey("expense_reports.id"), nullable=True)
+    embedded_source_page: Mapped[int | None] = mapped_column(nullable=True)
 
     employee_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id"), nullable=True)
     employee_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -39,6 +46,8 @@ class TripReport(Base):
     purpose: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     approval_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    approval_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    approver: Mapped[str | None] = mapped_column(String(255), nullable=True)
     validation_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))

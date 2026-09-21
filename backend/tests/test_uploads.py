@@ -139,8 +139,10 @@ def test_database_persistence(client, sample_pdf_path):
     assert row["er_id"] == "ER-39832"
     assert row["processing_status"] == "PROCESSED"
     assert row["file_size"] > 0
-    assert row["employee_name"] is None  # not extracted in Phase 2 - must stay null, not guessed
-    assert row["overall_status"] is None
+    # Phase 3 auto-extracts immediately after upload, so this is now real extracted
+    # data, not a guess - see tests/test_extraction.py for the extraction-specific coverage.
+    assert row["employee_name"] == "MANEESH KUMAR P. N."
+    assert row["overall_status"] is None  # validation (Phase 5+) hasn't run - still correctly null
 
 
 # 8 & 9. Storage persistence + PDF retrieval
@@ -201,7 +203,7 @@ def test_document_detail_and_delete(client, sample_pdf_path):
     body = detail.json()
     assert body["document_number"] == "ER-39832"
     assert body["file_hash"] is not None
-    assert body["person_name"] is None  # pending extraction
+    assert body["person_name"] == "MANEESH KUMAR P. N."  # Phase 3: real extracted data, not a guess
 
     delete_resp = client.delete(f"/api/documents/{doc_id}")
     assert delete_resp.status_code == 204

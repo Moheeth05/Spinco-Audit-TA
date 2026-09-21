@@ -11,6 +11,7 @@ class UploadResultItem(BaseModel):
     error_message: str | None = None
     page_count: int | None = None
     document_number: str | None = None  # ER-xxxxx / TRIP-xxxxx when recognized from filename
+    extraction_status: str | None = None
 
 
 class UploadBatchResponse(BaseModel):
@@ -29,4 +30,5 @@ class UploadListItem(BaseModel):
     page_count: int | None
     processing_status: str
     error_message: str | None
+    extraction_status: str
     uploaded_at: datetime

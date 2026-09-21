@@ -14,6 +14,8 @@ const STATUS_MAP = {
   QUEUED: { cls: 'status-neutral', icon: Clock, label: 'Queued' },
   PROCESSED: { cls: 'status-success', icon: CheckCircle2, label: 'Processed' },
   NOT_APPLICABLE: { cls: 'status-neutral', icon: Clock, label: 'Not Applicable' },
+  EXTRACTED: { cls: 'status-success', icon: CheckCircle2, label: 'Extracted' },
+  NOT_PROCESSED: { cls: 'status-neutral', icon: Clock, label: 'Not Processed' },
 }
 
 export function StatusBadge({ status }) {

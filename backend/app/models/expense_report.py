@@ -24,14 +24,24 @@ class ExpenseReport(Base):
     processing_status: Mapped[str] = mapped_column(String(20), default="QUEUED", index=True)
     error_message: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
+    # Document-extraction lifecycle (Phase 3): NOT_PROCESSED | PROCESSING | EXTRACTED |
+    # REVIEW_REQUIRED | FAILED. Extraction is not validation - this is never VERIFIED/EXCEPTION.
+    extraction_status: Mapped[str] = mapped_column(String(20), default="NOT_PROCESSED", index=True)
+    extraction_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW
+    extraction_notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+
     employee_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id"), nullable=True)
     employee_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     employee_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    department: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     report_month: Mapped[str | None] = mapped_column(String(7), index=True, nullable=True)  # "2026-06"
     report_month_label: Mapped[str | None] = mapped_column(String(20), nullable=True)  # "June 2026"
     submitted_on: Mapped[date | None] = mapped_column(Date, nullable=True)
 
+    # The report's own stated total ("Amount to be Reimbursed" / "Total Reimbursable Amount").
+    # Extraction only records what the document says - Phase 7 validates it against the sum of lines.
     total_claimed: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
     total_expenses: Mapped[int] = mapped_column(default=0)
     verified_expense_count: Mapped[int] = mapped_column(default=0)
@@ -71,6 +81,11 @@ class Expense(Base):
     bill_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True)
+
+    # Phase 3 extraction outcome for this line only: EXTRACTED | REVIEW_REQUIRED.
+    # Deliberately separate from validation_status/final_status below, which are
+    # PASS/FAIL/NOT_APPLICABLE/REVIEW_REQUIRED business-rule outcomes from a later phase.
+    extraction_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     # PASS | FAIL | NOT_APPLICABLE | REVIEW_REQUIRED
     validation_status: Mapped[str | None] = mapped_column(String(20), nullable=True)

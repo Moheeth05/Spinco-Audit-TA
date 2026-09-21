@@ -24,7 +24,19 @@ class ExpenseReportListItem(BaseModel):
     overall_status: str | None
     processing_status: str
     error_message: str | None
+    extraction_status: str
+    extraction_confidence: str | None
     file_size: int | None
     page_count: int | None
     uploaded_at: datetime
     submitted_on: date | None
+
+
+class ExpenseLineItemOut(BaseModel):
+    s_no: int | None
+    expense_date: date | None
+    category: str | None
+    expense_details: str | None
+    claimed_amount: float | None
+    source_page: int | None
+    extraction_status: str | None

@@ -16,6 +16,9 @@ class DocumentDetail(BaseModel):
     error_message: str | None
     uploaded_at: datetime
 
+    extraction_status: str
+    extraction_confidence: str | None
+
     document_number: str | None  # ER-xxxxx / TRIP-xxxxx
     person_name: str | None
     employee_code: str | None

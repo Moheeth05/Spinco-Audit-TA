@@ -20,7 +20,9 @@ router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 @router.get("/kpis", response_model=DashboardKPIs)
 def kpis(db: Session = Depends(get_db)):
     total_ers = db.execute(select(func.count(ExpenseReport.id))).scalar() or 0
-    total_trips = db.execute(select(func.count(TripReport.id))).scalar() or 0
+    total_trips = (
+        db.execute(select(func.count(TripReport.id)).where(TripReport.is_embedded.is_(False))).scalar() or 0
+    )
     total_claimed = db.execute(select(func.coalesce(func.sum(ExpenseReport.total_claimed), 0))).scalar() or 0
     verified = db.execute(
         select(func.count(ExpenseReport.id)).where(ExpenseReport.overall_status == "ACCOUNT VERIFIED")
@@ -50,7 +52,7 @@ def monthly_uploads(db: Session = Depends(get_db)):
     trip_rows = dict(
         db.execute(
             select(TripReport.report_month, func.count(TripReport.id))
-            .where(TripReport.report_month.is_not(None))
+            .where(TripReport.report_month.is_not(None), TripReport.is_embedded.is_(False))
             .group_by(TripReport.report_month)
         ).all()
     )
@@ -88,25 +90,34 @@ def category_breakdown(db: Session = Depends(get_db)):
 @router.get("/recent-uploads", response_model=list[RecentUploadOut])
 def recent_uploads(db: Session = Depends(get_db)):
     ers = db.execute(select(ExpenseReport).order_by(ExpenseReport.uploaded_at.desc()).limit(10)).scalars().all()
-    trips = db.execute(select(TripReport).order_by(TripReport.uploaded_at.desc()).limit(10)).scalars().all()
+    trips = (
+        db.execute(
+            select(TripReport)
+            .where(TripReport.is_embedded.is_(False))
+            .order_by(TripReport.uploaded_at.desc())
+            .limit(10)
+        )
+        .scalars()
+        .all()
+    )
 
     items = [
         RecentUploadOut(
-            filename=er.filename,
+            filename=er.original_filename or er.filename,
             person_name=er.employee_name,
             file_type="Expense",
             report_month_label=er.report_month_label,
-            status=er.overall_status or er.processing_status,
+            status=er.overall_status or er.extraction_status,
             uploaded_at=er.uploaded_at,
         )
         for er in ers
     ] + [
         RecentUploadOut(
-            filename=t.filename or t.trip_id,
+            filename=t.original_filename or t.trip_id,
             person_name=t.employee_name,
             file_type="Trip",
             report_month_label=t.report_month,
-            status=t.validation_status or t.processing_status,
+            status=t.validation_status or t.extraction_status,
             uploaded_at=t.uploaded_at,
         )
         for t in trips
