@@ -97,3 +97,13 @@ a {
   background: var(--gray-300);
   border-radius: 8px;
 }
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}

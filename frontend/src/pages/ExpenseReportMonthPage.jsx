@@ -1,4 +1,4 @@
-import { ArrowLeft, FolderClosed } from 'lucide-react'
+import { ArrowLeft, Eye, FolderClosed } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useApi } from '../api/useApi'
@@ -20,19 +20,32 @@ function formatINR(amount) {
   return `Rs.${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-const columns = [
-  { key: 'filename', header: 'File Name', render: (r) => `${r.filename} - ${r.employee_name || 'Unknown'}` },
-  { key: 'employee_code', header: 'Employee ID' },
-  { key: 'total_expenses', header: 'Expenses', align: 'right' },
-  { key: 'total_claimed', header: 'Claimed Amount', align: 'right', render: (r) => formatINR(r.total_claimed) },
-  { key: 'verified_expense_count', header: 'Verified', align: 'right' },
-  { key: 'exception_count', header: 'Exceptions', align: 'right' },
-  { key: 'overall_status', header: 'Status', render: (r) => <StatusBadge status={r.overall_status} /> },
-]
-
 export default function ExpenseReportMonthPage() {
   const { month } = useParams()
   const navigate = useNavigate()
+
+  const columns = [
+    { key: 'filename', header: 'File Name', render: (r) => `${r.original_filename} - ${r.employee_name || 'Pending extraction'}` },
+    { key: 'employee_code', header: 'Employee ID', render: (r) => r.employee_code || 'Pending extraction' },
+    { key: 'total_expenses', header: 'Expenses', align: 'right' },
+    { key: 'total_claimed', header: 'Claimed Amount', align: 'right', render: (r) => formatINR(r.total_claimed) },
+    { key: 'verified_expense_count', header: 'Verified', align: 'right' },
+    { key: 'exception_count', header: 'Exceptions', align: 'right' },
+    {
+      key: 'overall_status',
+      header: 'Status',
+      render: (r) => (r.overall_status ? <StatusBadge status={r.overall_status} /> : 'Pending extraction'),
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      render: (r) => (
+        <button className="icon-action" title="View" onClick={() => navigate(`/documents/${r.document_id}`)}>
+          <Eye size={14} />
+        </button>
+      ),
+    },
+  ]
   const [status, setStatus] = useState('ALL')
   const { data: reports, loading, error } = useApi('/expense-reports', { report_month: month, status })
 
@@ -64,7 +77,7 @@ export default function ExpenseReportMonthPage() {
           <EmptyState icon={FolderClosed} title="No reports match this filter" description="Try a different status filter or month." />
         )}
         {!loading && !error && reports && reports.length > 0 && (
-          <DataTable columns={columns} rows={reports} rowKey={(r) => r.id} />
+          <DataTable columns={columns} rows={reports} rowKey={(r) => r.document_id} />
         )}
       </Card>
     </div>

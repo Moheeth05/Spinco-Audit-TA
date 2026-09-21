@@ -42,4 +42,27 @@ def list_expense_reports(
         stmt = stmt.where(ExpenseReport.overall_status == status)
     if report_month:
         stmt = stmt.where(ExpenseReport.report_month == report_month)
-    return db.execute(stmt).scalars().all()
+    rows = db.execute(stmt).scalars().all()
+    return [
+        ExpenseReportListItem(
+            document_id=f"expense:{r.id}",
+            er_id=r.er_id,
+            filename=r.filename,
+            original_filename=r.original_filename,
+            employee_name=r.employee_name,
+            employee_code=r.employee_code,
+            report_month_label=r.report_month_label,
+            total_expenses=r.total_expenses,
+            total_claimed=r.total_claimed,
+            verified_expense_count=r.verified_expense_count,
+            exception_count=r.exception_count,
+            overall_status=r.overall_status,
+            processing_status=r.processing_status,
+            error_message=r.error_message,
+            file_size=r.file_size,
+            page_count=r.page_count,
+            uploaded_at=r.uploaded_at,
+            submitted_on=r.submitted_on,
+        )
+        for r in rows
+    ]

@@ -10,9 +10,10 @@ class TripReportMonthSummary(BaseModel):
 
 
 class TripReportListItem(BaseModel):
-    id: int
-    trip_id: str
+    document_id: str
+    trip_id: str | None
     filename: str | None
+    original_filename: str | None
     employee_name: str | None
     employee_code: str | None
     start_date: date | None
@@ -20,4 +21,8 @@ class TripReportListItem(BaseModel):
     origin: str | None
     destination: str | None
     approval_status: str | None
+    processing_status: str
+    error_message: str | None
+    file_size: int | None
+    page_count: int | None
     uploaded_at: datetime

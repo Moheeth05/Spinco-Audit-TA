@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import AnalyticsPage from './pages/AnalyticsPage'
+import DocumentViewerPage from './pages/DocumentViewerPage'
 import ExcelFilesPage from './pages/ExcelFilesPage'
 import ExpenseReportMonthPage from './pages/ExpenseReportMonthPage'
 import ExpenseReportsPage from './pages/ExpenseReportsPage'
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/expense-reports" element={<ExpenseReportsPage />} />
         <Route path="/expense-reports/:month" element={<ExpenseReportMonthPage />} />
+        <Route path="/documents/:documentId" element={<DocumentViewerPage />} />
         <Route path="/trip-reports" element={<TripReportsPage />} />
         <Route path="/trip-reports/:month" element={<TripReportMonthPage />} />
         <Route path="/policy-master" element={<PolicyMasterPage />} />

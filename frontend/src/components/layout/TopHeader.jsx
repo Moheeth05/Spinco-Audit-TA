@@ -4,10 +4,11 @@ import { ALL_NAV } from './navConfig'
 
 export function TopHeader() {
   const location = useLocation()
+  const isDocumentViewer = location.pathname.startsWith('/documents/')
   const current = ALL_NAV.find((item) =>
     item.end ? location.pathname === item.to : location.pathname.startsWith(item.to) && item.to !== '/'
   )
-  const title = current?.label || 'Home'
+  const title = isDocumentViewer ? 'Document Viewer' : current?.label || 'Home'
 
   return (
     <header className="top-header">

@@ -1,4 +1,4 @@
-import { ArrowLeft, Map } from 'lucide-react'
+import { ArrowLeft, Eye, Map } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useApi } from '../api/useApi'
 import { Card } from '../components/ui/Card'
@@ -7,16 +7,6 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { StatusBadge } from '../components/ui/StatusBadge'
-
-const columns = [
-  { key: 'filename', header: 'File Name', render: (r) => `${r.filename || r.trip_id} - ${r.employee_name || 'Unknown'}` },
-  { key: 'employee_code', header: 'Employee ID' },
-  { key: 'trip_id', header: 'Trip ID' },
-  { key: 'start_date', header: 'Start Date' },
-  { key: 'end_date', header: 'End Date' },
-  { key: 'destination', header: 'Destination' },
-  { key: 'approval_status', header: 'Status', render: (r) => <StatusBadge status={r.approval_status} /> },
-]
 
 export default function TripReportMonthPage() {
   const { month } = useParams()
@@ -27,6 +17,33 @@ export default function TripReportMonthPage() {
     month: 'long',
     year: 'numeric',
   })
+
+  const columns = [
+    {
+      key: 'filename',
+      header: 'File Name',
+      render: (r) => `${r.original_filename || r.trip_id} - ${r.employee_name || 'Pending extraction'}`,
+    },
+    { key: 'employee_code', header: 'Employee ID', render: (r) => r.employee_code || 'Pending extraction' },
+    { key: 'trip_id', header: 'Trip ID', render: (r) => r.trip_id || 'Pending extraction' },
+    { key: 'start_date', header: 'Start Date', render: (r) => r.start_date || 'Pending extraction' },
+    { key: 'end_date', header: 'End Date', render: (r) => r.end_date || 'Pending extraction' },
+    { key: 'destination', header: 'Destination', render: (r) => r.destination || 'Pending extraction' },
+    {
+      key: 'approval_status',
+      header: 'Status',
+      render: (r) => (r.approval_status ? <StatusBadge status={r.approval_status} /> : 'Pending extraction'),
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      render: (r) => (
+        <button className="icon-action" title="View" onClick={() => navigate(`/documents/${r.document_id}`)}>
+          <Eye size={14} />
+        </button>
+      ),
+    },
+  ]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -41,7 +58,7 @@ export default function TripReportMonthPage() {
           <EmptyState icon={Map} title="No trip reports for this month" />
         )}
         {!loading && !error && reports && reports.length > 0 && (
-          <DataTable columns={columns} rows={reports} rowKey={(r) => r.id} />
+          <DataTable columns={columns} rows={reports} rowKey={(r) => r.document_id} />
         )}
       </Card>
     </div>

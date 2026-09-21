@@ -10,9 +10,17 @@ class TripReport(Base):
     __tablename__ = "trip_reports"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    trip_id: Mapped[str] = mapped_column(String(50), index=True)  # e.g. TRIP-24935
+    trip_id: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)  # e.g. TRIP-24935, from filename only
     filename: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    original_filename: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    file_hash: Mapped[str | None] = mapped_column(String(64), unique=True, index=True, nullable=True)
+    file_type: Mapped[str] = mapped_column(String(100), default="application/pdf")
+    file_size: Mapped[int | None] = mapped_column(nullable=True)
+    page_count: Mapped[int | None] = mapped_column(nullable=True)
     source_path: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+    processing_status: Mapped[str] = mapped_column(String(20), default="QUEUED", index=True)
+    error_message: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
     # True when this trip record was parsed out of an Expense Report PDF's own
     # embedded "TRIP SUMMARY" section rather than a standalone Trip Report PDF.
@@ -34,6 +42,7 @@ class TripReport(Base):
     validation_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    uploaded_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     legs: Mapped[list["Trip"]] = relationship(back_populates="trip_report", cascade="all, delete-orphan")
 

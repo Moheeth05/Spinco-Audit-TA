@@ -1,0 +1,32 @@
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class UploadResultItem(BaseModel):
+    filename: str
+    success: bool
+    document_id: str | None = None
+    processing_status: str
+    error_message: str | None = None
+    page_count: int | None = None
+    document_number: str | None = None  # ER-xxxxx / TRIP-xxxxx when recognized from filename
+
+
+class UploadBatchResponse(BaseModel):
+    results: list[UploadResultItem]
+
+
+class UploadListItem(BaseModel):
+    document_id: str
+    source_type: str  # EXPENSE_REPORT | TRIP_REPORT
+    filename: str
+    original_filename: str
+    document_number: str | None
+    person_name: str | None
+    employee_code: str | None
+    file_size: int | None
+    page_count: int | None
+    processing_status: str
+    error_message: str | None
+    uploaded_at: datetime

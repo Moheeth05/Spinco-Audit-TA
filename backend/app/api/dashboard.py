@@ -96,7 +96,7 @@ def recent_uploads(db: Session = Depends(get_db)):
             person_name=er.employee_name,
             file_type="Expense",
             report_month_label=er.report_month_label,
-            status=er.overall_status,
+            status=er.overall_status or er.processing_status,
             uploaded_at=er.uploaded_at,
         )
         for er in ers
@@ -106,7 +106,7 @@ def recent_uploads(db: Session = Depends(get_db)):
             person_name=t.employee_name,
             file_type="Trip",
             report_month_label=t.report_month,
-            status=t.validation_status or "PROCESSED",
+            status=t.validation_status or t.processing_status,
             uploaded_at=t.uploaded_at,
         )
         for t in trips

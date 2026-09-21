@@ -352,3 +352,108 @@ table.data-table {
   font-size: 12.5px;
   color: var(--gray-500);
 }
+
+/* ---------- Dropzone ---------- */
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 24px;
+  border: 1.5px dashed var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dropzone.is-dragging {
+  border-color: var(--blue-600);
+  background: var(--blue-50);
+}
+
+.dropzone-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--blue-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.dropzone-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.dropzone-subtitle {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+/* ---------- Upload queue rows ---------- */
+
+.queue-row {
+  display: grid;
+  grid-template-columns: 1fr 110px 140px 90px;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.queue-row:last-child {
+  border-bottom: none;
+}
+
+.queue-filename {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-error {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--error);
+}
+
+.queue-size {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+/* ---------- Icon-only action button ---------- */
+
+.icon-action {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--gray-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-action:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+
+.icon-action.is-danger:hover {
+  background: var(--error-bg);
+  border-color: var(--error);
+  color: var(--error);
+}

@@ -10,10 +10,19 @@ class ExpenseReport(Base):
     __tablename__ = "expense_reports"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    er_id: Mapped[str] = mapped_column(String(50), index=True)  # e.g. ER-39832
+    er_id: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)  # e.g. ER-39832, from filename only
     filename: Mapped[str] = mapped_column(String(500))
-    file_hash: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
+    original_filename: Mapped[str] = mapped_column(String(500))
+    file_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    file_type: Mapped[str] = mapped_column(String(100), default="application/pdf")
+    file_size: Mapped[int] = mapped_column()
+    page_count: Mapped[int | None] = mapped_column(nullable=True)
     source_path: Mapped[str] = mapped_column(String(1000))
+
+    # Upload/intake lifecycle for this phase: QUEUED | PROCESSING | PROCESSED | FAILED.
+    # Deliberately separate from overall_status, which is the later validation/audit outcome.
+    processing_status: Mapped[str] = mapped_column(String(20), default="QUEUED", index=True)
+    error_message: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
     employee_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id"), nullable=True)
     employee_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -29,8 +38,9 @@ class ExpenseReport(Base):
     exception_count: Mapped[int] = mapped_column(default=0)
     review_required_count: Mapped[int] = mapped_column(default=0)
 
-    # PROCESSING | ACCOUNT VERIFIED | EXCEPTION | REVIEW REQUIRED | FAILED
-    overall_status: Mapped[str] = mapped_column(String(30), default="PROCESSING", index=True)
+    # Set by the future validation/exception engine: ACCOUNT VERIFIED | EXCEPTION | REVIEW REQUIRED.
+    # Left null until that phase actually computes it - never defaulted or guessed here.
+    overall_status: Mapped[str | None] = mapped_column(String(30), nullable=True, index=True)
     policy_version: Mapped[int | None] = mapped_column(nullable=True)
 
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))

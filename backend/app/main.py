@@ -2,7 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import models  # noqa: F401  (register all models on Base before create_all)
-from app.api import analytics, dashboard, excel_files, expense_reports, health, policy, trip_reports, users
+from app.api import (
+    analytics,
+    dashboard,
+    documents,
+    excel_files,
+    expense_reports,
+    health,
+    policy,
+    trip_reports,
+    uploads,
+    users,
+)
 from app.database import Base, engine
 from app.seed import seed_all
 
@@ -31,3 +42,5 @@ app.include_router(expense_reports.router)
 app.include_router(trip_reports.router)
 app.include_router(excel_files.router)
 app.include_router(analytics.router)
+app.include_router(uploads.router)
+app.include_router(documents.router)

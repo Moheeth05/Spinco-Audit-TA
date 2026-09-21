@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { apiGet } from './client'
 
 /** Fetches a real API endpoint and tracks loading/error/data state.
@@ -8,6 +8,7 @@ export function useApi(path, params) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [refetchIndex, setRefetchIndex] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -28,7 +29,9 @@ export function useApi(path, params) {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [path, JSON.stringify(params)])
+  }, [path, JSON.stringify(params), refetchIndex])
 
-  return { data, loading, error }
+  const refetch = useCallback(() => setRefetchIndex((i) => i + 1), [])
+
+  return { data, loading, error, refetch }
 }
