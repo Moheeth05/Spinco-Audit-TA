@@ -1,0 +1,72 @@
+import { ArrowLeft, FolderClosed } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useApi } from '../api/useApi'
+import { Card } from '../components/ui/Card'
+import { DataTable } from '../components/ui/DataTable'
+import { EmptyState } from '../components/ui/EmptyState'
+import { ErrorState } from '../components/ui/ErrorState'
+import { LoadingState } from '../components/ui/LoadingState'
+import { StatusBadge } from '../components/ui/StatusBadge'
+
+const FILTERS = [
+  { key: 'ALL', label: 'All Reports' },
+  { key: 'ACCOUNT VERIFIED', label: 'Account Verified' },
+  { key: 'EXCEPTION', label: 'Exceptions' },
+]
+
+function formatINR(amount) {
+  if (amount === null || amount === undefined) return '-'
+  return `Rs.${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+const columns = [
+  { key: 'filename', header: 'File Name', render: (r) => `${r.filename} - ${r.employee_name || 'Unknown'}` },
+  { key: 'employee_code', header: 'Employee ID' },
+  { key: 'total_expenses', header: 'Expenses', align: 'right' },
+  { key: 'total_claimed', header: 'Claimed Amount', align: 'right', render: (r) => formatINR(r.total_claimed) },
+  { key: 'verified_expense_count', header: 'Verified', align: 'right' },
+  { key: 'exception_count', header: 'Exceptions', align: 'right' },
+  { key: 'overall_status', header: 'Status', render: (r) => <StatusBadge status={r.overall_status} /> },
+]
+
+export default function ExpenseReportMonthPage() {
+  const { month } = useParams()
+  const navigate = useNavigate()
+  const [status, setStatus] = useState('ALL')
+  const { data: reports, loading, error } = useApi('/expense-reports', { report_month: month, status })
+
+  const monthLabel = new Date(`${month}-01T00:00:00`).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <button className="btn btn-secondary" style={{ width: 'fit-content' }} onClick={() => navigate('/expense-reports')}>
+        <ArrowLeft size={15} /> All Months
+      </button>
+
+      <Card title={`Expense Reports - ${monthLabel}`}>
+        <div className="filter-bar">
+          <div className="btn-group">
+            {FILTERS.map((f) => (
+              <button key={f.key} className={status === f.key ? 'active' : ''} onClick={() => setStatus(f.key)}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {loading && <LoadingState />}
+        {error && <ErrorState description="Could not load expense reports for this month." />}
+        {!loading && !error && (!reports || reports.length === 0) && (
+          <EmptyState icon={FolderClosed} title="No reports match this filter" description="Try a different status filter or month." />
+        )}
+        {!loading && !error && reports && reports.length > 0 && (
+          <DataTable columns={columns} rows={reports} rowKey={(r) => r.id} />
+        )}
+      </Card>
+    </div>
+  )
+}
