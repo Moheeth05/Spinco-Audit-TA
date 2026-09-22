@@ -13,6 +13,7 @@ const FILTERS = [
   { key: 'ALL', label: 'All Reports' },
   { key: 'ACCOUNT VERIFIED', label: 'Account Verified' },
   { key: 'EXCEPTION', label: 'Exceptions' },
+  { key: 'REVIEW REQUIRED', label: 'Review Required' },
 ]
 
 function formatINR(amount) {
@@ -31,6 +32,7 @@ export default function ExpenseReportMonthPage() {
     { key: 'total_claimed', header: 'Claimed Amount', align: 'right', render: (r) => formatINR(r.total_claimed) },
     { key: 'verified_expense_count', header: 'Verified', align: 'right' },
     { key: 'exception_count', header: 'Exceptions', align: 'right' },
+    { key: 'review_required_count', header: 'Review Required', align: 'right' },
     {
       key: 'overall_status',
       header: 'Status',

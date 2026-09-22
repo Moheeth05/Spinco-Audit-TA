@@ -24,3 +24,10 @@ class DocumentDetail(BaseModel):
     employee_code: str | None
     report_month_label: str | None
     submitted_on: date | None
+
+    # Phase 7 - only meaningful for EXPENSE_REPORT documents (None for TRIP_REPORT).
+    overall_status: str | None = None
+    total_expenses: int | None = None
+    verified_expense_count: int | None = None
+    exception_count: int | None = None
+    review_required_count: int | None = None

@@ -21,6 +21,7 @@ class ExpenseReportListItem(BaseModel):
     total_claimed: float | None
     verified_expense_count: int
     exception_count: int
+    review_required_count: int
     overall_status: str | None
     processing_status: str
     error_message: str | None

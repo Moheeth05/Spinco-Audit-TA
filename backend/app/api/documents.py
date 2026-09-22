@@ -12,6 +12,7 @@ from app.models.trip import Trip, TripReport
 from app.models.validation import ValidationResult
 from app.schemas.documents import DocumentDetail
 from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
+from app.services.exception_engine import evaluate_report
 from app.services.extraction.batta_pipeline import match_batta_expenses
 from app.services.extraction.bill_pipeline import extract_and_match_bills
 from app.services.extraction.expense_report_parser import find_report_summary_page
@@ -58,6 +59,11 @@ def get_document(document_id: str, db: Session = Depends(get_db)):
         employee_code=row.employee_code,
         report_month_label=row.report_month_label if is_expense else None,
         submitted_on=row.submitted_on if is_expense else None,
+        overall_status=row.overall_status if is_expense else None,
+        total_expenses=row.total_expenses if is_expense else None,
+        verified_expense_count=row.verified_expense_count if is_expense else None,
+        exception_count=row.exception_count if is_expense else None,
+        review_required_count=row.review_required_count if is_expense else None,
     )
 
 
@@ -106,6 +112,16 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
         "extraction_confidence": row.extraction_confidence,
         "extraction_notes": row.extraction_notes,
     }
+    if is_expense:
+        base.update(
+            {
+                "overall_status": row.overall_status,
+                "total_expenses": row.total_expenses,
+                "verified_expense_count": row.verified_expense_count,
+                "exception_count": row.exception_count,
+                "review_required_count": row.review_required_count,
+            }
+        )
 
     if is_expense:
         expenses = (
@@ -288,6 +304,11 @@ def rematch_bills(document_id: str, db: Session = Depends(get_db)):
     if content_last_page is None:
         content_last_page = content_pages[-1]["page_number"] if content_pages else 0
     extract_and_match_bills(db, row, text_extractor, content_last_page)
+    try:
+        validate_expense_report(db, row.id)
+        evaluate_report(db, row.id)
+    except Exception:  # noqa: BLE001
+        pass
     db.refresh(row)
     return _build_extraction_detail(db, document_id, ref, row)
 
@@ -304,6 +325,7 @@ def rematch_trips(document_id: str, db: Session = Depends(get_db)):
     match_batta_expenses(db, row)
     try:
         validate_expense_report(db, row.id)
+        evaluate_report(db, row.id)
     except Exception:  # noqa: BLE001
         pass
     db.refresh(row)

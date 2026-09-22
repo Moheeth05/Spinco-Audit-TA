@@ -301,6 +301,112 @@ function AttachedBillsPanel({ extraction, onJump }) {
   )
 }
 
+function ReportStatusBanner({ extraction }) {
+  const status = extraction.overall_status
+  const total = extraction.total_expenses ?? 0
+  const verified = extraction.verified_expense_count ?? 0
+  const exceptions = extraction.exception_count ?? 0
+  const review = extraction.review_required_count ?? 0
+
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div>
+          <div className="card-title">Report Status</div>
+          <div className="card-subtitle">Deterministic aggregate of every expense's policy, bill and trip checks</div>
+        </div>
+        <div>{status ? <StatusBadge status={status} /> : <span style={{ color: 'var(--gray-500)' }}>Pending validation</span>}</div>
+      </div>
+      <div className="card-body">
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>{total}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>Expenses</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--green-600, #16a34a)' }}>{verified}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>Passed</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--red-600, #dc2626)' }}>{exceptions}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>Exceptions</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--amber-600, #d97706)' }}>{review}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>Review Required</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ExceptionsPanel({ extraction, documentId, onJump }) {
+  const reportId = documentId.split(':')[1]
+  const { data: exceptions, loading, error } = useApi(`/expense-reports/${reportId}/exceptions`)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <ReportStatusBanner extraction={extraction} />
+
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <div className="card-title">Exceptions</div>
+            <div className="card-subtitle">Confirmed exceptions and review-required conditions, deduplicated to one row per underlying problem</div>
+          </div>
+        </div>
+        <div className="card-body">
+          {loading && <LoadingState rows={3} />}
+          {error && <ErrorState title="Could not load exceptions" description="The server may be unreachable." />}
+          {!loading && !error && (!exceptions || exceptions.length === 0) && (
+            <div className="state-panel" style={{ padding: '32px 16px' }}>
+              <div className="state-title">No exceptions</div>
+              <div className="state-description">Every applicable check on this report currently passes.</div>
+            </div>
+          )}
+          {!loading && !error && exceptions && exceptions.length > 0 && (
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>S.No</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th className="num">Claimed</th>
+                    <th className="num">Bill / Limit</th>
+                    <th>Reason</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {exceptions.map((e) => (
+                    <tr key={e.id}>
+                      <td>{e.s_no ?? '-'}</td>
+                      <td>{e.exception_type}</td>
+                      <td>
+                        <StatusBadge status={e.severity} />
+                      </td>
+                      <td className="num">{e.claimed_amount != null ? formatINR(e.claimed_amount) : '-'}</td>
+                      <td className="num">
+                        {e.bill_amount != null ? formatINR(e.bill_amount) : e.policy_limit != null ? formatINR(e.policy_limit) : '-'}
+                      </td>
+                      <td style={{ fontSize: 12.5 }}>{e.reason}</td>
+                      <td>
+                        <ViewSourceButton page={e.source_page} onJump={onJump} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ValidationResultsPanel({ extraction, onJump }) {
   const validations = extraction.validations || []
   const expensesBySNo = Object.fromEntries((extraction.expenses || []).map((e) => [e.id, e.s_no]))
@@ -583,6 +689,7 @@ export default function DocumentViewerPage() {
     { key: 'pdf', label: 'PDF Document' },
     { key: 'extracted', label: 'Extracted Details' },
     { key: isExpense ? 'expenses' : 'trip', label: isExpense ? 'Expense Summary' : 'Trip Details' },
+    ...(isExpense ? [{ key: 'exceptions', label: 'Exceptions' }] : []),
     ...(isExpense ? [{ key: 'bills', label: 'Attached Bills' }] : []),
     ...(isExpense ? [{ key: 'validations', label: 'Validation Results' }] : []),
     ...(!isExpense ? [{ key: 'batta', label: 'Linked Batta Claims' }] : []),
@@ -751,6 +858,12 @@ export default function DocumentViewerPage() {
       {tab === 'trip' && (
         <div style={{ overflowY: 'auto' }}>
           <TripLegsPanel extraction={extraction} />
+        </div>
+      )}
+
+      {tab === 'exceptions' && (
+        <div style={{ overflowY: 'auto' }}>
+          <ExceptionsPanel extraction={extraction} documentId={documentId} onJump={jumpToPage} />
         </div>
       )}
 

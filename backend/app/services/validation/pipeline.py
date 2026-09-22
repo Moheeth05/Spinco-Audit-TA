@@ -18,7 +18,7 @@ from app.models.bill import Bill
 from app.models.expense_report import Expense, ExpenseReport
 from app.models.logs import ProcessingLog
 from app.models.trip import TripReport
-from app.models.validation import ExceptionRecord, ValidationResult
+from app.models.validation import ValidationResult
 from app.services.category_map import normalize_category
 from app.services.validation import checks
 from app.services.validation.policy_lookup import find_policy, is_document_required
@@ -47,18 +47,9 @@ def _persist_check(db: Session, *, report: ExpenseReport, expense: Expense | Non
             source_page=result.source_page,
         )
     )
-    if result.result == checks.EXCEPTION:
-        db.add(
-            ExceptionRecord(
-                expense_report_id=report.id,
-                expense_id=expense.id if expense else None,
-                exception_type=result.exception_type or result.check_type,
-                reason=result.remarks or result.details or "Exception detected.",
-                source_pdf=report.original_filename,
-                source_page=result.source_page,
-                status="OPEN",
-            )
-        )
+    # ExceptionRecord rows are derived from these ValidationResult rows by
+    # services/exception_engine.py (Phase 7), not written here - see that
+    # module's docstring for why it's the sole writer.
 
 
 def _aggregate_status(results: list[checks.CheckResult]) -> str:
@@ -87,8 +78,8 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
     db.commit()
 
     # Replace wholesale - revalidation must never accumulate duplicate rows.
+    # (ExceptionRecord rows are owned and replaced by exception_engine.py, not here.)
     db.query(ValidationResult).filter(ValidationResult.expense_report_id == report.id).delete()
-    db.query(ExceptionRecord).filter(ExceptionRecord.expense_report_id == report.id).delete()
     db.commit()
 
     expenses = db.query(Expense).filter(Expense.expense_report_id == report.id).order_by(Expense.s_no).all()

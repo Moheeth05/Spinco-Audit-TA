@@ -15,6 +15,7 @@ from app.models.expense_report import Expense, ExpenseReport
 from app.models.logs import ProcessingLog
 from app.models.trip import Trip, TripReport
 from app.services.document_ref import EXPENSE, TRIP
+from app.services.exception_engine import evaluate_report
 from app.services.extraction import batta_pipeline, bill_pipeline, expense_report_parser, trip_report_parser
 from app.services.extraction.classifier import UNKNOWN, classify_text
 from app.services.extraction.shared import text_extractor as _text_extractor
@@ -228,6 +229,7 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
     # never retroactively marks an otherwise-successful extraction as FAILED.
     try:
         validate_expense_report(db, row.id)
+        evaluate_report(db, row.id)
     except Exception:  # noqa: BLE001
         pass
 
@@ -309,6 +311,7 @@ def _extract_trip_report(db: Session, row: TripReport) -> None:
     for report_id in touched_report_ids:
         try:
             validate_expense_report(db, report_id)
+            evaluate_report(db, report_id)
         except Exception:  # noqa: BLE001
             pass
 

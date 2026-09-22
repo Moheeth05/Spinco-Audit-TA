@@ -50,6 +50,12 @@ class ValidationResult(Base):
 
 
 class ExceptionRecord(Base):
+    """One row per logical exception/review-required condition the Phase 7
+    Exception Engine (services/exception_engine.py) derives from this
+    report's ValidationResult rows. That module is the sole writer -
+    extends, not duplicates, the Phase 5 scaffolding. Replaced wholesale on
+    every (re)evaluation, same pattern as every other Phase 4-6 table."""
+
     __tablename__ = "exceptions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -57,10 +63,22 @@ class ExceptionRecord(Base):
     expense_id: Mapped[int | None] = mapped_column(ForeignKey("expenses.id"), nullable=True)
 
     exception_type: Mapped[str] = mapped_column(String(100))
+    # EXCEPTION | REVIEW REQUIRED | INFORMATIONAL - derived directly from the
+    # originating ValidationResult.result, never a subjective judgement.
+    severity: Mapped[str] = mapped_column(String(20), default="EXCEPTION")
     reason: Mapped[str] = mapped_column(String(1000))
     source_pdf: Mapped[str | None] = mapped_column(String(500), nullable=True)
     source_page: Mapped[int | None] = mapped_column(nullable=True)
 
+    # Traceability back to the exact evidence this exception was derived from.
+    validation_result_id: Mapped[int | None] = mapped_column(ForeignKey("validation_results.id"), nullable=True)
+    bill_id: Mapped[int | None] = mapped_column(ForeignKey("bills.id"), nullable=True)
+    trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True)
+    source_document_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
     # OPEN | RESOLVED
     status: Mapped[str] = mapped_column(String(20), default="OPEN")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
+    )

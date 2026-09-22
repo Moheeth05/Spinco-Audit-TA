@@ -7,10 +7,12 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.bill import Bill
 from app.models.expense_report import Expense, ExpenseReport
-from app.models.validation import ValidationResult
+from app.models.validation import ExceptionRecord, ValidationResult
 from app.schemas.bills import BillOut
+from app.schemas.exceptions import ExceptionRecordOut, ReportStatusOut
 from app.schemas.expense_report import ExpenseLineItemOut, ExpenseReportListItem, ExpenseReportMonthSummary
 from app.schemas.validation import ValidationResultOut
+from app.services.exception_engine import evaluate_report
 from app.services.validation.pipeline import validate_expense_report
 
 router = APIRouter(prefix="/api/expense-reports", tags=["expense-reports"])
@@ -41,7 +43,7 @@ def list_expense_reports(
     report_month: str | None = None,
     db: Session = Depends(get_db),
 ):
-    """status: 'ALL' | 'ACCOUNT VERIFIED' | 'EXCEPTION' (default ALL)."""
+    """status: 'ALL' | 'ACCOUNT VERIFIED' | 'EXCEPTION' | 'REVIEW REQUIRED' (default ALL)."""
     stmt = select(ExpenseReport).order_by(ExpenseReport.uploaded_at.desc())
     if status and status != "ALL":
         stmt = stmt.where(ExpenseReport.overall_status == status)
@@ -61,6 +63,7 @@ def list_expense_reports(
             total_claimed=r.total_claimed,
             verified_expense_count=r.verified_expense_count,
             exception_count=r.exception_count,
+            review_required_count=r.review_required_count,
             overall_status=r.overall_status,
             processing_status=r.processing_status,
             error_message=r.error_message,
@@ -140,14 +143,82 @@ def get_validations(report_id: int, db: Session = Depends(get_db)):
 @router.post("/{report_id}/revalidate", response_model=list[ValidationResultOut])
 def revalidate_report(report_id: int, db: Session = Depends(get_db)):
     """Re-runs policy validation for this report, replacing its previous
-    validation_results/exceptions wholesale - never accumulates duplicates."""
+    validation_results/exceptions wholesale - never accumulates duplicates.
+    Also re-evaluates the report-level Exception Engine (Phase 7) so
+    overall_status/exception_count/review_required_count stay in sync."""
     report = db.get(ExpenseReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Expense report not found.")
     validate_expense_report(db, report_id)
+    evaluate_report(db, report_id)
     results = db.execute(
         select(ValidationResult)
         .where(ValidationResult.expense_report_id == report_id)
         .order_by(ValidationResult.expense_id.is_(None), ValidationResult.expense_id, ValidationResult.id)
     ).scalars().all()
     return results
+
+
+@router.get("/{report_id}/status", response_model=ReportStatusOut)
+def get_report_status(report_id: int, db: Session = Depends(get_db)):
+    report = db.get(ExpenseReport, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Expense report not found.")
+    return ReportStatusOut(
+        document_id=f"expense:{report.id}",
+        overall_status=report.overall_status,
+        total_expenses=report.total_expenses,
+        verified_expense_count=report.verified_expense_count,
+        exception_count=report.exception_count,
+        review_required_count=report.review_required_count,
+    )
+
+
+@router.get("/{report_id}/exceptions", response_model=list[ExceptionRecordOut])
+def get_exceptions(report_id: int, db: Session = Depends(get_db)):
+    report = db.get(ExpenseReport, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Expense report not found.")
+
+    rows = db.execute(
+        select(ExceptionRecord)
+        .where(ExceptionRecord.expense_report_id == report_id)
+        .order_by(ExceptionRecord.expense_id.is_(None), ExceptionRecord.expense_id, ExceptionRecord.id)
+    ).scalars().all()
+
+    expenses_by_id = {
+        e.id: e for e in db.execute(select(Expense).where(Expense.expense_report_id == report_id)).scalars().all()
+    }
+    vr_ids = {r.validation_result_id for r in rows if r.validation_result_id is not None}
+    vr_by_id = (
+        {v.id: v for v in db.execute(select(ValidationResult).where(ValidationResult.id.in_(vr_ids))).scalars().all()}
+        if vr_ids
+        else {}
+    )
+
+    out = []
+    for r in rows:
+        expense = expenses_by_id.get(r.expense_id) if r.expense_id is not None else None
+        vr = vr_by_id.get(r.validation_result_id) if r.validation_result_id is not None else None
+        out.append(
+            ExceptionRecordOut(
+                id=r.id,
+                expense_id=r.expense_id,
+                s_no=expense.s_no if expense else None,
+                exception_type=r.exception_type,
+                severity=r.severity,
+                reason=r.reason,
+                claimed_amount=(vr.claimed_amount if vr and vr.claimed_amount is not None else (expense.claimed_amount if expense else None)),
+                policy_limit=vr.policy_limit if vr else None,
+                bill_amount=vr.bill_amount if vr else None,
+                expense_date=(vr.expense_date if vr and vr.expense_date is not None else (expense.expense_date if expense else None)),
+                bill_date=vr.bill_date if vr else None,
+                bill_id=r.bill_id,
+                trip_report_id=r.trip_report_id,
+                source_document_id=r.source_document_id,
+                source_page=r.source_page,
+                status=r.status,
+                created_at=r.created_at,
+            )
+        )
+    return out

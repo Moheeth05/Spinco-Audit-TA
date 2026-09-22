@@ -142,7 +142,13 @@ def test_database_persistence(client, sample_pdf_path):
     # Phase 3 auto-extracts immediately after upload, so this is now real extracted
     # data, not a guess - see tests/test_extraction.py for the extraction-specific coverage.
     assert row["employee_name"] == "MANEESH KUMAR P. N."
-    assert row["overall_status"] is None  # validation (Phase 5+) hasn't run - still correctly null
+    # Phase 5 (policy validation) and Phase 7 (exception engine) both now run
+    # automatically as part of upload/extraction, so overall_status is real,
+    # populated data - not a guess. ER-39832 genuinely has confirmed
+    # exceptions elsewhere in the document (missing/duplicate bills, one
+    # over-limit line - see tests/test_exception_engine.py), so EXCEPTION is
+    # the correct, honest verdict here, never ACCOUNT VERIFIED.
+    assert row["overall_status"] == "EXCEPTION"
 
 
 # 8 & 9. Storage persistence + PDF retrieval
