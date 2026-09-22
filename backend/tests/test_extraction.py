@@ -127,7 +127,11 @@ def test_er39832_full_extraction_matches_known_values(client, sample_pdf_path):
     detail = client.get(f"/api/documents/{doc_id}/extraction").json()
 
     assert detail["extraction_status"] == "EXTRACTED"
-    assert detail["extraction_confidence"] == "HIGH"
+    # Phase 4 folds bill-extraction warnings (many of these bill pages are hard-to-OCR
+    # thermal receipts) into the same report-level confidence signal, so a report with
+    # otherwise-perfect header/line extraction can still land at MEDIUM here - see
+    # tests/test_bills.py for the bill-extraction-specific assertions.
+    assert detail["extraction_confidence"] in ("HIGH", "MEDIUM")
     header = detail["header"]
     assert header["er_id"] == "ER-39832"
     assert header["employee_name"] == "MANEESH KUMAR P. N."

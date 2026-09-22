@@ -8,6 +8,7 @@ from app.api import (
     documents,
     excel_files,
     expense_reports,
+    expenses,
     health,
     policy,
     trip_reports,
@@ -44,3 +45,4 @@ app.include_router(excel_files.router)
 app.include_router(analytics.router)
 app.include_router(uploads.router)
 app.include_router(documents.router)
+app.include_router(expenses.router)

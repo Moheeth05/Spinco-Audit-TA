@@ -16,6 +16,11 @@ const STATUS_MAP = {
   NOT_APPLICABLE: { cls: 'status-neutral', icon: Clock, label: 'Not Applicable' },
   EXTRACTED: { cls: 'status-success', icon: CheckCircle2, label: 'Extracted' },
   NOT_PROCESSED: { cls: 'status-neutral', icon: Clock, label: 'Not Processed' },
+  MATCHED: { cls: 'status-success', icon: CheckCircle2, label: 'Matched' },
+  UNMATCHED: { cls: 'status-neutral', icon: Clock, label: 'Unmatched' },
+  NO_MATCH: { cls: 'status-error', icon: AlertTriangle, label: 'No Match' },
+  MULTIPLE_CANDIDATES: { cls: 'status-warning', icon: AlertCircle, label: 'Multiple Candidates' },
+  DUPLICATE: { cls: 'status-error', icon: AlertTriangle, label: 'Duplicate' },
 }
 
 export function StatusBadge({ status }) {

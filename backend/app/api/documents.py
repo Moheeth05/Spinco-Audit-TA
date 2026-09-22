@@ -5,12 +5,16 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.bill import Bill
 from app.models.evidence import SourceEvidence
 from app.models.expense_report import Expense, ExpenseReport
 from app.models.trip import Trip, TripReport
 from app.schemas.documents import DocumentDetail
 from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
+from app.services.extraction.bill_pipeline import extract_and_match_bills
+from app.services.extraction.expense_report_parser import find_report_summary_page
 from app.services.extraction.pipeline import run_extraction
+from app.services.extraction.shared import text_extractor
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -144,6 +148,7 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                 },
                 "expenses": [
                     {
+                        "id": e.id,
                         "s_no": e.s_no,
                         "expense_date": e.expense_date,
                         "category": e.category,
@@ -151,8 +156,35 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                         "claimed_amount": e.claimed_amount,
                         "source_page": e.source_page,
                         "extraction_status": e.extraction_status,
+                        "bill_found": e.bill_found,
+                        "bill_id": e.bill_id,
+                        "bill_amount": e.bill_amount,
+                        "bill_date": e.bill_date,
+                        "bill_match_status": e.bill_match_status,
+                        "bill_match_score": e.bill_match_score,
+                        "bill_match_confidence": e.bill_match_confidence,
+                        "bill_match_reasons": e.bill_match_reasons,
                     }
                     for e in expenses
+                ],
+                "bills": [
+                    {
+                        "id": b.id,
+                        "page_number": b.page_number,
+                        "vendor": b.vendor,
+                        "bill_number": b.bill_number,
+                        "bill_date": b.bill_date,
+                        "amount": b.amount,
+                        "gstin": b.gstin,
+                        "description": b.description,
+                        "category_guess": b.category_guess,
+                        "extraction_status": b.extraction_status,
+                        "extraction_confidence": b.extraction_confidence,
+                        "extraction_notes": b.extraction_notes,
+                        "match_status": b.match_status,
+                        "matched_expense_id": b.matched_expense_id,
+                    }
+                    for b in db.query(Bill).filter(Bill.expense_report_id == row.id).order_by(Bill.page_number).all()
                 ],
                 "embedded_trip_summary": embedded_out,
             }
@@ -200,6 +232,27 @@ def reprocess_document(document_id: str, db: Session = Depends(get_db)):
     duplicate document."""
     ref, row = _load(db, document_id)
     run_extraction(db, ref.kind, ref.pk)
+    db.refresh(row)
+    return _build_extraction_detail(db, document_id, ref, row)
+
+
+@router.post("/{document_id}/extract-bills")
+@router.post("/{document_id}/rematch-bills")
+def rematch_bills(document_id: str, db: Session = Depends(get_db)):
+    """Re-runs just the bill extraction/matching step (not the full header/
+    expense-line extraction) for an Expense Report - e.g. after the matcher
+    itself is improved, without needing to reprocess the whole document."""
+    ref, row = _load(db, document_id)
+    if ref.kind != EXPENSE:
+        raise HTTPException(status_code=400, detail="Bill matching only applies to Expense Report documents.")
+    if not row.source_path or not Path(row.source_path).exists():
+        raise HTTPException(status_code=404, detail="The stored file could not be found.")
+
+    content_pages = text_extractor.content_pages(Path(row.source_path))
+    content_last_page = find_report_summary_page(content_pages)
+    if content_last_page is None:
+        content_last_page = content_pages[-1]["page_number"] if content_pages else 0
+    extract_and_match_bills(db, row, text_extractor, content_last_page)
     db.refresh(row)
     return _build_extraction_detail(db, document_id, ref, row)
 

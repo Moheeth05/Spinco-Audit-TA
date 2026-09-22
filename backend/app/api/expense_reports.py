@@ -5,7 +5,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.bill import Bill
 from app.models.expense_report import Expense, ExpenseReport
+from app.schemas.bills import BillOut
 from app.schemas.expense_report import ExpenseLineItemOut, ExpenseReportListItem, ExpenseReportMonthSummary
 
 router = APIRouter(prefix="/api/expense-reports", tags=["expense-reports"])
@@ -80,6 +82,7 @@ def get_expense_lines(report_id: int, db: Session = Depends(get_db)):
     ).scalars().all()
     return [
         ExpenseLineItemOut(
+            id=e.id,
             s_no=e.s_no,
             expense_date=e.expense_date,
             category=e.category,
@@ -87,6 +90,23 @@ def get_expense_lines(report_id: int, db: Session = Depends(get_db)):
             claimed_amount=e.claimed_amount,
             source_page=e.source_page,
             extraction_status=e.extraction_status,
+            bill_found=e.bill_found,
+            bill_amount=e.bill_amount,
+            bill_date=e.bill_date,
+            bill_match_status=e.bill_match_status,
+            bill_match_score=e.bill_match_score,
+            bill_match_confidence=e.bill_match_confidence,
         )
         for e in lines
     ]
+
+
+@router.get("/{report_id}/bills", response_model=list[BillOut])
+def get_bills(report_id: int, db: Session = Depends(get_db)):
+    report = db.get(ExpenseReport, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Expense report not found.")
+    bills = db.execute(
+        select(Bill).where(Bill.expense_report_id == report_id).order_by(Bill.page_number)
+    ).scalars().all()
+    return bills

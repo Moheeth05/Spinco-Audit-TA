@@ -80,6 +80,14 @@ class Expense(Base):
     bill_amount: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
     bill_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
+    # Phase 4 bill-matching outcome: NOT_PROCESSED | MATCHED | MULTIPLE_CANDIDATES |
+    # NO_MATCH | REVIEW_REQUIRED. This is matching evidence only, not a policy verdict -
+    # "MISSING BILL" etc. are exceptions the later validation phase derives from NO_MATCH.
+    bill_match_status: Mapped[str] = mapped_column(String(20), default="NOT_PROCESSED")
+    bill_match_score: Mapped[int | None] = mapped_column(nullable=True)
+    bill_match_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW
+    bill_match_reasons: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
     trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True)
 
     # Phase 3 extraction outcome for this line only: EXTRACTED | REVIEW_REQUIRED.

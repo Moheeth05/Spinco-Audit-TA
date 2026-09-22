@@ -20,8 +20,16 @@ class Bill(Base):
     gstin: Mapped[str | None] = mapped_column(String(20), nullable=True)
     description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     category_guess: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    raw_text: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
-    # UNMATCHED | MATCHED | DUPLICATE
+    # Phase 4 extraction outcome for this bill record only - EXTRACTED | REVIEW_REQUIRED.
+    # Separate from match_status below, which describes matching against an expense.
+    extraction_status: Mapped[str] = mapped_column(String(20), default="REVIEW_REQUIRED")
+    extraction_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW
+    extraction_notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+    # UNMATCHED | MATCHED - whether some expense has claimed this bill as its best match.
+    # (The DUPLICATE business exception itself is a later validation-phase concern.)
     match_status: Mapped[str] = mapped_column(String(20), default="UNMATCHED")
     matched_expense_id: Mapped[int | None] = mapped_column(nullable=True)
 

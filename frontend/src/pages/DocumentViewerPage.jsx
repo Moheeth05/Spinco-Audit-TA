@@ -177,6 +177,8 @@ function ExtractedDetailsPanel({ extraction, onJump, onReprocess, reprocessing }
 }
 
 function ExpenseSummaryPanel({ extraction, onJump }) {
+  const billsById = Object.fromEntries((extraction.bills || []).map((b) => [b.id, b]))
+
   return (
     <div className="card">
       <div className="card-header">
@@ -193,29 +195,101 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
                 <th>Category</th>
                 <th>Expense Details</th>
                 <th className="num">Claimed Amount</th>
-                <th>Status</th>
+                <th className="num">Bill Amount</th>
+                <th>Bill Date</th>
+                <th>Match Status</th>
                 <th>Source</th>
               </tr>
             </thead>
             <tbody>
-              {extraction.expenses.map((e) => (
-                <tr key={e.s_no}>
-                  <td>{e.s_no}</td>
-                  <td>{e.expense_date || '-'}</td>
-                  <td>{e.category || '-'}</td>
-                  <td>{e.expense_details || '-'}</td>
-                  <td className="num">{formatINR(e.claimed_amount)}</td>
-                  <td>
-                    <StatusBadge status={e.extraction_status} />
-                  </td>
-                  <td>
-                    <ViewSourceButton page={e.source_page} onJump={onJump} />
-                  </td>
-                </tr>
-              ))}
+              {extraction.expenses.map((e) => {
+                const matchedBill = e.bill_id ? billsById[e.bill_id] : null
+                return (
+                  <tr key={e.s_no}>
+                    <td>{e.s_no}</td>
+                    <td>{e.expense_date || '-'}</td>
+                    <td>{e.category || '-'}</td>
+                    <td>{e.expense_details || '-'}</td>
+                    <td className="num">{formatINR(e.claimed_amount)}</td>
+                    <td className="num">{e.bill_found ? formatINR(e.bill_amount) : '-'}</td>
+                    <td>{e.bill_found ? e.bill_date || '-' : '-'}</td>
+                    <td>
+                      <StatusBadge status={e.bill_match_status} />
+                    </td>
+                    <td style={{ display: 'flex', gap: 6 }}>
+                      <ViewSourceButton page={e.source_page} onJump={onJump} />
+                      {matchedBill && <ViewSourceButton page={matchedBill.page_number} onJump={onJump} />}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function AttachedBillsPanel({ extraction, onJump }) {
+  const bills = extraction.bills || []
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div className="card-title">Attached Bills</div>
+        <div className="card-subtitle">{bills.length} supporting document page(s) detected in this PDF</div>
+      </div>
+      <div className="card-body">
+        {bills.length === 0 ? (
+          <div className="state-panel" style={{ padding: '32px 16px' }}>
+            <div className="state-title">No supporting bills detected</div>
+            <div className="state-description">
+              No pages after the expense table matched the evidence this system looks for (receipts, invoices, GSTIN,
+              amounts with dates).
+            </div>
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Page</th>
+                  <th>Vendor</th>
+                  <th>Bill No.</th>
+                  <th>Bill Date</th>
+                  <th className="num">Amount</th>
+                  <th>GSTIN</th>
+                  <th>Extraction</th>
+                  <th>Confidence</th>
+                  <th>Match</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bills.map((b) => (
+                  <tr key={b.id}>
+                    <td>{b.page_number}</td>
+                    <td>{b.vendor || '-'}</td>
+                    <td>{b.bill_number || '-'}</td>
+                    <td>{b.bill_date || '-'}</td>
+                    <td className="num">{formatINR(b.amount)}</td>
+                    <td>{b.gstin || '-'}</td>
+                    <td>
+                      <StatusBadge status={b.extraction_status} />
+                    </td>
+                    <td>{b.extraction_confidence || '-'}</td>
+                    <td>
+                      <StatusBadge status={b.match_status} />
+                    </td>
+                    <td>
+                      <ViewSourceButton page={b.page_number} onJump={onJump} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -368,6 +442,7 @@ export default function DocumentViewerPage() {
     { key: 'pdf', label: 'PDF Document' },
     { key: 'extracted', label: 'Extracted Details' },
     { key: isExpense ? 'expenses' : 'trip', label: isExpense ? 'Expense Summary' : 'Trip Details' },
+    ...(isExpense ? [{ key: 'bills', label: 'Attached Bills' }] : []),
   ]
 
   return (
@@ -533,6 +608,12 @@ export default function DocumentViewerPage() {
       {tab === 'trip' && (
         <div style={{ overflowY: 'auto' }}>
           <TripLegsPanel extraction={extraction} />
+        </div>
+      )}
+
+      {tab === 'bills' && (
+        <div style={{ overflowY: 'auto' }}>
+          <AttachedBillsPanel extraction={extraction} onJump={jumpToPage} />
         </div>
       )}
     </div>

@@ -15,15 +15,11 @@ from app.models.expense_report import Expense, ExpenseReport
 from app.models.logs import ProcessingLog
 from app.models.trip import Trip, TripReport
 from app.services.document_ref import EXPENSE, TRIP
-from app.services.extraction import expense_report_parser, trip_report_parser
+from app.services.extraction import bill_pipeline, expense_report_parser, trip_report_parser
 from app.services.extraction.classifier import UNKNOWN, classify_text
-from app.services.extraction.ocr_engine import TesseractOCREngine
-from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+from app.services.extraction.shared import text_extractor as _text_extractor
 
 STAGE = "EXTRACTION"
-
-_ocr_engine = TesseractOCREngine()
-_text_extractor = PyMuPDFTextExtractor(ocr_engine=_ocr_engine)
 
 
 def _month_label(report_month: str) -> str:
@@ -139,6 +135,15 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
                 extraction_status=line["status"],
             )
         )
+    db.commit()  # expenses need real ids before bill matching below can query/reference them
+
+    # Prefer the report's own "REPORT SUMMARY" section as the content/bills
+    # boundary - content_pages()'s blank-page heuristic over-includes when the
+    # supporting bills also carry native text (e.g. emailed e-receipts).
+    content_last_page = expense_report_parser.find_report_summary_page(pages)
+    if content_last_page is None:
+        content_last_page = pages[-1]["page_number"] if pages else 0
+    warnings.extend(bill_pipeline.extract_and_match_bills(db, row, _text_extractor, content_last_page))
 
     existing_embedded = (
         db.query(TripReport)

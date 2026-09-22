@@ -33,6 +33,7 @@ class ExpenseReportListItem(BaseModel):
 
 
 class ExpenseLineItemOut(BaseModel):
+    id: int
     s_no: int | None
     expense_date: date | None
     category: str | None
@@ -40,3 +41,10 @@ class ExpenseLineItemOut(BaseModel):
     claimed_amount: float | None
     source_page: int | None
     extraction_status: str | None
+
+    bill_found: bool
+    bill_amount: float | None
+    bill_date: date | None
+    bill_match_status: str
+    bill_match_score: int | None
+    bill_match_confidence: str | None

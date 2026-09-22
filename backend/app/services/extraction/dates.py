@@ -1,10 +1,11 @@
-"""Date parsing for the DD/MM/YYYY format used throughout the real sample
-documents. Returns None (never a guessed date) when the text doesn't match."""
+"""Date parsing for the DD/MM/YYYY (and DD-MM-YYYY, seen on some supporting
+bills) formats used throughout the real sample documents. Returns None
+(never a guessed date) when the text doesn't match."""
 
 import re
 from datetime import date
 
-_DATE_PATTERN = re.compile(r"\b(\d{2})/(\d{2})/(\d{4})\b")
+_DATE_PATTERN = re.compile(r"\b(\d{2})[/-](\d{2})[/-](\d{4})\b")
 
 
 def parse_date(text: str | None) -> date | None:

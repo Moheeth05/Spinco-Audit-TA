@@ -25,6 +25,21 @@ def _flatten(pages: list[dict[str, Any]]) -> list[tuple[int, str]]:
     return flat
 
 
+def find_report_summary_page(pages: list[dict[str, Any]]) -> int | None:
+    """The page carrying "REPORT SUMMARY" - the report's own closing section,
+    right after the expense table and before any supporting bills. Used to
+    cap the content-page range for bill extraction: content_pages()'s
+    stop-at-first-blank-page heuristic over-includes when a report's
+    supporting bills also happen to have native PDF text (e.g. emailed
+    invoices/e-receipts rather than photographed paper receipts), since
+    nothing in that heuristic tells it those later pages aren't more report
+    content."""
+    for page in pages:
+        if "REPORT SUMMARY" in page["text"].upper():
+            return page["page_number"]
+    return None
+
+
 def _next_nonblank(flat: list[tuple[int, str]], start: int) -> tuple[int | None, str | None, int]:
     """Returns (page_number, line_text, index) for the first non-blank line at/after start."""
     i = start
