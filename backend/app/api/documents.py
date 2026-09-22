@@ -13,6 +13,7 @@ from app.models.validation import ValidationResult
 from app.schemas.documents import DocumentDetail
 from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
 from app.services.exception_engine import evaluate_report
+from app.services.excel_generator import generate_workbook
 from app.services.extraction.batta_pipeline import match_batta_expenses
 from app.services.extraction.bill_pipeline import extract_and_match_bills
 from app.services.extraction.expense_report_parser import find_report_summary_page
@@ -307,6 +308,7 @@ def rematch_bills(document_id: str, db: Session = Depends(get_db)):
     try:
         validate_expense_report(db, row.id)
         evaluate_report(db, row.id)
+        generate_workbook(db)
     except Exception:  # noqa: BLE001
         pass
     db.refresh(row)
@@ -326,6 +328,7 @@ def rematch_trips(document_id: str, db: Session = Depends(get_db)):
     try:
         validate_expense_report(db, row.id)
         evaluate_report(db, row.id)
+        generate_workbook(db)
     except Exception:  # noqa: BLE001
         pass
     db.refresh(row)

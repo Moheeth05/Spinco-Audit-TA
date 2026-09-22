@@ -9,6 +9,7 @@ STORAGE_ROOT = (
 
 EXPENSE_REPORTS_DIR = STORAGE_ROOT / "expense_reports"
 TRIP_REPORTS_DIR = STORAGE_ROOT / "trip_reports"
+EXCEL_DIR = STORAGE_ROOT / "excel"
 
 _UNSAFE_CHARS = re.compile(r"[^A-Za-z0-9._ \-()]+")
 

@@ -34,6 +34,21 @@
   border-color: var(--gray-300);
 }
 
+.input {
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--gray-700);
+  background: var(--white);
+  width: 100%;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--blue-600);
+}
+
 .btn-group {
   display: inline-flex;
   border: 1px solid var(--border);

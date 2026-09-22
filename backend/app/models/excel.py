@@ -7,13 +7,21 @@ from app.database import Base
 
 
 class ExcelReport(Base):
-    """Tracks the single consolidated workbook's per-month state (no batch/ per-ER files)."""
+    """Tracks the ONE consolidated workbook's current generation state - a
+    singleton row (Phase 8), not one row per month. Phase 1 originally
+    scaffolded this as month-keyed (report_month unique); Phase 8's spec is
+    explicit that there must be exactly one consolidated workbook covering
+    every report, not one file per month, so report_month/report_month_label
+    are repurposed as a fixed "ALL" / "All Months" descriptive sentinel
+    rather than a partition key - the uniqueness constraint is dropped
+    accordingly. This table never had any rows written to it before Phase 8,
+    so this is a zero-risk schema change."""
 
     __tablename__ = "excel_reports"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    report_month: Mapped[str] = mapped_column(String(7), unique=True, index=True)  # "2026-06"
-    report_month_label: Mapped[str] = mapped_column(String(20))  # "June 2026"
+    report_month: Mapped[str] = mapped_column(String(7))  # "ALL" - see class docstring
+    report_month_label: Mapped[str] = mapped_column(String(20))  # "All Months"
     filename: Mapped[str] = mapped_column(String(255))
     file_path: Mapped[str] = mapped_column(String(1000))
 

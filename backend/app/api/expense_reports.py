@@ -13,6 +13,7 @@ from app.schemas.exceptions import ExceptionRecordOut, ReportStatusOut
 from app.schemas.expense_report import ExpenseLineItemOut, ExpenseReportListItem, ExpenseReportMonthSummary
 from app.schemas.validation import ValidationResultOut
 from app.services.exception_engine import evaluate_report
+from app.services.excel_generator import generate_workbook
 from app.services.validation.pipeline import validate_expense_report
 
 router = APIRouter(prefix="/api/expense-reports", tags=["expense-reports"])
@@ -151,6 +152,10 @@ def revalidate_report(report_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Expense report not found.")
     validate_expense_report(db, report_id)
     evaluate_report(db, report_id)
+    try:
+        generate_workbook(db)
+    except Exception:  # noqa: BLE001 - revalidation must succeed even if the workbook write fails
+        pass
     results = db.execute(
         select(ValidationResult)
         .where(ValidationResult.expense_report_id == report_id)

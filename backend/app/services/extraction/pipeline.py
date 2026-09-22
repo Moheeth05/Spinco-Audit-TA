@@ -16,6 +16,7 @@ from app.models.logs import ProcessingLog
 from app.models.trip import Trip, TripReport
 from app.services.document_ref import EXPENSE, TRIP
 from app.services.exception_engine import evaluate_report
+from app.services.excel_generator import generate_workbook
 from app.services.extraction import batta_pipeline, bill_pipeline, expense_report_parser, trip_report_parser
 from app.services.extraction.classifier import UNKNOWN, classify_text
 from app.services.extraction.shared import text_extractor as _text_extractor
@@ -233,6 +234,14 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
     except Exception:  # noqa: BLE001
         pass
 
+    # Keeps the one consolidated workbook (Phase 8) in sync with the database
+    # after every extraction - this only regenerates the server-side .xlsx
+    # file, it never downloads anything to a browser. Isolated the same way.
+    try:
+        generate_workbook(db)
+    except Exception:  # noqa: BLE001
+        pass
+
 
 def _extract_trip_report(db: Session, row: TripReport) -> None:
     pdf_path = Path(row.source_path)
@@ -314,6 +323,14 @@ def _extract_trip_report(db: Session, row: TripReport) -> None:
             evaluate_report(db, report_id)
         except Exception:  # noqa: BLE001
             pass
+
+    # This new (or reprocessed) trip is itself new workbook data even if it
+    # didn't resolve any Batta claim - regenerate once, not once per touched
+    # report. Server-side file only, never a browser download.
+    try:
+        generate_workbook(db)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def run_extraction(db: Session, kind: str, pk: int) -> None:
