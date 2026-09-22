@@ -7,8 +7,11 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.bill import Bill
 from app.models.expense_report import Expense, ExpenseReport
+from app.models.validation import ValidationResult
 from app.schemas.bills import BillOut
 from app.schemas.expense_report import ExpenseLineItemOut, ExpenseReportListItem, ExpenseReportMonthSummary
+from app.schemas.validation import ValidationResultOut
+from app.services.validation.pipeline import validate_expense_report
 
 router = APIRouter(prefix="/api/expense-reports", tags=["expense-reports"])
 
@@ -96,6 +99,9 @@ def get_expense_lines(report_id: int, db: Session = Depends(get_db)):
             bill_match_status=e.bill_match_status,
             bill_match_score=e.bill_match_score,
             bill_match_confidence=e.bill_match_confidence,
+            policy_basis=e.policy_basis,
+            policy_limit=e.policy_limit,
+            validation_status=e.validation_status,
         )
         for e in lines
     ]
@@ -110,3 +116,33 @@ def get_bills(report_id: int, db: Session = Depends(get_db)):
         select(Bill).where(Bill.expense_report_id == report_id).order_by(Bill.page_number)
     ).scalars().all()
     return bills
+
+
+@router.get("/{report_id}/validations", response_model=list[ValidationResultOut])
+def get_validations(report_id: int, db: Session = Depends(get_db)):
+    report = db.get(ExpenseReport, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Expense report not found.")
+    results = db.execute(
+        select(ValidationResult)
+        .where(ValidationResult.expense_report_id == report_id)
+        .order_by(ValidationResult.expense_id.is_(None), ValidationResult.expense_id, ValidationResult.id)
+    ).scalars().all()
+    return results
+
+
+@router.post("/{report_id}/validate", response_model=list[ValidationResultOut])
+@router.post("/{report_id}/revalidate", response_model=list[ValidationResultOut])
+def revalidate_report(report_id: int, db: Session = Depends(get_db)):
+    """Re-runs policy validation for this report, replacing its previous
+    validation_results/exceptions wholesale - never accumulates duplicates."""
+    report = db.get(ExpenseReport, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Expense report not found.")
+    validate_expense_report(db, report_id)
+    results = db.execute(
+        select(ValidationResult)
+        .where(ValidationResult.expense_report_id == report_id)
+        .order_by(ValidationResult.expense_id.is_(None), ValidationResult.expense_id, ValidationResult.id)
+    ).scalars().all()
+    return results

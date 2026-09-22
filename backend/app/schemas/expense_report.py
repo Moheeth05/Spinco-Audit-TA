@@ -48,3 +48,7 @@ class ExpenseLineItemOut(BaseModel):
     bill_match_status: str
     bill_match_score: int | None
     bill_match_confidence: str | None
+
+    policy_basis: str | None
+    policy_limit: float | None
+    validation_status: str | None

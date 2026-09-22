@@ -9,6 +9,7 @@ from app.models.bill import Bill
 from app.models.evidence import SourceEvidence
 from app.models.expense_report import Expense, ExpenseReport
 from app.models.trip import Trip, TripReport
+from app.models.validation import ValidationResult
 from app.schemas.documents import DocumentDetail
 from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
 from app.services.extraction.bill_pipeline import extract_and_match_bills
@@ -164,8 +165,34 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                         "bill_match_score": e.bill_match_score,
                         "bill_match_confidence": e.bill_match_confidence,
                         "bill_match_reasons": e.bill_match_reasons,
+                        "policy_basis": e.policy_basis,
+                        "policy_limit": e.policy_limit,
+                        "validation_status": e.validation_status,
                     }
                     for e in expenses
+                ],
+                "validations": [
+                    {
+                        "id": v.id,
+                        "expense_id": v.expense_id,
+                        "check_type": v.check_type,
+                        "result": v.result,
+                        "exception_type": v.exception_type,
+                        "details": v.details,
+                        "remarks": v.remarks,
+                        "claimed_amount": v.claimed_amount,
+                        "policy_limit": v.policy_limit,
+                        "bill_amount": v.bill_amount,
+                        "expense_date": v.expense_date,
+                        "bill_date": v.bill_date,
+                        "policy_category": v.policy_category,
+                        "policy_version": v.policy_version,
+                        "source_page": v.source_page,
+                    }
+                    for v in db.query(ValidationResult)
+                    .filter(ValidationResult.expense_report_id == row.id)
+                    .order_by(ValidationResult.expense_id.is_(None), ValidationResult.expense_id, ValidationResult.id)
+                    .all()
                 ],
                 "bills": [
                     {

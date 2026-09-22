@@ -18,6 +18,7 @@ from app.services.document_ref import EXPENSE, TRIP
 from app.services.extraction import bill_pipeline, expense_report_parser, trip_report_parser
 from app.services.extraction.classifier import UNKNOWN, classify_text
 from app.services.extraction.shared import text_extractor as _text_extractor
+from app.services.validation.pipeline import validate_expense_report
 
 STAGE = "EXTRACTION"
 
@@ -216,6 +217,14 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
     if embedded:
         evidence.append(("embedded_trip_summary", embedded["source_page"], embedded["trip_number"]))
     _replace_evidence(db, EXPENSE, row.id, evidence)
+
+    # Policy validation runs on whatever was extracted, even a REVIEW_REQUIRED
+    # extraction - isolated in its own try/except so a validation-engine problem
+    # never retroactively marks an otherwise-successful extraction as FAILED.
+    try:
+        validate_expense_report(db, row.id)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _extract_trip_report(db: Session, row: TripReport) -> None:

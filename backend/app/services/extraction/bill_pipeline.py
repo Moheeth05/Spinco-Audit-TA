@@ -75,10 +75,12 @@ def extract_and_match_bills(
             "description": b.description,
             "category_guess": b.category_guess,
             "bill_number": b.bill_number,
+            "page_number": b.page_number,
         }
         for b in bills
     ]
     bills_by_id = {b.id: b for b in bills}
+    first_bill_page = min((b.page_number for b in bills if b.page_number is not None), default=None)
 
     expenses = db.query(Expense).filter(Expense.expense_report_id == row.id).order_by(Expense.s_no).all()
     if expenses:
@@ -86,14 +88,15 @@ def extract_and_match_bills(
             BillMatchCandidate.expense_id.in_([e.id for e in expenses])
         ).delete(synchronize_session=False)
 
-    for expense in expenses:
+    for rank, expense in enumerate(expenses, start=1):
         expense_dict = {
             "claimed_amount": float(expense.claimed_amount) if expense.claimed_amount is not None else None,
             "expense_date": expense.expense_date,
             "category": expense.category,
             "expense_details": expense.expense_details,
+            "expense_rank": rank,
         }
-        outcome = bill_matcher.match_expense(expense_dict, bill_dicts)
+        outcome = bill_matcher.match_expense(expense_dict, bill_dicts, first_bill_page=first_bill_page)
 
         expense.bill_match_status = outcome.status
         expense.bill_match_score = outcome.score

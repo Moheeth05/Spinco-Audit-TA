@@ -6,9 +6,22 @@ from app.database import get_db
 from app.models.bill import Bill
 from app.models.bill_match import BillMatchCandidate
 from app.models.expense_report import Expense
+from app.models.validation import ValidationResult
 from app.schemas.bills import BillMatchCandidateOut, BillOut, ExpenseBillMatchOut
+from app.schemas.validation import ValidationResultOut
 
 router = APIRouter(prefix="/api/expenses", tags=["expenses"])
+
+
+@router.get("/{expense_id}/validations", response_model=list[ValidationResultOut])
+def get_expense_validations(expense_id: int, db: Session = Depends(get_db)):
+    expense = db.get(Expense, expense_id)
+    if expense is None:
+        raise HTTPException(status_code=404, detail="Expense not found.")
+    results = db.execute(
+        select(ValidationResult).where(ValidationResult.expense_id == expense_id).order_by(ValidationResult.id)
+    ).scalars().all()
+    return results
 
 
 @router.get("/{expense_id}/bill-match", response_model=ExpenseBillMatchOut)

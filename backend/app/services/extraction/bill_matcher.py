@@ -15,6 +15,12 @@ Weights (documented here, the one place they're defined):
     Vendor/description partial    +7   (text similarity >= 0.2)
     Category compatible          +10
     Bill number referenced        +5
+    Page position matches order  +8    (bill's page lines up with the expense's
+                                         position in the table, relative to the
+                                         first bill page - a weak tiebreaker only,
+                                         since bills may legitimately be out of
+                                         order)
+    Page position off by one      +3
 
 Decision thresholds:
     score < 25                  -> NO_MATCH
@@ -28,46 +34,12 @@ import difflib
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.services.category_map import category_compatible as _category_compatible
+
 MIN_THRESHOLD = 25
 MEDIUM_THRESHOLD = 45
 HIGH_THRESHOLD = 70
 CANDIDATE_MARGIN = 12
-
-_CATEGORY_TO_BILL_LABEL = {
-    "OWN CAR PETROL": "Fuel",
-    "COMPANY CAR PETROL": "Fuel",
-    "TWO WHEELER PETROL": "Fuel",
-    "LODGING": "Lodging",
-    "CAB CHARGES": "Cab/Taxi",
-    "LOCAL CONVEYANCE": "Cab/Taxi",
-    "STAFF WELFARE": "Food",
-    "MARKETING EXPENSES - FOOD": "Food",
-    "COURIER CHARGES": "Courier",
-    "PRINTING & STATIONERY": "Printing & Stationery",
-    "TRAIN / BUS FARE": "Train",
-    "TRANSPORT CHARGES": "Bus",
-}
-
-
-def _normalize_category(category: str | None) -> str | None:
-    if not category:
-        return None
-    return category.split("[")[0].strip().upper()
-
-
-def _category_compatible(expense_category: str | None, bill_category_guess: str | None) -> bool:
-    if not expense_category or not bill_category_guess:
-        return False
-    expected = _CATEGORY_TO_BILL_LABEL.get(_normalize_category(expense_category))
-    if expected is None:
-        return False
-    if bill_category_guess == expected:
-        return True
-    if expected == "Train" and bill_category_guess == "Bus":
-        return True
-    if expected == "Bus" and bill_category_guess == "Train":
-        return True
-    return False
 
 
 def _text_similarity(a: str, b: str) -> float:
@@ -94,7 +66,12 @@ class MatchOutcome:
     candidates: list[BillCandidate]
 
 
-def score_pair(expense: dict[str, Any], bill: dict[str, Any], amount_is_unique: bool = False) -> tuple[int, list[str]]:
+def score_pair(
+    expense: dict[str, Any],
+    bill: dict[str, Any],
+    amount_is_unique: bool = False,
+    first_bill_page: int | None = None,
+) -> tuple[int, list[str]]:
     score = 0
     reasons: list[str] = []
 
@@ -141,10 +118,24 @@ def score_pair(expense: dict[str, Any], bill: dict[str, Any], amount_is_unique: 
         score += 5
         reasons.append("Bill number referenced in expense details")
 
+    expense_rank = expense.get("expense_rank")
+    bill_page = bill.get("page_number")
+    if expense_rank is not None and first_bill_page is not None and bill_page is not None:
+        expected_page = first_bill_page + (expense_rank - 1)
+        offset = abs(bill_page - expected_page)
+        if offset == 0:
+            score += 8
+            reasons.append("Source position: bill page matches the expense's order in the table")
+        elif offset == 1:
+            score += 3
+            reasons.append("Source position: bill page is close to the expense's order in the table")
+
     return score, reasons
 
 
-def match_expense(expense: dict[str, Any], bills: list[dict[str, Any]]) -> MatchOutcome:
+def match_expense(
+    expense: dict[str, Any], bills: list[dict[str, Any]], first_bill_page: int | None = None
+) -> MatchOutcome:
     if not bills:
         return MatchOutcome(
             status="NO_MATCH",
@@ -163,7 +154,7 @@ def match_expense(expense: dict[str, Any], bills: list[dict[str, Any]]) -> Match
     scored = []
     for bill in bills:
         amount_is_unique = bill.get("amount") is not None and amount_counts.get(bill["amount"], 0) == 1
-        score, reasons = score_pair(expense, bill, amount_is_unique=amount_is_unique)
+        score, reasons = score_pair(expense, bill, amount_is_unique=amount_is_unique, first_bill_page=first_bill_page)
         scored.append(BillCandidate(bill_id=bill["id"], score=score, reasons=reasons))
     scored.sort(key=lambda c: c.score, reverse=True)
 

@@ -198,6 +198,7 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
                 <th className="num">Bill Amount</th>
                 <th>Bill Date</th>
                 <th>Match Status</th>
+                <th>Validation</th>
                 <th>Source</th>
               </tr>
             </thead>
@@ -216,6 +217,7 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
                     <td>
                       <StatusBadge status={e.bill_match_status} />
                     </td>
+                    <td>{e.validation_status ? <StatusBadge status={e.validation_status} /> : '-'}</td>
                     <td style={{ display: 'flex', gap: 6 }}>
                       <ViewSourceButton page={e.source_page} onJump={onJump} />
                       {matchedBill && <ViewSourceButton page={matchedBill.page_number} onJump={onJump} />}
@@ -290,6 +292,81 @@ function AttachedBillsPanel({ extraction, onJump }) {
             </table>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function ValidationResultsPanel({ extraction, onJump }) {
+  const validations = extraction.validations || []
+  const expensesBySNo = Object.fromEntries((extraction.expenses || []).map((e) => [e.id, e.s_no]))
+  const reportLevel = validations.filter((v) => v.expense_id === null)
+  const perExpense = validations.filter((v) => v.expense_id !== null)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <div className="card-title">Validation Results</div>
+            <div className="card-subtitle">
+              {validations.length} deterministic policy check(s) run against Policy Master and the matched supporting bills
+            </div>
+          </div>
+        </div>
+        <div className="card-body">
+          {validations.length === 0 ? (
+            <div className="state-panel" style={{ padding: '32px 16px' }}>
+              <div className="state-title">No validation results yet</div>
+              <div className="state-description">Validation runs automatically after extraction and bill matching complete.</div>
+            </div>
+          ) : (
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>S.No</th>
+                    <th>Check Type</th>
+                    <th>Details</th>
+                    <th>Result</th>
+                    <th>Remarks</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportLevel.map((v) => (
+                    <tr key={v.id}>
+                      <td>-</td>
+                      <td>{v.check_type}</td>
+                      <td>{v.details || '-'}</td>
+                      <td>
+                        <StatusBadge status={v.result} />
+                      </td>
+                      <td>{v.remarks || '-'}</td>
+                      <td>
+                        <ViewSourceButton page={v.source_page} onJump={onJump} />
+                      </td>
+                    </tr>
+                  ))}
+                  {perExpense.map((v) => (
+                    <tr key={v.id}>
+                      <td>{expensesBySNo[v.expense_id] ?? '-'}</td>
+                      <td>{v.check_type}</td>
+                      <td>{v.details || '-'}</td>
+                      <td>
+                        <StatusBadge status={v.result} />
+                      </td>
+                      <td>{v.remarks || '-'}</td>
+                      <td>
+                        <ViewSourceButton page={v.source_page} onJump={onJump} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -443,6 +520,7 @@ export default function DocumentViewerPage() {
     { key: 'extracted', label: 'Extracted Details' },
     { key: isExpense ? 'expenses' : 'trip', label: isExpense ? 'Expense Summary' : 'Trip Details' },
     ...(isExpense ? [{ key: 'bills', label: 'Attached Bills' }] : []),
+    ...(isExpense ? [{ key: 'validations', label: 'Validation Results' }] : []),
   ]
 
   return (
@@ -614,6 +692,12 @@ export default function DocumentViewerPage() {
       {tab === 'bills' && (
         <div style={{ overflowY: 'auto' }}>
           <AttachedBillsPanel extraction={extraction} onJump={jumpToPage} />
+        </div>
+      )}
+
+      {tab === 'validations' && (
+        <div style={{ overflowY: 'auto' }}>
+          <ValidationResultsPanel extraction={extraction} onJump={jumpToPage} />
         </div>
       )}
     </div>
