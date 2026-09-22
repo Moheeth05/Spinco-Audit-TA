@@ -52,3 +52,9 @@ class ExpenseLineItemOut(BaseModel):
     policy_basis: str | None
     policy_limit: float | None
     validation_status: str | None
+
+    trip_report_id: int | None
+    trip_match_status: str
+    trip_match_score: int | None
+    trip_match_confidence: str | None
+    trip_employee_mismatch: bool

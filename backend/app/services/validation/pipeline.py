@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.models.bill import Bill
 from app.models.expense_report import Expense, ExpenseReport
 from app.models.logs import ProcessingLog
+from app.models.trip import TripReport
 from app.models.validation import ExceptionRecord, ValidationResult
 from app.services.category_map import normalize_category
 from app.services.validation import checks
@@ -92,6 +93,12 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
 
     expenses = db.query(Expense).filter(Expense.expense_report_id == report.id).order_by(Expense.s_no).all()
     bills_by_id = {b.id: b for b in db.query(Bill).filter(Bill.expense_report_id == report.id).all()}
+    trip_ids_needed = {e.trip_report_id for e in expenses if e.trip_report_id is not None}
+    trips_by_id = (
+        {t.id: t for t in db.query(TripReport).filter(TripReport.id.in_(trip_ids_needed)).all()}
+        if trip_ids_needed
+        else {}
+    )
 
     # A bill referenced by more than one expense's bill_id is a duplicate match,
     # regardless of what Bill.matched_expense_id happens to record (that field
@@ -139,6 +146,13 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     is_duplicate=bool(expense.bill_id) and bill_usage.get(expense.bill_id, 0) > 1,
                 ),
                 checks.check_catering(category=expense.category, bill=bill),
+                checks.check_batta_trip_match(
+                    category=expense.category,
+                    expense_date=expense.expense_date,
+                    trip_match_status=expense.trip_match_status,
+                    matched_trip=trips_by_id.get(expense.trip_report_id) if expense.trip_report_id else None,
+                    employee_mismatch=expense.trip_employee_mismatch,
+                ),
             ]
 
             for result in results:

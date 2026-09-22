@@ -88,7 +88,19 @@ class Expense(Base):
     bill_match_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW
     bill_match_reasons: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
+    # Phase 6 Batta-to-Trip matching outcome: NOT_PROCESSED | MATCHED | MULTIPLE_CANDIDATES |
+    # NO_MATCH | REVIEW_REQUIRED. Same vocabulary/pattern as bill_match_status - matching
+    # evidence only, not a policy verdict (TRIP NOT FOUND / TRIP DATE MISMATCH / TRIP
+    # EMPLOYEE MISMATCH are exceptions the validation layer derives from this).
     trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True)
+    trip_match_status: Mapped[str] = mapped_column(String(20), default="NOT_PROCESSED")
+    trip_match_score: Mapped[int | None] = mapped_column(nullable=True)
+    trip_match_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW
+    trip_match_reasons: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    # True only when a confirmed employee-code mismatch (both known, differ) was the reason
+    # no trip could be matched - lets the validation check distinguish TRIP EMPLOYEE MISMATCH
+    # from a genuine TRIP NOT FOUND without parsing reasons text.
+    trip_employee_mismatch: Mapped[bool] = mapped_column(default=False)
 
     # Phase 3 extraction outcome for this line only: EXTRACTED | REVIEW_REQUIRED.
     # Deliberately separate from validation_status/final_status below, which are

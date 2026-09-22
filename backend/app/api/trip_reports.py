@@ -5,7 +5,10 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.expense_report import Expense
 from app.models.trip import Trip, TripReport
+from app.models.trip_match import TripMatchCandidate
+from app.schemas.trip_match import BattaMatchListItem
 from app.schemas.trip_report import TripLegOut, TripReportDetailOut, TripReportListItem, TripReportMonthSummary
 
 router = APIRouter(prefix="/api/trip-reports", tags=["trip-reports"])
@@ -94,3 +97,39 @@ def get_trip_details(report_id: int, db: Session = Depends(get_db)):
             for leg in legs
         ],
     )
+
+
+@router.get("/{report_id}/batta-matches", response_model=list[BattaMatchListItem])
+def get_batta_matches(report_id: int, db: Session = Depends(get_db)):
+    """Every Batta expense that considered this trip during matching - the
+    confirmed match (if any) plus near-miss candidates, so an auditor can see
+    why a trip was or wasn't selected."""
+    report = db.get(TripReport, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Trip report not found.")
+
+    candidate_rows = (
+        db.execute(select(TripMatchCandidate).where(TripMatchCandidate.trip_report_id == report_id))
+        .scalars()
+        .all()
+    )
+    results = []
+    for c in candidate_rows:
+        expense = db.get(Expense, c.expense_id)
+        if expense is None:
+            continue
+        results.append(
+            BattaMatchListItem(
+                expense_id=expense.id,
+                expense_report_id=expense.expense_report_id,
+                s_no=expense.s_no,
+                expense_date=expense.expense_date,
+                claimed_amount=expense.claimed_amount,
+                is_matched_here=expense.trip_report_id == report_id,
+                trip_match_status=expense.trip_match_status,
+                score=c.score,
+                reasons=c.reasons,
+            )
+        )
+    results.sort(key=lambda r: (not r.is_matched_here, -(r.score or 0)))
+    return results

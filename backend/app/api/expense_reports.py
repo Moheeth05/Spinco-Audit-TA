@@ -102,6 +102,11 @@ def get_expense_lines(report_id: int, db: Session = Depends(get_db)):
             policy_basis=e.policy_basis,
             policy_limit=e.policy_limit,
             validation_status=e.validation_status,
+            trip_report_id=e.trip_report_id,
+            trip_match_status=e.trip_match_status,
+            trip_match_score=e.trip_match_score,
+            trip_match_confidence=e.trip_match_confidence,
+            trip_employee_mismatch=e.trip_employee_mismatch,
         )
         for e in lines
     ]

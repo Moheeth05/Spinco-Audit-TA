@@ -371,7 +371,97 @@ def check_catering(*, category: str | None, bill) -> CheckResult:
     )
 
 
-# ---------- 8. Report total ----------
+# ---------- 8. Batta-to-Trip match (Phase 6) ----------
+
+
+def check_batta_trip_match(
+    *,
+    category: str | None,
+    expense_date: date | None,
+    trip_match_status: str,
+    matched_trip,
+    employee_mismatch: bool,
+) -> CheckResult:
+    check_type = "Batta Trip Match Check"
+    if normalize_category(category) != "BATTA":
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, remarks="Not applicable")
+
+    source_page = matched_trip.embedded_source_page if matched_trip is not None and matched_trip.is_embedded else None
+
+    if trip_match_status == "MATCHED":
+        if matched_trip is None:
+            return CheckResult(check_type=check_type, result=REVIEW_REQUIRED, details="A trip match was recorded but the matched trip could not be loaded.")
+        if expense_date is None:
+            return CheckResult(
+                check_type=check_type,
+                result=REVIEW_REQUIRED,
+                details=f"Matched trip {matched_trip.trip_id or '(unknown trip number)'}, but the expense's own date could not be reliably determined.",
+                source_page=source_page,
+            )
+        if matched_trip.start_date is None or matched_trip.end_date is None:
+            return CheckResult(
+                check_type=check_type,
+                result=REVIEW_REQUIRED,
+                details=f"Matched trip {matched_trip.trip_id or '(unknown trip number)'}, but its travel period could not be reliably determined.",
+                expense_date=expense_date,
+                source_page=source_page,
+            )
+        if matched_trip.start_date <= expense_date <= matched_trip.end_date:
+            return CheckResult(
+                check_type=check_type,
+                result=PASS,
+                details=f"Expense {_fmt_date(expense_date)} falls within trip {matched_trip.trip_id or '(unknown)'} ({_fmt_date(matched_trip.start_date)} - {_fmt_date(matched_trip.end_date)})",
+                remarks="Batta expense date is within the matched trip's travel period",
+                expense_date=expense_date,
+                source_page=source_page,
+            )
+        return CheckResult(
+            check_type=check_type,
+            result=EXCEPTION,
+            exception_type="TRIP DATE MISMATCH",
+            details=f"Expense {_fmt_date(expense_date)} vs trip {matched_trip.trip_id or '(unknown)'} period {_fmt_date(matched_trip.start_date)} - {_fmt_date(matched_trip.end_date)}",
+            remarks="Batta expense date falls outside the matched trip's travel period.",
+            expense_date=expense_date,
+            source_page=source_page,
+        )
+
+    if trip_match_status == "NO_MATCH":
+        if employee_mismatch:
+            return CheckResult(
+                check_type=check_type,
+                result=EXCEPTION,
+                exception_type="TRIP EMPLOYEE MISMATCH",
+                details="The only candidate trip(s) found belong to a different employee.",
+                remarks="This Batta expense's trip evidence belongs to another employee.",
+                expense_date=expense_date,
+            )
+        return CheckResult(
+            check_type=check_type,
+            result=EXCEPTION,
+            exception_type="TRIP NOT FOUND",
+            details="No embedded trip summary or standalone Trip Report could be matched to this Batta expense.",
+            remarks="No corresponding Trip Report has been uploaded yet for this Batta claim.",
+            expense_date=expense_date,
+        )
+
+    if trip_match_status == "MULTIPLE_CANDIDATES":
+        return CheckResult(
+            check_type=check_type,
+            result=REVIEW_REQUIRED,
+            details="Multiple candidate trips are plausible matches for this Batta expense.",
+            expense_date=expense_date,
+        )
+
+    # REVIEW_REQUIRED or NOT_PROCESSED (matching hasn't confidently resolved yet)
+    return CheckResult(
+        check_type=check_type,
+        result=REVIEW_REQUIRED,
+        details="Trip match evidence for this Batta expense was too weak to auto-confirm.",
+        expense_date=expense_date,
+    )
+
+
+# ---------- 9. Report total ----------
 
 
 def check_total(*, extracted_sum, reported_total) -> CheckResult:

@@ -12,10 +12,12 @@ from app.models.trip import Trip, TripReport
 from app.models.validation import ValidationResult
 from app.schemas.documents import DocumentDetail
 from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
+from app.services.extraction.batta_pipeline import match_batta_expenses
 from app.services.extraction.bill_pipeline import extract_and_match_bills
 from app.services.extraction.expense_report_parser import find_report_summary_page
 from app.services.extraction.pipeline import run_extraction
 from app.services.extraction.shared import text_extractor
+from app.services.validation.pipeline import validate_expense_report
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -168,6 +170,12 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                         "policy_basis": e.policy_basis,
                         "policy_limit": e.policy_limit,
                         "validation_status": e.validation_status,
+                        "trip_report_id": e.trip_report_id,
+                        "trip_match_status": e.trip_match_status,
+                        "trip_match_score": e.trip_match_score,
+                        "trip_match_confidence": e.trip_match_confidence,
+                        "trip_match_reasons": e.trip_match_reasons,
+                        "trip_employee_mismatch": e.trip_employee_mismatch,
                     }
                     for e in expenses
                 ],
@@ -280,6 +288,24 @@ def rematch_bills(document_id: str, db: Session = Depends(get_db)):
     if content_last_page is None:
         content_last_page = content_pages[-1]["page_number"] if content_pages else 0
     extract_and_match_bills(db, row, text_extractor, content_last_page)
+    db.refresh(row)
+    return _build_extraction_detail(db, document_id, ref, row)
+
+
+@router.post("/{document_id}/rematch-trips")
+def rematch_trips(document_id: str, db: Session = Depends(get_db)):
+    """Re-runs just the Batta-to-Trip matching step (not the full extraction)
+    for an Expense Report, then re-validates so the Batta Trip Match Check
+    reflects the refreshed result - e.g. after new Trip Reports were
+    uploaded or the matcher itself was improved."""
+    ref, row = _load(db, document_id)
+    if ref.kind != EXPENSE:
+        raise HTTPException(status_code=400, detail="Batta trip matching only applies to Expense Report documents.")
+    match_batta_expenses(db, row)
+    try:
+        validate_expense_report(db, row.id)
+    except Exception:  # noqa: BLE001
+        pass
     db.refresh(row)
     return _build_extraction_detail(db, document_id, ref, row)
 

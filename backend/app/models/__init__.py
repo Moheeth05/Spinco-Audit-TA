@@ -9,6 +9,7 @@ from app.models.excel import ExcelReport
 from app.models.logs import ProcessingLog, AuditLog
 from app.models.evidence import SourceEvidence
 from app.models.bill_match import BillMatchCandidate
+from app.models.trip_match import TripMatchCandidate
 
 __all__ = [
     "User",
@@ -26,4 +27,5 @@ __all__ = [
     "AuditLog",
     "SourceEvidence",
     "BillMatchCandidate",
+    "TripMatchCandidate",
 ]

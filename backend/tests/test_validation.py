@@ -361,8 +361,10 @@ def test_28_revalidate_does_not_duplicate_rows(client):
     assert resp2.status_code == 200
 
     validations = client.get(f"/api/expense-reports/{report_id}/validations").json()
-    # 7 per-expense checks + 1 report-level total check = 8, not 16.
-    assert len(validations) == 8
+    # 8 per-expense checks (Phase 6 added Batta Trip Match Check, which
+    # correctly returns NOT_APPLICABLE here since this expense isn't BATTA)
+    # + 1 report-level total check = 9, not 18.
+    assert len(validations) == 9
 
 
 # ---------- 29: mandatory ER-39832 reference case (real PDF) ----------

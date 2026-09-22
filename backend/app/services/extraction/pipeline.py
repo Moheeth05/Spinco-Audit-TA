@@ -15,7 +15,7 @@ from app.models.expense_report import Expense, ExpenseReport
 from app.models.logs import ProcessingLog
 from app.models.trip import Trip, TripReport
 from app.services.document_ref import EXPENSE, TRIP
-from app.services.extraction import bill_pipeline, expense_report_parser, trip_report_parser
+from app.services.extraction import batta_pipeline, bill_pipeline, expense_report_parser, trip_report_parser
 from app.services.extraction.classifier import UNKNOWN, classify_text
 from app.services.extraction.shared import text_extractor as _text_extractor
 from app.services.validation.pipeline import validate_expense_report
@@ -191,6 +191,11 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
         db.delete(existing_embedded)
         db.commit()
 
+    # Batta matching needs this report's own embedded trip (if any) to already
+    # be committed above, and runs before validation so its results are ready
+    # for the Batta-trip check inside validate_expense_report() below.
+    batta_pipeline.match_batta_expenses(db, row)
+
     critical_ok = bool(row.er_id) and bool(row.employee_name) and row.total_claimed is not None and len(lines) > 0
     if not critical_ok:
         row.extraction_status = "REVIEW_REQUIRED"
@@ -295,6 +300,17 @@ def _extract_trip_report(db: Session, row: TripReport) -> None:
     for leg in details["legs"]:
         evidence.append((f"leg[{leg['leg_no']}]", leg.get("source_page"), leg["from_location"]))
     _replace_evidence(db, TRIP, row.id, evidence)
+
+    # A standalone Trip Report may be the missing evidence for a Batta claim
+    # extracted earlier (no manual re-upload of the Expense Report required) -
+    # re-run matching for every not-yet-MATCHED Batta expense in the system,
+    # then re-run policy validation on exactly the reports that changed.
+    touched_report_ids = batta_pipeline.reevaluate_unresolved_batta_for_trip(db, row)
+    for report_id in touched_report_ids:
+        try:
+            validate_expense_report(db, report_id)
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def run_extraction(db: Session, kind: str, pk: int) -> None:

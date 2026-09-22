@@ -17,6 +17,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import { useNavigate, useParams } from 'react-router-dom'
 import { documentFileUrl, fetchDocument, fetchExtraction, reprocessDocument } from '../api/uploads'
+import { useApi } from '../api/useApi'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
@@ -198,6 +199,7 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
                 <th className="num">Bill Amount</th>
                 <th>Bill Date</th>
                 <th>Match Status</th>
+                <th>Trip Match</th>
                 <th>Validation</th>
                 <th>Source</th>
               </tr>
@@ -205,6 +207,7 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
             <tbody>
               {extraction.expenses.map((e) => {
                 const matchedBill = e.bill_id ? billsById[e.bill_id] : null
+                const isBatta = (e.category || '').toUpperCase().replace(/\s*\[\d+\]\s*$/, '').trim() === 'BATTA'
                 return (
                   <tr key={e.s_no}>
                     <td>{e.s_no}</td>
@@ -217,6 +220,7 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
                     <td>
                       <StatusBadge status={e.bill_match_status} />
                     </td>
+                    <td>{isBatta ? <StatusBadge status={e.trip_match_status} /> : '-'}</td>
                     <td>{e.validation_status ? <StatusBadge status={e.validation_status} /> : '-'}</td>
                     <td style={{ display: 'flex', gap: 6 }}>
                       <ViewSourceButton page={e.source_page} onJump={onJump} />
@@ -372,6 +376,66 @@ function ValidationResultsPanel({ extraction, onJump }) {
   )
 }
 
+function LinkedBattaClaimsPanel({ documentId }) {
+  const reportId = documentId.split(':')[1]
+  const { data: matches, loading, error } = useApi(`/trip-reports/${reportId}/batta-matches`)
+
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div>
+          <div className="card-title">Linked Batta Claims</div>
+          <div className="card-subtitle">BATTA expenses that were matched to, or considered against, this trip</div>
+        </div>
+      </div>
+      <div className="card-body">
+        {loading && <LoadingState rows={3} />}
+        {error && <ErrorState title="Could not load Batta matches" description="The server may be unreachable." />}
+        {!loading && !error && (!matches || matches.length === 0) && (
+          <div className="state-panel" style={{ padding: '32px 16px' }}>
+            <div className="state-title">No Batta claims linked yet</div>
+            <div className="state-description">No BATTA expense has been matched to, or considered against, this trip so far.</div>
+          </div>
+        )}
+        {!loading && !error && matches && matches.length > 0 && (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Report</th>
+                  <th>S.No</th>
+                  <th>Date</th>
+                  <th className="num">Claimed Amount</th>
+                  <th>Status</th>
+                  <th>Score</th>
+                  <th>Evidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                {matches.map((m) => (
+                  <tr key={m.expense_id}>
+                    <td>
+                      <a href={`/documents/expense:${m.expense_report_id}`}>Expense Report #{m.expense_report_id}</a>
+                    </td>
+                    <td>{m.s_no ?? '-'}</td>
+                    <td>{m.expense_date || '-'}</td>
+                    <td className="num">{formatINR(m.claimed_amount)}</td>
+                    <td>
+                      <StatusBadge status={m.is_matched_here ? 'MATCHED' : m.trip_match_status} />
+                    </td>
+                    <td>{m.score ?? '-'}</td>
+                    <td style={{ fontSize: 12.5, color: 'var(--gray-500)' }}>{m.reasons || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function TripLegsPanel({ extraction }) {
   return (
     <div className="card">
@@ -521,6 +585,7 @@ export default function DocumentViewerPage() {
     { key: isExpense ? 'expenses' : 'trip', label: isExpense ? 'Expense Summary' : 'Trip Details' },
     ...(isExpense ? [{ key: 'bills', label: 'Attached Bills' }] : []),
     ...(isExpense ? [{ key: 'validations', label: 'Validation Results' }] : []),
+    ...(!isExpense ? [{ key: 'batta', label: 'Linked Batta Claims' }] : []),
   ]
 
   return (
@@ -698,6 +763,12 @@ export default function DocumentViewerPage() {
       {tab === 'validations' && (
         <div style={{ overflowY: 'auto' }}>
           <ValidationResultsPanel extraction={extraction} onJump={jumpToPage} />
+        </div>
+      )}
+
+      {tab === 'batta' && (
+        <div style={{ overflowY: 'auto' }}>
+          <LinkedBattaClaimsPanel documentId={documentId} />
         </div>
       )}
     </div>
