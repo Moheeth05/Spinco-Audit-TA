@@ -262,12 +262,17 @@ def test_phase1_users_regression(client):
 
 def test_phase1_dashboard_kpis_regression(client):
     kpis = client.get("/api/dashboard/kpis").json()
+    # Phase 9 legitimately extended this response with review_required_reports
+    # and total_expenses (both explicit Home KPI requirements) - this test
+    # predates that extension.
     assert kpis == {
         "total_expense_reports": 0,
         "total_trip_reports": 0,
         "total_claimed_amount": 0.0,
         "account_verified_reports": 0,
         "exception_reports": 0,
+        "review_required_reports": 0,
+        "total_expenses": 0,
     }
 
 

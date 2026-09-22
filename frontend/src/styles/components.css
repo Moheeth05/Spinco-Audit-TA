@@ -317,13 +317,17 @@ table.data-table {
 
 .grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, 1fr), not a bare 1fr - a plain 1fr track has an implicit
+     min-width: auto and refuses to shrink below its content's intrinsic
+     width (e.g. a row of nowrap buttons or a wide chart), which pushes the
+     whole grid wider than its container instead of wrapping/scrolling. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
 }
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 

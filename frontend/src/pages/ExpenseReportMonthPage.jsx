@@ -1,6 +1,6 @@
 import { ArrowLeft, Eye, FolderClosed } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useApi } from '../api/useApi'
 import { Card } from '../components/ui/Card'
 import { DataTable } from '../components/ui/DataTable'
@@ -48,7 +48,12 @@ export default function ExpenseReportMonthPage() {
       ),
     },
   ]
-  const [status, setStatus] = useState('ALL')
+  // Supports deep-linking from Analytics drill-down (e.g. clicking the
+  // EXCEPTION segment of the report-status chart) via ?status=EXCEPTION,
+  // while still defaulting to ALL for normal sidebar navigation.
+  const [searchParams] = useSearchParams()
+  const initialStatus = searchParams.get('status') || 'ALL'
+  const [status, setStatus] = useState(initialStatus)
   const { data: reports, loading, error } = useApi('/expense-reports', { report_month: month, status })
 
   const monthLabel = new Date(`${month}-01T00:00:00`).toLocaleDateString('en-US', {
