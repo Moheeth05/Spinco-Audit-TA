@@ -25,7 +25,16 @@ const http = require("node:http");
 const { spawn } = require("node:child_process");
 
 const DEV_FRONTEND_URL = "http://localhost:5200";
-const BACKEND_PORT = process.env.SPINCO_BACKEND_PORT || "8001";
+// Deliberately NOT 8001 - that's the existing dev workflow's port (see
+// module docstring above), and a developer with a dev `uvicorn` instance
+// still running would otherwise have the packaged app's own backend fail to
+// bind while the readiness check happily gets a 200 from the WRONG (dev,
+// frontend-less) server, silently loading a "Not Found" JSON blob instead of
+// the app. Confirmed exactly this failure mode while diagnosing a UAT
+// report - the packaging code itself was correct throughout; a port
+// collision was masking it. Picked from the dynamic/private port range
+// (49152-65535) specifically to avoid well-known-port collisions too.
+const BACKEND_PORT = process.env.SPINCO_BACKEND_PORT || "58732";
 const BACKEND_URL = `http://127.0.0.1:${BACKEND_PORT}`;
 const HEALTH_URL = `${BACKEND_URL}/api/health`;
 const READINESS_TIMEOUT_MS = 45_000;
@@ -106,12 +115,22 @@ function startBackend(dirs) {
   backendLogStream = fs.createWriteStream(logFile, { flags: "a" });
   backendLogStream.write(`\n----- launch ${new Date().toISOString()} -----\n`);
 
+  const frontendDist = frontendDistPath();
+  const frontendIndexExists = fs.existsSync(path.join(frontendDist, "index.html"));
+  // Logged permanently (not just while debugging) - "backend started but the
+  // UI is blank/404" is exactly the class of failure this line exists to
+  // diagnose without needing a rebuild to add logging after the fact.
+  backendLogStream.write(
+    `resourcesPath=${process.resourcesPath}\n` +
+      `frontendDist=${frontendDist} (index.html exists: ${frontendIndexExists})\n`
+  );
+
   const env = {
     ...process.env,
     SPINCO_DB_PATH: path.join(dirs.database, "spinco_ta.db"),
     SPINCO_STORAGE_ROOT: dirs.documents,
     SPINCO_BACKEND_PORT: BACKEND_PORT,
-    SPINCO_FRONTEND_DIST: frontendDistPath(),
+    SPINCO_FRONTEND_DIST: frontendDist,
     // Cookies are Secure=false because the backend is only ever reached at
     // http://127.0.0.1 (loopback) here, never over a real network - see
     // app/api/auth.py's own SPINCO_COOKIE_SECURE handling for why this is
@@ -151,13 +170,26 @@ function waitForHealth(timeoutMs) {
         return;
       }
       const req = http.get(HEALTH_URL, { timeout: 2000 }, (res) => {
-        res.resume();
-        if (res.statusCode === 200) {
-          if (backendProcess) backendProcess.off("exit", onEarlyExit);
-          resolve();
-        } else {
-          setTimeout(poll, READINESS_POLL_MS);
-        }
+        let body = "";
+        res.on("data", (chunk) => (body += chunk));
+        res.on("end", () => {
+          // Not just status 200 - some other process could already own this
+          // port and happily answer any GET with a 200. Confirm it's
+          // actually our own /api/health (see app/api/health.py) before
+          // treating the backend as ready.
+          let isOurBackend = false;
+          try {
+            isOurBackend = res.statusCode === 200 && JSON.parse(body).status === "ok";
+          } catch {
+            isOurBackend = false;
+          }
+          if (isOurBackend) {
+            if (backendProcess) backendProcess.off("exit", onEarlyExit);
+            resolve();
+          } else {
+            setTimeout(poll, READINESS_POLL_MS);
+          }
+        });
       });
       req.on("error", () => setTimeout(poll, READINESS_POLL_MS));
       req.on("timeout", () => {
