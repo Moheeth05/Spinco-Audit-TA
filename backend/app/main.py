@@ -1,5 +1,10 @@
+import os
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.datastructures import MutableHeaders
 
 from app import models  # noqa: F401  (register all models on Base before create_all)
@@ -95,3 +100,31 @@ app.include_router(analytics.router)
 app.include_router(uploads.router)
 app.include_router(documents.router)
 app.include_router(expenses.router)
+
+
+# ---------- Phase 11: serve the production React build (desktop packaging) ----------
+#
+# Dev workflow is completely unaffected: SPINCO_FRONTEND_DIST is only ever set
+# by the packaged Electron app (see electron/main.js), never by `uvicorn
+# app.main:app --reload` during development, which continues to be paired
+# with the separate Vite dev server on :5200 exactly as before. When it *is*
+# set, this backend becomes a single self-contained localhost server Electron
+# can point its BrowserWindow at - same-origin with the API, so the existing
+# cookie-based session/CSRF design and the frontend's relative `/api/...`
+# fetch calls work completely unchanged, with no extra CORS/config needed.
+_frontend_dist = os.environ.get("SPINCO_FRONTEND_DIST")
+if _frontend_dist:
+    _dist_path = Path(_frontend_dist)
+    _assets_dir = _dist_path / "assets"
+    if _assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=_assets_dir), name="frontend-assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_frontend(full_path: str):
+        candidate = _dist_path / full_path
+        if full_path and candidate.is_file():
+            return FileResponse(candidate)
+        # React Router client-side routes (e.g. /expense-reports) have no
+        # matching file on disk - always fall back to index.html so a
+        # hard refresh/direct load on a deep route works.
+        return FileResponse(_dist_path / "index.html")

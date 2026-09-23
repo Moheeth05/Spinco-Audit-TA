@@ -1,0 +1,76 @@
+{
+  "name": "spinco-ta-audit",
+  "productName": "Spinco TA Audit",
+  "version": "1.0.0",
+  "description": "SPINCO TA / Travel Expense Audit & Automation System - desktop application",
+  "private": true,
+  "main": "electron/main.js",
+  "author": "Spinco Tech",
+  "scripts": {
+    "build:frontend": "npm run build --prefix frontend",
+    "build:backend": "node electron/scripts/build-backend.js",
+    "collect:tesseract": "node electron/scripts/collect-tesseract.js",
+    "electron:dev": "electron .",
+    "prepackage": "npm run build:frontend && npm run build:backend && npm run collect:tesseract",
+    "dist": "npm run prepackage && electron-builder --win",
+    "dist:portable": "npm run prepackage && electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.spincotech.ta-audit",
+    "productName": "Spinco TA Audit",
+    "directories": {
+      "output": "release",
+      "buildResources": "electron/build"
+    },
+    "files": [
+      "electron/main.js",
+      "!electron/scripts/**",
+      "!**/node_modules/electron-builder/**"
+    ],
+    "extraResources": [
+      {
+        "from": "frontend/dist",
+        "to": "frontend"
+      },
+      {
+        "from": "backend/dist_backend/spinco-backend",
+        "to": "backend"
+      },
+      {
+        "from": "resources/tesseract",
+        "to": "tesseract"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Spinco TA Audit"
+    }
+  },
+  "allowScripts": {
+    "electron@33.4.11": true
+  }
+}

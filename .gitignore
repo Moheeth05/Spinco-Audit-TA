@@ -4,6 +4,16 @@ dist/
 dist-electron/
 release/
 
+# PyInstaller backend build output
+backend/build/
+backend/dist_backend/
+
+# Vendored Tesseract OCR runtime (fetched from the local machine at package
+# time by electron/scripts/collect-tesseract.js - see that script's header
+# comment for how to regenerate this directory; not committed since it is
+# ~100MB of third-party binaries, not project source)
+resources/tesseract/
+
 # Python
 __pycache__/
 *.pyc
