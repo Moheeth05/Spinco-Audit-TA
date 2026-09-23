@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { AuthProvider } from './auth/AuthContext.jsx'
 import './index.css'
+import './lib/typedArrayPolyfill.js'
 import './lib/pdfWorker.js'
 
 createRoot(document.getElementById('root')).render(
