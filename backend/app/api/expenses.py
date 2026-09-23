@@ -12,12 +12,16 @@ from app.schemas.bills import BillMatchCandidateOut, BillOut, ExpenseBillMatchOu
 from app.schemas.trip_match import ExpenseTripMatchOut, TripCandidateSummaryOut, TripMatchCandidateOut
 from app.models.validation import ValidationResult
 from app.schemas.validation import ValidationResultOut
+from app.models.user import User
+from app.services.permissions import VIEW_EXPENSE_REPORTS, require_permission
 
 router = APIRouter(prefix="/api/expenses", tags=["expenses"])
 
 
 @router.get("/{expense_id}/validations", response_model=list[ValidationResultOut])
-def get_expense_validations(expense_id: int, db: Session = Depends(get_db)):
+def get_expense_validations(
+    expense_id: int, db: Session = Depends(get_db), _user: User = Depends(require_permission(VIEW_EXPENSE_REPORTS))
+):
     expense = db.get(Expense, expense_id)
     if expense is None:
         raise HTTPException(status_code=404, detail="Expense not found.")
@@ -28,7 +32,9 @@ def get_expense_validations(expense_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{expense_id}/bill-match", response_model=ExpenseBillMatchOut)
-def get_bill_match(expense_id: int, db: Session = Depends(get_db)):
+def get_bill_match(
+    expense_id: int, db: Session = Depends(get_db), _user: User = Depends(require_permission(VIEW_EXPENSE_REPORTS))
+):
     expense = db.get(Expense, expense_id)
     if expense is None:
         raise HTTPException(status_code=404, detail="Expense not found.")
@@ -66,7 +72,9 @@ def get_bill_match(expense_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{expense_id}/trip-match", response_model=ExpenseTripMatchOut)
-def get_trip_match(expense_id: int, db: Session = Depends(get_db)):
+def get_trip_match(
+    expense_id: int, db: Session = Depends(get_db), _user: User = Depends(require_permission(VIEW_EXPENSE_REPORTS))
+):
     expense = db.get(Expense, expense_id)
     if expense is None:
         raise HTTPException(status_code=404, detail="Expense not found.")

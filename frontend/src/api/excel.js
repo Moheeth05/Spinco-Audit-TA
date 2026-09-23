@@ -1,10 +1,10 @@
 /** Centralized Excel workbook API calls - components never call fetch/XHR directly. */
+import { apiFetch } from './client'
 
 const BASE_URL = '/api'
 
 export async function generateWorkbook() {
-  const res = await fetch(`${BASE_URL}/excel-files/generate`, { method: 'POST' })
-  if (!res.ok) throw new Error('Could not regenerate the workbook.')
+  const res = await apiFetch('/excel-files/generate', { method: 'POST' })
   return res.json()
 }
 

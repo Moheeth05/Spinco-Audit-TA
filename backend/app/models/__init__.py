@@ -1,4 +1,5 @@
 from app.models.user import User
+from app.models.session import AuthSession
 from app.models.employee import Employee
 from app.models.policy import PolicyMaster
 from app.models.expense_report import ExpenseReport, Expense
@@ -13,6 +14,7 @@ from app.models.trip_match import TripMatchCandidate
 
 __all__ = [
     "User",
+    "AuthSession",
     "Employee",
     "PolicyMaster",
     "ExpenseReport",

@@ -15,8 +15,12 @@ from app.schemas.validation import ValidationResultOut
 from app.services.exception_engine import evaluate_report
 from app.services.excel_generator import generate_workbook
 from app.services.validation.pipeline import validate_expense_report
+from app.models.user import User
+from app.services import audit
+from app.services.permissions import VALIDATE_REPORTS, VIEW_EXPENSE_REPORTS, require_permission
 
 router = APIRouter(prefix="/api/expense-reports", tags=["expense-reports"])
+_view = Depends(require_permission(VIEW_EXPENSE_REPORTS))
 
 
 def _month_label(report_month: str) -> str:
@@ -25,7 +29,7 @@ def _month_label(report_month: str) -> str:
 
 
 @router.get("/months", response_model=list[ExpenseReportMonthSummary])
-def list_months(db: Session = Depends(get_db)):
+def list_months(db: Session = Depends(get_db), _user: User = _view):
     rows = db.execute(
         select(ExpenseReport.report_month, func.count(ExpenseReport.id))
         .where(ExpenseReport.report_month.is_not(None))
@@ -43,6 +47,7 @@ def list_expense_reports(
     status: str | None = None,
     report_month: str | None = None,
     db: Session = Depends(get_db),
+    _user: User = _view,
 ):
     """status: 'ALL' | 'ACCOUNT VERIFIED' | 'EXCEPTION' | 'REVIEW REQUIRED' (default ALL)."""
     stmt = select(ExpenseReport).order_by(ExpenseReport.uploaded_at.desc())
@@ -80,7 +85,7 @@ def list_expense_reports(
 
 
 @router.get("/{report_id}/expenses", response_model=list[ExpenseLineItemOut])
-def get_expense_lines(report_id: int, db: Session = Depends(get_db)):
+def get_expense_lines(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     report = db.get(ExpenseReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Expense report not found.")
@@ -117,7 +122,7 @@ def get_expense_lines(report_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{report_id}/bills", response_model=list[BillOut])
-def get_bills(report_id: int, db: Session = Depends(get_db)):
+def get_bills(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     report = db.get(ExpenseReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Expense report not found.")
@@ -128,7 +133,7 @@ def get_bills(report_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{report_id}/validations", response_model=list[ValidationResultOut])
-def get_validations(report_id: int, db: Session = Depends(get_db)):
+def get_validations(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     report = db.get(ExpenseReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Expense report not found.")
@@ -142,7 +147,7 @@ def get_validations(report_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{report_id}/validate", response_model=list[ValidationResultOut])
 @router.post("/{report_id}/revalidate", response_model=list[ValidationResultOut])
-def revalidate_report(report_id: int, db: Session = Depends(get_db)):
+def revalidate_report(report_id: int, db: Session = Depends(get_db), user: User = Depends(require_permission(VALIDATE_REPORTS))):
     """Re-runs policy validation for this report, replacing its previous
     validation_results/exceptions wholesale - never accumulates duplicates.
     Also re-evaluates the report-level Exception Engine (Phase 7) so
@@ -156,6 +161,7 @@ def revalidate_report(report_id: int, db: Session = Depends(get_db)):
         generate_workbook(db)
     except Exception:  # noqa: BLE001 - revalidation must succeed even if the workbook write fails
         pass
+    audit.log_action(db, user_id=user.id, action=audit.REPORT_REVALIDATED, entity_type="ExpenseReport", entity_id=str(report_id))
     results = db.execute(
         select(ValidationResult)
         .where(ValidationResult.expense_report_id == report_id)
@@ -165,7 +171,7 @@ def revalidate_report(report_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{report_id}/status", response_model=ReportStatusOut)
-def get_report_status(report_id: int, db: Session = Depends(get_db)):
+def get_report_status(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     report = db.get(ExpenseReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Expense report not found.")
@@ -180,7 +186,7 @@ def get_report_status(report_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{report_id}/exceptions", response_model=list[ExceptionRecordOut])
-def get_exceptions(report_id: int, db: Session = Depends(get_db)):
+def get_exceptions(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     report = db.get(ExpenseReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Expense report not found.")

@@ -2,6 +2,7 @@
 the company policy spec) and the initial ADMIN user. No expense/trip/business
 records are ever seeded here - those only exist once real documents are processed."""
 
+import os
 from datetime import date
 
 from sqlalchemy import select
@@ -9,6 +10,7 @@ from sqlalchemy import select
 from app.database import SessionLocal
 from app.models.policy import PolicyMaster
 from app.models.user import User
+from app.services.auth import hash_password
 
 EFFECTIVE_DATE = date(2026, 1, 1)
 
@@ -47,6 +49,21 @@ POLICY_CATEGORIES: list[tuple[str, str, float | None, str, str]] = [
 
 ADMIN_EMAIL = "intern@spincotech.com"
 
+# Phase 10 - the initial ADMIN account needs a real password (previously
+# none existed since authentication didn't exist yet). Following this
+# project's existing SPINCO_<THING> env-var convention (see
+# services/storage.py, database.py) rather than inventing a config file.
+# The fallback below is an explicitly-labeled LOCAL DEVELOPMENT default,
+# never printed/logged anywhere - set SPINCO_ADMIN_INITIAL_PASSWORD to
+# override it (required for anything beyond local dev). Either way,
+# must_change_password is set True so this password can never silently
+# persist past the first login.
+_DEV_DEFAULT_ADMIN_PASSWORD = "ChangeMe123!"
+
+
+def _initial_admin_password() -> str:
+    return os.environ.get("SPINCO_ADMIN_INITIAL_PASSWORD", _DEV_DEFAULT_ADMIN_PASSWORD)
+
 
 def seed_policy_master(db) -> None:
     existing = {row.category for row in db.execute(select(PolicyMaster)).scalars().all()}
@@ -71,8 +88,27 @@ def seed_policy_master(db) -> None:
 def seed_admin_user(db) -> None:
     existing = db.execute(select(User).where(User.email == ADMIN_EMAIL)).scalars().first()
     if existing:
+        # Pre-Phase-10 database: this row was created before authentication
+        # existed, so it has no password yet - give it one now rather than
+        # leaving an account that can never log in. Never touched again
+        # once a password is set (so a real admin's later password change
+        # is never overwritten by a restart).
+        if not existing.password_hash:
+            existing.password_hash = hash_password(_initial_admin_password())
+            existing.must_change_password = True
+            existing.is_active = True
+            db.commit()
         return
-    db.add(User(email=ADMIN_EMAIL, name="Intern", role="ADMIN"))
+    db.add(
+        User(
+            email=ADMIN_EMAIL,
+            name="Intern",
+            role="ADMIN",
+            password_hash=hash_password(_initial_admin_password()),
+            is_active=True,
+            must_change_password=True,
+        )
+    )
     db.commit()
 
 

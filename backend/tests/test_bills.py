@@ -267,8 +267,11 @@ def test_expense_with_no_supporting_bill_is_no_match_not_invented():
     from app.main import app
 
     with TestClient(app) as c:
+        login = c.post("/api/auth/login", json={"email": "intern@spincotech.com", "password": "ChangeMe123!"}).json()
         result = c.post(
-            "/api/uploads/expense-reports", files=[("files", ("no_bills.pdf", pdf_bytes, "application/pdf"))]
+            "/api/uploads/expense-reports",
+            files=[("files", ("no_bills.pdf", pdf_bytes, "application/pdf"))],
+            headers={"X-CSRF-Token": login["csrf_token"]},
         ).json()["results"][0]
         assert result["success"]
         report_id = result["document_id"].split(":")[1]

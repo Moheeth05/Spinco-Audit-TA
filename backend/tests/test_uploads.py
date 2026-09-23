@@ -255,7 +255,9 @@ def test_phase1_health_regression(client):
 
 
 def test_phase1_users_regression(client):
-    me = client.get("/api/users/me").json()
+    # The Phase 1 stub GET /api/users/me was superseded by GET /api/auth/me
+    # in Phase 10 (real session-backed "current user", not a placeholder).
+    me = client.get("/api/auth/me").json()["user"]
     assert me["email"] == "intern@spincotech.com"
     assert me["role"] == "ADMIN"
 

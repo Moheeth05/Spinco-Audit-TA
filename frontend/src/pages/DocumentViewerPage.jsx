@@ -16,6 +16,7 @@ import { Document, Page } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import { useNavigate, useParams } from 'react-router-dom'
+import { apiFetch } from '../api/client'
 import { documentFileUrl, fetchDocument, fetchExtraction, reprocessDocument } from '../api/uploads'
 import { useApi } from '../api/useApi'
 import { Button } from '../components/ui/Button'
@@ -621,11 +622,8 @@ export default function DocumentViewerPage() {
     // Fetched ourselves (rather than handed a bare URL to react-pdf/pdf.js) so a missing
     // or unreadable file surfaces as a normal, catchable error instead of an uncaught
     // exception from inside pdf.js's own fetch/worker pipeline.
-    fetch(documentFileUrl(documentId))
-      .then((res) => {
-        if (!res.ok) throw new Error('file unavailable')
-        return res.arrayBuffer()
-      })
+    apiFetch(`/documents/${encodeURIComponent(documentId)}/file`)
+      .then((res) => res.arrayBuffer())
       .then((buf) => {
         if (!cancelledRef?.current) setFileData(buf)
       })

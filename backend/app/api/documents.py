@@ -20,8 +20,13 @@ from app.services.extraction.expense_report_parser import find_report_summary_pa
 from app.services.extraction.pipeline import run_extraction
 from app.services.extraction.shared import text_extractor
 from app.services.validation.pipeline import validate_expense_report
+from app.models.user import User
+from app.services import audit
+from app.services.permissions import DELETE_DOCUMENTS, REPROCESS_DOCUMENTS, VIEW_DOCUMENTS, require_permission
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
+_view = Depends(require_permission(VIEW_DOCUMENTS))
+_reprocess = Depends(require_permission(REPROCESS_DOCUMENTS))
 
 
 def _load(db: Session, document_id: str):
@@ -38,7 +43,7 @@ def _load(db: Session, document_id: str):
 
 
 @router.get("/{document_id}", response_model=DocumentDetail)
-def get_document(document_id: str, db: Session = Depends(get_db)):
+def get_document(document_id: str, db: Session = Depends(get_db), _user: User = _view):
     ref, row = _load(db, document_id)
     is_expense = ref.kind == EXPENSE
     return DocumentDetail(
@@ -69,7 +74,7 @@ def get_document(document_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{document_id}/file")
-def get_document_file(document_id: str, download: bool = False, db: Session = Depends(get_db)):
+def get_document_file(document_id: str, download: bool = False, db: Session = Depends(get_db), _user: User = _view):
     _, row = _load(db, document_id)
     if not row.source_path or not Path(row.source_path).exists():
         raise HTTPException(status_code=404, detail="The stored file could not be found.")
@@ -271,26 +276,30 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
 
 
 @router.get("/{document_id}/extraction")
-def get_document_extraction(document_id: str, db: Session = Depends(get_db)):
+def get_document_extraction(document_id: str, db: Session = Depends(get_db), _user: User = _view):
     ref, row = _load(db, document_id)
     return _build_extraction_detail(db, document_id, ref, row)
 
 
 @router.post("/{document_id}/extract")
 @router.post("/{document_id}/reprocess")
-def reprocess_document(document_id: str, db: Session = Depends(get_db)):
+def reprocess_document(document_id: str, db: Session = Depends(get_db), user: User = _reprocess):
     """Re-runs extraction for this document, replacing its previously extracted
     fields/lines/evidence. Always updates the existing record - never creates a
     duplicate document."""
     ref, row = _load(db, document_id)
     run_extraction(db, ref.kind, ref.pk)
     db.refresh(row)
+    audit.log_action(
+        db, user_id=user.id, action=audit.DOCUMENT_REPROCESSED,
+        entity_type="ExpenseReport" if ref.kind == EXPENSE else "TripReport", entity_id=document_id,
+    )
     return _build_extraction_detail(db, document_id, ref, row)
 
 
 @router.post("/{document_id}/extract-bills")
 @router.post("/{document_id}/rematch-bills")
-def rematch_bills(document_id: str, db: Session = Depends(get_db)):
+def rematch_bills(document_id: str, db: Session = Depends(get_db), user: User = _reprocess):
     """Re-runs just the bill extraction/matching step (not the full header/
     expense-line extraction) for an Expense Report - e.g. after the matcher
     itself is improved, without needing to reprocess the whole document."""
@@ -312,11 +321,12 @@ def rematch_bills(document_id: str, db: Session = Depends(get_db)):
     except Exception:  # noqa: BLE001
         pass
     db.refresh(row)
+    audit.log_action(db, user_id=user.id, action=audit.BILL_REMATCHED, entity_type="ExpenseReport", entity_id=document_id)
     return _build_extraction_detail(db, document_id, ref, row)
 
 
 @router.post("/{document_id}/rematch-trips")
-def rematch_trips(document_id: str, db: Session = Depends(get_db)):
+def rematch_trips(document_id: str, db: Session = Depends(get_db), user: User = _reprocess):
     """Re-runs just the Batta-to-Trip matching step (not the full extraction)
     for an Expense Report, then re-validates so the Batta Trip Match Check
     reflects the refreshed result - e.g. after new Trip Reports were
@@ -332,13 +342,15 @@ def rematch_trips(document_id: str, db: Session = Depends(get_db)):
     except Exception:  # noqa: BLE001
         pass
     db.refresh(row)
+    audit.log_action(db, user_id=user.id, action=audit.TRIP_REMATCHED, entity_type="ExpenseReport", entity_id=document_id)
     return _build_extraction_detail(db, document_id, ref, row)
 
 
 @router.delete("/{document_id}", status_code=204)
-def delete_document(document_id: str, db: Session = Depends(get_db)):
+def delete_document(document_id: str, db: Session = Depends(get_db), user: User = Depends(require_permission(DELETE_DOCUMENTS))):
     ref, row = _load(db, document_id)
     file_path = Path(row.source_path) if row.source_path else None
+    filename = row.original_filename
 
     db.delete(row)
     db.commit()
@@ -348,3 +360,9 @@ def delete_document(document_id: str, db: Session = Depends(get_db)):
             file_path.unlink()
         except OSError:
             pass
+
+    audit.log_action(
+        db, user_id=user.id, action=audit.DOCUMENT_DELETED,
+        entity_type="ExpenseReport" if ref.kind == EXPENSE else "TripReport", entity_id=document_id,
+        details=f"filename={filename!r}",
+    )

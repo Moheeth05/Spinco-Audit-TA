@@ -1,4 +1,5 @@
 /** Centralized upload/document API calls - components never call fetch/XHR directly. */
+import { apiFetch, getCsrfToken } from './client'
 
 const BASE_URL = '/api'
 
@@ -11,6 +12,9 @@ export function uploadFiles(sourceType, files, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
     xhr.open('POST', `${BASE_URL}/uploads/${endpoint}`)
+    xhr.withCredentials = true
+    const csrfToken = getCsrfToken()
+    if (csrfToken) xhr.setRequestHeader('X-CSRF-Token', csrfToken)
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && onProgress) {
@@ -25,6 +29,10 @@ export function uploadFiles(sourceType, files, onProgress) {
         } catch {
           reject(new Error('The server returned an unreadable response.'))
         }
+      } else if (xhr.status === 401) {
+        reject(new Error('Your session has expired. Please sign in again.'))
+      } else if (xhr.status === 403) {
+        reject(new Error('You do not have permission to upload documents.'))
       } else {
         reject(new Error(`Upload failed with status ${xhr.status}`))
       }
@@ -35,26 +43,22 @@ export function uploadFiles(sourceType, files, onProgress) {
 }
 
 export async function fetchUploads() {
-  const res = await fetch(`${BASE_URL}/uploads`)
-  if (!res.ok) throw new Error('Could not load uploaded files.')
+  const res = await apiFetch('/uploads')
   return res.json()
 }
 
 export async function fetchDocument(documentId) {
-  const res = await fetch(`${BASE_URL}/documents/${encodeURIComponent(documentId)}`)
-  if (!res.ok) throw new Error('Could not load document details.')
+  const res = await apiFetch(`/documents/${encodeURIComponent(documentId)}`)
   return res.json()
 }
 
 export async function fetchExtraction(documentId) {
-  const res = await fetch(`${BASE_URL}/documents/${encodeURIComponent(documentId)}/extraction`)
-  if (!res.ok) throw new Error('Could not load extracted details.')
+  const res = await apiFetch(`/documents/${encodeURIComponent(documentId)}/extraction`)
   return res.json()
 }
 
 export async function reprocessDocument(documentId) {
-  const res = await fetch(`${BASE_URL}/documents/${encodeURIComponent(documentId)}/reprocess`, { method: 'POST' })
-  if (!res.ok) throw new Error('Could not reprocess this document.')
+  const res = await apiFetch(`/documents/${encodeURIComponent(documentId)}/reprocess`, { method: 'POST' })
   return res.json()
 }
 
@@ -64,6 +68,5 @@ export function documentFileUrl(documentId, { download = false } = {}) {
 }
 
 export async function deleteDocument(documentId) {
-  const res = await fetch(`${BASE_URL}/documents/${encodeURIComponent(documentId)}`, { method: 'DELETE' })
-  if (!res.ok) throw new Error('Could not delete this document.')
+  await apiFetch(`/documents/${encodeURIComponent(documentId)}`, { method: 'DELETE' })
 }

@@ -13,6 +13,9 @@ from app.services.extraction.pipeline import run_extraction
 from app.services.filename_ids import extract_er_id, extract_trip_id
 from app.services.pdf_validation import PdfValidationError, validate_pdf_upload
 from app.services.storage import EXPENSE_REPORTS_DIR, TRIP_REPORTS_DIR, save_upload
+from app.services import audit
+from app.models.user import User
+from app.services.permissions import UPLOAD_DOCUMENTS, get_current_user, require_permission
 
 router = APIRouter(tags=["uploads"])
 
@@ -95,18 +98,39 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResul
     )
 
 
+def _audit_uploads(db: Session, user: User, results: list[UploadResultItem], *, doc_type: str) -> None:
+    for r in results:
+        if r.success:
+            audit.log_action(
+                db, user_id=user.id, action=audit.DOCUMENT_UPLOADED, entity_type=doc_type,
+                entity_id=r.document_id, details=f"filename={r.filename!r}",
+            )
+
+
 @router.post("/api/uploads/expense-reports", response_model=UploadBatchResponse)
-def upload_expense_reports(files: list[UploadFile] = File(...), db: Session = Depends(get_db)):
-    return UploadBatchResponse(results=[_process_one(db, f, expense=True) for f in files])
+def upload_expense_reports(
+    files: list[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(require_permission(UPLOAD_DOCUMENTS)),
+):
+    results = [_process_one(db, f, expense=True) for f in files]
+    _audit_uploads(db, user, results, doc_type="ExpenseReport")
+    return UploadBatchResponse(results=results)
 
 
 @router.post("/api/uploads/trip-reports", response_model=UploadBatchResponse)
-def upload_trip_reports(files: list[UploadFile] = File(...), db: Session = Depends(get_db)):
-    return UploadBatchResponse(results=[_process_one(db, f, expense=False) for f in files])
+def upload_trip_reports(
+    files: list[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(require_permission(UPLOAD_DOCUMENTS)),
+):
+    results = [_process_one(db, f, expense=False) for f in files]
+    _audit_uploads(db, user, results, doc_type="TripReport")
+    return UploadBatchResponse(results=results)
 
 
 @router.get("/api/uploads", response_model=list[UploadListItem])
-def list_uploads(db: Session = Depends(get_db)):
+def list_uploads(db: Session = Depends(get_db), _user: User = Depends(get_current_user)):
     expense_rows = db.execute(select(ExpenseReport).order_by(ExpenseReport.uploaded_at.desc())).scalars().all()
     # Embedded trip summaries were never independently uploaded (no file of their own) -
     # they're shown inside their parent Expense Report's Extracted Details, not here.

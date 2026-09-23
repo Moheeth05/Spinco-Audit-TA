@@ -12,12 +12,15 @@ from app.schemas.dashboard import (
     RecentUploadOut,
 )
 from app.services import analytics_service
+from app.models.user import User
+from app.services.permissions import VIEW_DASHBOARD, require_permission
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
+_view = Depends(require_permission(VIEW_DASHBOARD))
 
 
 @router.get("/kpis", response_model=DashboardKPIs)
-def kpis(db: Session = Depends(get_db)):
+def kpis(db: Session = Depends(get_db), _user: User = _view):
     summary = analytics_service.report_status_summary(db)
     total_trips = (
         db.execute(select(func.count(TripReport.id)).where(TripReport.is_embedded.is_(False))).scalar() or 0
@@ -34,21 +37,21 @@ def kpis(db: Session = Depends(get_db)):
 
 
 @router.get("/monthly-uploads", response_model=list[MonthlyUploadPoint])
-def monthly_uploads(db: Session = Depends(get_db)):
+def monthly_uploads(db: Session = Depends(get_db), _user: User = _view):
     return analytics_service.monthly_report_volume(db)
 
 
 @router.get("/monthly-claimed", response_model=list[MonthlyClaimedPoint])
-def monthly_claimed(db: Session = Depends(get_db)):
+def monthly_claimed(db: Session = Depends(get_db), _user: User = _view):
     return analytics_service.monthly_claimed_trend(db)
 
 
 @router.get("/category-breakdown", response_model=list[CategoryBreakdownPoint])
-def category_breakdown(db: Session = Depends(get_db)):
+def category_breakdown(db: Session = Depends(get_db), _user: User = _view):
     rows = analytics_service.category_breakdown(db)
     return sorted(rows, key=lambda r: r["claimed_amount"], reverse=True)
 
 
 @router.get("/recent-uploads", response_model=list[RecentUploadOut])
-def recent_uploads(db: Session = Depends(get_db)):
+def recent_uploads(db: Session = Depends(get_db), _user: User = _view):
     return analytics_service.recent_uploads(db, limit=10)

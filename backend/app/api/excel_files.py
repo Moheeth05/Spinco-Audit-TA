@@ -8,11 +8,15 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.excel import ExcelReport
+from app.models.user import User
 from app.schemas.excel import ExcelReportOut, ExcelSheetInfo, ExcelSheetPreviewOut, ExcelSheetsOut
+from app.services import audit
 from app.services.excel_generator import SHEET_NAMES, WORKBOOK_FILENAME, generate_workbook
+from app.services.permissions import DOWNLOAD_EXCEL, GENERATE_EXCEL, VIEW_EXCEL, require_permission
 from app.services.storage import EXCEL_DIR
 
 router = APIRouter(prefix="/api/excel-files", tags=["excel-files"])
+_view = Depends(require_permission(VIEW_EXCEL))
 
 MAX_PAGE_SIZE = 500
 
@@ -39,25 +43,27 @@ def _current_record(db: Session) -> ExcelReport:
 
 
 @router.get("", response_model=list[ExcelReportOut])
-def list_excel_files(db: Session = Depends(get_db)):
+def list_excel_files(db: Session = Depends(get_db), _user: User = _view):
     return db.execute(select(ExcelReport)).scalars().all()
 
 
 @router.get("/metadata", response_model=ExcelReportOut)
-def get_metadata(db: Session = Depends(get_db)):
+def get_metadata(db: Session = Depends(get_db), _user: User = _view):
     return _current_record(db)
 
 
 @router.post("/generate", response_model=ExcelReportOut)
-def generate(db: Session = Depends(get_db)):
+def generate(db: Session = Depends(get_db), user: User = Depends(require_permission(GENERATE_EXCEL))):
     try:
-        return generate_workbook(db)
+        record = generate_workbook(db)
     except Exception:  # noqa: BLE001 - never leak an internal stack trace to the client
         raise HTTPException(status_code=500, detail="Workbook generation failed. See server logs for detail.")
+    audit.log_action(db, user_id=user.id, action=audit.EXCEL_GENERATED, entity_type="ExcelReport", entity_id=None)
+    return record
 
 
 @router.get("/sheets", response_model=ExcelSheetsOut)
-def get_sheets(db: Session = Depends(get_db)):
+def get_sheets(db: Session = Depends(get_db), _user: User = _view):
     record = _current_record(db)
     path = _workbook_path(record)
     wb = load_workbook(path, read_only=True, data_only=True)
@@ -84,6 +90,7 @@ def get_sheet_preview(
     page_size: int = 50,
     search: str | None = None,
     db: Session = Depends(get_db),
+    _user: User = _view,
 ):
     if sheet_name not in SHEET_NAMES:
         raise HTTPException(status_code=404, detail=f"Unknown sheet '{sheet_name}'.")
@@ -133,9 +140,10 @@ def get_sheet_preview(
 
 
 @router.get("/download")
-def download(db: Session = Depends(get_db)):
+def download(db: Session = Depends(get_db), user: User = Depends(require_permission(DOWNLOAD_EXCEL))):
     record = _current_record(db)
     path = _workbook_path(record)
+    audit.log_action(db, user_id=user.id, action=audit.EXCEL_DOWNLOADED, entity_type="ExcelReport", entity_id=None)
     return FileResponse(
         path=path,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

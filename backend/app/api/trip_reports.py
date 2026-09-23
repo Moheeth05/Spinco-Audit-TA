@@ -10,8 +10,11 @@ from app.models.trip import Trip, TripReport
 from app.models.trip_match import TripMatchCandidate
 from app.schemas.trip_match import BattaMatchListItem
 from app.schemas.trip_report import TripLegOut, TripReportDetailOut, TripReportListItem, TripReportMonthSummary
+from app.models.user import User
+from app.services.permissions import VIEW_TRIP_REPORTS, require_permission
 
 router = APIRouter(prefix="/api/trip-reports", tags=["trip-reports"])
+_view = Depends(require_permission(VIEW_TRIP_REPORTS))
 
 
 def _month_label(report_month: str) -> str:
@@ -20,7 +23,7 @@ def _month_label(report_month: str) -> str:
 
 
 @router.get("/months", response_model=list[TripReportMonthSummary])
-def list_months(db: Session = Depends(get_db)):
+def list_months(db: Session = Depends(get_db), _user: User = _view):
     rows = db.execute(
         select(TripReport.report_month, func.count(TripReport.id))
         .where(TripReport.report_month.is_not(None), TripReport.is_embedded.is_(False))
@@ -33,7 +36,7 @@ def list_months(db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[TripReportListItem])
-def list_trip_reports(report_month: str | None = None, db: Session = Depends(get_db)):
+def list_trip_reports(report_month: str | None = None, db: Session = Depends(get_db), _user: User = _view):
     # Embedded trip summaries (extracted from inside an Expense Report PDF) are surfaced
     # on that Expense Report's detail page, not as their own standalone Trip Report row.
     stmt = select(TripReport).where(TripReport.is_embedded.is_(False)).order_by(TripReport.uploaded_at.desc())
@@ -66,7 +69,7 @@ def list_trip_reports(report_month: str | None = None, db: Session = Depends(get
 
 
 @router.get("/{report_id}/details", response_model=TripReportDetailOut)
-def get_trip_details(report_id: int, db: Session = Depends(get_db)):
+def get_trip_details(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     report = db.get(TripReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="Trip report not found.")
@@ -100,7 +103,7 @@ def get_trip_details(report_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{report_id}/batta-matches", response_model=list[BattaMatchListItem])
-def get_batta_matches(report_id: int, db: Session = Depends(get_db)):
+def get_batta_matches(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     """Every Batta expense that considered this trip during matching - the
     confirmed match (if any) plus near-miss candidates, so an auditor can see
     why a trip was or wasn't selected."""
