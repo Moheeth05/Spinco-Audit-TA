@@ -12,8 +12,13 @@ from sqlalchemy.orm import Session
 from app.models.bill import Bill
 from app.models.bill_match import BillMatchCandidate
 from app.models.expense_report import Expense, ExpenseReport
+from app.services.category_map import normalize_category
 from app.services.extraction import bill_matcher, bill_parser
 from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+
+def _is_batta(category: str | None) -> bool:
+    return normalize_category(category) == "BATTA"
 
 
 def extract_and_match_bills(
@@ -76,6 +81,7 @@ def extract_and_match_bills(
             "category_guess": b.category_guess,
             "bill_number": b.bill_number,
             "page_number": b.page_number,
+            "raw_text": b.raw_text,
         }
         for b in bills
     ]
@@ -89,6 +95,26 @@ def extract_and_match_bills(
         ).delete(synchronize_session=False)
 
     for rank, expense in enumerate(expenses, start=1):
+        if _is_batta(expense.category):
+            # BATTA (daily allowance) has no supporting-document requirement
+            # at all (Policy Master's document_required is DNA for BATTA) -
+            # it is validated against Trip Report evidence only (see
+            # batta_pipeline.py), never against a bill. Scanning bill
+            # candidates for it anyway is worse than unnecessary: a BATTA
+            # claim can incidentally score against some unrelated travel/cab
+            # bill filed the same day, which used to surface as confusing
+            # "no bill found"/"ambiguous match" review noise on an expense
+            # that was never supposed to have a bill in the first place.
+            expense.bill_match_status = "NOT_APPLICABLE"
+            expense.bill_match_score = None
+            expense.bill_match_confidence = None
+            expense.bill_match_reasons = "BATTA has no supporting-document requirement; validated against Trip Report evidence instead."
+            expense.bill_found = False
+            expense.bill_id = None
+            expense.bill_amount = None
+            expense.bill_date = None
+            continue
+
         expense_dict = {
             "claimed_amount": float(expense.claimed_amount) if expense.claimed_amount is not None else None,
             "expense_date": expense.expense_date,

@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  BadgeCheck,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -16,13 +17,17 @@ import { Document, Page } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import { useNavigate, useParams } from 'react-router-dom'
-import { apiFetch } from '../api/client'
+import { apiFetch, apiPost } from '../api/client'
 import { documentFileUrl, fetchDocument, fetchExtraction, reprocessDocument } from '../api/uploads'
 import { useApi } from '../api/useApi'
+import { useAuth } from '../auth/AuthContext'
 import { Button } from '../components/ui/Button'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
+import { Modal } from '../components/ui/Modal'
 import { StatusBadge } from '../components/ui/StatusBadge'
+
+const VERIFY_ROLES = new Set(['ADMIN', 'AUDITOR'])
 
 const MIN_SCALE = 0.5
 const MAX_SCALE = 2.5
@@ -344,9 +349,76 @@ function ReportStatusBanner({ extraction }) {
   )
 }
 
+function VerifyModal({ exception, onClose, onVerified }) {
+  const [note, setNote] = useState('')
+  const [error, setError] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleConfirm() {
+    setError(null)
+    setSubmitting(true)
+    try {
+      await apiPost(`/exceptions/${exception.id}/verify`, { note: note.trim() || null })
+      onVerified()
+      onClose()
+    } catch (err) {
+      setError(err.message || 'Could not verify this condition.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const label = exception.exception_type === 'TRIP MATCH REVIEW REQUIRED' ? 'Verify Trip Match' : exception.exception_type.startsWith('BILL MATCH') ? 'Verify Bill Match' : 'Verify'
+
+  return (
+    <Modal title={label} onClose={onClose}>
+      <p style={{ fontSize: 13, color: 'var(--gray-700)', marginBottom: 4 }}>Mark this review condition as verified?</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, background: 'var(--gray-50)', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <div>
+          <strong>Date:</strong> {exception.expense_date || '-'}
+        </div>
+        <div>
+          <strong>Category:</strong> {exception.category || '-'}
+        </div>
+        <div>
+          <strong>Claimed:</strong> {exception.claimed_amount != null ? formatINR(exception.claimed_amount) : '-'}
+        </div>
+        <div>
+          <strong>Source:</strong> {exception.source_page != null ? `Page ${exception.source_page}` : 'Source not available'}
+        </div>
+        <div>
+          <strong>Reason:</strong> {exception.reason}
+        </div>
+      </div>
+      {error && <div className="form-error">{error}</div>}
+      <div className="form-field">
+        <label>Note (optional)</label>
+        <textarea
+          className="input"
+          rows={3}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Why this condition is acceptable, e.g. checked manually against the source PDF."
+        />
+      </div>
+      <div className="form-actions">
+        <button type="button" className="btn btn-secondary" onClick={onClose} disabled={submitting}>
+          Cancel
+        </button>
+        <button type="button" className="btn btn-primary" onClick={handleConfirm} disabled={submitting}>
+          {submitting ? 'Verifying...' : 'Confirm Verification'}
+        </button>
+      </div>
+    </Modal>
+  )
+}
+
 function ExceptionsPanel({ extraction, documentId, onJump }) {
   const reportId = documentId.split(':')[1]
-  const { data: exceptions, loading, error } = useApi(`/expense-reports/${reportId}/exceptions`)
+  const { data: exceptions, loading, error, refetch } = useApi(`/expense-reports/${reportId}/exceptions`)
+  const { role } = useAuth()
+  const [verifying, setVerifying] = useState(null)
+  const canVerify = VERIFY_ROLES.has(role)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -382,6 +454,7 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                     <th className="num">Bill / Limit</th>
                     <th>Reason</th>
                     <th>Source</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -406,6 +479,22 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                           <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>Source not available</span>
                         )}
                       </td>
+                      <td>
+                        {e.status === 'RESOLVED' ? (
+                          <span
+                            style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--success, #16a34a)' }}
+                            title={`Verified by ${e.verified_by_name || 'unknown'} on ${e.verified_at ? new Date(e.verified_at).toLocaleString() : ''}${e.verification_note ? ` - ${e.verification_note}` : ''}`}
+                          >
+                            <BadgeCheck size={14} /> Verified
+                          </span>
+                        ) : e.severity === 'REVIEW REQUIRED' && canVerify ? (
+                          <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setVerifying(e)}>
+                            Verify
+                          </button>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -414,6 +503,14 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
           )}
         </div>
       </div>
+
+      {verifying && (
+        <VerifyModal
+          exception={verifying}
+          onClose={() => setVerifying(null)}
+          onVerified={refetch}
+        />
+      )}
     </div>
   )
 }
@@ -607,6 +704,7 @@ export default function DocumentViewerPage() {
   const [fileLoadError, setFileLoadError] = useState(false)
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
+  const [pageInput, setPageInput] = useState('1')
   const [scale, setScale] = useState(1.1)
   const [pageWidth, setPageWidth] = useState(null)
 
@@ -666,10 +764,46 @@ export default function DocumentViewerPage() {
     }
   }
 
+  function goToPage(page) {
+    if (!page || Number.isNaN(page)) return
+    const clamped = Math.max(1, Math.min(numPages || page, page))
+    setPageNumber(clamped)
+    setPageInput(String(clamped))
+  }
+
   function jumpToPage(page) {
-    setPageNumber(page)
+    goToPage(page)
     setTab('pdf')
   }
+
+  // Keep the typed page-number box in sync when the page changes via the
+  // prev/next buttons, a thumbnail click, or a Source link jump from
+  // another tab - only the box itself (via its own onChange) should ever
+  // diverge from pageNumber, and only while the user is actively typing.
+  useEffect(() => {
+    setPageInput(String(pageNumber))
+  }, [pageNumber])
+
+  // Keyboard navigation (Part 27): only while the PDF tab is active and
+  // focus isn't in a text input/textarea (so this never hijacks typing in
+  // the page-number box or anywhere else on the page).
+  useEffect(() => {
+    if (tab !== 'pdf') return undefined
+    function onKeyDown(e) {
+      const tagName = document.activeElement?.tagName
+      if (tagName === 'INPUT' || tagName === 'TEXTAREA') return
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault()
+        goToPage(pageNumber - 1)
+      } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault()
+        goToPage(pageNumber + 1)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, pageNumber, numPages])
 
   function handleFit() {
     if (canvasWrapRef.current && pageWidth) {
@@ -722,16 +856,29 @@ export default function DocumentViewerPage() {
         <>
           <div className="viewer-toolbar">
             <div className="viewer-toolbar-group">
-              <button className="icon-action" disabled={pageNumber <= 1} onClick={() => setPageNumber((p) => p - 1)}>
+              <button className="icon-action" disabled={pageNumber <= 1} onClick={() => goToPage(pageNumber - 1)}>
                 <ChevronLeft size={15} />
               </button>
               <span className="viewer-page-indicator">
-                Page {pageNumber} / {numPages || '-'}
+                Page{' '}
+                <input
+                  className="viewer-page-input"
+                  type="text"
+                  inputMode="numeric"
+                  value={pageInput}
+                  aria-label="Go to page"
+                  onChange={(e) => setPageInput(e.target.value.replace(/[^\d]/g, ''))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') goToPage(parseInt(pageInput, 10))
+                  }}
+                  onBlur={() => goToPage(parseInt(pageInput, 10) || pageNumber)}
+                />{' '}
+                / {numPages || '-'}
               </span>
               <button
                 className="icon-action"
                 disabled={!numPages || pageNumber >= numPages}
-                onClick={() => setPageNumber((p) => p + 1)}
+                onClick={() => goToPage(pageNumber + 1)}
               >
                 <ChevronRight size={15} />
               </button>

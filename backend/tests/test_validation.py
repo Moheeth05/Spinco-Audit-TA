@@ -203,12 +203,13 @@ def test_20b_duplicate_bill_not_applicable_when_no_document_required():
 # ---------- 21-23: catering ----------
 
 
-def test_21_catering_detected_is_exception():
+def test_21_catering_detected_is_review_required():
+    """Post-UAT correction 2, Part 15: a REVIEW REQUIRED policy exception on
+    an otherwise-matched bill, never a confirmed EXCEPTION."""
     result = checks.check_catering(
         category="TRAIN / BUS FARE", bill=_bill(raw_text="Fare Rs.500.00\nCatering charges Rs.150.00 included")
     )
-    assert result.result == checks.EXCEPTION
-    assert result.exception_type == "CATERING INCLUDED"
+    assert result.result == checks.REVIEW_REQUIRED
 
 
 def test_22_catering_not_train_bus_is_not_applicable():
@@ -305,7 +306,17 @@ def test_26_pipeline_duplicate_bill_detected_across_two_expenses(client):
             .all()
         )
         assert len(dup_results) == 2
-        assert all(r.result == "EXCEPTION" and r.exception_type == "DUPLICATE BILL" for r in dup_results)
+        # Post-UAT correction 2, Parts 13-14: only the later claim (higher
+        # s_no) is the duplicate - the earlier one is the original and
+        # passes this check like any other uniquely-matched bill, so the
+        # auditor isn't shown two symmetric "duplicate" findings for what
+        # is really one original + one duplicate.
+        by_expense_s_no = {r.expense_id: r for r in dup_results}
+        expenses_by_id = {e.id: e for e in db.query(Expense).filter(Expense.expense_report_id == report.id).all()}
+        results_by_s_no = {expenses_by_id[eid].s_no: r for eid, r in by_expense_s_no.items()}
+        assert results_by_s_no[1].result == "PASS"
+        assert results_by_s_no[2].result == "EXCEPTION"
+        assert results_by_s_no[2].exception_type == "DUPLICATE BILL"
     finally:
         db.close()
 

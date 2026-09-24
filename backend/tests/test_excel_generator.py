@@ -382,10 +382,12 @@ def test_9_er39832_reference_case_in_workbook(client, sample_pdf_path):
 
         exc_rows = [r for r in _sheet_rows(wb[SHEET_EXCEPTIONS]) if r[1] == report_id]
         assert len(exc_rows) > 0
-        # The genuine bill-tie review condition must be present, with its real reason text.
+        # The genuine bill-tie review condition must be present, with a specific,
+        # evidence-based reason (post-UAT correction 2, Part 6) - not a generic
+        # "no confirmed matching bill" placeholder.
         bill_review = [r for r in exc_rows if r[7] == "BILL MATCH REVIEW REQUIRED"]
         assert bill_review
-        assert "no confirmed matching bill" in bill_review[0][10].lower()
+        assert "plausible match" in bill_review[0][10].lower() or "score" in bill_review[0][10].lower()
 
         er_rows = [r for r in _sheet_rows(wb[SHEET_EXPENSE_REPORTS]) if r[0] == report_id]
         assert er_rows[0][16] != "ACCOUNT VERIFIED"

@@ -82,3 +82,49 @@ class ExceptionRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
     )
+
+    # Populated from ExceptionVerification (below) each time this row is
+    # rebuilt - see exception_engine.py's evaluate_report(). Never set
+    # directly; ExceptionVerification is the durable source of truth that
+    # survives this table's wholesale replacement on every (re)evaluation.
+    verified_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    verification_note: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+
+class ExceptionVerification(Base):
+    """Persists a human auditor's manual verification of a REVIEW REQUIRED
+    condition across (re)evaluation cycles. ExceptionRecord itself is
+    replaced wholesale on every (re)evaluation (see its own docstring
+    above) - if verification lived only there, reprocessing a document
+    would silently erase the fact that a human already reviewed and
+    approved a condition (see the post-UAT correction spec's explicit "do
+    not delete audit history" requirement). Keyed on the identity that
+    actually survives regeneration - (expense_report_id, expense_id,
+    exception_type) - never the ExceptionRecord row id, which changes
+    every time exceptions are rebuilt.
+
+    Only ever applies to a REVIEW REQUIRED condition, never a confirmed
+    EXCEPTION - a verification is an auditor's judgement that a genuinely
+    ambiguous condition has been manually checked and is acceptable, not
+    permission to make a real policy violation disappear (see
+    services/exception_engine.py, which enforces this).
+    """
+
+    __tablename__ = "exception_verifications"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    expense_report_id: Mapped[int] = mapped_column(ForeignKey("expense_reports.id"), index=True)
+    expense_id: Mapped[int | None] = mapped_column(ForeignKey("expenses.id"), nullable=True, index=True)
+    exception_type: Mapped[str] = mapped_column(String(100))
+
+    # What the condition looked like at the moment it was verified - kept
+    # even though the live ExceptionRecord's own reason may later reword
+    # itself (e.g. after an extraction-logic improvement), so the audit
+    # trail always shows exactly what the auditor actually approved.
+    original_severity: Mapped[str] = mapped_column(String(20))
+    original_reason: Mapped[str] = mapped_column(String(1000))
+
+    verified_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    verified_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    verification_note: Mapped[str | None] = mapped_column(String(1000), nullable=True)

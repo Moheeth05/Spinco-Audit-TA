@@ -186,6 +186,34 @@ def get_report_status(report_id: int, db: Session = Depends(get_db), _user: User
     )
 
 
+def build_exception_out(r: ExceptionRecord, expense: Expense | None, vr: ValidationResult | None, verified_by_name: str | None) -> ExceptionRecordOut:
+    return ExceptionRecordOut(
+        id=r.id,
+        expense_id=r.expense_id,
+        s_no=expense.s_no if expense else None,
+        category=expense.category if expense else None,
+        merchant=expense.merchant if expense else None,
+        exception_type=r.exception_type,
+        severity=r.severity,
+        reason=r.reason,
+        claimed_amount=(vr.claimed_amount if vr and vr.claimed_amount is not None else (expense.claimed_amount if expense else None)),
+        policy_limit=vr.policy_limit if vr else None,
+        bill_amount=vr.bill_amount if vr else None,
+        expense_date=(vr.expense_date if vr and vr.expense_date is not None else (expense.expense_date if expense else None)),
+        bill_date=vr.bill_date if vr else None,
+        bill_id=r.bill_id,
+        trip_report_id=r.trip_report_id,
+        source_document_id=r.source_document_id,
+        source_page=r.source_page,
+        status=r.status,
+        created_at=r.created_at,
+        verified_by_id=r.verified_by_id,
+        verified_by_name=verified_by_name,
+        verified_at=r.verified_at,
+        verification_note=r.verification_note,
+    )
+
+
 @router.get("/{report_id}/exceptions", response_model=list[ExceptionRecordOut])
 def get_exceptions(report_id: int, db: Session = Depends(get_db), _user: User = _view):
     report = db.get(ExpenseReport, report_id)
@@ -207,32 +235,16 @@ def get_exceptions(report_id: int, db: Session = Depends(get_db), _user: User = 
         if vr_ids
         else {}
     )
+    verifier_ids = {r.verified_by_id for r in rows if r.verified_by_id is not None}
+    verifiers_by_id = (
+        {u.id: u.name for u in db.execute(select(User).where(User.id.in_(verifier_ids))).scalars().all()}
+        if verifier_ids
+        else {}
+    )
 
     out = []
     for r in rows:
         expense = expenses_by_id.get(r.expense_id) if r.expense_id is not None else None
         vr = vr_by_id.get(r.validation_result_id) if r.validation_result_id is not None else None
-        out.append(
-            ExceptionRecordOut(
-                id=r.id,
-                expense_id=r.expense_id,
-                s_no=expense.s_no if expense else None,
-                category=expense.category if expense else None,
-                merchant=expense.merchant if expense else None,
-                exception_type=r.exception_type,
-                severity=r.severity,
-                reason=r.reason,
-                claimed_amount=(vr.claimed_amount if vr and vr.claimed_amount is not None else (expense.claimed_amount if expense else None)),
-                policy_limit=vr.policy_limit if vr else None,
-                bill_amount=vr.bill_amount if vr else None,
-                expense_date=(vr.expense_date if vr and vr.expense_date is not None else (expense.expense_date if expense else None)),
-                bill_date=vr.bill_date if vr else None,
-                bill_id=r.bill_id,
-                trip_report_id=r.trip_report_id,
-                source_document_id=r.source_document_id,
-                source_page=r.source_page,
-                status=r.status,
-                created_at=r.created_at,
-            )
-        )
+        out.append(build_exception_out(r, expense, vr, verifiers_by_id.get(r.verified_by_id)))
     return out

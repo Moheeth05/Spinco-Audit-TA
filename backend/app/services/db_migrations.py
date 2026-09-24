@@ -34,7 +34,18 @@ _EXPENSE_COLUMNS = [
     ("expenses", "merchant", "VARCHAR(255)"),
 ]
 
-_ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS
+# Post-UAT correction 2: manual "Verify" workflow (see
+# models/validation.py's ExceptionRecord.verified_by_id/verified_at/
+# verification_note and the new ExceptionVerification table, which
+# create_all() creates fine on its own since it's a brand-new table - only
+# these new columns on the pre-existing `exceptions` table need migrating).
+_EXCEPTION_COLUMNS = [
+    ("exceptions", "verified_by_id", "INTEGER"),
+    ("exceptions", "verified_at", "DATETIME"),
+    ("exceptions", "verification_note", "VARCHAR(1000)"),
+]
+
+_ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS + _EXCEPTION_COLUMNS
 
 
 def run_light_migrations(engine: Engine) -> None:

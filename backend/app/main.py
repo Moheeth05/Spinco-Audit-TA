@@ -15,6 +15,7 @@ from app.api import (
     dashboard,
     documents,
     excel_files,
+    exceptions,
     expense_reports,
     expenses,
     health,
@@ -95,6 +96,7 @@ app.include_router(users.router)
 app.include_router(audit_logs.router)
 app.include_router(dashboard.router)
 app.include_router(expense_reports.router)
+app.include_router(exceptions.router)
 app.include_router(trip_reports.router)
 app.include_router(excel_files.router)
 app.include_router(analytics.router)

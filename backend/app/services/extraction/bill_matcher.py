@@ -9,6 +9,9 @@ Weights (documented here, the one place they're defined):
     Amount exact match          +40
     Amount exact + unique       +15   (no other bill on the document has this amount)
     Amount close (<=1%/Rs.1)    +20
+    Amount present but wrong    -25   (a known amount that clearly differs is strong
+                                         negative evidence, not neutral - stops date/
+                                         category alone from looking "plausible")
     Date exact match             +30
     Date within 1 day            +12
     Vendor/description strong    +15   (text similarity >= 0.5)
@@ -34,6 +37,7 @@ import difflib
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.services import category_map
 from app.services.category_map import category_compatible as _category_compatible
 
 MIN_THRESHOLD = 25
@@ -79,15 +83,40 @@ def score_pair(
     bill_amount = bill.get("amount")
     if claimed is not None and bill_amount is not None:
         diff = abs(claimed - bill_amount)
-        if diff < 0.01:
+        # A travel-ticket bill's own total is "all inclusive" and can
+        # legitimately be larger than what the employee claims when the bill
+        # bundles in a catering charge the company doesn't reimburse as part
+        # of the fare (see checks.py's Catering Check, which separately
+        # flags this for auditor review) - comparing against
+        # (bill total - catering) as well as the raw total means that
+        # difference alone doesn't look like a real amount mismatch and
+        # doesn't block an otherwise-correct match (Part 17: catering must
+        # not break bill matching).
+        catering = category_map.detect_catering_amount(bill.get("raw_text"))
+        diff_excl_catering = abs(claimed - (bill_amount - catering)) if catering else None
+        if diff < 0.01 or (diff_excl_catering is not None and diff_excl_catering < 0.01):
             score += 40
-            reasons.append("Amount: exact match")
+            reasons.append("Amount: exact match" if diff < 0.01 else "Amount: exact match once catering is excluded")
             if amount_is_unique:
                 score += 15
                 reasons.append("Amount: unique exact match - no other bill on this document shares it")
-        elif diff <= max(1.0, claimed * 0.01):
+        elif diff <= max(1.0, claimed * 0.01) or (diff_excl_catering is not None and diff_excl_catering <= max(1.0, claimed * 0.01)):
             score += 20
-            reasons.append("Amount: close match (minor rounding)")
+            reasons.append("Amount: close match (minor rounding)" if diff <= max(1.0, claimed * 0.01) else "Amount: close match once catering is excluded")
+        else:
+            # A bill whose amount IS known and is clearly different is strong
+            # negative evidence - real accounting practice means a genuine
+            # supporting bill's total essentially always matches the claimed
+            # figure. Without this, a bill sharing only the expense's date and
+            # category (common when several same-category expenses fall on
+            # the same day) could still look "plausible" on those two signals
+            # alone even though its amount rules it out, manufacturing false
+            # MULTIPLE_CANDIDATES ambiguity between bills that are actually
+            # both wrong. A bill whose amount simply couldn't be extracted
+            # (bill_amount is None) gets no penalty - that's a different,
+            # neutral kind of uncertainty.
+            score -= 25
+            reasons.append("Amount: present but clearly different from claimed - strong negative signal")
 
     exp_date = expense.get("expense_date")
     bill_date = bill.get("bill_date")
@@ -133,6 +162,24 @@ def score_pair(
     return score, reasons
 
 
+def _describe_bill(bill: dict[str, Any] | None) -> str:
+    """A short, evidence-bearing description of a candidate bill for use in
+    a REVIEW_REQUIRED/NO_MATCH reason string - "page 12, amount Rs.3,900.00,
+    date 2026-08-09" rather than an opaque bill id, so an auditor reading the
+    reason alone knows exactly which document to look at (see Part 6:
+    every REVIEW_REQUIRED reason must be specific, not generic)."""
+    if bill is None:
+        return "unknown bill"
+    parts = []
+    if bill.get("page_number") is not None:
+        parts.append(f"page {bill['page_number']}")
+    if bill.get("amount") is not None:
+        parts.append(f"amount Rs.{bill['amount']:,.2f}")
+    if bill.get("bill_date") is not None:
+        parts.append(f"date {bill['bill_date']}")
+    return ", ".join(parts) if parts else "no distinguishing evidence"
+
+
 def match_expense(
     expense: dict[str, Any], bills: list[dict[str, Any]], first_bill_page: int | None = None
 ) -> MatchOutcome:
@@ -146,6 +193,7 @@ def match_expense(
             candidates=[],
         )
 
+    bills_by_id = {bill["id"]: bill for bill in bills}
     amount_counts: dict[float, int] = {}
     for bill in bills:
         if bill.get("amount") is not None:
@@ -162,22 +210,40 @@ def match_expense(
     second = scored[1] if len(scored) > 1 else None
 
     if best.score < MIN_THRESHOLD:
+        claimed = expense.get("claimed_amount")
+        exp_date = expense.get("expense_date")
+        best_desc = _describe_bill(bills_by_id.get(best.bill_id))
+        expense_bits = []
+        if claimed is not None:
+            expense_bits.append(f"claimed Rs.{claimed:,.2f}")
+        if exp_date is not None:
+            expense_bits.append(f"date {exp_date}")
+        expense_desc = f" ({', '.join(expense_bits)})" if expense_bits else ""
         return MatchOutcome(
             status="NO_MATCH",
             matched_bill_id=None,
             score=best.score,
             confidence=None,
-            reasons=["No candidate bill scored highly enough to plausibly support this expense."],
+            reasons=[
+                f"No candidate bill scored highly enough to plausibly support this expense{expense_desc}. "
+                f"Closest candidate: {best_desc} (score {best.score}/{MIN_THRESHOLD} needed)."
+            ],
             candidates=scored[:3],
         )
 
     if second and second.score >= MIN_THRESHOLD and (best.score - second.score) < CANDIDATE_MARGIN:
+        best_desc = _describe_bill(bills_by_id.get(best.bill_id))
+        second_desc = _describe_bill(bills_by_id.get(second.bill_id))
         return MatchOutcome(
             status="MULTIPLE_CANDIDATES",
             matched_bill_id=None,
             score=best.score,
             confidence=None,
-            reasons=["Multiple bills are plausible matches; auditor review required."],
+            reasons=[
+                f"Two or more bills are similarly plausible matches: {best_desc} (score {best.score}) and "
+                f"{second_desc} (score {second.score}) - neither is confidently distinguishable using the "
+                f"available evidence."
+            ],
             candidates=scored[:3],
         )
 
@@ -189,12 +255,17 @@ def match_expense(
         confidence = "LOW"
 
     if confidence == "LOW":
+        best_desc = _describe_bill(bills_by_id.get(best.bill_id))
+        weak_evidence = "; ".join(best.reasons) if best.reasons else "no supporting signals matched"
         return MatchOutcome(
             status="REVIEW_REQUIRED",
             matched_bill_id=None,
             score=best.score,
             confidence=None,
-            reasons=best.reasons or ["Best candidate's evidence was too weak to auto-confirm."],
+            reasons=[
+                f"Best candidate ({best_desc}, score {best.score}/{MEDIUM_THRESHOLD} needed to auto-confirm) "
+                f"is too weak to auto-confirm: {weak_evidence}."
+            ],
             candidates=scored[:3],
         )
 

@@ -10,12 +10,11 @@ functions ever invents a bill amount, a bill date, a vendor, or a policy -
 insufficient evidence is always REVIEW_REQUIRED, never a guessed PASS.
 """
 
-import re
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal, InvalidOperation
 
-from app.services.category_map import expected_bill_label, normalize_category
+from app.services.category_map import detect_catering_amount, expected_bill_label, mentions_catering, normalize_category
 
 PASS = "PASS"
 EXCEPTION = "EXCEPTION"
@@ -121,13 +120,24 @@ def check_policy_limit(*, claimed_amount, category_label: str, policy) -> CheckR
 # ---------- 2. Bill amount ----------
 
 
-def check_bill_amount(*, claimed_amount, bill_match_status: str, bill) -> CheckResult:
+def check_bill_amount(
+    *, claimed_amount, bill_match_status: str, bill, bill_match_reasons: str | None = None, document_required: bool | None = None
+) -> CheckResult:
     check_type = "Bill Amount Check"
+    if document_required is False:
+        # No supporting document is expected for this category at all (e.g.
+        # BATTA) - bill matching still runs uniformly across every expense
+        # (see bill_pipeline.py) so it may have scored some unrelated bill,
+        # but that outcome is meaningless here and must never surface as
+        # review-required noise on an expense that was never supposed to
+        # have a bill in the first place (spec: BATTA must never be sent
+        # through bill-matching review at all).
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
     if bill is None or bill_match_status != "MATCHED":
         return CheckResult(
             check_type=check_type,
             result=REVIEW_REQUIRED,
-            details="No confirmed matching bill is available for this expense.",
+            details=bill_match_reasons or "No confirmed matching bill is available for this expense.",
             claimed_amount=claimed_amount,
         )
 
@@ -161,6 +171,30 @@ def check_bill_amount(*, claimed_amount, bill_match_status: str, bill) -> CheckR
             source_page=bill.page_number,
         )
 
+    # A travel bill's own total is "all inclusive" and can legitimately
+    # exceed what's claimed when it bundles in a catering charge (see
+    # check_catering below, which separately flags this for review) - if
+    # excluding that catering charge brings the bill exactly in line with
+    # what was claimed, this is not a real amount mismatch (Part 17:
+    # catering must not break bill matching).
+    catering_amount = detect_catering_amount(bill.raw_text)
+    if catering_amount is not None:
+        catering = _to_decimal(catering_amount)
+        # A small (<=Re.1) tolerance here, same as bill_matcher.py's "close
+        # match" allowance, absorbs paise-level rounding across the ticket's
+        # several inclusive-of-GST line items - not a loosened threshold,
+        # the same tolerance already used for an ordinary amount match.
+        if catering is not None and abs(claimed - (bill_amt - catering)) <= max(Decimal("1"), claimed * Decimal("0.01")):
+            return CheckResult(
+                check_type=check_type,
+                result=PASS,
+                details=f"Claimed {_fmt(claimed)} vs Bill {_fmt(bill_amt)} (matches once catering of {_fmt(catering)} is excluded)",
+                remarks="Amount matches once catering is excluded",
+                claimed_amount=claimed_amount,
+                bill_amount=float(bill_amt),
+                source_page=bill.page_number,
+            )
+
     return CheckResult(
         check_type=check_type,
         result=EXCEPTION,
@@ -176,13 +210,17 @@ def check_bill_amount(*, claimed_amount, bill_match_status: str, bill) -> CheckR
 # ---------- 3. Bill date ----------
 
 
-def check_bill_date(*, expense_date: date | None, bill_match_status: str, bill) -> CheckResult:
+def check_bill_date(
+    *, expense_date: date | None, bill_match_status: str, bill, bill_match_reasons: str | None = None, document_required: bool | None = None
+) -> CheckResult:
     check_type = "Bill Date Check"
+    if document_required is False:
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
     if bill is None or bill_match_status != "MATCHED":
         return CheckResult(
             check_type=check_type,
             result=REVIEW_REQUIRED,
-            details="No confirmed matching bill is available for this expense.",
+            details=bill_match_reasons or "No confirmed matching bill is available for this expense.",
             expense_date=expense_date,
         )
     if bill.bill_date is None:
@@ -228,7 +266,9 @@ def check_bill_date(*, expense_date: date | None, bill_match_status: str, bill) 
 # ---------- 4. Required document ----------
 
 
-def check_required_document(*, bill_match_status: str, policy, document_required: bool | None) -> CheckResult:
+def check_required_document(
+    *, bill_match_status: str, policy, document_required: bool | None, bill_match_reasons: str | None = None
+) -> CheckResult:
     check_type = "Required Document Check"
     if policy is None:
         return CheckResult(
@@ -258,20 +298,24 @@ def check_required_document(*, bill_match_status: str, policy, document_required
             result=EXCEPTION,
             exception_type="MISSING BILL",
             details=f"{policy.category} requires a supporting document ({policy.document_required}).",
-            remarks="Required supporting document was not found for this expense.",
+            remarks=bill_match_reasons or "Required supporting document was not found for this expense.",
         )
     return CheckResult(
         check_type=check_type,
         result=REVIEW_REQUIRED,
-        details="Bill matching for this expense was ambiguous (multiple candidates or uncertain match).",
+        details=bill_match_reasons or "Bill matching for this expense was ambiguous (multiple candidates or uncertain match).",
     )
 
 
 # ---------- 5. Category consistency ----------
 
 
-def check_category_consistency(*, category: str | None, bill_match_status: str, bill) -> CheckResult:
+def check_category_consistency(
+    *, category: str | None, bill_match_status: str, bill, document_required: bool | None = None
+) -> CheckResult:
     check_type = "Category Consistency Check"
+    if document_required is False:
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
     if bill is None or bill_match_status != "MATCHED":
         return CheckResult(
             check_type=check_type,
@@ -318,7 +362,14 @@ def check_category_consistency(*, category: str | None, bill_match_status: str, 
 # ---------- 6. Duplicate bill (report-wide, see pipeline.py for the grouping) ----------
 
 
-def check_duplicate_bill(*, bill_match_status: str, bill, is_duplicate: bool, document_required: bool | None = None) -> CheckResult:
+def check_duplicate_bill(
+    *,
+    bill_match_status: str,
+    bill,
+    is_duplicate: bool,
+    document_required: bool | None = None,
+    original_expense=None,
+) -> CheckResult:
     check_type = "Duplicate Bill Check"
     if bill is None or bill_match_status != "MATCHED":
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No confirmed matching bill.", remarks="Not applicable")
@@ -337,21 +388,33 @@ def check_duplicate_bill(*, bill_match_status: str, bill, is_duplicate: bool, do
         # bills enter the match set).
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
     if is_duplicate:
+        # The auditor must be told WHICH claim is original, not just that a
+        # duplicate exists (Part 13-14) - the earlier expense (lowest s_no,
+        # see validation/pipeline.py) is deterministically treated as the
+        # original; this one is the duplicate.
+        if original_expense is not None:
+            original_desc = (
+                f"S.No {original_expense.s_no} (claimed {_fmt(original_expense.claimed_amount)}, "
+                f"date {_fmt_date(original_expense.expense_date)})"
+            )
+        else:
+            original_desc = "an earlier expense on this report"
+        reason = (
+            f"This bill (page {bill.page_number}) is already matched to {original_desc}, which is treated as "
+            f"the original claim; this expense's claim on the same bill is the duplicate."
+        )
         return CheckResult(
             check_type=check_type,
             result=EXCEPTION,
             exception_type="DUPLICATE BILL",
-            details=f"Bill on page {bill.page_number} is matched to more than one expense.",
-            remarks="Supporting document appears to have already been matched to another expense.",
+            details=reason,
+            remarks=reason,
             source_page=bill.page_number,
         )
     return CheckResult(check_type=check_type, result=PASS, details="This bill is matched to only one expense.", remarks="No duplication detected", source_page=bill.page_number)
 
 
 # ---------- 7. Catering included in Train/Bus Fare ----------
-
-_CATERING_RE = re.compile(r"\bcatering\b", re.IGNORECASE)
-_AMOUNT_NEAR_RE = re.compile(r"(?:₹|Rs\.?|INR)\s*[\d,]+(?:\.\d{1,2})?|\b\d[\d,]*\.\d{2}\b", re.IGNORECASE)
 
 
 def check_catering(*, category: str | None, bill) -> CheckResult:
@@ -361,9 +424,8 @@ def check_catering(*, category: str | None, bill) -> CheckResult:
     if bill is None:
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No confirmed matching bill.", remarks="Not applicable")
 
-    text = bill.raw_text or ""
-    match = _CATERING_RE.search(text)
-    if not match:
+    catering_amount = detect_catering_amount(bill.raw_text)
+    if catering_amount is None and not mentions_catering(bill.raw_text):
         return CheckResult(
             check_type=check_type,
             result=PASS,
@@ -371,16 +433,16 @@ def check_catering(*, category: str | None, bill) -> CheckResult:
             remarks="No catering charges found",
             source_page=bill.page_number,
         )
-
-    window = text[match.end() : match.end() + 40]
-    amount_match = _AMOUNT_NEAR_RE.search(window)
-    amount_text = f" of {amount_match.group(0)}" if amount_match else ""
+    amount_text = _fmt(catering_amount) if catering_amount is not None else "an unspecified amount"
+    # A REVIEW_REQUIRED policy exception on an otherwise-successfully-matched
+    # bill, never a confirmed EXCEPTION (per spec: catering is an auditor
+    # judgment call, not automatically wrong) - the auditor decides whether
+    # to accept/reduce the claim, not the system.
     return CheckResult(
         check_type=check_type,
-        result=EXCEPTION,
-        exception_type="CATERING INCLUDED",
-        details="The supporting bill text references catering charges.",
-        remarks=f"Catering charges{amount_text} are included in the Train/Bus Fare bill and require review.",
+        result=REVIEW_REQUIRED,
+        details=f"Catering service found in the travel bill: {amount_text}.",
+        remarks=f"Catering service found in the travel bill: {amount_text}.",
         source_page=bill.page_number,
     )
 

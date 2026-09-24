@@ -95,6 +95,38 @@ def test_date_parsing(text, expected):
         assert (result.year, result.month, result.day) == expected
 
 
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        # Post-UAT correction 2, Part 2: real supporting bills print textual
+        # month-name dates, not just DD/MM/YYYY - a cab receipt's own
+        # "Date: August 7, 2026" and an IRCTC ticket's "22-Aug-2026" must
+        # both be recognized, not just silently dropped.
+        ("Date: August 7, 2026", (2026, 8, 7)),
+        ("August 7, 2026", (2026, 8, 7)),
+        ("7 August 2026", (2026, 8, 7)),
+        ("22-Aug-2026", (2026, 8, 22)),
+        ("Departure* 14:55 22-Aug-2026", (2026, 8, 22)),
+        ("21-Aug-2026 16:31:16 HRS", (2026, 8, 21)),
+        ("Paid at 09:50 AM, 11 Aug 2026", (2026, 8, 11)),
+        ("32 August 2026", None),  # invalid day, must not guess
+    ],
+)
+def test_textual_month_name_date_parsing(text, expected):
+    result = parse_date(text)
+    if expected is None:
+        assert result is None
+    else:
+        assert (result.year, result.month, result.day) == expected
+
+
+def test_find_all_dates_orders_by_position_across_formats():
+    from app.services.extraction.dates import find_all_dates
+
+    dates = find_all_dates("First 01/06/2026 then August 7, 2026 then 22-Aug-2026")
+    assert [(d.month, d.day) for d in dates] == [(6, 1), (8, 7), (8, 22)]
+
+
 # ---------- 1/2/3: classification ----------
 
 

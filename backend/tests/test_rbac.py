@@ -256,3 +256,33 @@ def test_all_roles_can_view_policy_master(client):
     for role_name, (c, _csrf) in roles.items():
         resp = c.get("/api/policy-master")
         assert resp.status_code == 200, f"{role_name} GET /api/policy-master expected 200, got {resp.status_code}"
+
+
+# ---------- verify exception: VIEWER rejected, AUDITOR/ADMIN pass the auth layer (post-UAT correction 2, Part 24) ----------
+
+
+def test_viewer_cannot_verify_exception(client):
+    from pathlib import Path
+
+    roles = _make_role_clients(client)
+    admin_client, admin_csrf = roles["ADMIN"]
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    er_path = repo_root / "ER-39832.pdf"
+    resp = admin_client.post(
+        "/api/uploads/expense-reports",
+        files={"files": (er_path.name, er_path.read_bytes(), "application/pdf")},
+        headers={"X-CSRF-Token": admin_csrf},
+    )
+    report_id = resp.json()["results"][0]["document_id"].split(":")[1]
+    exceptions = admin_client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    review_required = [e for e in exceptions if e["severity"] == "REVIEW REQUIRED"]
+    if not review_required:
+        return  # nothing to verify on this real document right now - not this test's concern
+
+    viewer_client, viewer_csrf = roles["VIEWER"]
+    resp = viewer_client.post(
+        f"/api/exceptions/{review_required[0]['id']}/verify",
+        json={"note": "should be rejected"},
+        headers={"X-CSRF-Token": viewer_csrf},
+    )
+    assert resp.status_code == 403

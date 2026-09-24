@@ -11,6 +11,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.services.extraction import nvidia_fallback
 from app.services.extraction.dates import find_all_dates
 from app.services.extraction.money import parse_amount
 
@@ -23,8 +24,15 @@ AMOUNT_LABELS = [
     (4, "net amount"),
     (4, "amount payable"),
     (4, "total payable"),
+    (4, "total fare"),
     (3, "total reimbursable"),
     (3, "amount"),
+    # A bare "total" also matches inside an unrelated boilerplate line further
+    # down the same page (e.g. an IRCTC ticket's GST breakdown ends with
+    # "Total Tax:" underneath the real "Total Fare (all inclusive)" line) -
+    # kept lower priority than the more specific "total fare"/"total
+    # payable"/etc. above so that boilerplate can never tie with, or beat,
+    # the real total.
     (3, "total"),
     (2, "sub total"),
     (2, "subtotal"),
@@ -51,7 +59,32 @@ BILL_NUMBER_LABELS = [
     "memo #",
 ]
 
-DATE_LABELS = ["bill date", "invoice date", "date", "dt", "txst", "txn date"]
+# (priority, label) - higher wins when several labelled dates are found on
+# the same bill (e.g. a train ticket has its own "Date:", a "Booking Date",
+# and a "Start Date"). Every entry containing "date" as a substring would
+# otherwise also match the generic "date" label - max()-by-priority in
+# _find_date already handles that overlap correctly, no exclusion needed
+# for these.
+DATE_LABELS = [
+    (4, "invoice date"),
+    (4, "bill date"),
+    (3, "date of travel"),
+    (3, "journey date"),
+    (2, "txn date"),
+    (2, "booking date"),
+    (1, "date"),
+    (1, "dt"),
+    (1, "txst"),
+]
+# A date CAN appear on these labelled lines, but it is never the bill's own
+# transaction date - a "Due Date"/"Print Date"/"Departure Date" etc. must
+# never be picked over (or instead of) the real one, so these lines are
+# skipped entirely rather than being assigned any priority.
+DATE_EXCLUDE_LABELS = [
+    "due date", "payment date", "print date", "printed date", "generated date",
+    "upload date", "departure date", "arrival date", "expiry date", "valid until",
+    "valid upto", "validity date",
+]
 
 VENDOR_SUFFIX_RE = re.compile(
     r"\b(LTD|LIMITED|PVT|CORP|CORPORATION|HOTEL|RESTAURANT|TRAVELS|TOUR|STORES|AGENC\w*|"
@@ -63,11 +96,17 @@ VENDOR_SUFFIX_RE = re.compile(
 CATEGORY_KEYWORDS = [
     (re.compile(r"\b(PETROL|DIESEL|FUEL|AUTOFUEL)\b", re.IGNORECASE), "Fuel"),
     (re.compile(r"\b(HOTEL|LODGING|ROOM CHARGE|ACCOMMODATION)\b", re.IGNORECASE), "Lodging"),
-    (re.compile(r"\b(UBER|CAB|TAXI|uber)\b", re.IGNORECASE), "Cab/Taxi"),
+    # A cab/ride-hailing bill rarely prints the literal word "cab"/"taxi" - it
+    # prints what the service actually is (a ride fare, a passenger transport
+    # service). These are the terms real ride-receipts use (see the
+    # ER-41115 CAB CHARGES bill: "Ride fare", "Passengers Transport
+    # Services") - never require the Policy Master category's own wording to
+    # appear verbatim on the bill.
+    (re.compile(r"\b(UBER|OLA|CAB|TAXI|RIDE FARE|RIDE|PASSENGERS?\s+TRANSPORT(?:\s+SERVICES?)?)\b", re.IGNORECASE), "Cab/Taxi"),
     (re.compile(r"\b(FOOD|RESTAURANT|MEAL|DINE|MESS|CAFE|BAR)\b", re.IGNORECASE), "Food"),
     (re.compile(r"\b(COURIER|DTDC|AWB)\b", re.IGNORECASE), "Courier"),
     (re.compile(r"\b(PRINTING|STATIONERY|STATIONARY)\b", re.IGNORECASE), "Printing & Stationery"),
-    (re.compile(r"\b(TRAIN|RAILWAY)\b", re.IGNORECASE), "Train"),
+    (re.compile(r"\b(TRAIN|RAILWAY|IRCTC|PNR)\b", re.IGNORECASE), "Train"),
     (re.compile(r"\bBUS\b", re.IGNORECASE), "Bus"),
     (re.compile(r"\b(ELECTRICAL|HARDWARE)\b", re.IGNORECASE), "Hardware/Electrical"),
 ]
@@ -186,26 +225,33 @@ def _find_amount(text: str) -> tuple[float | None, str, list[str]]:
     # No labeled amount anywhere - only trust an unlabeled figure if it's at least
     # plausibly a bill total; small bare decimals are usually something else
     # entirely (e.g. a "4.98" star rating on a ride-hailing trip-details page).
+    # Duplicates are kept (not deduped into a set) here specifically so the
+    # arithmetic check below can see e.g. two identical CGST/SGST lines.
     all_tokens = _AMOUNT_TOKEN_RE.findall(text)
-    distinct = {a for a in (parse_amount(t) for t in all_tokens) if a is not None and a >= 10}
+    amounts = [a for a in (parse_amount(t) for t in all_tokens) if a is not None and a >= 10]
+    distinct = sorted(set(amounts))
     if len(distinct) == 1:
-        return next(iter(distinct)), "MEDIUM", warnings
+        return distinct[0], "MEDIUM", warnings
     if len(distinct) > 1:
         # A bill total is structurally never smaller than any line item or tax
         # component printed on the same page (subtotal + CGST/SGST = total,
         # base fare + reservation charge = total, etc.), so the largest figure
-        # found is a plausible - if unlabeled - total. This is offered only as
-        # a LOW-confidence candidate: parsed_has_evidence()/the caller still
-        # mark the bill REVIEW_REQUIRED, and bill_matcher.py never auto-confirms
-        # a match on amount alone, so a wrong guess here cannot silently
-        # produce a MATCHED result - it can only stop a real bill from being
-        # excluded from the candidate set entirely (see bill_matcher.py's
-        # module docstring on candidate breadth).
+        # found is a plausible - if unlabeled - total.
         best = max(distinct)
-        others = sorted(a for a in distinct if a != best)
+        others = [a for a in amounts if a != best]
+        # Stronger than "just the largest": if the other figures on the page
+        # (a subtotal/ride-fare plus its CGST/SGST lines, etc.) sum exactly to
+        # the largest one, that's direct arithmetic proof it's the real total,
+        # not just a guess - e.g. Ride fare 520 + CGST 13 + SGST 13 = 546.
+        if others and abs(sum(others) - best) < 0.02:
+            warnings.append(
+                f"Amount confirmed via arithmetic: components {sorted(others)} sum to {best}, "
+                "which is used as the bill total."
+            )
+            return best, "MEDIUM", warnings
         warnings.append(
             f"Multiple unlabeled amounts found; using the largest ({best}) as a low-confidence "
-            f"candidate total. Other amounts on the page: {others}."
+            f"candidate total. Other amounts on the page: {sorted(set(others))}."
         )
         return best, "LOW", warnings
     return None, "LOW", warnings
@@ -213,14 +259,21 @@ def _find_amount(text: str) -> tuple[float | None, str, list[str]]:
 
 def _find_date(text: str):
     lines = text.split("\n")
+    best = None  # (priority, date) - highest priority wins
     for i, line in enumerate(lines):
         lower = line.lower()
-        if any(label in lower for label in DATE_LABELS):
-            dates = find_all_dates(line)
-            if not dates and i + 1 < len(lines):
-                dates = find_all_dates(lines[i + 1])
-            if dates:
-                return dates[0], "HIGH", []
+        if any(excluded in lower for excluded in DATE_EXCLUDE_LABELS):
+            continue
+        priority = max((p for p, label in DATE_LABELS if label in lower), default=None)
+        if priority is None:
+            continue
+        dates = find_all_dates(line)
+        if not dates and i + 1 < len(lines):
+            dates = find_all_dates(lines[i + 1])
+        if dates and (best is None or priority > best[0]):
+            best = (priority, dates[0])
+    if best is not None:
+        return best[1], "HIGH", []
 
     all_dates = find_all_dates(text)
     distinct = sorted(set(all_dates))
@@ -295,6 +348,31 @@ def parse_bill_text(text: str) -> ParsedBill:
     category_guess, snippet = _find_category(text)
     bill.category_guess = category_guess
     bill.description = snippet
+
+    # Optional last-resort supplementary pass (Part 8/33) - only attempted
+    # when local extraction left the two signals bill_matcher.py weighs most
+    # heavily (amount, date) genuinely missing, and only when
+    # SPINCO_NVIDIA_API_KEY is configured; a no-op otherwise (see
+    # nvidia_fallback.py's module docstring for the full pipeline
+    # position/rules - it only fills gaps, never overrides a value already
+    # extracted deterministically, and every field it returns still passes
+    # through the same numeric/date parsers as everything else).
+    if (bill.amount is None or bill.bill_date is None) and nvidia_fallback.is_available():
+        fallback = nvidia_fallback.extract_structured_fields(text)
+        if fallback is not None:
+            if bill.amount is None and fallback.amount is not None:
+                bill.amount = fallback.amount.value
+                amount_confidence = fallback.amount.confidence
+                bill.warnings.append(f"Amount supplied by the optional NVIDIA extraction fallback ({fallback.amount.confidence} confidence).")
+            if bill.bill_date is None and fallback.date is not None:
+                bill.bill_date = fallback.date.value
+                date_confidence = fallback.date.confidence
+                bill.warnings.append(f"Date supplied by the optional NVIDIA extraction fallback ({fallback.date.confidence} confidence).")
+            if bill.vendor is None and fallback.vendor is not None:
+                bill.vendor = fallback.vendor.value
+                bill.warnings.append("Vendor supplied by the optional NVIDIA extraction fallback.")
+            if bill.category_guess is None and fallback.category_evidence is not None:
+                bill.description = fallback.category_evidence.value
 
     if bill.amount is None:
         bill.warnings.append("Bill amount could not be reliably determined.")

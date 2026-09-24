@@ -23,6 +23,14 @@ class ExceptionRecordOut(BaseModel):
     source_page: int | None
     status: str
     created_at: datetime
+    verified_by_id: int | None = None
+    verified_by_name: str | None = None
+    verified_at: datetime | None = None
+    verification_note: str | None = None
+
+
+class VerifyExceptionIn(BaseModel):
+    note: str | None = None
 
 
 class ReportStatusOut(BaseModel):

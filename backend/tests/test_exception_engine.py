@@ -260,7 +260,11 @@ def test_8_total_mismatch_is_exception():
         db.close()
 
 
-def test_9_catering_included_is_exception():
+def test_9_catering_included_is_review_required_not_exception():
+    """Post-UAT correction 2, Part 15: catering is a REVIEW REQUIRED policy
+    exception on an otherwise-successfully-matched bill (an auditor
+    judgement call), never a confirmed EXCEPTION - updated from this test's
+    original assertion, which predates that explicit spec requirement."""
     db = SessionLocal()
     try:
         report = _make_report(db, er_id="ER-CATERING", total_claimed=2250.0)
@@ -274,7 +278,7 @@ def test_9_catering_included_is_exception():
             bill_id=bill.id, bill_match_status="MATCHED",
         )
         report = _evaluate(db, report.id)
-        assert report.overall_status == "EXCEPTION"
+        assert report.overall_status == "REVIEW REQUIRED"
         assert "CATERING INCLUDED" in _exception_types(db, report.id)
     finally:
         db.close()
@@ -683,3 +687,117 @@ def test_26_phase1_6_regression_still_works(client):
     assert detail["employee_code"] == "T465"
     assert detail["start_date"] == "2026-07-13"
     assert detail["end_date"] == "2026-07-19"
+
+
+# ---------- 27-31: manual "Verify" workflow (post-UAT correction 2, Parts 20-26) ----------
+
+
+def _upload_and_get_a_review_required_exception(client):
+    resp = client.post(
+        "/api/uploads/expense-reports",
+        files=[("files", ("ER-40706 (1).pdf", (REPO_ROOT / "ER-40706 (1).pdf").read_bytes(), "application/pdf"))],
+    )
+    report_id = resp.json()["results"][0]["document_id"].split(":")[1]
+    exceptions = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    review_required = next(e for e in exceptions if e["severity"] == "REVIEW REQUIRED")
+    return report_id, review_required
+
+
+def test_27_verify_is_a_real_backend_state_transition(client):
+    report_id, review_required = _upload_and_get_a_review_required_exception(client)
+    status_before = client.get(f"/api/expense-reports/{report_id}/status").json()
+
+    resp = client.post(f"/api/exceptions/{review_required['id']}/verify", json={"note": "Checked against source PDF."})
+    assert resp.status_code == 200, resp.text
+    updated = resp.json()
+    assert updated["status"] == "RESOLVED"
+    assert updated["verified_by_id"] is not None
+    assert updated["verified_at"] is not None
+    assert updated["verification_note"] == "Checked against source PDF."
+
+    status_after = client.get(f"/api/expense-reports/{report_id}/status").json()
+    assert status_after["review_required_count"] < status_before["review_required_count"]
+    assert status_after["verified_expense_count"] > status_before["verified_expense_count"]
+
+
+def test_28_verified_exception_no_longer_appears_as_open_review_required(client):
+    report_id, review_required = _upload_and_get_a_review_required_exception(client)
+    client.post(f"/api/exceptions/{review_required['id']}/verify", json={"note": None})
+
+    exceptions_after = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    same = next(e for e in exceptions_after if e["id"] == review_required["id"] or (
+        e["expense_id"] == review_required["expense_id"] and e["exception_type"] == review_required["exception_type"]
+    ))
+    # The record still exists (audit history is preserved, never deleted -
+    # Part 23) but is no longer an open review condition.
+    assert same["status"] == "RESOLVED"
+
+    expenses = client.get(f"/api/expense-reports/{report_id}/expenses").json()
+    expense = next(e for e in expenses if e["id"] == review_required["expense_id"])
+    assert expense["validation_status"] != "REVIEW_REQUIRED"
+
+
+def test_29_verification_survives_reprocessing(client):
+    """Part 23: manual verification must not be silently erased the next
+    time this report is (re)extracted/(re)validated - ExceptionRecord is
+    replaced wholesale on every evaluation, so this specifically exercises
+    that the durable ExceptionVerification table (not the ExceptionRecord
+    row itself) is what verification actually lives in."""
+    report_id, review_required = _upload_and_get_a_review_required_exception(client)
+    client.post(f"/api/exceptions/{review_required['id']}/verify", json={"note": "kept across reprocessing"})
+
+    resp = client.post(f"/api/documents/expense:{report_id}/reprocess")
+    assert resp.status_code == 200
+
+    exceptions_after = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    same = next(
+        e for e in exceptions_after
+        if e["expense_id"] == review_required["expense_id"] and e["exception_type"] == review_required["exception_type"]
+    )
+    assert same["status"] == "RESOLVED"
+    assert same["verification_note"] == "kept across reprocessing"
+
+
+def test_30_cannot_verify_a_confirmed_exception(client):
+    resp = client.post(
+        "/api/uploads/expense-reports",
+        files=[("files", ("ER-39832.pdf", (REPO_ROOT / "ER-39832.pdf").read_bytes(), "application/pdf"))],
+    )
+    report_id = resp.json()["results"][0]["document_id"].split(":")[1]
+    exceptions = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    confirmed = next((e for e in exceptions if e["severity"] == "EXCEPTION"), None)
+    if confirmed is None:
+        return  # this real document doesn't currently have one - not this test's concern
+
+    resp = client.post(f"/api/exceptions/{confirmed['id']}/verify", json={"note": "should be rejected"})
+    assert resp.status_code == 400
+
+
+def test_31_verifying_twice_is_rejected_not_duplicated(client):
+    report_id, review_required = _upload_and_get_a_review_required_exception(client)
+    first = client.post(f"/api/exceptions/{review_required['id']}/verify", json={"note": "first"})
+    assert first.status_code == 200
+
+    exceptions_after = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    same = next(
+        e for e in exceptions_after
+        if e["expense_id"] == review_required["expense_id"] and e["exception_type"] == review_required["exception_type"]
+    )
+    second = client.post(f"/api/exceptions/{same['id']}/verify", json={"note": "second"})
+    assert second.status_code == 400
+
+
+def test_32_verification_is_audit_logged(client):
+    from app.models.logs import AuditLog
+
+    report_id, review_required = _upload_and_get_a_review_required_exception(client)
+    client.post(f"/api/exceptions/{review_required['id']}/verify", json={"note": "audit trail check"})
+
+    db = SessionLocal()
+    try:
+        events = db.query(AuditLog).filter(AuditLog.action == "EXCEPTION_VERIFIED").all()
+        assert len(events) == 1
+        assert events[0].entity_id == str(review_required["id"])
+        assert "audit trail check" in (events[0].details or "")
+    finally:
+        db.close()

@@ -95,6 +95,15 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
     # regardless of what Bill.matched_expense_id happens to record (that field
     # only remembers the most recent match, not every expense that claimed it).
     bill_usage = Counter(e.bill_id for e in expenses if e.bill_id is not None)
+    # Deterministic "original" claim per re-used bill (lowest s_no wins) - an
+    # auditor reading a DUPLICATE BILL exception needs to know which claim is
+    # considered original, not just that a duplicate exists (Part 13-14).
+    # Only the later claim(s) are flagged; the original itself passes this
+    # check like any other uniquely-matched bill.
+    bill_original_expense: dict[int, Expense] = {}
+    for expense in sorted(expenses, key=lambda e: (e.s_no if e.s_no is not None else 0, e.id)):
+        if expense.bill_id is not None and expense.bill_id not in bill_original_expense:
+            bill_original_expense[expense.bill_id] = expense
 
     try:
         for expense in expenses:
@@ -115,26 +124,37 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     claimed_amount=expense.claimed_amount,
                     bill_match_status=expense.bill_match_status,
                     bill=bill,
+                    bill_match_reasons=expense.bill_match_reasons,
+                    document_required=document_required,
                 ),
                 checks.check_bill_date(
                     expense_date=expense.expense_date,
                     bill_match_status=expense.bill_match_status,
                     bill=bill,
+                    bill_match_reasons=expense.bill_match_reasons,
+                    document_required=document_required,
                 ),
                 checks.check_required_document(
                     bill_match_status=expense.bill_match_status,
                     policy=policy,
                     document_required=document_required,
+                    bill_match_reasons=expense.bill_match_reasons,
                 ),
                 checks.check_category_consistency(
                     category=expense.category,
                     bill_match_status=expense.bill_match_status,
                     bill=bill,
+                    document_required=document_required,
                 ),
                 checks.check_duplicate_bill(
                     bill_match_status=expense.bill_match_status,
                     bill=bill,
-                    is_duplicate=bool(expense.bill_id) and bill_usage.get(expense.bill_id, 0) > 1,
+                    is_duplicate=(
+                        bool(expense.bill_id)
+                        and bill_usage.get(expense.bill_id, 0) > 1
+                        and bill_original_expense.get(expense.bill_id) is not expense
+                    ),
+                    original_expense=bill_original_expense.get(expense.bill_id) if expense.bill_id else None,
                     document_required=document_required,
                 ),
                 checks.check_catering(category=expense.category, bill=bill),
