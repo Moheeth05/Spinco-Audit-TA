@@ -8,6 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { StatusBadge } from '../components/ui/StatusBadge'
+import { formatISTDate } from '../lib/datetime'
 
 export default function TripReportsPage() {
   const navigate = useNavigate()
@@ -25,7 +26,7 @@ export default function TripReportsPage() {
     { key: 'start_date', header: 'Start Date', render: (r) => r.start_date || 'Pending extraction' },
     { key: 'destination', header: 'Destination', render: (r) => r.destination || 'Pending extraction' },
     { key: 'processing_status', header: 'Upload Status', render: (r) => <StatusBadge status={r.processing_status} /> },
-    { key: 'uploaded_at', header: 'Uploaded', render: (r) => new Date(r.uploaded_at).toLocaleDateString() },
+    { key: 'uploaded_at', header: 'Uploaded', render: (r) => formatISTDate(r.uploaded_at) },
     {
       key: 'action',
       header: 'Action',

@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel
+
+from app.schemas.common import UTCDateTime
 
 
 class DashboardKPIs(BaseModel):
@@ -39,4 +39,4 @@ class RecentUploadOut(BaseModel):
     file_type: str
     report_month_label: str | None
     status: str
-    uploaded_at: datetime
+    uploaded_at: UTCDateTime

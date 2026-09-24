@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel
+
+from app.schemas.common import UTCDateTime
 
 
 class UploadResultItem(BaseModel):
@@ -31,4 +31,4 @@ class UploadListItem(BaseModel):
     processing_status: str
     error_message: str | None
     extraction_status: str
-    uploaded_at: datetime
+    uploaded_at: UTCDateTime

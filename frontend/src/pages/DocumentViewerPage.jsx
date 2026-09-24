@@ -26,6 +26,7 @@ import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { Modal } from '../components/ui/Modal'
 import { StatusBadge } from '../components/ui/StatusBadge'
+import { formatISTDateTime } from '../lib/datetime'
 
 const VERIFY_ROLES = new Set(['ADMIN', 'AUDITOR'])
 
@@ -483,7 +484,7 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                         {e.status === 'RESOLVED' ? (
                           <span
                             style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--success, #16a34a)' }}
-                            title={`Verified by ${e.verified_by_name || 'unknown'} on ${e.verified_at ? new Date(e.verified_at).toLocaleString() : ''}${e.verification_note ? ` - ${e.verification_note}` : ''}`}
+                            title={`Verified by ${e.verified_by_name || 'unknown'} on ${e.verified_at ? formatISTDateTime(e.verified_at) : ''}${e.verification_note ? ` - ${e.verification_note}` : ''}`}
                           >
                             <BadgeCheck size={14} /> Verified
                           </span>
@@ -985,7 +986,7 @@ export default function DocumentViewerPage() {
               </div>
               <div className="viewer-meta-row">
                 <span className="viewer-meta-label">Uploaded</span>
-                <span className="viewer-meta-value">{new Date(doc.uploaded_at).toLocaleString()}</span>
+                <span className="viewer-meta-value">{formatISTDateTime(doc.uploaded_at)}</span>
               </div>
               <div className="viewer-meta-row">
                 <span className="viewer-meta-label">File Hash (SHA-256)</span>

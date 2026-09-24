@@ -1,6 +1,8 @@
-from datetime import date, datetime
+from datetime import date
 
 from pydantic import BaseModel
+
+from app.schemas.common import UTCDateTime
 
 
 class ExceptionRecordOut(BaseModel):
@@ -22,10 +24,10 @@ class ExceptionRecordOut(BaseModel):
     source_document_id: str | None
     source_page: int | None
     status: str
-    created_at: datetime
+    created_at: UTCDateTime
     verified_by_id: int | None = None
     verified_by_name: str | None = None
-    verified_at: datetime | None = None
+    verified_at: UTCDateTime | None = None
     verification_note: str | None = None
 
 

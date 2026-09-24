@@ -1,7 +1,8 @@
-from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel
+
+from app.schemas.common import UTCDateTime
 
 
 class ExcelReportOut(BaseModel):
@@ -12,7 +13,7 @@ class ExcelReportOut(BaseModel):
     total_expenses: int
     total_claimed: float | None
     status: str
-    last_updated: datetime
+    last_updated: UTCDateTime
 
 
 class ExcelSheetInfo(BaseModel):
@@ -22,7 +23,7 @@ class ExcelSheetInfo(BaseModel):
 
 class ExcelSheetsOut(BaseModel):
     filename: str
-    last_updated: datetime
+    last_updated: UTCDateTime
     sheets: list[ExcelSheetInfo]
 
 

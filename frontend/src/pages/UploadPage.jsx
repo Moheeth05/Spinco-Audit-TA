@@ -11,6 +11,7 @@ import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { StatusBadge } from '../components/ui/StatusBadge'
+import { formatISTDateTime } from '../lib/datetime'
 
 const TABS = [
   { key: 'EXPENSE_REPORT', label: 'Expense Reports', icon: FileText },
@@ -89,7 +90,7 @@ export default function UploadPage() {
     { key: 'employee_code', header: 'Employee ID', render: (r) => r.employee_code || 'Pending extraction' },
     { key: 'document_number', header: 'Report / Trip ID', render: (r) => r.document_number || 'Pending extraction' },
     { key: 'file_size', header: 'File Size', align: 'right', render: (r) => formatBytes(r.file_size) },
-    { key: 'uploaded_at', header: 'Upload Date', render: (r) => new Date(r.uploaded_at).toLocaleString() },
+    { key: 'uploaded_at', header: 'Upload Date', render: (r) => formatISTDateTime(r.uploaded_at) },
     {
       key: 'processing_status',
       header: 'Status',

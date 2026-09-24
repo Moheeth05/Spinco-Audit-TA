@@ -1,6 +1,8 @@
-from datetime import date, datetime
+from datetime import date
 
 from pydantic import BaseModel
+
+from app.schemas.common import UTCDateTime
 
 
 class ExpenseReportMonthSummary(BaseModel):
@@ -29,7 +31,7 @@ class ExpenseReportListItem(BaseModel):
     extraction_confidence: str | None
     file_size: int | None
     page_count: int | None
-    uploaded_at: datetime
+    uploaded_at: UTCDateTime
     submitted_on: date | None
 
 

@@ -24,6 +24,7 @@ import { ErrorState } from '../components/ui/ErrorState'
 import { KPICard } from '../components/ui/KPICard'
 import { LoadingState } from '../components/ui/LoadingState'
 import { StatusBadge } from '../components/ui/StatusBadge'
+import { formatISTDate } from '../lib/datetime'
 
 function formatINR(amount) {
   return `Rs.${Number(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -131,7 +132,7 @@ export default function HomePage() {
                       <td>
                         <StatusBadge status={item.status} />
                       </td>
-                      <td>{new Date(item.uploaded_at).toLocaleDateString()}</td>
+                      <td>{formatISTDate(item.uploaded_at)}</td>
                       <td>
                         <button className="icon-action" title="View" onClick={() => navigate(`/documents/${item.document_id}`)}>
                           <Eye size={14} />

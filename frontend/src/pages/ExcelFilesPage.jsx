@@ -8,6 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { StatusBadge } from '../components/ui/StatusBadge'
+import { formatISTDateTime } from '../lib/datetime'
 
 const PAGE_SIZE = 25
 const DEFAULT_SHEET = 'Expense Reports'
@@ -20,9 +21,11 @@ function formatINR(amount) {
 function formatCell(value) {
   if (value === null || value === undefined || value === '') return '-'
   if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-    const d = new Date(value)
     const hasTime = value.slice(11, 19) !== '00:00:00'
-    return hasTime ? d.toLocaleString() : d.toLocaleDateString()
+    // A genuine time component only appears on system-generated timestamps
+    // (business dates in the workbook are always midnight); date-only cells
+    // are calendar dates and must render exactly as stated, untouched.
+    return hasTime ? formatISTDateTime(value) : new Date(value).toLocaleDateString()
   }
   return String(value)
 }
@@ -108,7 +111,7 @@ export default function ExcelFilesPage() {
             </div>
             <div>
               <div className="viewer-meta-label">Last Generated</div>
-              <div style={{ fontWeight: 600 }}>{new Date(metadata.last_updated).toLocaleString()}</div>
+              <div style={{ fontWeight: 600 }}>{formatISTDateTime(metadata.last_updated)}</div>
             </div>
             <div>
               <div className="viewer-meta-label">Sheets</div>

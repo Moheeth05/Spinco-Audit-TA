@@ -1,6 +1,8 @@
-from datetime import date, datetime
+from datetime import date
 
 from pydantic import BaseModel
+
+from app.schemas.common import UTCDateTime
 
 
 class DocumentDetail(BaseModel):
@@ -14,7 +16,7 @@ class DocumentDetail(BaseModel):
     file_hash: str | None
     processing_status: str
     error_message: str | None
-    uploaded_at: datetime
+    uploaded_at: UTCDateTime
 
     extraction_status: str
     extraction_confidence: str | None

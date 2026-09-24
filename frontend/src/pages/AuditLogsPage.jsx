@@ -4,6 +4,7 @@ import { Card } from '../components/ui/Card'
 import { DataTable } from '../components/ui/DataTable'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
+import { formatISTDateTime } from '../lib/datetime'
 
 const ACTIONS = [
   'AUTH_LOGIN_SUCCESS',
@@ -30,7 +31,7 @@ const ACTIONS = [
 const PAGE_SIZE = 50
 
 const columns = [
-  { key: 'created_at', header: 'Timestamp', render: (r) => new Date(r.created_at).toLocaleString() },
+  { key: 'created_at', header: 'Timestamp', render: (r) => formatISTDateTime(r.created_at) },
   { key: 'user_name', header: 'User', render: (r) => r.user_name || '—' },
   { key: 'action', header: 'Action' },
   { key: 'entity_type', header: 'Entity', render: (r) => (r.entity_type ? `${r.entity_type} #${r.entity_id ?? ''}` : '—') },

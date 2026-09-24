@@ -8,6 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { StatusBadge } from '../components/ui/StatusBadge'
+import { formatISTDate } from '../lib/datetime'
 
 function formatINR(amount) {
   if (amount === null || amount === undefined) return 'Pending extraction'
@@ -34,7 +35,7 @@ export default function ExpenseReportsPage() {
       render: (r) => (r.overall_status ? <StatusBadge status={r.overall_status} /> : 'Pending extraction'),
     },
     { key: 'processing_status', header: 'Upload Status', render: (r) => <StatusBadge status={r.processing_status} /> },
-    { key: 'uploaded_at', header: 'Uploaded', render: (r) => new Date(r.uploaded_at).toLocaleDateString() },
+    { key: 'uploaded_at', header: 'Uploaded', render: (r) => formatISTDate(r.uploaded_at) },
     {
       key: 'action',
       header: 'Action',

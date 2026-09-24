@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict
+
+from app.schemas.common import UTCDateTime
 
 
 class UserOut(BaseModel):
@@ -12,9 +12,9 @@ class UserOut(BaseModel):
     role: str
     is_active: bool
     must_change_password: bool
-    last_login_at: datetime | None
-    created_at: datetime
-    updated_at: datetime
+    last_login_at: UTCDateTime | None
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
 
 class UserCreateRequest(BaseModel):

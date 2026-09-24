@@ -1,6 +1,8 @@
-from datetime import date, datetime
+from datetime import date
 
 from pydantic import BaseModel, ConfigDict
+
+from app.schemas.common import UTCDateTime
 
 
 class ValidationResultOut(BaseModel):
@@ -22,4 +24,4 @@ class ValidationResultOut(BaseModel):
     policy_version: int | None
     source_document_id: str | None
     source_page: int | None
-    created_at: datetime
+    created_at: UTCDateTime

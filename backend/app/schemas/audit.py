@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel
+
+from app.schemas.common import UTCDateTime
 
 
 class AuditLogOut(BaseModel):
@@ -11,7 +11,7 @@ class AuditLogOut(BaseModel):
     entity_type: str
     entity_id: str | None
     details: str | None
-    created_at: datetime
+    created_at: UTCDateTime
 
 
 class AuditLogPageOut(BaseModel):

@@ -7,6 +7,7 @@ import { DataTable } from '../components/ui/DataTable'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { Modal } from '../components/ui/Modal'
+import { formatISTDate, formatISTDateTime } from '../lib/datetime'
 
 const ROLES = ['ADMIN', 'AUDITOR', 'VIEWER']
 
@@ -27,7 +28,7 @@ function StatusPill({ active }) {
 
 function formatDateTime(value) {
   if (!value) return 'Never'
-  return new Date(value).toLocaleString()
+  return formatISTDateTime(value)
 }
 
 function CreateUserModal({ onClose, onCreated }) {
@@ -310,7 +311,7 @@ export default function UsersRolesPage() {
     { key: 'email', header: 'Email' },
     { key: 'role', header: 'Role', render: (r) => <RoleBadge role={r.role} /> },
     { key: 'is_active', header: 'Status', render: (r) => <StatusPill active={r.is_active} /> },
-    { key: 'created_at', header: 'Created', render: (r) => new Date(r.created_at).toLocaleDateString() },
+    { key: 'created_at', header: 'Created', render: (r) => formatISTDate(r.created_at) },
     { key: 'last_login_at', header: 'Last Login', render: (r) => formatDateTime(r.last_login_at) },
     {
       key: 'actions',
