@@ -19,6 +19,7 @@ from app.api import (
     expenses,
     health,
     policy,
+    search,
     trip_reports,
     uploads,
     users,
@@ -100,6 +101,7 @@ app.include_router(analytics.router)
 app.include_router(uploads.router)
 app.include_router(documents.router)
 app.include_router(expenses.router)
+app.include_router(search.router)
 
 
 # ---------- Phase 11: serve the production React build (desktop packaging) ----------

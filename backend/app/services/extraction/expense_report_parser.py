@@ -15,6 +15,11 @@ TRIP_NUMBER_RE = re.compile(r"Trip Number:\s*(TRIP-\d+)", re.IGNORECASE)
 AMOUNT_ONLY_RE = re.compile(r"^(?:₹|Rs\.?|INR)\s*[\d,]+(?:\.\d+)?$", re.IGNORECASE)
 ROW_START_RE = re.compile(r"^(\d+)\.$")
 SIGNATURE_RE = re.compile(r"^([A-Z][A-Za-z .]+?)\s*\(\s*([A-Z]{1,6}\d{1,6})\s*\)$")
+# Some real Expense Report layouts print a "Merchant : <name>" line between
+# the date and the category (observed on a real document post-UAT - the
+# original 4 sample ERs this parser was built against don't have it, so
+# this is opt-in: only consumed when actually present, never assumed).
+MERCHANT_LINE_RE = re.compile(r"^Merchant\s*:\s*(.+)$", re.IGNORECASE)
 
 
 def _flatten(pages: list[dict[str, Any]]) -> list[tuple[int, str]]:
@@ -171,6 +176,15 @@ def extract_expense_lines(pages: list[dict[str, Any]]) -> tuple[list[dict[str, A
 
             cat_page, category, idx = _next_nonblank(flat, i)
             i = idx + 1
+            merchant, merchant_page = None, None
+            if category is not None:
+                m = MERCHANT_LINE_RE.match(category)
+                if m:
+                    # That line was "Merchant : X", not the category - the
+                    # real category is the line after it.
+                    merchant, merchant_page = m.group(1).strip(), cat_page
+                    cat_page, category, idx = _next_nonblank(flat, i)
+                    i = idx + 1
 
             detail_lines: list[str] = []
             amount = None
@@ -204,6 +218,7 @@ def extract_expense_lines(pages: list[dict[str, Any]]) -> tuple[list[dict[str, A
                     "s_no": row_no,
                     "expense_date": expense_date,
                     "category": category,
+                    "merchant": merchant,
                     "expense_details": details,
                     "claimed_amount": amount,
                     "source_page": row_page,
@@ -236,8 +251,18 @@ def extract_embedded_trip_summary(pages: list[dict[str, Any]]) -> dict[str, Any]
 
     city, city_page = None, None
     in_section = False
-    pending: list[tuple[str, Any, int]] = []  # (location, date-or-None, page)
     source_page = None
+    # (location, date, page) pairs - one per confirmed from/to location. A
+    # bare text line only becomes a pair once the very next line turns out to
+    # be a parseable date; this layout also prints a transport-mode label
+    # ("Train"/"Bus", no date of its own) ahead of each leg's from-location
+    # and a free-text description after each leg's to-date, both of which are
+    # bare text lines indistinguishable from a real location by content alone
+    # - so anything that never gets confirmed by a following date (mode
+    # labels, descriptions, a trailing unconfirmed line at the section's end)
+    # is simply never turned into a pair, rather than guessed at.
+    pairs: list[tuple[str, Any, int]] = []
+    pending_loc: tuple[str, int] | None = None
 
     for i, (page_num, raw_line) in enumerate(flat):
         line = raw_line.strip()
@@ -256,16 +281,18 @@ def extract_embedded_trip_summary(pages: list[dict[str, Any]]) -> dict[str, Any]
             continue
 
         d = parse_date(line)
-        if d is not None and pending and pending[-1][1] is None:
-            loc, _, p = pending[-1]
-            pending[-1] = (loc, d, p)
-        elif d is None:
-            pending.append((line, None, page_num))
+        if d is not None:
+            if pending_loc is not None:
+                loc, p = pending_loc
+                pairs.append((loc, d, p))
+                pending_loc = None
+        else:
+            pending_loc = (line, page_num)
 
     legs = []
-    for idx in range(0, len(pending) - 1, 2):
-        from_loc, from_date, from_page = pending[idx]
-        to_loc, to_date, to_page = pending[idx + 1]
+    for idx in range(0, len(pairs) - 1, 2):
+        from_loc, from_date, from_page = pairs[idx]
+        to_loc, to_date, to_page = pairs[idx + 1]
         legs.append(
             {
                 "leg_no": idx // 2 + 1,

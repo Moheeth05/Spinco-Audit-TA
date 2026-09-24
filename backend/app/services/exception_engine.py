@@ -47,12 +47,26 @@ REVIEW_REQUIRED = "REVIEW REQUIRED"
 # ExceptionRecord per expense (e.g. Bill Amount Check + Bill Date Check both
 # being REVIEW_REQUIRED because there's no confirmed matching bill is one
 # underlying problem, not two).
+#
+# Required Document Check only ever returns REVIEW_REQUIRED for genuine
+# uncertainty (ambiguous/multiple-candidate matching, or an unresolved
+# policy/document-requirement lookup) - it returns a confirmed EXCEPTION
+# ("MISSING BILL") separately, on its own, when a document is actually
+# absent (bill_match_status == NO_MATCH). So its REVIEW_REQUIRED case must
+# never be labelled "REQUIRED DOCUMENT MISSING" (that name implies physical
+# absence, which post-UAT review found this exact family wrongly implying -
+# see validation/checks.py::check_required_document's REVIEW_REQUIRED
+# branches, all of which are about uncertainty, none about absence). It
+# shares "BILL MATCH REVIEW REQUIRED" with the other ambiguous-match checks
+# instead, so the two collapse into one ExceptionRecord per expense rather
+# than reporting the same ambiguous-match uncertainty twice under two
+# different-sounding names.
 _REVIEW_FAMILY_BY_CHECK_TYPE = {
     "Bill Amount Check": "BILL MATCH REVIEW REQUIRED",
     "Bill Date Check": "BILL MATCH REVIEW REQUIRED",
     "Category Consistency Check": "BILL MATCH REVIEW REQUIRED",
     "Duplicate Bill Check": "BILL MATCH REVIEW REQUIRED",
-    "Required Document Check": "REQUIRED DOCUMENT MISSING",
+    "Required Document Check": "BILL MATCH REVIEW REQUIRED",
     "Batta Trip Match Check": "TRIP MATCH REVIEW REQUIRED",
     "Total Validation Check": "REPORT TOTAL REVIEW REQUIRED",
 }
@@ -78,7 +92,6 @@ _EXCEPTION_TYPE_ROOT = {
 }
 _REVIEW_FAMILY_ROOT = {
     "BILL MATCH REVIEW REQUIRED": "BILL",
-    "REQUIRED DOCUMENT MISSING": "BILL",
     "TRIP MATCH REVIEW REQUIRED": "TRIP",
     "REPORT TOTAL REVIEW REQUIRED": "TOTAL",
 }

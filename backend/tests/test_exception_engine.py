@@ -445,6 +445,32 @@ def test_17_missing_bill_does_not_also_produce_bill_review_required():
         db.close()
 
 
+def test_17b_ambiguous_bill_match_does_not_also_produce_required_document_missing():
+    """Post-UAT correctness fix: an ambiguous match (MULTIPLE_CANDIDATES, not
+    NO_MATCH - a document is plausibly present, matching is just uncertain)
+    used to produce both "BILL MATCH REVIEW REQUIRED" (from the Bill Amount/
+    Date/Category/Duplicate checks) and "REQUIRED DOCUMENT MISSING" (from
+    Required Document Check's own generic REVIEW_REQUIRED branch) as two
+    separate ExceptionRecord rows describing the identical underlying
+    uncertainty - and "REQUIRED DOCUMENT MISSING" wrongly implied the
+    document was physically absent when it was actually just an uncertain
+    match. Both checks now collapse into the one accurately-named family."""
+    db = SessionLocal()
+    try:
+        report = _make_report(db, er_id="ER-AMBIGDEDUP", total_claimed=2000.0)
+        expense = _make_expense(
+            db, report.id, category="OWN CAR PETROL", claimed_amount=2000.0, expense_date=date(2026, 6, 1),
+            bill_match_status="MULTIPLE_CANDIDATES",
+        )
+        report = _evaluate(db, report.id)
+        types = _exception_types(db, report.id, expense_id=expense.id)
+        assert types.count("BILL MATCH REVIEW REQUIRED") == 1
+        assert "REQUIRED DOCUMENT MISSING" not in types
+        assert report.review_required_count == 1
+    finally:
+        db.close()
+
+
 # ---------- 18-19: revalidation / late Trip Report resolution ----------
 
 

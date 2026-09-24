@@ -195,6 +195,7 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
                 <th>S.No</th>
                 <th>Date</th>
                 <th>Category</th>
+                <th>Merchant</th>
                 <th>Expense Details</th>
                 <th className="num">Claimed Amount</th>
                 <th className="num">Bill Amount</th>
@@ -214,6 +215,7 @@ function ExpenseSummaryPanel({ extraction, onJump }) {
                     <td>{e.s_no}</td>
                     <td>{e.expense_date || '-'}</td>
                     <td>{e.category || '-'}</td>
+                    <td>{e.merchant || '-'}</td>
                     <td>{e.expense_details || '-'}</td>
                     <td className="num">{formatINR(e.claimed_amount)}</td>
                     <td className="num">{e.bill_found ? formatINR(e.bill_amount) : '-'}</td>
@@ -372,6 +374,8 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                 <thead>
                   <tr>
                     <th>S.No</th>
+                    <th>Date</th>
+                    <th>Category</th>
                     <th>Type</th>
                     <th>Severity</th>
                     <th className="num">Claimed</th>
@@ -384,6 +388,8 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                   {exceptions.map((e) => (
                     <tr key={e.id}>
                       <td>{e.s_no ?? '-'}</td>
+                      <td>{e.expense_date || '-'}</td>
+                      <td>{e.category || '-'}</td>
                       <td>{e.exception_type}</td>
                       <td>
                         <StatusBadge status={e.severity} />
@@ -394,7 +400,11 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                       </td>
                       <td style={{ fontSize: 12.5 }}>{e.reason}</td>
                       <td>
-                        <ViewSourceButton page={e.source_page} onJump={onJump} />
+                        {e.source_page != null ? (
+                          <ViewSourceButton page={e.source_page} onJump={onJump} />
+                        ) : (
+                          <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>Source not available</span>
+                        )}
                       </td>
                     </tr>
                   ))}

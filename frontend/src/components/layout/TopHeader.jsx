@@ -1,6 +1,6 @@
-import { Bell, Search } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { ALL_NAV } from './navConfig'
+import { SearchBox } from './SearchBox'
 
 export function TopHeader() {
   const location = useLocation()
@@ -18,12 +18,7 @@ export function TopHeader() {
         <div className="page-title">{title}</div>
       </div>
       <div className="top-header-actions">
-        <button className="icon-button" aria-label="Search">
-          <Search size={16} />
-        </button>
-        <button className="icon-button" aria-label="Notifications">
-          <Bell size={16} />
-        </button>
+        <SearchBox />
       </div>
     </header>
   )

@@ -26,7 +26,16 @@ export default function ExpenseReportMonthPage() {
   const navigate = useNavigate()
 
   const columns = [
-    { key: 'filename', header: 'File Name', render: (r) => `${r.original_filename} - ${r.employee_name || 'Pending extraction'}` },
+    {
+      key: 'filename',
+      header: 'File Name',
+      render: (r) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <span>{r.original_filename}</span>
+          <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>{r.employee_name || 'Pending extraction'}</span>
+        </div>
+      ),
+    },
     { key: 'employee_code', header: 'Employee ID', render: (r) => r.employee_code || 'Pending extraction' },
     { key: 'total_expenses', header: 'Expenses', align: 'right' },
     { key: 'total_claimed', header: 'Claimed Amount', align: 'right', render: (r) => formatINR(r.total_claimed) },

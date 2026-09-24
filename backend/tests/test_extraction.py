@@ -6,6 +6,7 @@ import pytest
 
 from app.services.extraction.classifier import EXPENSE_REPORT, TRIP_REPORT, UNKNOWN, classify_text
 from app.services.extraction.dates import parse_date
+from app.services.extraction.expense_report_parser import extract_embedded_trip_summary
 from app.services.extraction.money import parse_amount
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -193,6 +194,189 @@ def test_er_without_trip_summary_has_no_embedded_section(client, sample_pdf_path
     doc_id = result["results"][0]["document_id"]
     detail = client.get(f"/api/documents/{doc_id}/extraction").json()
     assert detail["embedded_trip_summary"] is None
+
+
+def test_embedded_trip_summary_with_transport_mode_labels_pairs_legs_correctly():
+    """Post-UAT correctness fix: a real document (ER-41115) prints a
+    transport-mode label ("Train") ahead of some legs' from-location, and a
+    free-text description after each leg's to-date - both bare text lines
+    indistinguishable from a real location by content alone. The old
+    from/to pairing logic treated every bare line as a location in strict
+    sequence, so a leading "Train" line shifted every subsequent pair by one
+    slot, corrupting every leg's from/to locations and - critically -
+    leaving the very first leg's from_date unset, which made the derived
+    trip start_date None ("travel period could not be reliably determined")
+    even though the source PDF states it plainly."""
+    pages = [
+        {
+            "page_number": 1,
+            "text": "\n".join(
+                [
+                    "Trip Number: TRIP-25630",
+                    "TRIP SUMMARY",
+                    "City: Balasore",
+                    "From",
+                    "To",
+                    "Description",
+                    "Train",
+                    "Howrah",
+                    "11/08/2026",
+                    "Balasore",
+                    "11/08/2026",
+                    "Falcon LCMS call",
+                    "Balasore",
+                    "12/08/2026",
+                    "Balasore",
+                    "13/08/2026",
+                    "Falcon LCMS call",
+                    "Train",
+                    "Balasore",
+                    "13/08/2026",
+                    "Howrah",
+                    "13/08/2026",
+                    "Falcon LCMS call",
+                    "EXPENSE SUMMARY",
+                ]
+            ),
+        }
+    ]
+    result = extract_embedded_trip_summary(pages)
+    assert result is not None
+    assert result["trip_number"] == "TRIP-25630"
+    legs = result["legs"]
+    assert len(legs) == 3
+    assert legs[0]["from_location"] == "Howrah"
+    assert legs[0]["to_location"] == "Balasore"
+    assert legs[0]["from_date"] == parse_date("11/08/2026")
+    assert legs[1]["from_location"] == "Balasore"
+    assert legs[1]["to_location"] == "Balasore"
+    assert legs[2]["from_location"] == "Balasore"
+    assert legs[2]["to_location"] == "Howrah"
+    assert legs[2]["to_date"] == parse_date("13/08/2026")
+    # This is what actually drives TripReport.start_date/end_date (see
+    # extraction/pipeline.py) - both must be real dates, not None.
+    assert legs[0]["from_date"] is not None
+    assert legs[-1]["to_date"] is not None
+
+
+# ---------- 11: category vs. merchant separation (post-UAT correctness fix) ----------
+#
+# A real document layout (ER-41115) prints a "Merchant : <name>" line between
+# the date and the category for most rows - and prior to this fix that line
+# was misread AS the category itself ("Merchant : TCGLS" stored verbatim in
+# Expense.category), which then failed every Policy Master lookup and
+# cascaded into POLICY NOT FOUND / bill-matching exceptions. Also covers:
+# merchant is never re-labelled as category (except when the merchant text
+# itself independently resolves to a real Policy Master row, e.g. self-driven
+# fuel with no third-party vendor), and a resolved category is always stored
+# as the canonical Policy Master string, not the raw noisy extracted text
+# (a trailing "[1]" or a repeated "(LODGING)"), so Analytics/Excel never
+# fragment one real category into several cosmetic-noise buckets.
+
+
+def _make_expense_report_pdf(rows: list[str]) -> bytes:
+    lines = [
+        "Expense Report",
+        "ER-90099",
+        "Amount to be Reimbursed",
+        "Rs.100.00",
+        "Report",
+        "January",
+        "Submitted By",
+        "TEST EMPLOYEE",
+        "test@spincotech.com",
+        "Submitted On",
+        "01/01/2026",
+        "EXPENSE SUMMARY",
+        *rows,
+        "REPORT SUMMARY BY CURRENCY",
+        "Total Reimbursable Amount",
+        "Rs.100.00",
+        "TEST EMPLOYEE ( T001 )",
+    ]
+    return _make_text_pdf(lines)
+
+
+def test_merchant_line_is_stored_separately_not_as_category(client):
+    pdf_bytes = _make_expense_report_pdf(
+        [
+            "1.",
+            "01/01/2026",
+            "Merchant : TCGLS",
+            "CAB CHARGES",
+            "Cab to office",
+            "Rs.546.00",
+        ]
+    )
+    result = _upload(client, "expense-reports", "merchant_line.pdf", pdf_bytes).json()["results"][0]
+    report_id = result["document_id"].split(":")[1]
+    expenses = client.get(f"/api/expense-reports/{report_id}/expenses").json()
+    assert expenses[0]["category"] == "CAB CHARGES"
+    assert expenses[0]["merchant"] == "TCGLS"
+
+
+def test_merchant_only_row_falls_back_to_merchant_as_category_when_it_is_a_real_policy_name(client):
+    """Some rows in the real document have no separate category line at all -
+    the "Merchant : X" line is the only place category-like text appears,
+    and only because X (here OWN CAR PETROL) happens to independently name a
+    real, active Policy Master category - a self-driven-vehicle fuel expense
+    genuinely has no third-party vendor to separately record."""
+    pdf_bytes = _make_expense_report_pdf(
+        [
+            "1.",
+            "01/01/2026",
+            "Merchant : OWN CAR PETROL",
+            "Petrol expense",
+            "Rs.100.00",
+        ]
+    )
+    result = _upload(client, "expense-reports", "merchant_only.pdf", pdf_bytes).json()["results"][0]
+    report_id = result["document_id"].split(":")[1]
+    expenses = client.get(f"/api/expense-reports/{report_id}/expenses").json()
+    assert expenses[0]["category"] == "OWN CAR PETROL"
+    assert expenses[0]["merchant"] == "OWN CAR PETROL"
+
+
+def test_merchant_text_that_is_not_a_real_category_is_never_promoted():
+    """The fallback must never invent a category - unresolvable merchant text
+    stays out of the category field entirely."""
+    from app.database import SessionLocal
+    from app.services.extraction.pipeline import _resolve_category
+
+    db = SessionLocal()
+    try:
+        assert _resolve_category(db, None, "Random Merchant Pvt Ltd") is None
+        assert _resolve_category(db, "Not A Real Category", "Random Merchant Pvt Ltd") == "Not A Real Category"
+    finally:
+        db.close()
+
+
+def test_resolved_category_is_stored_as_canonical_policy_master_string():
+    """A category line with cosmetic extraction noise ("BATTA [1]",
+    "LODGING (LODGING)") must resolve and persist as the exact Policy Master
+    name, not the raw noisy text - otherwise Analytics/Excel/Exceptions each
+    fragment the same real category into several lookalike buckets."""
+    from app.database import SessionLocal
+    from app.services.extraction.pipeline import _resolve_category
+
+    db = SessionLocal()
+    try:
+        assert _resolve_category(db, "BATTA [1]", None) == "BATTA"
+        assert _resolve_category(db, "LODGING (LODGING)", None) == "LODGING"
+        assert _resolve_category(db, "LOCAL CONVEYANCE", None) == "LOCAL CONVEYANCE"
+    finally:
+        db.close()
+
+
+def test_unresolvable_category_is_left_for_review_not_guessed():
+    from app.database import SessionLocal
+    from app.services.extraction.pipeline import _resolve_category
+
+    db = SessionLocal()
+    try:
+        assert _resolve_category(db, "Totally Unknown Category", None) == "Totally Unknown Category"
+    finally:
+        db.close()
 
 
 # ---------- 9: standalone trip report metadata ----------

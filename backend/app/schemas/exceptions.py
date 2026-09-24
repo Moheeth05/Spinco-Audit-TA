@@ -7,6 +7,8 @@ class ExceptionRecordOut(BaseModel):
     id: int
     expense_id: int | None
     s_no: int | None
+    category: str | None
+    merchant: str | None
     exception_type: str
     severity: str
     reason: str

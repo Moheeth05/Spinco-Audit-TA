@@ -69,6 +69,12 @@ class Expense(Base):
 
     expense_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     category: Mapped[str | None] = mapped_column(String(100), index=True, nullable=True)
+    # Separate from category - some real Expense Report layouts print a
+    # "Merchant : <name>" line ahead of the category line (see
+    # extraction/expense_report_parser.py's merchant handling). Never
+    # written into `category`; kept only as supporting evidence for
+    # matching/search/audit.
+    merchant: Mapped[str | None] = mapped_column(String(255), nullable=True)
     expense_details: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     claimed_amount: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
 

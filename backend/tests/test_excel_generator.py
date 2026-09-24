@@ -313,7 +313,7 @@ def test_7_currency_is_numeric_dates_are_dates_missing_values_are_blank():
         rows = [r for r in _sheet_rows(wb[SHEET_EXPENSES]) if r[1] == report_id]
         assert len(rows) == 1
         row = rows[0]
-        claimed_amount = row[7]  # "Claimed Amount" column
+        claimed_amount = row[8]  # "Claimed Amount" column
         assert claimed_amount == 2000
         assert isinstance(claimed_amount, (int, float))
         assert not isinstance(claimed_amount, str)
@@ -322,7 +322,7 @@ def test_7_currency_is_numeric_dates_are_dates_missing_values_are_blank():
         assert isinstance(expense_date_cell, (date, datetime))
 
         # No bill was matched - Bill Vendor/Number/GSTIN must be blank, not "N/A" or invented.
-        bill_vendor = row[14]
+        bill_vendor = row[15]
         assert bill_vendor is None
     finally:
         wb.close()
@@ -375,10 +375,10 @@ def test_9_er39832_reference_case_in_workbook(client, sample_pdf_path):
     wb = openpyxl.load_workbook(EXCEL_DIR / WORKBOOK_FILENAME)
     try:
         exp_rows = [r for r in _sheet_rows(wb[SHEET_EXPENSES]) if r[1] == report_id]
-        first = next(r for r in exp_rows if r[5] == "OWN CAR PETROL" and r[7] == 2000)
-        assert first[7] == 2000
-        assert first[7] != 2500
-        assert isinstance(first[7], (int, float))
+        first = next(r for r in exp_rows if r[5] == "OWN CAR PETROL" and r[8] == 2000)
+        assert first[8] == 2000
+        assert first[8] != 2500
+        assert isinstance(first[8], (int, float))
 
         exc_rows = [r for r in _sheet_rows(wb[SHEET_EXCEPTIONS]) if r[1] == report_id]
         assert len(exc_rows) > 0

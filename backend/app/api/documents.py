@@ -177,6 +177,7 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                         "s_no": e.s_no,
                         "expense_date": e.expense_date,
                         "category": e.category,
+                        "merchant": e.merchant,
                         "expense_details": e.expense_details,
                         "claimed_amount": e.claimed_amount,
                         "source_page": e.source_page,

@@ -280,6 +280,65 @@ def test_expense_with_no_supporting_bill_is_no_match_not_invented():
         assert expenses[0]["bill_id"] is None if "bill_id" in expenses[0] else True
 
 
+# ---------- 18-20: multi-amount unlabeled bills (post-UAT correctness fix) ----------
+#
+# A real document (ER-41115) had genuine bills whose "total" was never
+# explicitly labeled ("Total"/"Amount"/etc.) - e.g. a ride-receipt page
+# printing just "13.00 / 520.00 / 546.00" with no label at all (a taxable
+# value + CGST/SGST + total). The old behavior discarded these entirely
+# (amount=None), which meant a real, correctly-priced bill could never enter
+# the matching candidate set at all (see bill_matcher.py's module docstring
+# on candidate breadth) - producing a false MISSING BILL. The fix keeps the
+# largest unlabeled figure as a LOW-confidence candidate rather than
+# discarding it, since a bill total structurally can never be smaller than
+# any line item/tax component printed alongside it.
+
+
+def test_multiple_unlabeled_amounts_uses_largest_as_low_confidence_candidate():
+    text = "Tax invoice issued by: Cabco\nGSTIN: 19AAGCI0467A1ZU\n13.00\n520.00\n546.00"
+    amt, confidence, warnings = bill_parser._find_amount(text)
+    assert amt == 546.0
+    assert confidence == "LOW"
+    assert any("largest" in w.lower() for w in warnings)
+
+
+def test_multiple_unlabeled_amounts_parsed_bill_is_review_required_not_dropped():
+    text = "Tax invoice issued by: Cabco\nGSTIN: 19AAGCI0467A1ZU\n13.00\n520.00\n546.00"
+    parsed = bill_parser.parse_bill_text(text)
+    assert parsed.amount == 546.0
+    assert parsed.status == "REVIEW_REQUIRED"
+    assert parsed.confidence == "LOW"
+
+
+def test_multi_amount_low_confidence_bill_still_participates_in_matching():
+    """The whole point of keeping the amount instead of discarding it: an
+    otherwise-exact-matching expense must not come back MISSING BILL just
+    because the bill's total was never explicitly labeled."""
+    import datetime
+
+    expense = {
+        "claimed_amount": 546.0,
+        "expense_date": None,
+        "category": "CAB CHARGES",
+        "expense_details": "cab to office",
+    }
+    bills = [
+        {
+            "id": 1,
+            "amount": 546.0,
+            "bill_date": None,
+            "vendor": None,
+            "description": None,
+            "category_guess": None,
+            "bill_number": None,
+            "page_number": 5,
+        }
+    ]
+    outcome = bill_matcher.match_expense(expense, bills)
+    assert outcome.status != "NO_MATCH"
+    assert outcome.matched_bill_id == 1 or 1 in [c.bill_id for c in outcome.candidates]
+
+
 # ---------- 14: OCR bill extraction (reuses Phase 3's OCR engine) ----------
 
 

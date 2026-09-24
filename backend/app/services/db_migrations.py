@@ -27,13 +27,22 @@ _USER_COLUMNS = [
     ("users", "updated_at", "DATETIME"),
 ]
 
+# Post-UAT correctness fix: separates merchant/vendor from category (see
+# models/expense_report.py's Expense.merchant) for pre-existing databases
+# that already have an `expenses` table without this column.
+_EXPENSE_COLUMNS = [
+    ("expenses", "merchant", "VARCHAR(255)"),
+]
+
+_ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS
+
 
 def run_light_migrations(engine: Engine) -> None:
     inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
 
     with engine.begin() as conn:
-        for table, column, ddl_type in _USER_COLUMNS:
+        for table, column, ddl_type in _ALL_COLUMNS:
             if table not in existing_tables:
                 continue  # brand-new DB - create_all() will build the full table correctly
             existing_columns = {c["name"] for c in inspector.get_columns(table)}

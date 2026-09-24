@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApi } from '../api/useApi'
 import { HorizontalBarList } from '../components/charts/HorizontalBarList'
-import { MonthlyVolumeChart } from '../components/charts/MonthlyVolumeChart'
 import { StatusSummaryBar } from '../components/charts/StatusSummaryBar'
 import { TrendLineChart } from '../components/charts/TrendLineChart'
 import { Card } from '../components/ui/Card'
@@ -40,7 +39,6 @@ export default function AnalyticsPage() {
   const { data: months } = useApi('/analytics/months')
   const { data: summary, loading: summaryLoading, error: summaryError } = useApi('/analytics/summary', filters)
   const { data: statusPoints, loading: statusLoading, error: statusError } = useApi('/analytics/status', filters)
-  const { data: monthlyVolume, loading: volumeLoading, error: volumeError } = useApi('/analytics/monthly')
   const { data: monthlyClaimed, loading: claimedTrendLoading, error: claimedTrendError } = useApi('/analytics/monthly-claimed')
   const { data: categories, loading: categoriesLoading, error: categoriesError } = useApi('/analytics/categories', filters)
   const { data: exceptionTypes, loading: excLoading, error: excError } = useApi('/analytics/exceptions', filters)
@@ -99,29 +97,16 @@ export default function AnalyticsPage() {
         {statusPoints && <StatusSummaryBar points={statusPoints} onSegmentClick={goToStatus} />}
       </Section>
 
-      <div className="grid-2">
-        <Section
-          title="Monthly Report Trend"
-          subtitle="Expense Reports vs Trip Reports, by report month"
-          loading={volumeLoading}
-          error={volumeError}
-          empty={!monthlyVolume || monthlyVolume.length === 0}
-          emptyDescription="Trends appear once expense/trip reports are processed."
-        >
-          {monthlyVolume && <MonthlyVolumeChart data={monthlyVolume} />}
-        </Section>
-
-        <Section
-          title="Monthly Claimed Amount"
-          subtitle="Sum of each report's own stated total, by report month"
-          loading={claimedTrendLoading}
-          error={claimedTrendError}
-          empty={!monthlyClaimed || monthlyClaimed.length === 0}
-          emptyDescription="Trends appear once expense reports are processed."
-        >
-          {monthlyClaimed && <TrendLineChart data={monthlyClaimed} dataKey="claimed_amount" valueFormatter={formatINRCompact} />}
-        </Section>
-      </div>
+      <Section
+        title="Monthly Claimed Amount"
+        subtitle="Sum of each report's own stated total, by report month"
+        loading={claimedTrendLoading}
+        error={claimedTrendError}
+        empty={!monthlyClaimed || monthlyClaimed.length === 0}
+        emptyDescription="Trends appear once expense reports are processed."
+      >
+        {monthlyClaimed && <TrendLineChart data={monthlyClaimed} dataKey="claimed_amount" valueFormatter={formatINRCompact} />}
+      </Section>
 
       <Section
         title="Category Analysis"

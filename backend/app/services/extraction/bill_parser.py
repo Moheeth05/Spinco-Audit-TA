@@ -191,8 +191,23 @@ def _find_amount(text: str) -> tuple[float | None, str, list[str]]:
     if len(distinct) == 1:
         return next(iter(distinct)), "MEDIUM", warnings
     if len(distinct) > 1:
-        warnings.append(f"Multiple unlabeled amounts found, none reliably the total: {sorted(distinct)}.")
-        return None, "LOW", warnings
+        # A bill total is structurally never smaller than any line item or tax
+        # component printed on the same page (subtotal + CGST/SGST = total,
+        # base fare + reservation charge = total, etc.), so the largest figure
+        # found is a plausible - if unlabeled - total. This is offered only as
+        # a LOW-confidence candidate: parsed_has_evidence()/the caller still
+        # mark the bill REVIEW_REQUIRED, and bill_matcher.py never auto-confirms
+        # a match on amount alone, so a wrong guess here cannot silently
+        # produce a MATCHED result - it can only stop a real bill from being
+        # excluded from the candidate set entirely (see bill_matcher.py's
+        # module docstring on candidate breadth).
+        best = max(distinct)
+        others = sorted(a for a in distinct if a != best)
+        warnings.append(
+            f"Multiple unlabeled amounts found; using the largest ({best}) as a low-confidence "
+            f"candidate total. Other amounts on the page: {others}."
+        )
+        return best, "LOW", warnings
     return None, "LOW", warnings
 
 

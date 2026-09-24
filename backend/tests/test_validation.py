@@ -185,6 +185,21 @@ def test_20_duplicate_bill_not_duplicate_passes():
     assert result.result == checks.PASS
 
 
+def test_20b_duplicate_bill_not_applicable_when_no_document_required():
+    """Post-UAT correctness fix: a category that needs no supporting document
+    at all (BATTA) can still incidentally score a low-confidence match
+    against some unrelated bill (bill matching runs uniformly - see
+    bill_pipeline.py); flagging that as a duplicate is a meaningless finding
+    since the document was never required as evidence in the first place.
+    Confirmed on a real document: this used to produce ten spurious
+    DUPLICATE BILL exceptions on BATTA rows once bill_parser's amount
+    extraction got broader."""
+    result = checks.check_duplicate_bill(
+        bill_match_status="MATCHED", bill=_bill(), is_duplicate=True, document_required=False
+    )
+    assert result.result == checks.NOT_APPLICABLE
+
+
 # ---------- 21-23: catering ----------
 
 

@@ -318,10 +318,24 @@ def check_category_consistency(*, category: str | None, bill_match_status: str, 
 # ---------- 6. Duplicate bill (report-wide, see pipeline.py for the grouping) ----------
 
 
-def check_duplicate_bill(*, bill_match_status: str, bill, is_duplicate: bool) -> CheckResult:
+def check_duplicate_bill(*, bill_match_status: str, bill, is_duplicate: bool, document_required: bool | None = None) -> CheckResult:
     check_type = "Duplicate Bill Check"
     if bill is None or bill_match_status != "MATCHED":
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No confirmed matching bill.", remarks="Not applicable")
+    if document_required is False:
+        # A category that needs no supporting document at all (e.g. BATTA) can
+        # still incidentally score a match against some unrelated bill on the
+        # page (bill matching runs uniformly across every expense - see
+        # bill_pipeline.py - broad candidate generation is deliberate, see
+        # bill_matcher.py's module docstring). Flagging that incidental match
+        # as shared with another expense would be a meaningless finding: the
+        # document was never required as evidence for this expense in the
+        # first place, so it being "reused" proves nothing about a genuine
+        # duplicate submission (post-UAT: this was confirmed to fire ten
+        # spurious DUPLICATE BILL exceptions on a real document's BATTA rows
+        # once a broader amount-extraction fallback let more low-confidence
+        # bills enter the match set).
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
     if is_duplicate:
         return CheckResult(
             check_type=check_type,

@@ -38,6 +38,7 @@ class ExpenseLineItemOut(BaseModel):
     s_no: int | None
     expense_date: date | None
     category: str | None
+    merchant: str | None
     expense_details: str | None
     claimed_amount: float | None
     source_page: int | None

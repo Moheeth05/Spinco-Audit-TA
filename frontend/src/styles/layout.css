@@ -187,6 +187,123 @@
   border-color: var(--gray-300);
 }
 
+.search-box {
+  position: relative;
+}
+
+.search-box-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 320px;
+}
+
+.search-box-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--gray-400);
+  pointer-events: none;
+}
+
+.search-box-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 30px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--gray-900);
+  background: var(--white);
+}
+
+.search-box-input:focus {
+  outline: none;
+  border-color: var(--blue-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-box-close {
+  position: absolute;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.search-box-close:hover {
+  background: var(--gray-50);
+  color: var(--gray-700);
+}
+
+.search-box-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 380px;
+  overflow-y: auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  padding: 6px;
+}
+
+.search-box-status {
+  padding: 12px 10px;
+  font-size: 12.5px;
+  color: var(--gray-500);
+}
+
+.search-box-error {
+  color: var(--red-600, #dc2626);
+}
+
+.search-box-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  gap: 2px;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.search-box-result:hover {
+  background: var(--gray-50);
+}
+
+.search-box-result-kind {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--blue-600);
+}
+
+.search-box-result-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.search-box-result-subtitle {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
 .page-content {
   flex: 1;
   padding: 28px;

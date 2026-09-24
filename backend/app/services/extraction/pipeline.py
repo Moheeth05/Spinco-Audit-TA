@@ -21,6 +21,7 @@ from app.services.extraction import batta_pipeline, bill_pipeline, expense_repor
 from app.services.extraction.classifier import UNKNOWN, classify_text
 from app.services.extraction.shared import text_extractor as _text_extractor
 from app.services.validation.pipeline import validate_expense_report
+from app.services.validation.policy_lookup import find_policy
 
 STAGE = "EXTRACTION"
 
@@ -83,6 +84,43 @@ def _find_or_create_employee(db: Session, name: str | None, code: str | None) ->
     return employee
 
 
+def _resolve_category(db: Session, raw_category: str | None, merchant: str | None) -> str | None:
+    """Category classification step (never re-labels merchant as category -
+    see models/expense_report.py's Expense.merchant, kept separate).
+
+    Normally the extracted category line resolves against Policy Master
+    directly (via the same find_policy() the validation layer uses - one
+    lookup, no second vocabulary). One real document layout was found
+    (post-UAT) where a handful of rows have no distinct category line at
+    all and the "Merchant : X" line is the ONLY place the category-like
+    text appears (X being a genuine Policy Master name, e.g.
+    "Merchant : OWN CAR PETROL" for a self-driven-vehicle fuel expense with
+    no third-party vendor) - in that case, and only when the merchant text
+    itself resolves to an active Policy Master category, it is used as a
+    fallback. This never invents a category: it only accepts text that
+    already exactly matches a real, active Policy Master row.
+
+    Returns the resolved PolicyMaster row's own `category` string, not the
+    raw extracted text, whenever a match is found - find_policy() already
+    tolerates cosmetic noise (a trailing "[1]", a repeated "(LODGING)") via
+    normalize_category(), but if that noisy raw text were stored as-is,
+    "LODGING" and "LODGING (LODGING)" would persist as two different
+    strings and later re-fragment into separate Analytics/Excel buckets
+    despite naming the same real category (post-UAT: exactly this was
+    observed). Storing the canonical PolicyMaster.category value instead is
+    what Part 15-22's "category must always be an exact, verbatim Policy
+    Master category name" actually requires - normalizing only at lookup
+    time was not enough.
+    """
+    policy = find_policy(db, raw_category) if raw_category else None
+    if policy is not None:
+        return policy.category
+    policy = find_policy(db, merchant) if merchant else None
+    if policy is not None:
+        return policy.category
+    return raw_category
+
+
 def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
     pdf_path = Path(row.source_path)
     pages = _text_extractor.content_pages(pdf_path)
@@ -131,7 +169,8 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
                 expense_report_id=row.id,
                 s_no=line["s_no"],
                 expense_date=line["expense_date"],
-                category=line["category"],
+                category=_resolve_category(db, line["category"], line.get("merchant")),
+                merchant=line.get("merchant"),
                 expense_details=line["expense_details"],
                 claimed_amount=line["claimed_amount"],
                 source_page=line["source_page"],
