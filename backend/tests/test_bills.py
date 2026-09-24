@@ -447,7 +447,7 @@ def test_phase3_extraction_status_unaffected_by_bill_matching(client, sample_pdf
 _FLAGSHIP_CAB_BILL_TEXT = """Date: August 7, 2026
 Tax invoice for your ride
 Invoice number: IN19-g875aK-vxVD
-To: Dipak Kumar Pal
+To: Test Employee
 Tax invoice issued by: Indsystems IT Private Limited
 On behalf of: Transport Service Provider
 Nature of service: Passengers Transport Services
@@ -593,7 +593,7 @@ def test_total_fare_label_wins_over_unrelated_total_tax_boilerplate():
 def test_catering_amount_detected_skipping_column_header_occurrence():
     from app.services.category_map import detect_catering_amount
 
-    text = "Passenger Details\n# Name Age Gender Catering Service Option\n1. DIPAK KUMAR PAL\nCatering Charges (Incl. of GST)\n368.00"
+    text = "Passenger Details\n# Name Age Gender Catering Service Option\n1. TEST EMPLOYEE\nCatering Charges (Incl. of GST)\n368.00"
     assert detect_catering_amount(text) == 368.0
 
 
