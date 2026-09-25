@@ -1,7 +1,7 @@
 {
   "name": "spinco-ta-audit",
   "productName": "Spinco TA Audit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "SPINCO TA / Travel Expense Audit & Automation System - desktop application",
   "private": true,
   "main": "electron/main.js",
@@ -13,11 +13,13 @@
     "electron:dev": "electron .",
     "prepackage": "npm run build:frontend && npm run build:backend && npm run collect:tesseract",
     "dist": "npm run prepackage && electron-builder --win",
-    "dist:portable": "npm run prepackage && electron-builder --win portable"
+    "dist:portable": "npm run prepackage && electron-builder --win portable",
+    "release:stage": "node electron/scripts/stage-release.js"
   },
   "devDependencies": {
     "electron": "^33.4.11",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "js-yaml": "^5.4.2"
   },
   "build": {
     "appId": "com.spincotech.ta-audit",
@@ -28,6 +30,8 @@
     },
     "files": [
       "electron/main.js",
+      "electron/preload.js",
+      "electron/updater.js",
       "!electron/scripts/**",
       "!**/node_modules/electron-builder/**"
     ],
@@ -68,9 +72,18 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Spinco TA Audit"
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://updates.spincotech.internal/spinco-ta-audit/",
+      "channel": "latest"
     }
   },
   "allowScripts": {
     "electron@33.4.11": true
+  },
+  "dependencies": {
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9"
   }
 }

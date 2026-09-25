@@ -23,6 +23,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const http = require("node:http");
 const { spawn } = require("node:child_process");
+const { setupAutoUpdater, checkForUpdatesOnStartup } = require("./updater");
 
 const DEV_FRONTEND_URL = "http://localhost:5200";
 // Deliberately NOT 8001 - that's the existing dev workflow's port (see
@@ -229,6 +230,7 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
@@ -259,6 +261,10 @@ async function launch() {
   if (!app.isPackaged) {
     createWindow();
     mainWindow.loadURL(DEV_FRONTEND_URL);
+    // Registers app:get-version/updater:* IPC handlers so the Settings page
+    // works in the web-dev workflow too (reporting "unconfigured" - there is
+    // no app-update.yml in a dev checkout, so no real update check happens).
+    setupAutoUpdater({ mainWindow, logFilePath: path.join(dirs.logs, "updater.log"), feedURLOverride: null });
     return;
   }
 
@@ -289,6 +295,17 @@ async function launch() {
   if (mainWindow) {
     mainWindow.loadURL(BACKEND_URL);
   }
+
+  // Self-hosted update feed (see electron/updater.js). The feed URL baked
+  // into the build (package.json's build.publish.url) is a placeholder
+  // until real hosting is provisioned - SPINCO_UPDATE_FEED_URL overrides it
+  // at runtime without requiring a rebuild.
+  setupAutoUpdater({
+    mainWindow,
+    logFilePath: path.join(dirs.logs, "updater.log"),
+    feedURLOverride: process.env.SPINCO_UPDATE_FEED_URL || null,
+  });
+  checkForUpdatesOnStartup();
 }
 
 app.whenReady().then(() => {

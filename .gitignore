@@ -4,6 +4,10 @@ dist/
 dist-electron/
 release/
 
+# Staged self-hosted update feed (electron/scripts/stage-release.js) - built
+# artifacts only, published externally, never committed here.
+update-feed/
+
 # PyInstaller backend build output
 backend/build/
 backend/dist_backend/
