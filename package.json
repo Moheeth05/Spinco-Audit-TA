@@ -75,7 +75,7 @@
     },
     "publish": {
       "provider": "generic",
-      "url": "https://updates.spincotech.internal/spinco-ta-audit/",
+      "url": "https://spinco-central.example/updates/spinco-ta-audit/",
       "channel": "latest"
     }
   },

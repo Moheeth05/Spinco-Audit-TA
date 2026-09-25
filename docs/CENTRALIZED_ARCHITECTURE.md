@@ -62,8 +62,8 @@ Relevant existing properties:
 Electron Desktop App (per employee)
         |  HTTPS
         v
-Central FastAPI Server (one deployment, not spawned by Electron)
-        |
+https://<spinco-server>/api/   - Central FastAPI Server
+        |                        (one deployment, not spawned by Electron)
         +--> Central PostgreSQL Database
         |      users, employees, expense_reports, expenses, bills, trips,
         |      trip_reports, validation_results, exceptions,
@@ -75,6 +75,15 @@ Central FastAPI Server (one deployment, not spawned by Electron)
                (object storage or a dedicated document-serving component -
                replaces the per-machine local documents/ folder)
 ```
+
+A separate, already-implemented concern lives on the same future server
+under a different path - `https://<spinco-server>/updates/` serves the
+application's own auto-update feed (plain static files: an installer,
+`.blockmap`, `latest.yml`). It is deliberately isolated from everything
+above: no access to PostgreSQL, document storage, or auth, by construction
+rather than policy. See `docs/RELEASE_AND_UPDATES.md` for that mechanism -
+it is unrelated to, and does not block or get blocked by, this
+centralization work.
 
 Electron's role shrinks: it stops spawning a local backend subprocess
 entirely and instead just loads the frontend pointed at the central
