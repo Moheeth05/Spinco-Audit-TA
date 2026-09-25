@@ -19,6 +19,7 @@ from app.services.extraction.bill_pipeline import extract_and_match_bills
 from app.services.extraction.expense_report_parser import find_report_summary_page
 from app.services.extraction.pipeline import run_extraction
 from app.services.extraction.shared import text_extractor
+from app.services.storage_backend import storage
 from app.services.validation.pipeline import validate_expense_report
 from app.models.user import User
 from app.services import audit
@@ -76,11 +77,16 @@ def get_document(document_id: str, db: Session = Depends(get_db), _user: User = 
 @router.get("/{document_id}/file")
 def get_document_file(document_id: str, download: bool = False, db: Session = Depends(get_db), _user: User = _view):
     _, row = _load(db, document_id)
-    if not row.source_path or not Path(row.source_path).exists():
+    if not row.source_path or not storage.exists(row.source_path):
         raise HTTPException(status_code=404, detail="The stored file could not be found.")
 
+    # FileResponse streams directly from disk with HTTP Range support - the
+    # one place this module still needs a real local path rather than
+    # storage.retrieve()'s in-memory bytes (see storage_backend.py's
+    # module docstring for why, and what changes here when a non-local
+    # backend is introduced).
     return FileResponse(
-        path=row.source_path,
+        path=storage.local_path(row.source_path),
         media_type="application/pdf",
         filename=row.original_filename,
         content_disposition_type="attachment" if download else "inline",
@@ -289,12 +295,13 @@ def reprocess_document(document_id: str, db: Session = Depends(get_db), user: Us
     fields/lines/evidence. Always updates the existing record - never creates a
     duplicate document."""
     ref, row = _load(db, document_id)
-    run_extraction(db, ref.kind, ref.pk)
+    run_extraction(db, ref.kind, ref.pk)  # commits internally (wholesale-replace pipeline - out of scope to change here)
     db.refresh(row)
     audit.log_action(
         db, user_id=user.id, action=audit.DOCUMENT_REPROCESSED,
         entity_type="ExpenseReport" if ref.kind == EXPENSE else "TripReport", entity_id=document_id,
     )
+    db.commit()  # log_action only flushes now - see docs/CENTRALIZED_ARCHITECTURE.md §16
     return _build_extraction_detail(db, document_id, ref, row)
 
 
@@ -323,6 +330,7 @@ def rematch_bills(document_id: str, db: Session = Depends(get_db), user: User = 
         pass
     db.refresh(row)
     audit.log_action(db, user_id=user.id, action=audit.BILL_REMATCHED, entity_type="ExpenseReport", entity_id=document_id)
+    db.commit()  # log_action only flushes now - see docs/CENTRALIZED_ARCHITECTURE.md §16
     return _build_extraction_detail(db, document_id, ref, row)
 
 
@@ -344,26 +352,26 @@ def rematch_trips(document_id: str, db: Session = Depends(get_db), user: User = 
         pass
     db.refresh(row)
     audit.log_action(db, user_id=user.id, action=audit.TRIP_REMATCHED, entity_type="ExpenseReport", entity_id=document_id)
+    db.commit()  # log_action only flushes now - see docs/CENTRALIZED_ARCHITECTURE.md §16
     return _build_extraction_detail(db, document_id, ref, row)
 
 
 @router.delete("/{document_id}", status_code=204)
 def delete_document(document_id: str, db: Session = Depends(get_db), user: User = Depends(require_permission(DELETE_DOCUMENTS))):
     ref, row = _load(db, document_id)
-    file_path = Path(row.source_path) if row.source_path else None
+    source_location = row.source_path
     filename = row.original_filename
 
     db.delete(row)
-    db.commit()
-
-    if file_path and file_path.exists():
-        try:
-            file_path.unlink()
-        except OSError:
-            pass
-
     audit.log_action(
         db, user_id=user.id, action=audit.DOCUMENT_DELETED,
         entity_type="ExpenseReport" if ref.kind == EXPENSE else "TripReport", entity_id=document_id,
         details=f"filename={filename!r}",
     )
+    db.commit()
+
+    if source_location:
+        try:
+            storage.delete(source_location)
+        except OSError:
+            pass

@@ -70,6 +70,20 @@ def verify_exception(
                 verification_note=payload.note,
             )
         )
+    # Audit record written in the SAME transaction as the verification
+    # upsert above (Phase 1 hardening - see docs/CENTRALIZED_ARCHITECTURE.md
+    # §16) - the durable source-of-truth business action here is the
+    # ExceptionVerification row itself, not the wholesale-replace recompute
+    # below, so this is where atomicity actually matters most.
+    audit.log_action(
+        db,
+        user_id=user.id,
+        action=audit.EXCEPTION_VERIFIED,
+        entity_type="ExceptionRecord",
+        entity_id=str(exception_id),
+        details=f"{record.exception_type} on expense_id={record.expense_id} (report {record.expense_report_id})"
+        + (f"; note: {payload.note}" if payload.note else ""),
+    )
     db.commit()
 
     # Recompute everything the verification affects: the ExceptionRecord's
@@ -83,16 +97,6 @@ def verify_exception(
         generate_workbook(db)
     except Exception:  # noqa: BLE001 - Excel regeneration must never fail the verification itself
         pass
-
-    audit.log_action(
-        db,
-        user_id=user.id,
-        action=audit.EXCEPTION_VERIFIED,
-        entity_type="ExceptionRecord",
-        entity_id=str(exception_id),
-        details=f"{record.exception_type} on expense_id={record.expense_id} (report {record.expense_report_id})"
-        + (f"; note: {payload.note}" if payload.note else ""),
-    )
 
     updated = (
         db.execute(

@@ -59,6 +59,7 @@ def generate(db: Session = Depends(get_db), user: User = Depends(require_permiss
     except Exception:  # noqa: BLE001 - never leak an internal stack trace to the client
         raise HTTPException(status_code=500, detail="Workbook generation failed. See server logs for detail.")
     audit.log_action(db, user_id=user.id, action=audit.EXCEL_GENERATED, entity_type="ExcelReport", entity_id=None)
+    db.commit()  # log_action only flushes now - see docs/CENTRALIZED_ARCHITECTURE.md §16
     return record
 
 
@@ -144,6 +145,7 @@ def download(db: Session = Depends(get_db), user: User = Depends(require_permiss
     record = _current_record(db)
     path = _workbook_path(record)
     audit.log_action(db, user_id=user.id, action=audit.EXCEL_DOWNLOADED, entity_type="ExcelReport", entity_id=None)
+    db.commit()  # log_action only flushes now - see docs/CENTRALIZED_ARCHITECTURE.md §16
     return FileResponse(
         path=path,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

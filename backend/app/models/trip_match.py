@@ -16,7 +16,7 @@ class TripMatchCandidate(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     expense_id: Mapped[int] = mapped_column(ForeignKey("expenses.id"), index=True)
-    trip_report_id: Mapped[int] = mapped_column(ForeignKey("trip_reports.id"))
+    trip_report_id: Mapped[int] = mapped_column(ForeignKey("trip_reports.id"), index=True)
     rank: Mapped[int] = mapped_column()
     score: Mapped[int] = mapped_column()
     reasons: Mapped[str | None] = mapped_column(String(1000), nullable=True)

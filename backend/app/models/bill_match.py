@@ -15,7 +15,7 @@ class BillMatchCandidate(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     expense_id: Mapped[int] = mapped_column(ForeignKey("expenses.id"), index=True)
-    bill_id: Mapped[int] = mapped_column(ForeignKey("bills.id"))
+    bill_id: Mapped[int] = mapped_column(ForeignKey("bills.id"), index=True)
     rank: Mapped[int] = mapped_column()
     score: Mapped[int] = mapped_column()
     reasons: Mapped[str | None] = mapped_column(String(1000), nullable=True)

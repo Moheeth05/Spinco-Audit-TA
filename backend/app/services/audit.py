@@ -3,6 +3,16 @@ password hashes, session tokens, or CSRF tokens - every call site below
 passes only business-meaningful details (old/new role, filenames, report
 IDs, etc.). Focuses on meaningful state changes, never routine GET
 requests, per the Phase 10 spec.
+
+Deliberately does NOT commit (Phase 1 hardening - see
+docs/CENTRALIZED_ARCHITECTURE.md §16). It used to call db.commit() itself,
+which meant every call site actually made two separate transactions: one
+for the business change, one for this audit row - so a crash between them
+could leave a business action committed with no audit record, or (in
+theory) the reverse. Callers now call this BEFORE their own single
+db.commit(), so the business change and its audit row always succeed or
+fail together, atomically, as one transaction. See each call site for the
+same "log_action(...) then commit()" ordering.
 """
 
 from sqlalchemy.orm import Session
@@ -28,7 +38,7 @@ def log_action(
             details=details,
         )
     )
-    db.commit()
+    db.flush()
 
 
 # Action constants - exact strings, used consistently by every call site and

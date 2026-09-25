@@ -1,6 +1,6 @@
 from datetime import date, datetime, timezone
 
-from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String
+from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -60,7 +60,7 @@ class ExceptionRecord(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     expense_report_id: Mapped[int] = mapped_column(ForeignKey("expense_reports.id"), index=True)
-    expense_id: Mapped[int | None] = mapped_column(ForeignKey("expenses.id"), nullable=True)
+    expense_id: Mapped[int | None] = mapped_column(ForeignKey("expenses.id"), nullable=True, index=True)
 
     exception_type: Mapped[str] = mapped_column(String(100))
     # EXCEPTION | REVIEW REQUIRED | INFORMATIONAL - derived directly from the
@@ -71,9 +71,9 @@ class ExceptionRecord(Base):
     source_page: Mapped[int | None] = mapped_column(nullable=True)
 
     # Traceability back to the exact evidence this exception was derived from.
-    validation_result_id: Mapped[int | None] = mapped_column(ForeignKey("validation_results.id"), nullable=True)
-    bill_id: Mapped[int | None] = mapped_column(ForeignKey("bills.id"), nullable=True)
-    trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True)
+    validation_result_id: Mapped[int | None] = mapped_column(ForeignKey("validation_results.id"), nullable=True, index=True)
+    bill_id: Mapped[int | None] = mapped_column(ForeignKey("bills.id"), nullable=True, index=True)
+    trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True, index=True)
     source_document_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
     # OPEN | RESOLVED
@@ -87,7 +87,7 @@ class ExceptionRecord(Base):
     # rebuilt - see exception_engine.py's evaluate_report(). Never set
     # directly; ExceptionVerification is the durable source of truth that
     # survives this table's wholesale replacement on every (re)evaluation.
-    verified_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    verified_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
     verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     verification_note: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
@@ -112,6 +112,22 @@ class ExceptionVerification(Base):
     """
 
     __tablename__ = "exception_verifications"
+    # Enforces the identity key this class's own docstring already documents
+    # as the intended invariant - previously application-convention only.
+    # Confirmed zero existing violations (dev + production backup) before
+    # adding this. KNOWN LIMITATION: under standard SQL, a multi-column
+    # UNIQUE constraint treats every NULL as distinct from every other NULL,
+    # so two report-level verifications (expense_id IS NULL) for the same
+    # exception_type are NOT caught by this constraint - only the far more
+    # common expense-level case (expense_id set) is actually protected. See
+    # tests/test_phase1_hardening.py's two identity tests, which document
+    # (and prove) exactly this boundary. Closing it fully needs a
+    # partial/filtered unique index, deliberately not added here.
+    __table_args__ = (
+        UniqueConstraint(
+            "expense_report_id", "expense_id", "exception_type", name="uq_exception_verifications_identity"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     expense_report_id: Mapped[int] = mapped_column(ForeignKey("expense_reports.id"), index=True)
@@ -125,6 +141,6 @@ class ExceptionVerification(Base):
     original_severity: Mapped[str] = mapped_column(String(20))
     original_reason: Mapped[str] = mapped_column(String(1000))
 
-    verified_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    verified_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     verified_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     verification_note: Mapped[str | None] = mapped_column(String(1000), nullable=True)

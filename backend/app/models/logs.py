@@ -12,8 +12,8 @@ class ProcessingLog(Base):
     __tablename__ = "processing_logs"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    expense_report_id: Mapped[int | None] = mapped_column(ForeignKey("expense_reports.id"), nullable=True)
-    trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True)
+    expense_report_id: Mapped[int | None] = mapped_column(ForeignKey("expense_reports.id"), nullable=True, index=True)
+    trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True, index=True)
     filename: Mapped[str] = mapped_column(String(500))
 
     stage: Mapped[str] = mapped_column(String(100))
@@ -30,7 +30,7 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
     action: Mapped[str] = mapped_column(String(100))
     entity_type: Mapped[str] = mapped_column(String(100))
     entity_id: Mapped[str | None] = mapped_column(String(100), nullable=True)

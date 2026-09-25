@@ -1,6 +1,6 @@
 from datetime import date, datetime, timezone
 
-from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String
+from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -30,7 +30,7 @@ class ExpenseReport(Base):
     extraction_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW
     extraction_notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
-    employee_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id"), nullable=True)
+    employee_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id"), nullable=True, index=True)
     employee_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     employee_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     department: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -54,7 +54,7 @@ class ExpenseReport(Base):
     policy_version: Mapped[int | None] = mapped_column(nullable=True)
 
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    uploaded_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    uploaded_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
 
     expenses: Mapped[list["Expense"]] = relationship(back_populates="expense_report", cascade="all, delete-orphan")
     bills: Mapped[list["Bill"]] = relationship(back_populates="expense_report", cascade="all, delete-orphan")
@@ -62,6 +62,13 @@ class ExpenseReport(Base):
 
 class Expense(Base):
     __tablename__ = "expenses"
+    # A NULL s_no never conflicts with this (or any other row's) NULL - only
+    # rows where extraction actually recorded a line number are guarded
+    # against duplicating it within the same report. See
+    # docs/CENTRALIZED_ARCHITECTURE.md Phase 1 - this was a real integrity
+    # gap (no constraint previously stopped two rows sharing (report, s_no)),
+    # confirmed to have zero existing violations before this was added.
+    __table_args__ = (UniqueConstraint("expense_report_id", "s_no", name="uq_expenses_report_s_no"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     expense_report_id: Mapped[int] = mapped_column(ForeignKey("expense_reports.id"), index=True)
@@ -82,7 +89,7 @@ class Expense(Base):
     policy_limit: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
 
     bill_found: Mapped[bool] = mapped_column(default=False)
-    bill_id: Mapped[int | None] = mapped_column(ForeignKey("bills.id"), nullable=True)
+    bill_id: Mapped[int | None] = mapped_column(ForeignKey("bills.id"), nullable=True, index=True)
     bill_amount: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
     bill_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
@@ -98,7 +105,7 @@ class Expense(Base):
     # NO_MATCH | REVIEW_REQUIRED. Same vocabulary/pattern as bill_match_status - matching
     # evidence only, not a policy verdict (TRIP NOT FOUND / TRIP DATE MISMATCH / TRIP
     # EMPLOYEE MISMATCH are exceptions the validation layer derives from this).
-    trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True)
+    trip_report_id: Mapped[int | None] = mapped_column(ForeignKey("trip_reports.id"), nullable=True, index=True)
     trip_match_status: Mapped[str] = mapped_column(String(20), default="NOT_PROCESSED")
     trip_match_score: Mapped[int | None] = mapped_column(nullable=True)
     trip_match_confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HIGH | MEDIUM | LOW

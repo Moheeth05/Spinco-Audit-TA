@@ -1,4 +1,5 @@
 import hashlib
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy import select
@@ -12,7 +13,7 @@ from app.services.document_ref import EXPENSE, TRIP
 from app.services.extraction.pipeline import run_extraction
 from app.services.filename_ids import extract_er_id, extract_trip_id
 from app.services.pdf_validation import PdfValidationError, validate_pdf_upload
-from app.services.storage import EXPENSE_REPORTS_DIR, TRIP_REPORTS_DIR, save_upload
+from app.services.storage_backend import storage, storage_kind_for
 from app.services import audit
 from app.models.user import User
 from app.services.permissions import UPLOAD_DOCUMENTS, get_current_user, require_permission
@@ -20,7 +21,7 @@ from app.services.permissions import UPLOAD_DOCUMENTS, get_current_user, require
 router = APIRouter(tags=["uploads"])
 
 
-def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResultItem:
+def _process_one(db: Session, file: UploadFile, *, expense: bool, user: User) -> UploadResultItem:
     content = file.file.read()
     original_filename = file.filename or "document.pdf"
 
@@ -36,7 +37,7 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResul
 
     file_hash = hashlib.sha256(content).hexdigest()
     model = ExpenseReport if expense else TripReport
-    directory = EXPENSE_REPORTS_DIR if expense else TRIP_REPORTS_DIR
+    kind = storage_kind_for(expense=expense)
     id_extractor = extract_er_id if expense else extract_trip_id
 
     existing = db.execute(select(model).where(model.file_hash == file_hash)).scalars().first()
@@ -50,7 +51,7 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResul
         )
 
     try:
-        stored_path = save_upload(directory, file_hash, original_filename, content)
+        stored_location = storage.save(kind, file_hash, original_filename, content)
     except OSError:
         return UploadResultItem(
             filename=original_filename,
@@ -62,17 +63,23 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResul
     document_number = id_extractor(original_filename)
 
     row = model(
-        filename=stored_path.name,
+        filename=Path(stored_location).name,
         original_filename=original_filename,
         file_hash=file_hash,
         file_type="application/pdf",
         file_size=len(content),
         page_count=validation.page_count,
-        source_path=str(stored_path),
+        source_path=stored_location,
         processing_status="PROCESSED",
         **({"er_id": document_number} if expense else {"trip_id": document_number}),
     )
     db.add(row)
+    db.flush()  # assigns row.id, within the same transaction we commit below
+    audit.log_action(
+        db, user_id=user.id, action=audit.DOCUMENT_UPLOADED,
+        entity_type="ExpenseReport" if expense else "TripReport",
+        entity_id=f"{'expense' if expense else 'trip'}:{row.id}", details=f"filename={original_filename!r}",
+    )
     db.commit()
     db.refresh(row)
 
@@ -98,23 +105,13 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool) -> UploadResul
     )
 
 
-def _audit_uploads(db: Session, user: User, results: list[UploadResultItem], *, doc_type: str) -> None:
-    for r in results:
-        if r.success:
-            audit.log_action(
-                db, user_id=user.id, action=audit.DOCUMENT_UPLOADED, entity_type=doc_type,
-                entity_id=r.document_id, details=f"filename={r.filename!r}",
-            )
-
-
 @router.post("/api/uploads/expense-reports", response_model=UploadBatchResponse)
 def upload_expense_reports(
     files: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
     user: User = Depends(require_permission(UPLOAD_DOCUMENTS)),
 ):
-    results = [_process_one(db, f, expense=True) for f in files]
-    _audit_uploads(db, user, results, doc_type="ExpenseReport")
+    results = [_process_one(db, f, expense=True, user=user) for f in files]
     return UploadBatchResponse(results=results)
 
 
@@ -124,8 +121,7 @@ def upload_trip_reports(
     db: Session = Depends(get_db),
     user: User = Depends(require_permission(UPLOAD_DOCUMENTS)),
 ):
-    results = [_process_one(db, f, expense=False) for f in files]
-    _audit_uploads(db, user, results, doc_type="TripReport")
+    results = [_process_one(db, f, expense=False, user=user) for f in files]
     return UploadBatchResponse(results=results)
 
 

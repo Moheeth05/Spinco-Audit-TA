@@ -163,6 +163,7 @@ def revalidate_report(report_id: int, db: Session = Depends(get_db), user: User 
     except Exception:  # noqa: BLE001 - revalidation must succeed even if the workbook write fails
         pass
     audit.log_action(db, user_id=user.id, action=audit.REPORT_REVALIDATED, entity_type="ExpenseReport", entity_id=str(report_id))
+    db.commit()  # log_action only flushes now - see docs/CENTRALIZED_ARCHITECTURE.md §16
     results = db.execute(
         select(ValidationResult)
         .where(ValidationResult.expense_report_id == report_id)

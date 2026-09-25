@@ -1,6 +1,6 @@
 from datetime import date, datetime, timezone
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -31,10 +31,10 @@ class TripReport(Base):
     # True when this trip record was parsed out of an Expense Report PDF's own
     # embedded "TRIP SUMMARY" section rather than a standalone Trip Report PDF.
     is_embedded: Mapped[bool] = mapped_column(Boolean, default=False)
-    source_expense_report_id: Mapped[int | None] = mapped_column(ForeignKey("expense_reports.id"), nullable=True)
+    source_expense_report_id: Mapped[int | None] = mapped_column(ForeignKey("expense_reports.id"), nullable=True, index=True)
     embedded_source_page: Mapped[int | None] = mapped_column(nullable=True)
 
-    employee_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id"), nullable=True)
+    employee_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id"), nullable=True, index=True)
     employee_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     employee_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
@@ -51,7 +51,7 @@ class TripReport(Base):
     validation_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    uploaded_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    uploaded_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
 
     legs: Mapped[list["Trip"]] = relationship(back_populates="trip_report", cascade="all, delete-orphan")
 
@@ -60,6 +60,9 @@ class Trip(Base):
     """A single from/to leg within a Trip Report's itinerary."""
 
     __tablename__ = "trips"
+    # Same NULL-safe reasoning as Expense.s_no's constraint - see
+    # docs/CENTRALIZED_ARCHITECTURE.md Phase 1.
+    __table_args__ = (UniqueConstraint("trip_report_id", "leg_no", name="uq_trips_report_leg_no"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     trip_report_id: Mapped[int] = mapped_column(ForeignKey("trip_reports.id"), index=True)

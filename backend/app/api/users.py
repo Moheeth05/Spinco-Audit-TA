@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import exists, select, update
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -19,11 +19,22 @@ from app.services.permissions import MANAGE_ROLES, MANAGE_USERS, require_permiss
 router = APIRouter(prefix="/api/users", tags=["users"])
 
 
-def _active_admin_count(db: Session, *, excluding_user_id: int | None = None) -> int:
-    q = db.query(User).filter(User.role == "ADMIN", User.is_active.is_(True))
-    if excluding_user_id is not None:
-        q = q.filter(User.id != excluding_user_id)
-    return q.count()
+def _other_active_admin_exists_clause(user_id: int):
+    """A boolean SQL expression, TRUE iff some OTHER active admin exists -
+    evaluated by the database as part of a single guarded UPDATE statement
+    (see change_role/change_status below), not as a separate SELECT the
+    application reads and then acts on. This is what actually closes the
+    TOCTOU race that existed here before: a plain "check count, then
+    write" (two separate statements/round-trips) lets two concurrent
+    requests both read "another admin exists" before either commits,
+    and both proceed - a single UPDATE ... WHERE <this subquery> either
+    matches and updates the row, or matches zero rows and changes nothing,
+    with the guard condition evaluated atomically as part of that one
+    statement on any standard SQL engine (SQLite included, and PostgreSQL
+    once centralized - see docs/CENTRALIZED_ARCHITECTURE.md Phase 1)."""
+    return exists(
+        select(User.id).where(User.role == "ADMIN", User.is_active.is_(True), User.id != user_id)
+    )
 
 
 @router.get("", response_model=list[UserOut])
@@ -57,13 +68,14 @@ def create_user(
         must_change_password=True,
     )
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    db.flush()  # assigns new_user.id, within the same transaction we commit below
 
     audit.log_action(
         db, user_id=actor.id, action=audit.USER_CREATED, entity_type="User", entity_id=str(new_user.id),
         details=f"Created user {new_user.email!r} with role {new_user.role}",
     )
+    db.commit()
+    db.refresh(new_user)
     return new_user
 
 
@@ -92,13 +104,13 @@ def update_user(
             changes.append(f"email: {target.email!r} -> {new_email!r}")
             target.email = new_email
 
-    db.commit()
-    db.refresh(target)
     if changes:
         audit.log_action(
             db, user_id=actor.id, action=audit.USER_UPDATED, entity_type="User", entity_id=str(target.id),
             details="; ".join(changes),
         )
+    db.commit()
+    db.refresh(target)
     return target
 
 
@@ -115,19 +127,44 @@ def change_role(
     if payload.role not in ROLES:
         raise HTTPException(status_code=400, detail=f"Role must be one of {', '.join(ROLES)}.")
 
-    if target.role == "ADMIN" and payload.role != "ADMIN" and _active_admin_count(db, excluding_user_id=target.id) == 0:
-        raise HTTPException(status_code=400, detail="Cannot change the role of the final active administrator.")
-
     old_role = target.role
-    target.role = payload.role
-    db.commit()
-    db.refresh(target)
-
-    audit.log_action(
-        db, user_id=actor.id, action=audit.USER_ROLE_CHANGED, entity_type="User", entity_id=str(target.id),
-        details=f"old_role={old_role}; new_role={target.role}",
-    )
-    return target
+    if old_role == "ADMIN" and payload.role != "ADMIN":
+        # Dangerous case: demoting an admin. Single atomic guarded UPDATE -
+        # see _other_active_admin_exists_clause's docstring for why this,
+        # not a separate check-then-write, is what actually prevents ending
+        # up with zero active admins under concurrent requests.
+        result = db.execute(
+            update(User)
+            .where(User.id == target.id, User.role == "ADMIN", _other_active_admin_exists_clause(target.id))
+            .values(role=payload.role)
+        )
+        if result.rowcount > 0:
+            # Audit row written in the SAME transaction as the role change
+            # (Phase 1 hardening - see docs/CENTRALIZED_ARCHITECTURE.md §16):
+            # one commit below covers both, so the business change and its
+            # audit record always succeed or fail together.
+            audit.log_action(
+                db, user_id=actor.id, action=audit.USER_ROLE_CHANGED, entity_type="User", entity_id=str(target.id),
+                details=f"old_role={old_role}; new_role={payload.role}",
+            )
+        db.commit()
+        db.refresh(target)
+        if result.rowcount == 0:
+            if target.role == "ADMIN":
+                raise HTTPException(status_code=400, detail="Cannot change the role of the final active administrator.")
+            # else: a concurrent request already changed this user's role -
+            # nothing left to do here, including no audit row from this
+            # request (the concurrent request already logged its own).
+        return target
+    else:
+        target.role = payload.role
+        audit.log_action(
+            db, user_id=actor.id, action=audit.USER_ROLE_CHANGED, entity_type="User", entity_id=str(target.id),
+            details=f"old_role={old_role}; new_role={target.role}",
+        )
+        db.commit()
+        db.refresh(target)
+        return target
 
 
 @router.put("/{user_id}/status", response_model=UserOut)
@@ -141,27 +178,45 @@ def change_status(
     if target is None:
         raise HTTPException(status_code=404, detail="User not found.")
 
-    if (
-        not payload.is_active
-        and target.role == "ADMIN"
-        and target.is_active
-        and _active_admin_count(db, excluding_user_id=target.id) == 0
-    ):
-        raise HTTPException(status_code=400, detail="Cannot deactivate the final active administrator.")
-
-    target.is_active = payload.is_active
-    db.commit()
-    db.refresh(target)
-
-    if not payload.is_active:
+    if not payload.is_active and target.role == "ADMIN" and target.is_active:
+        # Dangerous case: deactivating an active admin - same atomic
+        # guarded-UPDATE technique as change_role above.
+        result = db.execute(
+            update(User)
+            .where(
+                User.id == target.id,
+                User.role == "ADMIN",
+                User.is_active.is_(True),
+                _other_active_admin_exists_clause(target.id),
+            )
+            .values(is_active=False)
+        )
+        if result.rowcount > 0:
+            audit.log_action(
+                db, user_id=actor.id, action=audit.USER_DEACTIVATED, entity_type="User", entity_id=str(target.id),
+            )
+        db.commit()
+        db.refresh(target)
+        if result.rowcount == 0:
+            if target.is_active:
+                raise HTTPException(status_code=400, detail="Cannot deactivate the final active administrator.")
+            # else: a concurrent request already deactivated this user -
+            # nothing left to do, including no audit row from this request.
+            return target
         invalidate_all_sessions_for_user(db, target.id)
-
-    audit.log_action(
-        db, user_id=actor.id,
-        action=audit.USER_ACTIVATED if payload.is_active else audit.USER_DEACTIVATED,
-        entity_type="User", entity_id=str(target.id),
-    )
-    return target
+        return target
+    else:
+        target.is_active = payload.is_active
+        audit.log_action(
+            db, user_id=actor.id,
+            action=audit.USER_ACTIVATED if payload.is_active else audit.USER_DEACTIVATED,
+            entity_type="User", entity_id=str(target.id),
+        )
+        db.commit()
+        db.refresh(target)
+        if not payload.is_active:
+            invalidate_all_sessions_for_user(db, target.id)
+        return target
 
 
 @router.put("/{user_id}/password")
@@ -180,12 +235,11 @@ def admin_set_password(
 
     target.password_hash = hash_password(payload.new_password)
     target.must_change_password = True
-    db.commit()
-    invalidate_all_sessions_for_user(db, target.id)
-
     # Never include the new password itself in the audit trail.
     audit.log_action(
         db, user_id=actor.id, action=audit.ADMIN_PASSWORD_RESET, entity_type="User", entity_id=str(target.id),
         details=f"Password reset by admin for {target.email!r}",
     )
+    db.commit()
+    invalidate_all_sessions_for_user(db, target.id)
     return {"detail": "Password reset."}

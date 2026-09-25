@@ -31,6 +31,9 @@ class Bill(Base):
     # UNMATCHED | MATCHED - whether some expense has claimed this bill as its best match.
     # (The DUPLICATE business exception itself is a later validation-phase concern.)
     match_status: Mapped[str] = mapped_column(String(20), default="UNMATCHED")
-    matched_expense_id: Mapped[int | None] = mapped_column(nullable=True)
+    # Was a plain, unconstrained int (no referential integrity at all) until
+    # Phase 1 hardening - confirmed zero orphaned values in dev/production
+    # before adding this FK (see docs/CENTRALIZED_ARCHITECTURE.md).
+    matched_expense_id: Mapped[int | None] = mapped_column(ForeignKey("expenses.id"), nullable=True)
 
     expense_report: Mapped["ExpenseReport"] = relationship(back_populates="bills")

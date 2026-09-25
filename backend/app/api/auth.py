@@ -56,6 +56,10 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
             db, user_id=user.id if user else None, action=audit.AUTH_LOGIN_FAILURE, entity_type="User",
             entity_id=str(user.id) if user else None, details=f"Failed login attempt for {email!r}",
         )
+        # log_action only flushes (Phase 1 hardening - see
+        # docs/CENTRALIZED_ARCHITECTURE.md §16) - this path has no other
+        # commit, so it must commit explicitly or the audit row is lost.
+        db.commit()
         raise generic_error
 
     if not user.is_active:
@@ -63,14 +67,14 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
             db, user_id=user.id, action=audit.AUTH_LOGIN_FAILURE, entity_type="User", entity_id=str(user.id),
             details="Login attempt on a deactivated account",
         )
+        db.commit()
         raise generic_error
 
     raw_token, csrf_token, _session = create_session(db, user)
     user.last_login_at = datetime.now(timezone.utc)
+    audit.log_action(db, user_id=user.id, action=audit.AUTH_LOGIN_SUCCESS, entity_type="User", entity_id=str(user.id))
     db.commit()
     db.refresh(user)
-
-    audit.log_action(db, user_id=user.id, action=audit.AUTH_LOGIN_SUCCESS, entity_type="User", entity_id=str(user.id))
 
     _set_session_cookie(response, raw_token)
     return LoginResponse(user=UserOut.model_validate(user), csrf_token=csrf_token)
@@ -86,6 +90,7 @@ def logout(
         session = get_valid_session(db, session_token)
         if session:
             audit.log_action(db, user_id=session.user_id, action=audit.AUTH_LOGOUT, entity_type="User", entity_id=str(session.user_id))
+            db.commit()  # log_action no longer commits itself - see docs/CENTRALIZED_ARCHITECTURE.md §16
         invalidate_session(db, session_token)
     response.delete_cookie(SESSION_COOKIE_NAME, path="/")
     return {"detail": "Logged out."}
@@ -124,11 +129,10 @@ def change_password(
 
     user.password_hash = hash_password(payload.new_password)
     user.must_change_password = False
+    audit.log_action(db, user_id=user.id, action=audit.USER_PASSWORD_CHANGED, entity_type="User", entity_id=str(user.id))
     db.commit()
 
     # Sign the user out everywhere else - the session that just performed
     # the change stays alive so the UI doesn't immediately bounce them.
     invalidate_all_sessions_for_user(db, user.id, except_token=session_token)
-
-    audit.log_action(db, user_id=user.id, action=audit.USER_PASSWORD_CHANGED, entity_type="User", entity_id=str(user.id))
     return {"detail": "Password changed."}
