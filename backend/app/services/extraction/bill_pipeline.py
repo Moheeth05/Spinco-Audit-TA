@@ -13,7 +13,7 @@ from app.models.bill import Bill
 from app.models.bill_match import BillMatchCandidate
 from app.models.expense_report import Expense, ExpenseReport
 from app.services.category_map import normalize_category
-from app.services.extraction import bill_matcher, bill_parser
+from app.services.extraction import bill_matcher, bill_parser, candidate_cleanup
 from app.services.extraction.text_extraction import PyMuPDFTextExtractor
 
 
@@ -32,6 +32,12 @@ def extract_and_match_bills(
 
     bill_pages = text_extractor.bill_pages_from(pdf_path, content_last_page + 1)
 
+    # Cleanup BEFORE delete, same transaction - see candidate_cleanup.py /
+    # docs/ORPHAN_RECORD_INVESTIGATION.md. These Bill ids are about to stop
+    # existing; any BillMatchCandidate row referencing them by bill_id would
+    # otherwise be orphaned permanently.
+    old_bill_ids = [b.id for b in db.query(Bill.id).filter(Bill.expense_report_id == row.id).all()]
+    candidate_cleanup.delete_bill_match_candidates_for_bill_ids(db, old_bill_ids)
     db.query(Bill).filter(Bill.expense_report_id == row.id).delete()
     db.commit()
 
@@ -45,6 +51,15 @@ def extract_and_match_bills(
             parsed = bill_parser.parse_bill_text(segment)
             if not bill_parser.parsed_has_evidence(parsed, segment):
                 continue
+            if page.get("source") == "nvidia_ocr":
+                # Provenance/traceability (no schema change - this bill's
+                # existing page_number column already anchors it to a
+                # document+page for "View Source" navigation; this note
+                # documents which text this page's fields were parsed from).
+                parsed.warnings.append(
+                    f"Page text recovered via NVIDIA Nemotron OCR v2 fallback "
+                    f"(local OCR confidence too low or empty; OCR confidence {page.get('ocr_confidence'):.2f})."
+                )
             if is_multi:
                 parsed.status = "REVIEW_REQUIRED"
                 parsed.warnings.append(

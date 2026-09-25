@@ -14,6 +14,7 @@ from app.schemas.documents import DocumentDetail
 from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
 from app.services.exception_engine import evaluate_report
 from app.services.excel_generator import generate_workbook
+from app.services.extraction import candidate_cleanup
 from app.services.extraction.batta_pipeline import match_batta_expenses
 from app.services.extraction.bill_pipeline import extract_and_match_bills
 from app.services.extraction.expense_report_parser import find_report_summary_page
@@ -361,6 +362,21 @@ def delete_document(document_id: str, db: Session = Depends(get_db), user: User 
     ref, row = _load(db, document_id)
     source_location = row.source_path
     filename = row.original_filename
+
+    # Cleanup BEFORE delete, same transaction - see candidate_cleanup.py /
+    # docs/ORPHAN_RECORD_INVESTIGATION.md. ORM cascade correctly removes this
+    # report's Expense/Bill rows (or TripReport's Trip legs) via
+    # cascade="all, delete-orphan", but BillMatchCandidate/TripMatchCandidate
+    # have no relationship() declared anywhere, so cascade can never reach
+    # them - without this, every document delete would silently orphan
+    # whatever candidates referenced its expenses/bills/trip report.
+    if ref.kind == EXPENSE:
+        expense_ids = [e.id for e in db.query(Expense.id).filter(Expense.expense_report_id == row.id).all()]
+        bill_ids = [b.id for b in db.query(Bill.id).filter(Bill.expense_report_id == row.id).all()]
+        candidate_cleanup.delete_candidates_for_expense_ids(db, expense_ids)
+        candidate_cleanup.delete_bill_match_candidates_for_bill_ids(db, bill_ids)
+    else:
+        candidate_cleanup.delete_trip_match_candidates_for_trip_report_ids(db, [row.id])
 
     db.delete(row)
     audit.log_action(

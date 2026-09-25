@@ -17,7 +17,7 @@ from app.models.trip import Trip, TripReport
 from app.services.document_ref import EXPENSE, TRIP
 from app.services.exception_engine import evaluate_report
 from app.services.excel_generator import generate_workbook
-from app.services.extraction import batta_pipeline, bill_pipeline, expense_report_parser, trip_report_parser
+from app.services.extraction import batta_pipeline, bill_pipeline, candidate_cleanup, expense_report_parser, trip_report_parser
 from app.services.extraction.classifier import UNKNOWN, classify_text
 from app.services.extraction.shared import text_extractor as _text_extractor
 from app.services.validation.pipeline import validate_expense_report
@@ -162,6 +162,16 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
         row.report_month_label = None
         warnings.append("Report month could not be reliably determined from the source document.")
 
+    # Cleanup BEFORE delete, same transaction (no commit in between) - see
+    # candidate_cleanup.py / docs/ORPHAN_RECORD_INVESTIGATION.md. These
+    # Expense ids are about to stop existing; any BillMatchCandidate/
+    # TripMatchCandidate row referencing them would otherwise be orphaned
+    # permanently, since neither candidate table has an ORM relationship
+    # for cascade to reach and nothing else here re-visits old ids.
+    old_expense_ids = [
+        e.id for e in db.query(Expense.id).filter(Expense.expense_report_id == row.id).all()
+    ]
+    candidate_cleanup.delete_candidates_for_expense_ids(db, old_expense_ids)
     db.query(Expense).filter(Expense.expense_report_id == row.id).delete()
     for line in lines:
         db.add(
@@ -229,6 +239,10 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
             )
         db.commit()
     elif existing_embedded:
+        # Same cleanup-before-delete discipline as above - this TripReport's
+        # id is about to stop existing, so any TripMatchCandidate row
+        # referencing it (trip_report_id) would otherwise be orphaned.
+        candidate_cleanup.delete_trip_match_candidates_for_trip_report_ids(db, [existing_embedded.id])
         db.delete(existing_embedded)
         db.commit()
 
