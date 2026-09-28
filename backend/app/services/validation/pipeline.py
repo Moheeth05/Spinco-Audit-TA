@@ -157,7 +157,7 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     original_expense=bill_original_expense.get(expense.bill_id) if expense.bill_id else None,
                     document_required=document_required,
                 ),
-                checks.check_catering(category=expense.category, bill=bill),
+                checks.check_catering(category=expense.category, bill=bill, claimed_amount=expense.claimed_amount),
                 checks.check_batta_trip_match(
                     category=expense.category,
                     expense_date=expense.expense_date,

@@ -351,12 +351,17 @@ function ReportStatusBanner({ extraction }) {
 }
 
 function VerifyModal({ exception, onClose, onVerified }) {
+  const isException = exception.severity === 'EXCEPTION'
   const [note, setNote] = useState('')
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
   async function handleConfirm() {
     setError(null)
+    if (isException && !note.trim()) {
+      setError('A note explaining why this exception is acceptable is required.')
+      return
+    }
     setSubmitting(true)
     try {
       await apiPost(`/exceptions/${exception.id}/verify`, { note: note.trim() || null })
@@ -369,11 +374,21 @@ function VerifyModal({ exception, onClose, onVerified }) {
     }
   }
 
-  const label = exception.exception_type === 'TRIP MATCH REVIEW REQUIRED' ? 'Verify Trip Match' : exception.exception_type.startsWith('BILL MATCH') ? 'Verify Bill Match' : 'Verify'
+  const label = isException
+    ? 'Verify / Accept Exception'
+    : exception.exception_type === 'TRIP MATCH REVIEW REQUIRED'
+      ? 'Verify Trip Match'
+      : exception.exception_type.startsWith('BILL MATCH')
+        ? 'Verify Bill Match'
+        : 'Verify'
 
   return (
     <Modal title={label} onClose={onClose}>
-      <p style={{ fontSize: 13, color: 'var(--gray-700)', marginBottom: 4 }}>Mark this review condition as verified?</p>
+      <p style={{ fontSize: 13, color: 'var(--gray-700)', marginBottom: 4 }}>
+        {isException
+          ? 'This is a confirmed policy exception, not an ambiguous match. Accepting it overrides an automated finding - explain why below (e.g. a legitimate rounding or GST difference).'
+          : 'Mark this review condition as verified?'}
+      </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, background: 'var(--gray-50)', borderRadius: 8, padding: 12, marginBottom: 12 }}>
         <div>
           <strong>Date:</strong> {exception.expense_date || '-'}
@@ -382,7 +397,14 @@ function VerifyModal({ exception, onClose, onVerified }) {
           <strong>Category:</strong> {exception.category || '-'}
         </div>
         <div>
+          <strong>Policy Category:</strong> {exception.policy_category || 'Not Found'}
+        </div>
+        <div>
           <strong>Claimed:</strong> {exception.claimed_amount != null ? formatINR(exception.claimed_amount) : '-'}
+        </div>
+        <div>
+          <strong>Bill / Limit:</strong>{' '}
+          {exception.bill_amount != null ? formatINR(exception.bill_amount) : exception.policy_limit != null ? formatINR(exception.policy_limit) : '-'}
         </div>
         <div>
           <strong>Source:</strong> {exception.source_page != null ? `Page ${exception.source_page}` : 'Source not available'}
@@ -393,7 +415,7 @@ function VerifyModal({ exception, onClose, onVerified }) {
       </div>
       {error && <div className="form-error">{error}</div>}
       <div className="form-field">
-        <label>Note (optional)</label>
+        <label>{isException ? 'Note (required)' : 'Note (optional)'}</label>
         <textarea
           className="input"
           rows={3}
@@ -449,6 +471,7 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                     <th>S.No</th>
                     <th>Date</th>
                     <th>Category</th>
+                    <th>Policy Category</th>
                     <th>Type</th>
                     <th>Severity</th>
                     <th className="num">Claimed</th>
@@ -464,6 +487,7 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                       <td>{e.s_no ?? '-'}</td>
                       <td>{e.expense_date || '-'}</td>
                       <td>{e.category || '-'}</td>
+                      <td>{e.policy_category || 'Not Found'}</td>
                       <td>{e.exception_type}</td>
                       <td>
                         <StatusBadge status={e.severity} />
@@ -486,11 +510,11 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
                             style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--success, #16a34a)' }}
                             title={`Verified by ${e.verified_by_name || 'unknown'} on ${e.verified_at ? formatISTDateTime(e.verified_at) : ''}${e.verification_note ? ` - ${e.verification_note}` : ''}`}
                           >
-                            <BadgeCheck size={14} /> Verified
+                            <BadgeCheck size={14} /> {e.severity === 'EXCEPTION' ? 'Verified / Accepted' : 'Verified'}
                           </span>
-                        ) : e.severity === 'REVIEW REQUIRED' && canVerify ? (
+                        ) : (e.severity === 'REVIEW REQUIRED' || e.severity === 'EXCEPTION') && canVerify ? (
                           <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setVerifying(e)}>
-                            Verify
+                            {e.severity === 'EXCEPTION' ? 'Verify / Accept' : 'Verify'}
                           </button>
                         ) : (
                           '-'
@@ -546,6 +570,7 @@ function ValidationResultsPanel({ extraction, onJump }) {
                   <tr>
                     <th>S.No</th>
                     <th>Check Type</th>
+                    <th>Policy Category</th>
                     <th>Details</th>
                     <th>Result</th>
                     <th>Remarks</th>
@@ -557,6 +582,7 @@ function ValidationResultsPanel({ extraction, onJump }) {
                     <tr key={v.id}>
                       <td>-</td>
                       <td>{v.check_type}</td>
+                      <td>{v.policy_category || 'Not Found'}</td>
                       <td>{v.details || '-'}</td>
                       <td>
                         <StatusBadge status={v.result} />
@@ -571,6 +597,7 @@ function ValidationResultsPanel({ extraction, onJump }) {
                     <tr key={v.id}>
                       <td>{expensesBySNo[v.expense_id] ?? '-'}</td>
                       <td>{v.check_type}</td>
+                      <td>{v.policy_category || 'Not Found'}</td>
                       <td>{v.details || '-'}</td>
                       <td>
                         <StatusBadge status={v.result} />
@@ -799,6 +826,12 @@ export default function DocumentViewerPage() {
       } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
         e.preventDefault()
         goToPage(pageNumber + 1)
+      } else if (e.key === 'Home') {
+        e.preventDefault()
+        goToPage(1)
+      } else if (e.key === 'End' && numPages) {
+        e.preventDefault()
+        goToPage(numPages)
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -857,8 +890,13 @@ export default function DocumentViewerPage() {
         <>
           <div className="viewer-toolbar">
             <div className="viewer-toolbar-group">
-              <button className="icon-action" disabled={pageNumber <= 1} onClick={() => goToPage(pageNumber - 1)}>
-                <ChevronLeft size={15} />
+              <button
+                className="icon-action viewer-nav-btn"
+                title="Previous page (Left Arrow)"
+                disabled={pageNumber <= 1}
+                onClick={() => goToPage(pageNumber - 1)}
+              >
+                <ChevronLeft size={20} />
               </button>
               <span className="viewer-page-indicator">
                 Page{' '}
@@ -877,11 +915,12 @@ export default function DocumentViewerPage() {
                 / {numPages || '-'}
               </span>
               <button
-                className="icon-action"
+                className="icon-action viewer-nav-btn"
+                title="Next page (Right Arrow)"
                 disabled={!numPages || pageNumber >= numPages}
                 onClick={() => goToPage(pageNumber + 1)}
               >
-                <ChevronRight size={15} />
+                <ChevronRight size={20} />
               </button>
             </div>
 

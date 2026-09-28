@@ -12,6 +12,10 @@ update-feed/
 backend/build/
 backend/dist_backend/
 
+# Generated at build time (electron/scripts/write-build-info.js) - a fresh
+# git-commit/build-date stamp every build, never a source file
+electron/generated/
+
 # Vendored Tesseract OCR runtime (fetched from the local machine at package
 # time by electron/scripts/collect-tesseract.js - see that script's header
 # comment for how to regenerate this directory; not committed since it is

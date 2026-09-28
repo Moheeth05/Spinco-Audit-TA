@@ -108,26 +108,49 @@ user action.
 # 1. Bump the version
 #    Edit package.json's "version" field (e.g. 1.1.0 -> 1.2.0)
 
-# 2. Run the full regression suite (backend)
-cd backend
-.\.venv\Scripts\python.exe -m pytest tests/ -q
-
-# 3. Build the complete, versioned application bundle
-cd ..
+# 2. Build, test, and verify - one command
+cd D:\Bills
 npm run dist
-#    = npm run prepackage (frontend build + backend PyInstaller build +
-#      Tesseract collection) + electron-builder --win (NSIS + portable)
-#    Produces release/Spinco TA Audit Setup <version>.exe (+ .blockmap),
-#    release/Spinco TA Audit <version>.exe (portable, NOT part of the
-#    update feed), and release/latest.yml.
+```
 
-# 4. Stage exactly the update-feed files (installer + .blockmap + latest.yml
+`npm run dist` runs the entire pipeline below, in order, and fails fast (no
+installer is produced) if any step fails:
+
+1. **`test:backend`** - the full backend test suite (`backend/tests`).
+2. **`clean`** - removes `frontend/dist`, `backend/dist_backend`,
+   `backend/build`, `release/`, and `electron/generated` so nothing from a
+   previous build can leak into this one (see "Preventing stale releases"
+   below - this exists because of a real incident).
+3. **`write:build-info`** - stamps `electron/generated/build-info.json` with
+   the `package.json` version, the current git commit
+   (`git rev-parse --short HEAD`), whether the working tree is dirty, and
+   the build timestamp. Packaged into the app as `build-info.json` and read
+   via the `app:get-build-info` IPC call - shown in Settings next to the
+   version (see "Release traceability" below).
+4. **`build:frontend`** + **`build:backend`** + **`collect:tesseract`** -
+   the React production build, the PyInstaller backend executable, and the
+   vendored Tesseract runtime.
+5. **`electron-builder --win`** - packages all of the above as
+   `extraResources` and produces the NSIS installer + portable exe +
+   `latest.yml` update metadata in `release/`.
+6. **`verify:release`** - fails the build if the installer's version doesn't
+   match `package.json`, or if any release artifact (frontend build,
+   backend exe, installer) has a modification time older than this build's
+   `write:build-info` timestamp. This is what actually proves the release is
+   current, not stale - see below.
+
+A release is never "the frontend changed but the backend didn't get
+rebuilt" - step 4 always rebuilds and repackages both together into one
+versioned bundle, so there is no way to produce a mismatched pair.
+
+```powershell
+# 3. Stage exactly the update-feed files (installer + .blockmap + latest.yml
 #    - nothing else) into a local staging directory
 npm run release:stage
 #    -> D:\Bills\update-feed\spinco-ta-audit\ (override with
 #       SPINCO_UPDATE_FEED_DIR)
 
-# 5. Publish that staging directory's contents to the real update feed host,
+# 4. Publish that staging directory's contents to the real update feed host,
 #    under the central server's /updates/ path - kept structurally separate
 #    from /api/ (the application server, database, and documents). Not
 #    automated here since the Spinco server isn't provisioned yet; once it
@@ -139,6 +162,35 @@ npm run release:stage
 #    Publish only the 3 files release:stage produced - nothing else from
 #    release/ or anywhere in the repo.
 ```
+
+`npm run dist:portable` builds only the portable target and skips
+`test:backend`/`verify:release` - a quick local sanity build, never a release.
+
+## Preventing stale releases
+
+We previously had a build where `release/win-unpacked/` had been rebuilt but
+`Spinco TA Audit Setup 1.0.0.exe` next to it was left over from an older
+build - the installer end users actually run was stale even though the
+unpacked directory looked current. `npm run dist`'s `clean` step (removes
+every build-output directory before rebuilding) and `verify:release` step
+(fails the build unless every artifact's timestamp is newer than this
+build's start) together make that class of mistake structurally impossible:
+there is no artifact left over to accidentally ship, and if one somehow were,
+the build itself would refuse to report success.
+
+## Release traceability
+
+Every build's `electron/generated/build-info.json` (packaged as
+`build-info.json`, read via `app:get-build-info`) records:
+
+```json
+{ "version": "1.2.0", "gitCommit": "7f3a21c", "dirty": false, "buildDate": "2026-09-28T10:00:00.000Z" }
+```
+
+Shown in Settings as a "Build" row alongside Current Version/Latest
+Version/Status. `dirty: true` means the build was made from a working tree
+with uncommitted changes - real for local testing, but never presented as
+tracing to a clean, reproducible commit.
 
 **Exactly what a real deployment publishes, every release:** the 3 files
 `npm run release:stage` puts in `update-feed/spinco-ta-audit/` -

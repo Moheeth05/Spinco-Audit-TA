@@ -27,6 +27,15 @@
   gap: 6px;
 }
 
+/* Previous/Next are the most-clicked controls during an audit pass (jumping
+   between source-evidence pages repeatedly) - larger than the standard
+   30x30px .icon-action used elsewhere (table row actions, zoom, etc.), which
+   was confirmed too small/fiddly for that repeated use. */
+.viewer-nav-btn {
+  width: 40px;
+  height: 40px;
+}
+
 .viewer-page-indicator {
   font-size: 12.5px;
   font-weight: 600;

@@ -200,6 +200,13 @@ def build_exception_out(r: ExceptionRecord, expense: Expense | None, vr: Validat
         claimed_amount=(vr.claimed_amount if vr and vr.claimed_amount is not None else (expense.claimed_amount if expense else None)),
         policy_limit=vr.policy_limit if vr else None,
         bill_amount=vr.bill_amount if vr else None,
+        # The category actually used for the policy lookup, post-normalization
+        # (see ValidationResult.policy_category's own docstring) - never the
+        # raw extracted expense.category, which can differ before
+        # normalization/mapping to a real Policy Master row. None here means
+        # "not found", shown honestly as such in the UI rather than falling
+        # back to a possibly-wrong guess.
+        policy_category=vr.policy_category if vr else None,
         expense_date=(vr.expense_date if vr and vr.expense_date is not None else (expense.expense_date if expense else None)),
         bill_date=vr.bill_date if vr else None,
         bill_id=r.bill_id,

@@ -6,6 +6,7 @@ import {
   checkForUpdates,
   downloadUpdate,
   getAppVersion,
+  getBuildInfo,
   getUpdateStatus,
   installUpdate,
   isElectron,
@@ -128,12 +129,14 @@ function formatBytes(n) {
 
 function ApplicationUpdateCard() {
   const [version, setVersion] = useState(null)
+  const [buildInfo, setBuildInfo] = useState(null)
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     if (!isElectron()) return
     getAppVersion().then(setVersion)
+    getBuildInfo().then(setBuildInfo)
     getUpdateStatus().then(setStatus)
     const unsubscribe = onUpdateStatus(setStatus)
     return unsubscribe
@@ -179,6 +182,12 @@ function ApplicationUpdateCard() {
       <Row label="Environment" value="Desktop application" />
       <Row label="Current Version" value={version || '-'} />
       <Row label="Latest Version" value={status?.latestVersion || (state === 'up-to-date' || state === 'unconfigured' ? version || '-' : '-')} />
+      {buildInfo && (
+        <Row
+          label="Build"
+          value={`${buildInfo.gitCommit}${buildInfo.dirty ? ' (dirty)' : ''} - ${new Date(buildInfo.buildDate).toLocaleString()}`}
+        />
+      )}
       <Row label="Status" value={state === 'error' && status?.error ? `${label} (${status.error})` : label} />
       {state === 'downloading' && status?.progress && (
         <div style={{ margin: '8px 0' }}>

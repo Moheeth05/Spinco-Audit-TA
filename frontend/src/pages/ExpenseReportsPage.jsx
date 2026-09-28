@@ -26,7 +26,8 @@ export default function ExpenseReportsPage() {
   const hasAnyReports = flat && flat.length > 0
 
   const flatColumns = [
-    { key: 'filename', header: 'File Name', render: (r) => `${r.original_filename} - ${r.employee_name || 'Pending extraction'}` },
+    { key: 'filename', header: 'File Name', render: (r) => r.original_filename },
+    { key: 'employee_name', header: 'Employee Name', render: (r) => r.employee_name || 'Pending extraction' },
     { key: 'er_id', header: 'ER ID', render: (r) => r.er_id || 'Pending extraction' },
     { key: 'total_claimed', header: 'Claimed Amount', align: 'right', render: (r) => formatINR(r.total_claimed) },
     {

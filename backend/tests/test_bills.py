@@ -604,9 +604,16 @@ def test_catering_check_is_review_required_not_exception():
         page_number = 47
         raw_text = "Catering Charges (Incl. of GST)\n368.00"
 
-    result = checks.check_catering(category="TRAIN / BUS FARE", bill=_Bill())
+    result = checks.check_catering(category="TRAIN / BUS FARE", bill=_Bill(), claimed_amount=1975.85)
     assert result.result == checks.REVIEW_REQUIRED
-    assert result.details == "Catering service found in the travel bill: Rs.368.00."
+    # The auditor needs both figures, not just the catering amount in
+    # isolation - see checks.py's check_catering.
+    assert result.details == (
+        "Total claimed amount: Rs.1,975.85. Catering amount: Rs.368.00. "
+        "Catering/service component requires separate policy review."
+    )
+    assert result.claimed_amount == 1975.85
+    assert result.bill_amount == 368.0
 
 
 def test_catering_not_applicable_for_non_travel_category():

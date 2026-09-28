@@ -224,14 +224,19 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
     # "Verify" action would silently vanish on the next (re)evaluation
     # (see the module-level docstring's dedup rationale, and the post-UAT
     # correction spec's explicit "do not delete audit history" requirement).
-    # Never applied to severity=EXCEPTION - only a REVIEW REQUIRED condition
-    # can ever be verified away.
+    # Applies to both REVIEW_REQUIRED and EXCEPTION severity - an auditor can
+    # now explicitly accept a confirmed EXCEPTION too (e.g. a legitimate
+    # rounding/GST difference), not just resolve an ambiguous REVIEW
+    # REQUIRED condition; api/exceptions.py's verify_exception() is the only
+    # writer of ExceptionVerification and requires a note specifically for
+    # EXCEPTION severity, since accepting one overrides a real policy
+    # violation finding rather than just confirming an uncertain match.
     verifications = {
         (v.expense_id, v.exception_type): v
         for v in db.query(ExceptionVerification).filter(ExceptionVerification.expense_report_id == report.id).all()
     }
     for rec in records:
-        if rec.severity != REVIEW_REQUIRED:
+        if rec.severity not in (REVIEW_REQUIRED, EXCEPTION):
             continue
         v = verifications.get((rec.expense_id, rec.exception_type))
         if v is not None:
@@ -247,11 +252,12 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
     # An expense's validation_status was already set by validate_expense_report()
     # (see validation/pipeline.py::_aggregate_status) before this function
     # runs - override it here only when every one of that expense's
-    # REVIEW_REQUIRED conditions has since been manually verified and it has
-    # no unverified EXCEPTION, so "VERIFIED" is visible everywhere the status
-    # is read (Expense Summary, dashboard, analytics, Excel) rather than the
-    # UI continuing to show REVIEW REQUIRED for something a human already
-    # resolved (Part 22). Kept distinct from "PASS" (which means every check
+    # REVIEW_REQUIRED and EXCEPTION conditions has since been manually
+    # verified/accepted, so "VERIFIED" is visible everywhere the status is
+    # read (Expense Summary, dashboard, analytics, Excel) rather than the
+    # UI continuing to show REVIEW REQUIRED/EXCEPTION for something a human
+    # already resolved (Part 22, later extended to cover accepted
+    # EXCEPTIONs too). Kept distinct from "PASS" (which means every check
     # cleanly passed on its own) so the fact that this expense DID require
     # human review remains visible, per the "do not delete audit history"
     # requirement - it is a resolved state, not an erased one.
@@ -259,12 +265,12 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
     for rec in records:
         records_by_expense[rec.expense_id].append(rec)
     for expense_id, expense in expenses_by_id.items():
-        if expense.validation_status != "REVIEW_REQUIRED":
+        if expense.validation_status not in ("REVIEW_REQUIRED", "EXCEPTION"):
             continue
         expense_records = records_by_expense.get(expense_id, [])
         has_unverified_review = any(r.severity == REVIEW_REQUIRED and r.status == "OPEN" for r in expense_records)
-        has_exception = any(r.severity == EXCEPTION for r in expense_records)
-        if not has_unverified_review and not has_exception:
+        has_unverified_exception = any(r.severity == EXCEPTION and r.status == "OPEN" for r in expense_records)
+        if not has_unverified_review and not has_unverified_exception:
             expense.validation_status = "VERIFIED"
 
     expenses = list(expenses_by_id.values())
@@ -272,12 +278,14 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
     exception_count = sum(1 for e in expenses if e.validation_status == "EXCEPTION")
     review_count = sum(1 for e in expenses if e.validation_status == "REVIEW_REQUIRED")
 
-    report_level_rows = by_expense.get(None, [])
-    report_level_exception = any(r.result == "EXCEPTION" for r in report_level_rows)
-    # A report-level REVIEW REQUIRED (e.g. Total Validation Check, which has
-    # no expense_id) only still counts if its own ExceptionRecord wasn't
-    # itself verified - same rule as a per-expense one, just checked
-    # against the expense_id=None bucket of `records`.
+    # A report-level EXCEPTION/REVIEW REQUIRED (e.g. Total Validation Check,
+    # which has no expense_id) only still counts if its own ExceptionRecord
+    # wasn't itself verified/accepted - checked against the expense_id=None
+    # bucket of `records`, not the raw ValidationResult.result, so an
+    # accepted report-level exception actually clears here too.
+    report_level_exception = any(
+        r.severity == EXCEPTION and r.status == "OPEN" for r in records_by_expense.get(None, [])
+    )
     report_level_review = any(
         r.severity == REVIEW_REQUIRED and r.status == "OPEN" for r in records_by_expense.get(None, [])
     )

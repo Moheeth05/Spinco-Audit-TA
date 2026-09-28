@@ -1,8 +1,9 @@
-"""Manual "Verify" workflow for a REVIEW REQUIRED exception (post-UAT
-correction 2, Parts 20-26) - a real backend state transition, not a
-frontend-only label change. See models/validation.py's ExceptionVerification
-for why this is a separate, durable table rather than a field written
-directly onto the (wholesale-replaced) ExceptionRecord row.
+"""Manual "Verify" workflow for a REVIEW REQUIRED or EXCEPTION condition
+(post-UAT correction 2, Parts 20-26; extended to EXCEPTION severity per a
+later request) - a real backend state transition, not a frontend-only label
+change. See models/validation.py's ExceptionVerification for why this is a
+separate, durable table rather than a field written directly onto the
+(wholesale-replaced) ExceptionRecord row.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -31,14 +32,21 @@ def verify_exception(
     record = db.get(ExceptionRecord, exception_id)
     if record is None:
         raise HTTPException(status_code=404, detail="Exception not found.")
-    if record.severity != "REVIEW REQUIRED":
-        raise HTTPException(
-            status_code=400,
-            detail="Only a REVIEW REQUIRED condition can be verified - a confirmed EXCEPTION is a real policy "
-            "violation and cannot be resolved this way.",
-        )
+    if record.severity not in ("REVIEW REQUIRED", "EXCEPTION"):
+        raise HTTPException(status_code=400, detail="Only a REVIEW REQUIRED or EXCEPTION condition can be verified.")
     if record.status == "RESOLVED":
         raise HTTPException(status_code=400, detail="This condition has already been verified.")
+    # A confirmed EXCEPTION is a real policy violation, not an ambiguous
+    # match the system merely couldn't confirm - accepting one (e.g. a
+    # legitimate rounding/GST difference between claimed and bill amount)
+    # is a real judgement call that overrides an automated finding, so it
+    # requires the auditor to actually write down why, unlike an optional
+    # note on an ordinary REVIEW REQUIRED confirmation.
+    if record.severity == "EXCEPTION" and not (payload.note and payload.note.strip()):
+        raise HTTPException(
+            status_code=400,
+            detail="A note explaining why this exception is acceptable is required to verify a confirmed EXCEPTION.",
+        )
 
     # Upsert: verifying the same (expense, exception_type) again just
     # updates who/when/why, rather than accumulating duplicate history rows.

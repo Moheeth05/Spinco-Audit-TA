@@ -758,7 +758,12 @@ def test_29_verification_survives_reprocessing(client):
     assert same["verification_note"] == "kept across reprocessing"
 
 
-def test_30_cannot_verify_a_confirmed_exception(client):
+def test_30_verifying_a_confirmed_exception_requires_a_note(client):
+    """A confirmed EXCEPTION *can* now be verified/accepted (e.g. a
+    legitimate rounding/GST difference between claimed and bill amount) -
+    but unlike an ordinary REVIEW REQUIRED confirmation, it requires a note,
+    since accepting one overrides a real policy-violation finding rather
+    than just confirming an ambiguous match."""
     resp = client.post(
         "/api/uploads/expense-reports",
         files=[("files", ("ER-39832.pdf", (REPO_ROOT / "ER-39832.pdf").read_bytes(), "application/pdf"))],
@@ -769,8 +774,26 @@ def test_30_cannot_verify_a_confirmed_exception(client):
     if confirmed is None:
         return  # this real document doesn't currently have one - not this test's concern
 
-    resp = client.post(f"/api/exceptions/{confirmed['id']}/verify", json={"note": "should be rejected"})
-    assert resp.status_code == 400
+    rejected = client.post(f"/api/exceptions/{confirmed['id']}/verify", json={"note": None})
+    assert rejected.status_code == 400
+
+    accepted = client.post(
+        f"/api/exceptions/{confirmed['id']}/verify",
+        json={"note": "Reviewed against source PDF - acceptable rounding difference."},
+    )
+    assert accepted.status_code == 200
+    assert accepted.json()["status"] == "RESOLVED"
+
+    # Must survive the wholesale rebuild evaluate_report() does on every
+    # (re)evaluation, not just the immediate response - see
+    # exception_engine.py's re-apply loop, which previously skipped
+    # severity=EXCEPTION entirely.
+    refetched = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    same = next(
+        e for e in refetched
+        if e["expense_id"] == confirmed["expense_id"] and e["exception_type"] == confirmed["exception_type"]
+    )
+    assert same["status"] == "RESOLVED"
 
 
 def test_31_verifying_twice_is_rejected_not_duplicated(client):

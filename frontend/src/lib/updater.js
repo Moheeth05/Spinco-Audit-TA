@@ -16,6 +16,15 @@ export async function getAppVersion() {
   }
 }
 
+export async function getBuildInfo() {
+  if (!isElectron()) return null
+  try {
+    return await window.spincoApp.getBuildInfo()
+  } catch {
+    return null
+  }
+}
+
 export async function getUpdateStatus() {
   if (!isElectron()) return null
   try {

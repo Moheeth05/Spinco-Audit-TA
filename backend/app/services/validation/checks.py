@@ -417,7 +417,7 @@ def check_duplicate_bill(
 # ---------- 7. Catering included in Train/Bus Fare ----------
 
 
-def check_catering(*, category: str | None, bill) -> CheckResult:
+def check_catering(*, category: str | None, bill, claimed_amount=None) -> CheckResult:
     check_type = "Catering Check"
     if normalize_category(category) != "TRAIN / BUS FARE":
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, remarks="Not applicable")
@@ -433,7 +433,17 @@ def check_catering(*, category: str | None, bill) -> CheckResult:
             remarks="No catering charges found",
             source_page=bill.page_number,
         )
-    amount_text = _fmt(catering_amount) if catering_amount is not None else "an unspecified amount"
+    # The auditor needs both figures to judge the claim, not just the
+    # catering amount in isolation - never invents the claimed figure if
+    # it's genuinely unavailable, and never invents a catering amount either
+    # ("Catering Amount: Unable to determine" when the charge is mentioned
+    # but no nearby figure could be parsed - see detect_catering_amount).
+    claimed_text = _fmt(claimed_amount) if claimed_amount is not None else "unknown"
+    catering_text = _fmt(catering_amount) if catering_amount is not None else "Unable to determine"
+    message = (
+        f"Total claimed amount: {claimed_text}. Catering amount: {catering_text}. "
+        "Catering/service component requires separate policy review."
+    )
     # A REVIEW_REQUIRED policy exception on an otherwise-successfully-matched
     # bill, never a confirmed EXCEPTION (per spec: catering is an auditor
     # judgment call, not automatically wrong) - the auditor decides whether
@@ -441,8 +451,10 @@ def check_catering(*, category: str | None, bill) -> CheckResult:
     return CheckResult(
         check_type=check_type,
         result=REVIEW_REQUIRED,
-        details=f"Catering service found in the travel bill: {amount_text}.",
-        remarks=f"Catering service found in the travel bill: {amount_text}.",
+        details=message,
+        remarks=message,
+        claimed_amount=claimed_amount,
+        bill_amount=catering_amount,
         source_page=bill.page_number,
     )
 

@@ -17,6 +17,7 @@ class ExceptionRecordOut(BaseModel):
     claimed_amount: float | None
     policy_limit: float | None
     bill_amount: float | None
+    policy_category: str | None = None
     expense_date: date | None
     bill_date: date | None
     bill_id: int | None

@@ -3,8 +3,9 @@
 /**
  * Context-isolated bridge between the renderer (the React app, loaded from
  * the packaged backend's own origin) and the Electron main process. Exposes
- * exactly two things: the running app's version, and the auto-updater
- * status/controls - nothing else. The renderer has no other access to
+ * exactly three things: the running app's version, its release-traceability
+ * build info, and the auto-updater status/controls - nothing else. The
+ * renderer has no other access to
  * Node/Electron APIs (contextIsolation: true, nodeIntegration: false,
  * sandbox: true - see main.js:createWindow).
  *
@@ -17,6 +18,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("spincoApp", {
   getVersion: () => ipcRenderer.invoke("app:get-version"),
+  getBuildInfo: () => ipcRenderer.invoke("app:get-build-info"),
 
   // Update lifecycle - see electron/updater.js for the actual autoUpdater
   // wiring this talks to. checkForUpdates/downloadUpdate/installUpdate are

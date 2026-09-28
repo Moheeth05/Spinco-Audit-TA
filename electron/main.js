@@ -18,7 +18,7 @@
  * backend.
  */
 
-const { app, BrowserWindow, dialog, shell } = require("electron");
+const { app, BrowserWindow, dialog, shell, ipcMain } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const http = require("node:http");
@@ -105,6 +105,25 @@ function tesseractDirPath() {
 function frontendDistPath() {
   return resourcesPath("frontend");
 }
+
+// Release traceability (Part 9 of the spec this was built against): a
+// packaged app has no .git directory to read from, so the commit it was
+// built from has to be stamped in at build time (see
+// electron/scripts/write-build-info.js) and read back here. Missing in dev
+// mode (no packaging step has run) - callers get null, never a fabricated
+// placeholder that would misrepresent what commit is actually running.
+let cachedBuildInfo;
+function getBuildInfo() {
+  if (cachedBuildInfo !== undefined) return cachedBuildInfo;
+  try {
+    cachedBuildInfo = JSON.parse(fs.readFileSync(resourcesPath("build-info.json"), "utf8"));
+  } catch {
+    cachedBuildInfo = null;
+  }
+  return cachedBuildInfo;
+}
+
+ipcMain.handle("app:get-build-info", () => getBuildInfo());
 
 function startBackend(dirs) {
   const exePath = backendExePath();

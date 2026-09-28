@@ -1,18 +1,22 @@
 {
   "name": "spinco-ta-audit",
   "productName": "Spinco TA Audit",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "SPINCO TA / Travel Expense Audit & Automation System - desktop application",
   "private": true,
   "main": "electron/main.js",
   "author": "Spinco Tech",
   "scripts": {
+    "clean": "node electron/scripts/clean.js",
+    "write:build-info": "node electron/scripts/write-build-info.js",
+    "test:backend": "node electron/scripts/run-tests.js",
     "build:frontend": "npm run build --prefix frontend",
     "build:backend": "node electron/scripts/build-backend.js",
     "collect:tesseract": "node electron/scripts/collect-tesseract.js",
     "electron:dev": "electron .",
-    "prepackage": "npm run build:frontend && npm run build:backend && npm run collect:tesseract",
-    "dist": "npm run prepackage && electron-builder --win",
+    "prepackage": "npm run clean && npm run write:build-info && npm run build:frontend && npm run build:backend && npm run collect:tesseract",
+    "verify:release": "node electron/scripts/verify-release.js",
+    "dist": "npm run test:backend && npm run prepackage && electron-builder --win && npm run verify:release",
     "dist:portable": "npm run prepackage && electron-builder --win portable",
     "release:stage": "node electron/scripts/stage-release.js"
   },
@@ -47,6 +51,10 @@
       {
         "from": "resources/tesseract",
         "to": "tesseract"
+      },
+      {
+        "from": "electron/generated/build-info.json",
+        "to": "build-info.json"
       }
     ],
     "win": {
