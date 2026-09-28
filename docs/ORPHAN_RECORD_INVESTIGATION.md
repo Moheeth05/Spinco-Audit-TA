@@ -1,11 +1,12 @@
 # Orphan Record Investigation — bill_match_candidates / trip_match_candidates
 
-**Status: investigation complete, code fix implemented and tested. The
-~2,122 (dev) / 1,038 (production backup) historical orphaned rows described
-below were intentionally NOT touched - both counts are still exactly what
-they were when first discovered. SQLite foreign-key enforcement was not
-enabled. Neither the production database nor the production database backup
-was modified.**
+**Status: investigation complete, code fix implemented/tested/committed
+(4d7defc), and the DEV database's historical orphans have now been cleaned
+(see "DEV Historical Orphan Cleanup" below). The production database backup's
+1,038 historical orphaned rows remain intentionally untouched - that count
+is still exactly what it was when first discovered. SQLite foreign-key
+enforcement was not enabled. Neither the production database nor the
+production database backup was modified at any point.**
 
 ## Fix implemented
 
@@ -57,12 +58,14 @@ unrelated report's own candidates provably untouched.
 **Full regression result:** all pre-existing tests plus the 7 new ones pass
 with zero regressions (see the task's final report for the exact count).
 
-**Historical orphan rows confirmed untouched**: `PRAGMA foreign_key_check`
-against both the dev database and the production database backup returns
-the exact same counts as the original investigation (2,122 and 1,038
-respectively, with the identical per-table breakdown) - this task's own new
-test data is fully isolated in a temporary test database (see
-`tests/conftest.py`) and never touches either file.
+**Historical orphan rows confirmed untouched at the time this fix was
+tested**: `PRAGMA foreign_key_check` against both the dev database and the
+production database backup returned the exact same counts as the original
+investigation (2,122 and 1,038 respectively) - this task's own new test data
+is fully isolated in a temporary test database (see `tests/conftest.py`) and
+never touched either file. **The dev database's orphans were subsequently
+cleaned in a separate, later task - see "DEV Historical Orphan Cleanup"
+below. The production backup's 1,038 orphaned rows remain untouched.**
 
 ## Executive summary
 
@@ -303,3 +306,106 @@ directly prevents further orphan growth; (2) a separately-approved data
 cleanup pass (dev first, then production only after explicit approval and a
 fresh backup) once the code fix is verified. Do not combine these into one
 change, and do not enable SQLite FK enforcement until both are complete.
+
+## DEV Historical Orphan Cleanup
+
+**Status: complete. DEV database only. The production database and the
+production database backup were not touched by this step at all - the
+backup's 1,038 historical orphaned rows remain exactly as before (the live
+production database itself has never been directly queried for orphans in
+this investigation - only a backup copy was, per the original safety
+constraints - so no production orphan count is claimed here either way).**
+
+### Backup
+
+- Location: `D:\Bills\backups\dev-orphan-cleanup-20260925-164651\spinco_ta.db`
+- SHA-256 (source and backup copy, verified identical):
+  `FB9C649BEE75D92AC097AFFACE6926162284E50FFDD1F2EB3795AE4919A5B720`
+- Source file size at backup time: 831,488 bytes
+
+### Pre-cleanup counts (re-verified, exactly matching the original investigation)
+
+| | Count |
+|---|---|
+| `bill_match_candidates` total rows | 1,170 |
+| `bill_match_candidates` orphaned (union of bill_id-missing OR expense_id-missing) | 1,008 |
+| `bill_match_candidates` healthy | 162 |
+| `trip_match_candidates` total rows | 103 |
+| `trip_match_candidates` orphaned (union of trip_report_id-missing OR expense_id-missing) | 85 |
+| `trip_match_candidates` healthy | 18 |
+| `PRAGMA foreign_key_check` total violations | 2,122 |
+
+**Reconciling 2,122 (violations) with 1,093 (rows actually deleted):** every
+orphaned `bill_match_candidates` row is broken on *both* `bill_id` and
+`expense_id` simultaneously, so `PRAGMA foreign_key_check` counts each such
+row twice (1,008 x 2 = 2,016 violations from 1,008 distinct rows). Of
+`trip_match_candidates`' violations, the 21 rows broken on `trip_report_id`
+are a subset of the 85 rows broken on `expense_id` (confirmed by direct
+query before deleting anything), so the distinct-row union is 85, not 106.
+2,016 + 85 + 21 = 2,122 violations, matching exactly; 1,008 + 85 = **1,093
+distinct rows** were the actual deletion target - re-verified row-by-row
+immediately before deletion that every targeted row genuinely had at least
+one broken required parent reference (script asserted this and would have
+refused to proceed otherwise).
+
+### Cleanup executed
+
+Single transaction, `DELETE ... WHERE id IN (<explicit id list>)` per table
+(never a broad/unscoped delete):
+
+- **Deleted from `bill_match_candidates`: 1,008**
+- **Deleted from `trip_match_candidates`: 85**
+- **Total deleted: 1,093**
+
+### Post-cleanup counts
+
+| | Count |
+|---|---|
+| `bill_match_candidates` remaining | 162 (all healthy) |
+| `trip_match_candidates` remaining | 18 (all healthy) |
+| **Remaining valid candidate rows** | **180** |
+| `PRAGMA foreign_key_check` violations | **0** |
+| `PRAGMA integrity_check` | **ok** |
+
+**Unrelated tables - every row count unchanged, verified individually:**
+`expense_reports` (4), `expenses` (68), `bills` (48), `trip_reports` (5),
+`trips` (14), `exceptions` (42), `exception_verifications` (0),
+`validation_results` (548), `source_evidence` (258), `audit_logs` (109),
+`users` (2), `processing_logs` (100), `excel_reports` (1) - all identical
+before and after.
+
+### Lifecycle regression after cleanup (against the real dev database, not just the isolated test suite)
+
+Directly exercised the fixed pipeline against an existing real report (id 1,
+`ER-39832`) in the actual dev database: a full reprocess
+(`run_extraction`), then an explicit bill-only rematch
+(`bill_pipeline.extract_and_match_bills`), then an explicit trip/Batta
+rematch (`batta_pipeline.match_batta_expenses`). Confirmed genuine (not a
+silent no-op) by observing the report's `Expense` rows shift to a brand-new
+id range (424-435, the table's new high-water mark) - proving a real
+delete-and-recreate cycle ran. Orphan count before: 0. Orphan count after:
+**0**. No new orphans were created.
+
+### Full test suite
+
+**342 passed, 0 failed** (backend regression suite; runs against its own
+isolated temporary database per `tests/conftest.py`, unaffected by and not
+affecting the dev database cleanup).
+
+### Safety confirmations
+
+- Production database (`%APPDATA%\Spinco TA Audit\database\spinco_ta.db`):
+  untouched - `LastWriteTime` unchanged (`2026-09-25 09:20:14`, same as
+  before this task and every prior task today).
+- Production database backup
+  (`D:\Bills\backups\dipak-cleanup-20260924-170758\database\spinco_ta.db`):
+  untouched - `LastWriteTime` unchanged (`2026-09-24 17:06:21`). Its 1,038
+  historical orphaned rows were never queried for deletion and remain
+  exactly as found.
+- NVIDIA OCR files: untouched - unchanged timestamps, no modifications.
+- `backups/`: untouched except for the one new, explicitly-created backup
+  described above (`dev-orphan-cleanup-20260925-164651/`) - no existing
+  backup directory was modified or removed.
+- SQLite foreign-key enforcement: not enabled, anywhere.
+- No application code was changed as part of this cleanup task - it was
+  data-only, against the dev database exclusively.
