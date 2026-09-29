@@ -20,6 +20,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const http = require("node:http");
+const os = require("node:os");
+const { spawn } = require("node:child_process");
 const yaml = require("js-yaml");
 
 const REPO_ROOT = path.join(__dirname, "..", "..");
@@ -132,7 +135,120 @@ function verifyApplicationFeatures() {
   reportCheck("account verification", bundle.includes("ACCOUNT VERIFIED"), "status string present in bundle");
 }
 
-function main() {
+function httpGet(url) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(url, { timeout: 5000 }, (res) => {
+      let body = "";
+      res.on("data", (c) => (body += c));
+      res.on("end", () => resolve({ statusCode: res.statusCode, headers: res.headers, body }));
+    });
+    req.on("error", reject);
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("request timed out"));
+    });
+  });
+}
+
+function waitForHealth(url, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  return new Promise((resolve, reject) => {
+    function poll() {
+      if (Date.now() > deadline) {
+        reject(new Error("backend did not become healthy in time"));
+        return;
+      }
+      httpGet(url)
+        .then((res) => (res.statusCode === 200 ? resolve() : setTimeout(poll, 300)))
+        .catch(() => setTimeout(poll, 300));
+    }
+    poll();
+  });
+}
+
+// Real runtime check: spawns the ACTUAL packaged backend exe against the
+// ACTUAL packaged frontend, and inspects real HTTP response headers - not a
+// source grep, not a claim. This is what actually proved the root cause of
+// "new build, old UI" reports: every build/install shares one fixed
+// localhost origin and one persistent Chromium profile (Electron's userData
+// path comes from the product name, not the install location), so a
+// frontend response with no Cache-Control is heuristically cacheable and
+// the renderer can keep serving an old build's index.html/JS forever,
+// without ever asking this (fully up to date) server. See app/main.py's
+// NoStoreStaticFiles/serve_frontend for the fix this verifies.
+async function verifyRuntimeCacheHeaders() {
+  console.log("\nRuntime cache-control verification (actual packaged backend, actual HTTP responses):");
+  const backendExe = path.join(UNPACKED_DIR, "resources", "backend", "spinco-backend.exe");
+  const frontendDir = path.join(UNPACKED_DIR, "resources", "frontend");
+  const assetsDir = path.join(frontendDir, "assets");
+  if (!fs.existsSync(backendExe) || !fs.existsSync(frontendDir)) {
+    reportCheck("runtime cache-control check", false, "packaged backend or frontend missing - cannot run");
+    return;
+  }
+  const jsFiles = fs.existsSync(assetsDir) ? fs.readdirSync(assetsDir).filter((f) => f.endsWith(".js")) : [];
+  if (jsFiles.length === 0) {
+    reportCheck("runtime cache-control check", false, "no JS bundle found in packaged frontend/assets");
+    return;
+  }
+
+  // A distinct port from the app's real default (58732) so this never
+  // collides with an actual running instance on the same machine.
+  const port = 58799;
+  const stamp = Date.now();
+  const tmpDb = path.join(os.tmpdir(), `spinco-verify-release-${stamp}.db`);
+  const tmpStorage = path.join(os.tmpdir(), `spinco-verify-release-storage-${stamp}`);
+  const child = spawn(backendExe, [], {
+    env: {
+      ...process.env,
+      SPINCO_DB_PATH: tmpDb,
+      SPINCO_STORAGE_ROOT: tmpStorage,
+      SPINCO_FRONTEND_DIST: frontendDir,
+      SPINCO_BACKEND_PORT: String(port),
+      SPINCO_COOKIE_SECURE: "false",
+    },
+    windowsHide: true,
+    stdio: "ignore",
+  });
+
+  try {
+    await waitForHealth(`http://127.0.0.1:${port}/api/health`, 30000);
+
+    const indexResp = await httpGet(`http://127.0.0.1:${port}/`);
+    reportCheck(
+      "GET / Cache-Control: no-store",
+      indexResp.headers["cache-control"] === "no-store",
+      `got ${JSON.stringify(indexResp.headers["cache-control"] || null)}`
+    );
+
+    const bundleResp = await httpGet(`http://127.0.0.1:${port}/assets/${jsFiles[0]}`);
+    reportCheck(
+      `GET /assets/${jsFiles[0]} Cache-Control: no-store`,
+      bundleResp.headers["cache-control"] === "no-store",
+      `got ${JSON.stringify(bundleResp.headers["cache-control"] || null)}`
+    );
+  } catch (err) {
+    reportCheck("runtime cache-control check", false, `could not verify against a live packaged backend: ${err.message}`);
+  } finally {
+    child.kill();
+    // Best-effort cleanup only - Windows can briefly hold the sqlite file
+    // locked until the just-killed process fully exits. A cleanup failure
+    // here must never fail release verification; only the header checks
+    // above determine pass/fail.
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      fs.rmSync(tmpDb, { force: true });
+    } catch {
+      // leftover temp file in os.tmpdir() - harmless, ignored
+    }
+    try {
+      fs.rmSync(tmpStorage, { recursive: true, force: true });
+    } catch {
+      // same as above
+    }
+  }
+}
+
+async function main() {
   const pkg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "package.json"), "utf8"));
   const buildInfoPath = path.join(REPO_ROOT, "electron", "generated", "build-info.json");
 
@@ -188,6 +304,7 @@ function main() {
 
   verifyElectronRuntime();
   verifyApplicationFeatures();
+  await verifyRuntimeCacheHeaders();
 
   if (process.exitCode === 1) {
     console.error("\n[verify-release] Release verification FAILED - do not publish these artifacts.");
@@ -196,4 +313,7 @@ function main() {
   }
 }
 
-main();
+main().catch((err) => {
+  console.error(`[verify-release] FAIL: unexpected error: ${err.stack || err}`);
+  process.exitCode = 1;
+});

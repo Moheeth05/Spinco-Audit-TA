@@ -116,19 +116,40 @@ app.include_router(search.router)
 # can point its BrowserWindow at - same-origin with the API, so the existing
 # cookie-based session/CSRF design and the frontend's relative `/api/...`
 # fetch calls work completely unchanged, with no extra CORS/config needed.
+class NoStoreStaticFiles(StaticFiles):
+    """Every build/install of the packaged app shares the same fixed
+    localhost origin (Electron's BrowserWindow always points at
+    127.0.0.1:<port>) AND the same persistent Chromium profile (Electron's
+    userData path comes from the product name, which never changes between
+    builds) - see docs/RELEASE_AND_UPDATES.md. Starlette's default
+    StaticFiles response carries only ETag/Last-Modified, no Cache-Control,
+    which makes it heuristically cacheable (RFC 7234 §4.2.2): the renderer
+    is free to keep serving an OLD build's index.html/JS from its own disk
+    cache indefinitely, never even asking this (fully up to date) server,
+    regardless of which install/version is actually running. Confirmed as
+    the real cause of "the new build is correct but the app still shows old
+    behavior" reports. no-store, not a long-lived immutable cache, so every
+    load is guaranteed to reflect whatever is actually installed."""
+
+    def file_response(self, *args, **kwargs):
+        response = super().file_response(*args, **kwargs)
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+
 _frontend_dist = os.environ.get("SPINCO_FRONTEND_DIST")
 if _frontend_dist:
     _dist_path = Path(_frontend_dist)
     _assets_dir = _dist_path / "assets"
     if _assets_dir.is_dir():
-        app.mount("/assets", StaticFiles(directory=_assets_dir), name="frontend-assets")
+        app.mount("/assets", NoStoreStaticFiles(directory=_assets_dir), name="frontend-assets")
 
     @app.get("/{full_path:path}", include_in_schema=False)
     def serve_frontend(full_path: str):
         candidate = _dist_path / full_path
         if full_path and candidate.is_file():
-            return FileResponse(candidate)
+            return FileResponse(candidate, headers={"Cache-Control": "no-store"})
         # React Router client-side routes (e.g. /expense-reports) have no
         # matching file on disk - always fall back to index.html so a
         # hard refresh/direct load on a deep route works.
-        return FileResponse(_dist_path / "index.html")
+        return FileResponse(_dist_path / "index.html", headers={"Cache-Control": "no-store"})
