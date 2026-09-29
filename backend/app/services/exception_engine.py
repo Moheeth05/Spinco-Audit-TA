@@ -273,6 +273,44 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
         if not has_unverified_review and not has_unverified_exception:
             expense.validation_status = "VERIFIED"
 
+    # Part 3 of the post-UAT correction: a manually-accepted ambiguous-match
+    # review must actually flip the underlying match status the rest of the
+    # app reads (Expense Summary's Match Status column, Excel's bill/trip
+    # match columns, analytics' match-summary counts) - not just show a
+    # "Verified" tag in the Exceptions tab while bill_match_status/
+    # trip_match_status keep reporting REVIEW_REQUIRED/MULTIPLE_CANDIDATES
+    # forever. Deliberately narrow: only the ambiguous-match family
+    # ("...MATCH REVIEW REQUIRED", ie there WAS a real candidate, the
+    # matcher just wasn't confident enough) is eligible - never MISSING
+    # BILL/TRIP NOT FOUND, where there was no candidate at all and "MATCHED"
+    # would be a false claim; those stay whatever they are, verification
+    # there only changes validation_status (handled above), never invents a
+    # match that doesn't exist.
+    for expense_id, expense in expenses_by_id.items():
+        for rec in records_by_expense.get(expense_id, []):
+            if rec.status != "RESOLVED":
+                continue
+            if rec.exception_type == "BILL MATCH REVIEW REQUIRED" and expense.bill_match_status in (
+                "REVIEW_REQUIRED",
+                "MULTIPLE_CANDIDATES",
+            ):
+                expense.bill_match_status = "MATCHED"
+                expense.bill_match_reasons = (
+                    f"Manually verified by auditor - {expense.bill_match_reasons}"
+                    if expense.bill_match_reasons
+                    else "Manually verified by auditor."
+                )
+            elif rec.exception_type == "TRIP MATCH REVIEW REQUIRED" and expense.trip_match_status in (
+                "REVIEW_REQUIRED",
+                "MULTIPLE_CANDIDATES",
+            ):
+                expense.trip_match_status = "MATCHED"
+                expense.trip_match_reasons = (
+                    f"Manually verified by auditor - {expense.trip_match_reasons}"
+                    if expense.trip_match_reasons
+                    else "Manually verified by auditor."
+                )
+
     expenses = list(expenses_by_id.values())
     verified = sum(1 for e in expenses if e.validation_status in ("PASS", "VERIFIED"))
     exception_count = sum(1 for e in expenses if e.validation_status == "EXCEPTION")

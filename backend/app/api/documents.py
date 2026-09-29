@@ -9,7 +9,7 @@ from app.models.bill import Bill
 from app.models.evidence import SourceEvidence
 from app.models.expense_report import Expense, ExpenseReport
 from app.models.trip import Trip, TripReport
-from app.models.validation import ValidationResult
+from app.models.validation import ExceptionRecord, ValidationResult
 from app.schemas.documents import DocumentDetail
 from app.services.document_ref import EXPENSE, TRIP, InvalidDocumentId, decode_document_id
 from app.services.exception_engine import evaluate_report
@@ -160,6 +160,28 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                 "legs": [_leg_out(leg) for leg in embedded_legs],
             }
 
+        # A validation row's own `result` (PASS/REVIEW_REQUIRED/EXCEPTION) is
+        # never overwritten by a manual verification - it stays an honest
+        # record of what the deterministic check actually found (Part 4: "do
+        # not call something PASS if the underlying check genuinely failed
+        # and was merely manually overridden"). Instead, surface whether an
+        # auditor has since verified/accepted the ExceptionRecord this row
+        # produced, as separate fields the frontend can badge alongside the
+        # original result.
+        verification_by_validation_result_id = {
+            rec.validation_result_id: rec
+            for rec in db.query(ExceptionRecord)
+            .filter(ExceptionRecord.expense_report_id == row.id, ExceptionRecord.validation_result_id.isnot(None))
+            .all()
+            if rec.status == "RESOLVED"
+        }
+        verifiers = {
+            u.id: u.name
+            for u in db.query(User).filter(User.id.in_(
+                {rec.verified_by_id for rec in verification_by_validation_result_id.values() if rec.verified_by_id}
+            )).all()
+        }
+
         base.update(
             {
                 "header": {
@@ -226,6 +248,20 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                         "policy_category": v.policy_category,
                         "policy_version": v.policy_version,
                         "source_page": v.source_page,
+                        "manually_verified": v.id in verification_by_validation_result_id,
+                        "verified_by_name": verifiers.get(verification_by_validation_result_id[v.id].verified_by_id)
+                        if v.id in verification_by_validation_result_id
+                        else None,
+                        "verified_at": verification_by_validation_result_id[v.id].verified_at
+                        if v.id in verification_by_validation_result_id
+                        else None,
+                        # Lets the frontend choose "Matched / Verified" for a
+                        # verified ambiguous-match family vs "Verified /
+                        # Accepted" for everything else, without duplicating
+                        # the family-name logic from exception_engine.py.
+                        "resolved_exception_type": verification_by_validation_result_id[v.id].exception_type
+                        if v.id in verification_by_validation_result_id
+                        else None,
                     }
                     for v in db.query(ValidationResult)
                     .filter(ValidationResult.expense_report_id == row.id)

@@ -436,12 +436,86 @@ function VerifyModal({ exception, onClose, onVerified }) {
   )
 }
 
+function ExceptionsTable({ rows, canVerify, onVerifyClick, onJump, showStatusAction }) {
+  return (
+    <div className="table-wrap">
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Policy Category</th>
+            <th>Type</th>
+            <th>Severity</th>
+            <th className="num">Claimed</th>
+            <th className="num">Bill / Limit</th>
+            <th>Reason</th>
+            <th>Source</th>
+            <th>{showStatusAction ? 'Status' : 'Verified'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((e) => (
+            <tr key={e.id}>
+              <td>{e.s_no ?? '-'}</td>
+              <td>{e.expense_date || '-'}</td>
+              <td>{e.category || '-'}</td>
+              <td>{e.policy_category || 'Not Found'}</td>
+              <td>{e.exception_type}</td>
+              <td>
+                <StatusBadge status={e.severity} />
+              </td>
+              <td className="num">{e.claimed_amount != null ? formatINR(e.claimed_amount) : '-'}</td>
+              <td className="num">
+                {e.bill_amount != null ? formatINR(e.bill_amount) : e.policy_limit != null ? formatINR(e.policy_limit) : '-'}
+              </td>
+              <td style={{ fontSize: 12.5 }}>{e.reason}</td>
+              <td>
+                {e.source_page != null ? (
+                  <ViewSourceButton page={e.source_page} onJump={onJump} />
+                ) : (
+                  <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>Source not available</span>
+                )}
+              </td>
+              <td>
+                {e.status === 'RESOLVED' ? (
+                  <span
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--success, #16a34a)' }}
+                    title={`Verified by ${e.verified_by_name || 'unknown'} on ${e.verified_at ? formatISTDateTime(e.verified_at) : ''}${e.verification_note ? ` - ${e.verification_note}` : ''}`}
+                  >
+                    <BadgeCheck size={14} /> {e.severity === 'EXCEPTION' ? 'Verified / Accepted' : 'Verified'}
+                  </span>
+                ) : showStatusAction && (e.severity === 'REVIEW REQUIRED' || e.severity === 'EXCEPTION') && canVerify ? (
+                  <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => onVerifyClick(e)}>
+                    {e.severity === 'EXCEPTION' ? 'Verify / Accept' : 'Verify'}
+                  </button>
+                ) : (
+                  '-'
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function ExceptionsPanel({ extraction, documentId, onJump }) {
   const reportId = documentId.split(':')[1]
   const { data: exceptions, loading, error, refetch } = useApi(`/expense-reports/${reportId}/exceptions`)
   const { role } = useAuth()
   const [verifying, setVerifying] = useState(null)
   const canVerify = VERIFY_ROLES.has(role)
+
+  // Verified/resolved items are never deleted (full audit history survives in
+  // the backend - see ExceptionVerification) but they must not keep counting
+  // as an ACTIVE, unresolved problem in the auditor's working view once
+  // someone has actually verified them. Split here, not by hiding rows with
+  // CSS - both lists render from the same real e.status the backend computed.
+  const activeExceptions = (exceptions || []).filter((e) => e.status !== 'RESOLVED')
+  const resolvedExceptions = (exceptions || []).filter((e) => e.status === 'RESOLVED')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -450,84 +524,38 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
       <div className="card">
         <div className="card-header">
           <div>
-            <div className="card-title">Exceptions</div>
-            <div className="card-subtitle">Confirmed exceptions and review-required conditions, deduplicated to one row per underlying problem</div>
+            <div className="card-title">Active Exceptions</div>
+            <div className="card-subtitle">Unresolved exceptions and review-required conditions, deduplicated to one row per underlying problem</div>
           </div>
         </div>
         <div className="card-body">
           {loading && <LoadingState rows={3} />}
           {error && <ErrorState title="Could not load exceptions" description="The server may be unreachable." />}
-          {!loading && !error && (!exceptions || exceptions.length === 0) && (
+          {!loading && !error && activeExceptions.length === 0 && (
             <div className="state-panel" style={{ padding: '32px 16px' }}>
-              <div className="state-title">No exceptions</div>
-              <div className="state-description">Every applicable check on this report currently passes.</div>
+              <div className="state-title">No active exceptions</div>
+              <div className="state-description">Every applicable check on this report currently passes or has been verified.</div>
             </div>
           )}
-          {!loading && !error && exceptions && exceptions.length > 0 && (
-            <div className="table-wrap">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>S.No</th>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Policy Category</th>
-                    <th>Type</th>
-                    <th>Severity</th>
-                    <th className="num">Claimed</th>
-                    <th className="num">Bill / Limit</th>
-                    <th>Reason</th>
-                    <th>Source</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {exceptions.map((e) => (
-                    <tr key={e.id}>
-                      <td>{e.s_no ?? '-'}</td>
-                      <td>{e.expense_date || '-'}</td>
-                      <td>{e.category || '-'}</td>
-                      <td>{e.policy_category || 'Not Found'}</td>
-                      <td>{e.exception_type}</td>
-                      <td>
-                        <StatusBadge status={e.severity} />
-                      </td>
-                      <td className="num">{e.claimed_amount != null ? formatINR(e.claimed_amount) : '-'}</td>
-                      <td className="num">
-                        {e.bill_amount != null ? formatINR(e.bill_amount) : e.policy_limit != null ? formatINR(e.policy_limit) : '-'}
-                      </td>
-                      <td style={{ fontSize: 12.5 }}>{e.reason}</td>
-                      <td>
-                        {e.source_page != null ? (
-                          <ViewSourceButton page={e.source_page} onJump={onJump} />
-                        ) : (
-                          <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>Source not available</span>
-                        )}
-                      </td>
-                      <td>
-                        {e.status === 'RESOLVED' ? (
-                          <span
-                            style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--success, #16a34a)' }}
-                            title={`Verified by ${e.verified_by_name || 'unknown'} on ${e.verified_at ? formatISTDateTime(e.verified_at) : ''}${e.verification_note ? ` - ${e.verification_note}` : ''}`}
-                          >
-                            <BadgeCheck size={14} /> {e.severity === 'EXCEPTION' ? 'Verified / Accepted' : 'Verified'}
-                          </span>
-                        ) : (e.severity === 'REVIEW REQUIRED' || e.severity === 'EXCEPTION') && canVerify ? (
-                          <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setVerifying(e)}>
-                            {e.severity === 'EXCEPTION' ? 'Verify / Accept' : 'Verify'}
-                          </button>
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {!loading && !error && activeExceptions.length > 0 && (
+            <ExceptionsTable rows={activeExceptions} canVerify={canVerify} onVerifyClick={setVerifying} onJump={onJump} showStatusAction />
           )}
         </div>
       </div>
+
+      {!loading && !error && resolvedExceptions.length > 0 && (
+        <details className="card">
+          <summary className="card-header" style={{ cursor: 'pointer', listStyle: 'none' }}>
+            <div>
+              <div className="card-title">Verification History ({resolvedExceptions.length})</div>
+              <div className="card-subtitle">Resolved - verified/accepted by an auditor. Kept for audit history, no longer counted as active.</div>
+            </div>
+          </summary>
+          <div className="card-body">
+            <ExceptionsTable rows={resolvedExceptions} canVerify={canVerify} onVerifyClick={setVerifying} onJump={onJump} />
+          </div>
+        </details>
+      )}
 
       {verifying && (
         <VerifyModal
@@ -536,6 +564,32 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
           onVerified={refetch}
         />
       )}
+    </div>
+  )
+}
+
+// The operational status an auditor sees day-to-day: once manually verified,
+// the CURRENT state is "Matched / Verified" (for an accepted ambiguous-match
+// review) or "Verified / Accepted" (everything else) - never a still-looking-
+// unresolved EXCEPTION/REVIEW REQUIRED badge. The original automated result
+// is never discarded - see the tooltip built alongside this in each caller.
+function operationalStatusLabel(v) {
+  if (!v.manually_verified) return null
+  return (v.resolved_exception_type || '').includes('MATCH') ? 'MATCHED' : 'VERIFIED'
+}
+
+function ValidationResultCell({ v }) {
+  const opStatus = operationalStatusLabel(v)
+  if (!opStatus) return <StatusBadge status={v.result} />
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <StatusBadge status={opStatus} />
+      <span
+        style={{ fontSize: 11, color: 'var(--gray-500)' }}
+        title={`Manually verified/accepted by ${v.verified_by_name || 'unknown'}${v.verified_at ? ` on ${formatISTDateTime(v.verified_at)}` : ''} - preserved for audit history`}
+      >
+        (was {v.result === 'REVIEW_REQUIRED' ? 'Review Required' : 'Exception'})
+      </span>
     </div>
   )
 }
@@ -585,7 +639,7 @@ function ValidationResultsPanel({ extraction, onJump }) {
                       <td>{v.policy_category || 'Not Found'}</td>
                       <td>{v.details || '-'}</td>
                       <td>
-                        <StatusBadge status={v.result} />
+                        <ValidationResultCell v={v} />
                       </td>
                       <td>{v.remarks || '-'}</td>
                       <td>
@@ -600,7 +654,7 @@ function ValidationResultsPanel({ extraction, onJump }) {
                       <td>{v.policy_category || 'Not Found'}</td>
                       <td>{v.details || '-'}</td>
                       <td>
-                        <StatusBadge status={v.result} />
+                        <ValidationResultCell v={v} />
                       </td>
                       <td>{v.remarks || '-'}</td>
                       <td>
