@@ -1,12 +1,14 @@
 # Orphan Record Investigation — bill_match_candidates / trip_match_candidates
 
 **Status: investigation complete, code fix implemented/tested/committed
-(4d7defc), and the DEV database's historical orphans have now been cleaned
-(see "DEV Historical Orphan Cleanup" below). The production database backup's
-1,038 historical orphaned rows remain intentionally untouched - that count
-is still exactly what it was when first discovered. SQLite foreign-key
-enforcement was not enabled. Neither the production database nor the
-production database backup was modified at any point.**
+(4d7defc), the DEV database's historical orphans have been cleaned (see "DEV
+Historical Orphan Cleanup" below), and a DISPOSABLE COPY of the production
+backup has also been cleaned as a controlled rehearsal (see "Production
+Backup Historical Orphan Cleanup — Disposable Copy" below). The ORIGINAL
+production database backup itself remains untouched - hash-verified
+identical before and after every step - and the live production database
+was never opened for modification. SQLite foreign-key enforcement was not
+enabled anywhere.**
 
 ## Fix implemented
 
@@ -409,3 +411,105 @@ affecting the dev database cleanup).
 - SQLite foreign-key enforcement: not enabled, anywhere.
 - No application code was changed as part of this cleanup task - it was
   data-only, against the dev database exclusively.
+
+## Production Backup Historical Orphan Cleanup — Disposable Copy
+
+**Status: complete. A DISPOSABLE COPY of the production backup was cleaned
+as a controlled rehearsal of the same fix. The ORIGINAL production backup
+and the live production database were never modified. This is explicitly
+NOT a production cleanup - the disposable copy was never copied back
+anywhere, never used to replace anything, and is not referenced by the
+running application.**
+
+### Original backup (untouched)
+
+- Path: `D:\Bills\backups\dipak-cleanup-20260924-170758\database\spinco_ta.db`
+- SHA-256 before this task: `67DC4C4333ACB205CD2D8EC54DE2EBBF92C6E850AD6FA4949DBC6606333004D6`
+- SHA-256 after this task: `67DC4C4333ACB205CD2D8EC54DE2EBBF92C6E850AD6FA4949DBC6606333004D6`
+- **Identical - confirmed unchanged.**
+
+### Disposable copy
+
+- Path: `D:\Bills\backups\production-orphan-cleanup-20260928-101912\spinco_ta.db`
+- SHA-256 before cleanup: `67DC4C4333ACB205CD2D8EC54DE2EBBF92C6E850AD6FA4949DBC6606333004D6`
+  (identical to the original at copy time, confirmed before any query ran)
+- SHA-256 after cleanup: `D7394320AB652403A5A1E76D4774BCA95FC1B75DEF0FBDA2E72FC83F1CB5CB07`
+  (expected to differ - this file's data was intentionally modified; the
+  original it was copied from was not)
+
+### Baseline (disposable copy, before cleanup)
+
+| | Count |
+|---|---|
+| `bill_match_candidates` total rows | 756 |
+| `bill_match_candidates` distinct orphan rows | 501 (all broken on **both** `bill_id` and `expense_id`) |
+| `bill_match_candidates` healthy | 255 |
+| `trip_match_candidates` total rows | 54 |
+| `trip_match_candidates` distinct orphan rows | 36 (all broken on `expense_id` only; 0 on `trip_report_id`) |
+| `trip_match_candidates` healthy | 18 |
+| **Total distinct orphan rows** | **537** |
+| `PRAGMA foreign_key_check` violations | **1,038** |
+| `PRAGMA integrity_check` | ok |
+
+Matched the expected baseline exactly (501 / 36 / 537 / 1,038) - no
+discrepancy, so cleanup proceeded per the approved plan. Full table
+inventory also recorded: users:3, employees:6, expense_reports:5,
+expenses:99, bills:84, trip_reports:7, trips:32, validation_results:797,
+exceptions:166, exception_verifications:0, source_evidence:272,
+audit_logs:67, processing_logs:90, excel_reports:1, policy_master:29.
+
+### Cleanup executed (disposable copy only)
+
+Single transaction, `DELETE ... WHERE id IN (<explicit id list>)` per
+table, after row-by-row re-verification that every targeted row genuinely
+had a broken required parent reference (the script asserted the exact
+target counts - 501 and 36 - before touching anything, and would have
+aborted on any mismatch):
+
+- **Deleted from `bill_match_candidates`: 501**
+- **Deleted from `trip_match_candidates`: 36**
+- **Total deleted: 537**
+
+### Post-cleanup verification (disposable copy)
+
+| | Count |
+|---|---|
+| `bill_match_candidates` remaining | 255 (all healthy) |
+| `trip_match_candidates` remaining | 18 (all healthy) |
+| **Remaining valid candidate rows** | **273** |
+| `PRAGMA foreign_key_check` violations | **0** |
+| `PRAGMA integrity_check` | **ok** |
+
+**All 15 unrelated tables verified individually unchanged**: expense_reports
+(5), expenses (99), bills (84), trip_reports (7), trips (32), exceptions
+(166), exception_verifications (0), validation_results (797),
+source_evidence (272), audit_logs (67), users (3), employees (6),
+processing_logs (90), excel_reports (1), policy_master (29) - identical
+before and after.
+
+No `VACUUM`, no compaction - the file remains reversible via the untouched
+original backup at any time.
+
+### What was intentionally NOT done
+
+Per explicit scope: no application-level regression tests were run against
+this disposable copy (database-level integrity/FK checks were judged
+sufficient and appropriate, consistent with keeping this task isolated from
+application/production state); the cleaned disposable copy was not copied
+back to the original backup location, not used to replace the live
+production database, not migrated anywhere, and the application was never
+configured to use it.
+
+### Safety confirmations
+
+- Live production database (`%APPDATA%\Spinco TA Audit\database\spinco_ta.db`):
+  never opened for modification - only its filesystem metadata was read.
+- Original production backup: hash-verified identical before and after (see above).
+- NVIDIA OCR files: untouched.
+- Application source code: untouched - this was a data-only operation
+  against one disposable file.
+- No PostgreSQL migration, no centralized-architecture change, no SQLite
+  FK-enforcement change: none occurred.
+- `backups/`: untouched except for the one new, explicitly-created
+  disposable copy directory (`production-orphan-cleanup-20260928-101912/`).
+- Nothing was committed.
