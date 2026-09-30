@@ -7,10 +7,17 @@ from typing import Any
 
 import fitz  # PyMuPDF
 
+from app.services.extraction import nvidia_ocr
 from app.services.extraction.classifier import classify_text
 from app.services.interfaces import OCREngine, PDFProcessor
 
 MIN_NATIVE_TEXT_CHARS = 20
+# Below this, Tesseract's own result is treated as "cannot confidently
+# provide required evidence" and the (opt-in) NVIDIA Nemotron OCR v2
+# fallback is tried for that page - see nvidia_ocr.py's module docstring for
+# why this stays at the text layer rather than asking the model for
+# structured fields directly.
+MIN_OCR_CONFIDENCE = 0.55
 
 
 class PyMuPDFTextExtractor(PDFProcessor):
@@ -43,13 +50,25 @@ class PyMuPDFTextExtractor(PDFProcessor):
         try:
             for page in pages:
                 if not page["has_selectable_text"]:
-                    pix = doc[page["page_number"] - 1].get_pixmap(dpi=200)
-                    result = self.ocr_engine.extract_text(pix.tobytes("png"))
+                    image_bytes = doc[page["page_number"] - 1].get_pixmap(dpi=200).tobytes("png")
+                    result = self.ocr_engine.extract_text(image_bytes)
                     if result["text"].strip():
                         page["text"] = result["text"]
                         page["source"] = "ocr"
                         page["ocr_confidence"] = result["confidence"]
                         page["has_selectable_text"] = True
+
+                    # Local OCR came back empty, or confident enough that it
+                    # isn't "insufficient" (MIN_OCR_CONFIDENCE) - only then
+                    # is the optional NVIDIA fallback worth its network call.
+                    text_is_weak = not result["text"].strip() or result["confidence"] < MIN_OCR_CONFIDENCE
+                    if text_is_weak and nvidia_ocr.is_available():
+                        fallback = nvidia_ocr.extract_text_from_image(image_bytes)
+                        if fallback is not None and fallback["text"].strip():
+                            page["text"] = fallback["text"]
+                            page["source"] = "nvidia_ocr"
+                            page["ocr_confidence"] = fallback["confidence"]
+                            page["has_selectable_text"] = True
         finally:
             doc.close()
 

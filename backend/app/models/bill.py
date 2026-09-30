@@ -22,6 +22,20 @@ class Bill(Base):
     category_guess: Mapped[str | None] = mapped_column(String(100), nullable=True)
     raw_text: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
+    # Populated only for bills created via the document_classifier.py fallback
+    # (a page bill_parser.py's own deterministic rules couldn't make sense of
+    # at all - see bill_pipeline.py) - supporting evidence classification,
+    # never a validation/matching decision on its own. NULL for every bill
+    # extracted the normal deterministic way, which never needed this.
+    # BILL | RECEIPT | TICKET | TRANSACTION_SCREENSHOT | INVOICE | OTHER
+    document_type: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    document_type_confidence: Mapped[float | None] = mapped_column(nullable=True)  # 0.0-1.0, classifier's own estimate
+    transaction_reference: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # A classifier-derived fallback source for Catering Check when the
+    # deterministic regex (category_map.detect_catering_amount) finds
+    # nothing on this bill's raw_text - see validation/checks.py::check_catering.
+    catering_amount: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
+
     # Phase 4 extraction outcome for this bill record only - EXTRACTED | REVIEW_REQUIRED.
     # Separate from match_status below, which describes matching against an expense.
     extraction_status: Mapped[str] = mapped_column(String(20), default="REVIEW_REQUIRED")

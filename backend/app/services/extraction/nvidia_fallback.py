@@ -3,7 +3,9 @@ deterministic pipeline (native PDF text -> OCR -> bill_parser.py's labelled/
 arithmetic amount and date rules) couldn't confidently extract from.
 
 Disabled by default. Enabled only by setting the SPINCO_NVIDIA_API_KEY
-environment variable - never hardcoded, never committed, never logged, never
+environment variable (and, if SPINCO_NVIDIA_ENABLED is set at all, only when
+it isn't "false" - a shared master kill-switch also honored by
+nvidia_ocr.py) - never hardcoded, never committed, never logged, never
 exposed to the frontend, never stored in audit logs or error messages (see
 is_available()/_redact below). If it isn't set, every function in this
 module is a no-op and the application behaves exactly as it does today.
@@ -64,7 +66,15 @@ def _redact(value: str | None) -> str:
 
 
 def is_available() -> bool:
-    return bool(os.environ.get("SPINCO_NVIDIA_API_KEY"))
+    if not os.environ.get("SPINCO_NVIDIA_API_KEY"):
+        return False
+    # Shared master kill-switch (also honored by nvidia_ocr.py) - purely
+    # additive: unset behaves exactly as before (enabled iff the key is
+    # configured).
+    enabled = os.environ.get("SPINCO_NVIDIA_ENABLED")
+    if enabled is not None and enabled.strip().lower() in ("false", "0", "no"):
+        return False
+    return True
 
 
 @dataclass

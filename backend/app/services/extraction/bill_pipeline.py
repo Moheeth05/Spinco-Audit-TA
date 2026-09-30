@@ -13,12 +13,51 @@ from app.models.bill import Bill
 from app.models.bill_match import BillMatchCandidate
 from app.models.expense_report import Expense, ExpenseReport
 from app.services.category_map import normalize_category
-from app.services.extraction import bill_matcher, bill_parser, candidate_cleanup
+from app.services.extraction import bill_matcher, bill_parser, candidate_cleanup, document_classifier
 from app.services.extraction.text_extraction import PyMuPDFTextExtractor
 
 
 def _is_batta(category: str | None) -> bool:
     return normalize_category(category) == "BATTA"
+
+
+def _bill_from_classification(
+    expense_report_id: int, page: dict, classification: "document_classifier.ClassificationResult"
+) -> Bill:
+    """Builds a Bill row from a document_classifier.py result - last-resort
+    supporting evidence for a page bill_parser.py's own deterministic rules
+    found nothing recognizable on at all. Always REVIEW_REQUIRED: this
+    evidence is never confident enough to stand alone (see module docstring
+    and bill_pipeline usage below), it only gives bill_matcher.py one more
+    candidate row to score an expense against using the same amount/date/
+    vendor signals every other bill is matched on."""
+    field_confidence = "MEDIUM" if classification.type_confidence >= 0.5 else "LOW"
+    notes = [
+        f"Page classified as {classification.document_type} via NVIDIA vision/text fallback "
+        f"(classifier confidence {classification.type_confidence:.2f}); no deterministic bill "
+        f"evidence was found on this page, so this record requires manual review."
+    ]
+    if page.get("source") == "nvidia_ocr":
+        notes.append(
+            f"Page text recovered via NVIDIA Nemotron OCR v2 fallback "
+            f"(local OCR confidence too low or empty; OCR confidence {page.get('ocr_confidence'):.2f})."
+        )
+    return Bill(
+        expense_report_id=expense_report_id,
+        page_number=page["page_number"],
+        vendor=classification.vendor.value if classification.vendor else None,
+        bill_number=classification.invoice_number.value if classification.invoice_number else None,
+        bill_date=classification.date.value if classification.date else None,
+        amount=classification.total_amount.value if classification.total_amount else None,
+        raw_text=page["text"][:2000],
+        document_type=classification.document_type,
+        document_type_confidence=classification.type_confidence,
+        transaction_reference=classification.transaction_reference.value if classification.transaction_reference else None,
+        catering_amount=classification.catering_amount.value if classification.catering_amount else None,
+        extraction_status="REVIEW_REQUIRED",
+        extraction_confidence=field_confidence,
+        extraction_notes="; ".join(notes),
+    )
 
 
 def extract_and_match_bills(
@@ -47,10 +86,12 @@ def extract_and_match_bills(
             continue
         segments = bill_parser.split_bill_segments(page["text"])
         is_multi = len(segments) > 1
+        page_had_evidence = False
         for segment in segments:
             parsed = bill_parser.parse_bill_text(segment)
             if not bill_parser.parsed_has_evidence(parsed, segment):
                 continue
+            page_had_evidence = True
             if page.get("source") == "nvidia_ocr":
                 # Provenance/traceability (no schema change - this bill's
                 # existing page_number column already anchors it to a
@@ -82,6 +123,20 @@ def extract_and_match_bills(
             )
             db.add(bill)
             bills.append(bill)
+
+        if not page_had_evidence:
+            # Last-resort fallback: bill_parser.py's own deterministic rules
+            # found nothing on this page at all (not even a malformed
+            # amount/GSTIN/bill-number), so give the optional NVIDIA
+            # classifier one chance at it. Disabled by default and a no-op
+            # unless configured (document_classifier.is_available()) - when
+            # unavailable or the response doesn't validate, this page is
+            # dropped exactly as it always was before this feature existed.
+            classification = document_classifier.classify_page(page["text"])
+            if classification is not None and classification.document_type != "NOT_APPLICABLE":
+                bill = _bill_from_classification(row.id, page, classification)
+                db.add(bill)
+                bills.append(bill)
     db.commit()
     for bill in bills:
         db.refresh(bill)
@@ -101,7 +156,22 @@ def extract_and_match_bills(
         for b in bills
     ]
     bills_by_id = {b.id: b for b in bills}
-    first_bill_page = min((b.page_number for b in bills if b.page_number is not None), default=None)
+    # The "page position matches order" signal (bill_matcher.py) anchors on
+    # the bill region's actual start page - deliberately excludes
+    # classifier-derived bills here. A classifier fallback fires exactly
+    # where bill_parser.py found NO evidence at all; if such a page happens
+    # to sit earlier than every deterministically-extracted bill, using it as
+    # the anchor would shift the expected page for EVERY other expense/bill
+    # pairing on the report, silently perturbing matches that have nothing
+    # to do with the ambiguous page itself. Falls back to including
+    # classifier-derived bills only if there are no deterministic bills at
+    # all (better than no position signal whatsoever in that rare case).
+    first_bill_page = min(
+        (b.page_number for b in bills if b.page_number is not None and b.document_type is None),
+        default=None,
+    )
+    if first_bill_page is None:
+        first_bill_page = min((b.page_number for b in bills if b.page_number is not None), default=None)
 
     expenses = db.query(Expense).filter(Expense.expense_report_id == row.id).order_by(Expense.s_no).all()
     if expenses:

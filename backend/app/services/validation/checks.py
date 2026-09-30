@@ -425,6 +425,15 @@ def check_catering(*, category: str | None, bill, claimed_amount=None) -> CheckR
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No confirmed matching bill.", remarks="Not applicable")
 
     catering_amount = detect_catering_amount(bill.raw_text)
+    if catering_amount is None and getattr(bill, "catering_amount", None) is not None:
+        # No regex-detectable catering line on the bill's own extracted text
+        # (e.g. text recovered via the document_classifier.py fallback, which
+        # doesn't run the same label-pattern regex) - fall back to the
+        # classifier's own catering_amount field, itself already re-parsed
+        # through parse_amount and never a guess (see document_classifier.py
+        # _validate_response). Still just supporting evidence for the same
+        # auditor-review message below, never a different check outcome.
+        catering_amount = float(bill.catering_amount)
     if catering_amount is None and not mentions_catering(bill.raw_text):
         return CheckResult(
             check_type=check_type,

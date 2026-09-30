@@ -45,7 +45,17 @@ _EXCEPTION_COLUMNS = [
     ("exceptions", "verification_note", "VARCHAR(1000)"),
 ]
 
-_ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS + _EXCEPTION_COLUMNS
+# Supporting-document classifier fallback (see extraction/document_classifier.py
+# and bill_pipeline.py) - new nullable columns on the pre-existing `bills`
+# table for a pre-existing database that predates this feature.
+_BILL_COLUMNS = [
+    ("bills", "document_type", "VARCHAR(30)"),
+    ("bills", "document_type_confidence", "FLOAT"),
+    ("bills", "transaction_reference", "VARCHAR(100)"),
+    ("bills", "catering_amount", "NUMERIC(12, 2)"),
+]
+
+_ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS + _EXCEPTION_COLUMNS + _BILL_COLUMNS
 
 
 def run_light_migrations(engine: Engine) -> None:
