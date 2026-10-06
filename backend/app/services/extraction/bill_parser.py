@@ -94,7 +94,12 @@ VENDOR_SUFFIX_RE = re.compile(
 )
 
 CATEGORY_KEYWORDS = [
-    (re.compile(r"\b(PETROL|DIESEL|FUEL|AUTOFUEL)\b", re.IGNORECASE), "Fuel"),
+    # NOZZLE/NOZL: confirmed on every real fuel-pump receipt in the
+    # reference corpus (5/5) as a standalone fuel-dispenser line-item term
+    # ("Nozzle No. :01") - a reliable second signal for pumps whose OCR text
+    # garbles PETROL/DIESEL/FUEL itself (e.g. "Fue]", "Diese l" with an
+    # inserted space) but still renders "Nozl"/"Nozzle" legibly.
+    (re.compile(r"\b(PETROL|DIESEL|FUEL|AUTOFUEL|NOZZLE|NOZL)\b", re.IGNORECASE), "Fuel"),
     (re.compile(r"\b(HOTEL|LODGING|ROOM CHARGE|ACCOMMODATION)\b", re.IGNORECASE), "Lodging"),
     # A cab/ride-hailing bill rarely prints the literal word "cab"/"taxi" - it
     # prints what the service actually is (a ride fare, a passenger transport

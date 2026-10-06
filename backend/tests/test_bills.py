@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 
 import fitz
@@ -107,6 +108,114 @@ def test_bill_date_extraction_supports_dash_format():
     parsed = bill_parser.parse_bill_text("Date: 23-06-2026\nAmount (Rs.): 2000.00")
     assert parsed.bill_date is not None
     assert parsed.bill_date.day == 23 and parsed.bill_date.month == 6
+
+
+# ---------- 2-digit-year date formats (confirmed on real fuel-pump/thermal
+# receipts and a Uber receipt in the reference corpus) ----------
+
+
+def test_bill_date_extraction_supports_2digit_year_with_label():
+    """IndianOil receipt format: 'Date : 07/07/26' - confirmed on two real
+    reference bills (ER-40782 s_no=2 and s_no=5)."""
+    from app.services.extraction.dates import parse_date
+
+    assert parse_date("Date : \n07/07/26 \nTime: 20:50") == date(2026, 7, 7)
+    assert parse_date("Date : \n13/07/26 \nTime: 11:46") == date(2026, 7, 13)
+
+
+def test_bill_date_extraction_2digit_year_dd_mm_preferred_when_ambiguous():
+    """DD/MM is this codebase's convention - preferred even when MM/DD would
+    also be a technically-valid interpretation (03/07/26 stays 3 July, never
+    silently reinterpreted as March 7)."""
+    from app.services.extraction.dates import parse_date
+
+    assert parse_date("Date: 03/07/26") == date(2026, 7, 3)
+
+
+def test_bill_date_extraction_2digit_year_mm_dd_fallback_when_dd_mm_impossible():
+    """A real Uber receipt (ER-41115 s_no=14) prints a bare '8/19/26' with no
+    'Date:' label - day 19 can't be a month, so DD/MM is impossible and it
+    can only be read as August 19."""
+    from app.services.extraction.dates import parse_date
+
+    assert parse_date("Payments Cash Rs.388.26 8/19/26 5:48 am") == date(2026, 8, 19)
+
+
+def test_bill_date_extraction_2digit_year_rejects_genuinely_impossible_date():
+    from app.services.extraction.dates import find_all_dates
+
+    # Neither 32/13 nor 13/32 is a valid day/month pairing either way.
+    assert find_all_dates("Date: 32/13/26") == []
+
+
+def test_bill_date_extraction_2digit_year_does_not_confuse_other_numeric_strings():
+    """A GSTIN/invoice/txn-id style numeric string must never be misread as
+    a 2-digit-year date just because it contains slash/dash-separated
+    digits in the wrong shape."""
+    from app.services.extraction.dates import find_all_dates
+
+    assert find_all_dates("Txn Id: 6062209712") == []
+    assert find_all_dates("Receipt: AP31EA79/70") == []
+
+
+def test_bill_date_short_year_echo_corroborates_rather_than_conflicts():
+    """Real case (ER-40706 (1).pdf s_no=20, a Uber receipt): 'Jul 10, 2026'
+    at the top, then later a bare payment-timestamp echo '7/10/26' next to
+    the payment method. Read as DD/MM that echo would be 7 October - a
+    false conflict with the already-confirmed 10 July. Since the MM/DD
+    reading of the SAME token exactly corroborates the already-found date,
+    it must resolve to one confirmed date, not two conflicting ones."""
+    from app.services.extraction.dates import find_all_dates, parse_date
+
+    text = "Jul 10, 2026\n7:27 PM\nThanks for riding\nCash\n7/10/26 8:50 P\nM\nUber Go AC"
+    assert find_all_dates(text) == [date(2026, 7, 10), date(2026, 7, 10)]
+    assert parse_date(text) == date(2026, 7, 10)
+
+
+def test_bill_date_short_year_never_suppresses_a_genuine_conflict():
+    """The corroboration rule must only ever resolve TOWARD an
+    already-confirmed date - it must never paper over two actually
+    different, unrelated dates just because one of them is in 2-digit-year
+    slash form."""
+    from app.services.extraction.dates import find_all_dates
+
+    # "5 March 2026" and "9/4/26" (DD/MM -> 4 Sept; MM/DD -> 9 Apr) - neither
+    # reading of the short-year date matches 5 March, so both must survive
+    # as genuinely distinct dates.
+    found = find_all_dates("Invoice dated 5 March 2026, also referencing 9/4/26 on the same page")
+    assert date(2026, 3, 5) in found
+    assert len(set(found)) == 2
+
+
+def test_bill_date_recovered_from_transaction_timestamp_when_primary_date_is_ocr_garbled():
+    """Real case (ER-39832, bill page 11): the labelled 'Date:' line is
+    OCR-garbled ('22-()6- 2026'), but a clean backup timestamp survives
+    elsewhere on the same receipt ('TxSt: 22-06-26 20:00:24') and is
+    recovered via the 2-digit-year pattern + the existing 'txst' label."""
+    text = (
+        "Date: 22-()6- 2026 Time: 20:02:25 BayNo: 6 NozzleNo: | Product: DIESEL "
+        "PayMode: Cash Txn Id: 6062209712 Attendant: TxSt: 22-06-26 20:00:24 TxEnd: 22-06-26 20:01:44"
+    )
+    parsed = bill_parser.parse_bill_text(text)
+    assert parsed.bill_date == date(2026, 6, 22)
+
+
+# ---------- NOZZLE/NOZL category evidence (confirmed on every real
+# fuel-pump receipt in the reference corpus - a reliable second signal when
+# PETROL/DIESEL/FUEL itself is OCR-garbled) ----------
+
+
+def test_category_nozzle_keyword_detects_fuel_when_fuel_word_is_ocr_garbled():
+    """Real case (ER-40706 s_no=29): 'Fue]' (garbled 'Fuel') never matches,
+    but 'Nozl No' (garbled 'Nozzle') does."""
+    text = "SVFES HP DEALER OUTLET Nozl No Fue] Density: NON Rs. 116.50 Rs. 3612.66"
+    cat_guess, _ = bill_parser._find_category(text)
+    assert cat_guess == "Fuel"
+
+
+def test_category_nozzle_keyword_clean_spelling():
+    cat_guess, _ = bill_parser._find_category("Nozzle No. :01\nProduct : Diesel")
+    assert cat_guess == "Fuel"
 
 
 def test_vendor_extraction_prefers_company_suffix_line():
