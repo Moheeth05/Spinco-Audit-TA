@@ -217,6 +217,98 @@ def test_matcher_amount_uniqueness_bonus():
     assert score_unique > score_not_unique
 
 
+# ---------- Whole-rupee rounding: BOTH neighbouring integers of a decimal
+# bill amount are valid claimed amounts (never ordinary single-direction
+# rounding, never a looser percentage-based tolerance) ----------
+
+
+def _amount_bill(amount):
+    return {"id": 1, "amount": amount, "bill_date": None, "vendor": None, "description": None, "category_guess": None, "bill_number": None}
+
+
+def _amount_expense(claimed):
+    return {"claimed_amount": claimed, "expense_date": None, "category": None, "expense_details": None}
+
+
+@pytest.mark.parametrize(
+    "bill_amount,claimed,expect_match",
+    [
+        (4499.77, 4499, True),   # floor - VALID
+        (4499.77, 4500, True),   # ceil - VALID
+        (4499.77, 4498, False),  # one below floor - INVALID
+        (4499.77, 4501, False),  # one above ceil - INVALID
+        (123.67, 123, True),
+        (123.67, 124, True),
+        (123.67, 122, False),
+        (123.67, 125, False),
+        (500.01, 500, True),
+        (500.01, 501, True),
+        (500.01, 499, False),
+        (500.01, 502, False),
+        (4500.00, 4500, True),   # whole-rupee bill - only the exact value is valid
+        (4500.00, 4499, False),  # other whole-rupee amounts remain mismatches
+        (4500.00, 4501, False),
+    ],
+)
+def test_matcher_whole_rupee_rounding_rule(bill_amount, claimed, expect_match):
+    score, reasons = bill_matcher.score_pair(_amount_expense(claimed), _amount_bill(bill_amount))
+    if expect_match:
+        assert score >= 40, reasons
+        assert any("amount" in r.lower() and ("exact" in r.lower() or "nearest rupee" in r.lower()) for r in reasons)
+    else:
+        assert score <= -25, reasons
+        assert any("clearly different" in r.lower() for r in reasons)
+
+
+def test_check_bill_amount_accepts_whole_rupee_rounding():
+    from decimal import Decimal
+
+    from app.services.validation import checks
+
+    class _Bill:
+        amount = Decimal("4499.77")
+        page_number = 5
+        raw_text = "Total 4499.77"
+
+    floor_result = checks.check_bill_amount(claimed_amount=4499, bill_match_status="MATCHED", bill=_Bill())
+    assert floor_result.result == checks.PASS
+    ceil_result = checks.check_bill_amount(claimed_amount=4500, bill_match_status="MATCHED", bill=_Bill())
+    assert ceil_result.result == checks.PASS
+
+
+def test_check_bill_amount_rejects_amounts_beyond_whole_rupee_rounding():
+    from decimal import Decimal
+
+    from app.services.validation import checks
+
+    class _Bill:
+        amount = Decimal("4499.77")
+        page_number = 5
+        raw_text = "Total 4499.77"
+
+    too_low = checks.check_bill_amount(claimed_amount=4498, bill_match_status="MATCHED", bill=_Bill())
+    assert too_low.result == checks.EXCEPTION
+    assert too_low.exception_type == "AMOUNT MISMATCH"
+    too_high = checks.check_bill_amount(claimed_amount=4501, bill_match_status="MATCHED", bill=_Bill())
+    assert too_high.result == checks.EXCEPTION
+
+
+def test_check_bill_amount_whole_rupee_bill_only_accepts_exact():
+    from decimal import Decimal
+
+    from app.services.validation import checks
+
+    class _Bill:
+        amount = Decimal("4500.00")
+        page_number = 5
+        raw_text = "Total 4500.00"
+
+    exact = checks.check_bill_amount(claimed_amount=4500, bill_match_status="MATCHED", bill=_Bill())
+    assert exact.result == checks.PASS
+    off_by_one = checks.check_bill_amount(claimed_amount=4501, bill_match_status="MATCHED", bill=_Bill())
+    assert off_by_one.result == checks.EXCEPTION
+
+
 # ---------- 15/21: mandatory reference regression ----------
 
 
@@ -614,6 +706,61 @@ def test_catering_check_is_review_required_not_exception():
     )
     assert result.claimed_amount == 1975.85
     assert result.bill_amount == 368.0
+
+
+def test_catering_short_reason_includes_amount_and_total():
+    """The displayed reason (remarks - exception_engine.py's _reason_text()
+    prefers remarks over details) must be short and name the catering
+    charge directly, not a long paragraph."""
+    from app.services.validation import checks
+
+    class _Bill:
+        page_number = 47
+        raw_text = "Catering Charges (Incl. of GST)\n368.00"
+
+    result = checks.check_catering(category="TRAIN / BUS FARE", bill=_Bill(), claimed_amount=1975.85)
+    assert result.remarks == "Catering included: Rs.368.00 of Rs.1,975.85 total. Requires policy review."
+    assert len(result.remarks) < 100
+
+
+def test_catering_short_reason_without_claimed_amount():
+    from app.services.validation import checks
+
+    class _Bill:
+        page_number = 47
+        raw_text = "Catering Charges (Incl. of GST)\n368.00"
+
+    result = checks.check_catering(category="TRAIN / BUS FARE", bill=_Bill(), claimed_amount=None)
+    assert result.remarks == "Catering included: Rs.368.00. Requires policy review."
+
+
+def test_catering_short_reason_when_amount_undetectable():
+    from app.services.validation import checks
+
+    class _Bill:
+        page_number = 1
+        raw_text = "Catering charges included in the fare"  # mentioned, no parseable figure
+
+    result = checks.check_catering(category="TRAIN / BUS FARE", bill=_Bill(), claimed_amount=500.0)
+    assert result.result == checks.REVIEW_REQUIRED
+    assert result.remarks == "Catering charge mentioned; amount could not be determined. Requires policy review."
+
+
+def test_catering_classifier_derived_amount_in_short_reason():
+    """catering_amount sourced from document_classifier.py's fallback (no
+    regex-detectable line on the bill's own text) must still appear in the
+    short reason, same as a regex-detected one."""
+    from types import SimpleNamespace
+
+    from app.services.validation import checks
+
+    fake_bill = SimpleNamespace(
+        raw_text="Transaction confirmed. Reference TXN123456. Total Rs. 2804.05.",
+        page_number=3,
+        catering_amount=368.00,
+    )
+    result = checks.check_catering(category="TRAIN / BUS FARE", bill=fake_bill, claimed_amount=2804.05)
+    assert result.remarks == "Catering included: Rs.368.00 of Rs.2,804.05 total. Requires policy review."
 
 
 def test_catering_not_applicable_for_non_travel_category():

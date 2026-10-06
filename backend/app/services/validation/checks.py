@@ -15,6 +15,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from app.services.category_map import detect_catering_amount, expected_bill_label, mentions_catering, normalize_category
+from app.services.extraction.money import amounts_match
 
 PASS = "PASS"
 EXCEPTION = "EXCEPTION"
@@ -160,12 +161,19 @@ def check_bill_amount(
             source_page=bill.page_number,
         )
 
-    if claimed == bill_amt:
+    # claimed == bill_amt is an exact match; amounts_match() also accepts
+    # either whole-rupee neighbour of a decimal bill amount (an employee
+    # commonly enters the bill total rounded/truncated to a whole rupee, in
+    # EITHER direction - never a looser percentage-based tolerance, and for
+    # an already-whole-rupee bill only that exact value is accepted - see
+    # money.py's amounts_match()).
+    if amounts_match(claimed, bill_amt):
+        remarks = "Amount matches" if claimed == bill_amt else "Amount matches (claimed is the bill total rounded to the nearest rupee)"
         return CheckResult(
             check_type=check_type,
             result=PASS,
             details=f"Claimed {_fmt(claimed)} vs Bill {_fmt(bill_amt)}",
-            remarks="Amount matches",
+            remarks=remarks,
             claimed_amount=claimed_amount,
             bill_amount=float(bill_amt),
             source_page=bill.page_number,
@@ -174,22 +182,25 @@ def check_bill_amount(
     # A travel bill's own total is "all inclusive" and can legitimately
     # exceed what's claimed when it bundles in a catering charge (see
     # check_catering below, which separately flags this for review) - if
-    # excluding that catering charge brings the bill exactly in line with
-    # what was claimed, this is not a real amount mismatch (Part 17:
-    # catering must not break bill matching).
+    # excluding that catering charge brings the bill in line with what was
+    # claimed (exactly, or by the same whole-rupee-rounding rule above),
+    # this is not a real amount mismatch (Part 17: catering must not break
+    # bill matching).
     catering_amount = detect_catering_amount(bill.raw_text)
     if catering_amount is not None:
         catering = _to_decimal(catering_amount)
-        # A small (<=Re.1) tolerance here, same as bill_matcher.py's "close
-        # match" allowance, absorbs paise-level rounding across the ticket's
-        # several inclusive-of-GST line items - not a loosened threshold,
-        # the same tolerance already used for an ordinary amount match.
-        if catering is not None and abs(claimed - (bill_amt - catering)) <= max(Decimal("1"), claimed * Decimal("0.01")):
+        if catering is not None and amounts_match(claimed, bill_amt - catering):
+            excl = bill_amt - catering
+            remarks = (
+                "Amount matches once catering is excluded"
+                if claimed == excl
+                else "Amount matches once catering is excluded (claimed is that total rounded to the nearest rupee)"
+            )
             return CheckResult(
                 check_type=check_type,
                 result=PASS,
                 details=f"Claimed {_fmt(claimed)} vs Bill {_fmt(bill_amt)} (matches once catering of {_fmt(catering)} is excluded)",
-                remarks="Amount matches once catering is excluded",
+                remarks=remarks,
                 claimed_amount=claimed_amount,
                 bill_amount=float(bill_amt),
                 source_page=bill.page_number,
@@ -442,15 +453,28 @@ def check_catering(*, category: str | None, bill, claimed_amount=None) -> CheckR
             remarks="No catering charges found",
             source_page=bill.page_number,
         )
-    # The auditor needs both figures to judge the claim, not just the
-    # catering amount in isolation - never invents the claimed figure if
-    # it's genuinely unavailable, and never invents a catering amount either
-    # ("Catering Amount: Unable to determine" when the charge is mentioned
-    # but no nearby figure could be parsed - see detect_catering_amount).
+    # The short `remarks` text is what surfaces as the primary exception
+    # reason (exception_engine.py's _reason_text() prefers remarks over
+    # details) - it must name the catering charge directly and stay short,
+    # never a paragraph. Never invents a catering amount ("amount could not
+    # be determined" when the charge is mentioned but no nearby figure could
+    # be parsed - see detect_catering_amount) and never invents the claimed
+    # figure if it's genuinely unavailable.
+    if catering_amount is not None:
+        catering_text = _fmt(catering_amount)
+        if claimed_amount is not None:
+            remarks = f"Catering included: {catering_text} of {_fmt(claimed_amount)} total. Requires policy review."
+        else:
+            remarks = f"Catering included: {catering_text}. Requires policy review."
+    else:
+        remarks = "Catering charge mentioned; amount could not be determined. Requires policy review."
+    # `details` keeps the fuller evidence for the UI's separate details
+    # column (DocumentViewerPage.jsx) - the short `remarks` above is what's
+    # actually displayed as the reason.
     claimed_text = _fmt(claimed_amount) if claimed_amount is not None else "unknown"
-    catering_text = _fmt(catering_amount) if catering_amount is not None else "Unable to determine"
-    message = (
-        f"Total claimed amount: {claimed_text}. Catering amount: {catering_text}. "
+    catering_detail_text = _fmt(catering_amount) if catering_amount is not None else "unable to determine"
+    details = (
+        f"Total claimed amount: {claimed_text}. Catering amount: {catering_detail_text}. "
         "Catering/service component requires separate policy review."
     )
     # A REVIEW_REQUIRED policy exception on an otherwise-successfully-matched
@@ -460,8 +484,8 @@ def check_catering(*, category: str | None, bill, claimed_amount=None) -> CheckR
     return CheckResult(
         check_type=check_type,
         result=REVIEW_REQUIRED,
-        details=message,
-        remarks=message,
+        details=details,
+        remarks=remarks,
         claimed_amount=claimed_amount,
         bill_amount=catering_amount,
         source_page=bill.page_number,

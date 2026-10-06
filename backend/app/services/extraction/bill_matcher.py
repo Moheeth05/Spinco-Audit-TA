@@ -6,9 +6,11 @@ weighted and combined into one score per (expense, bill) pair. An LLM is
 never used for the final decision (see services/interfaces.py).
 
 Weights (documented here, the one place they're defined):
-    Amount exact match          +40
+    Amount exact match          +40   (also an employee-entered whole-rupee rounding
+                                         of a decimal bill total, in EITHER direction -
+                                         see money.amounts_match - never a looser
+                                         percentage-based tolerance)
     Amount exact + unique       +15   (no other bill on the document has this amount)
-    Amount close (<=1%/Rs.1)    +20
     Amount present but wrong    -25   (a known amount that clearly differs is strong
                                          negative evidence, not neutral - stops date/
                                          category alone from looking "plausible")
@@ -39,6 +41,7 @@ from typing import Any
 
 from app.services import category_map
 from app.services.category_map import category_compatible as _category_compatible
+from app.services.extraction.money import amounts_match
 
 MIN_THRESHOLD = 25
 MEDIUM_THRESHOLD = 45
@@ -82,7 +85,6 @@ def score_pair(
     claimed = expense.get("claimed_amount")
     bill_amount = bill.get("amount")
     if claimed is not None and bill_amount is not None:
-        diff = abs(claimed - bill_amount)
         # A travel-ticket bill's own total is "all inclusive" and can
         # legitimately be larger than what the employee claims when the bill
         # bundles in a catering charge the company doesn't reimburse as part
@@ -93,16 +95,30 @@ def score_pair(
         # doesn't block an otherwise-correct match (Part 17: catering must
         # not break bill matching).
         catering = category_map.detect_catering_amount(bill.get("raw_text"))
-        diff_excl_catering = abs(claimed - (bill_amount - catering)) if catering else None
-        if diff < 0.01 or (diff_excl_catering is not None and diff_excl_catering < 0.01):
+        bill_excl_catering = bill_amount - catering if catering else None
+
+        # amounts_match() accepts an exact match OR either whole-rupee
+        # neighbour of a decimal bill amount (an employee commonly enters
+        # the bill total rounded/truncated to a whole rupee, in either
+        # direction) - see money.py for the exact rule. Deliberately NOT a
+        # looser percentage-based tolerance.
+        direct_match = amounts_match(claimed, bill_amount)
+        excl_match = bill_excl_catering is not None and amounts_match(claimed, bill_excl_catering)
+        if direct_match or excl_match:
             score += 40
-            reasons.append("Amount: exact match" if diff < 0.01 else "Amount: exact match once catering is excluded")
+            if direct_match:
+                reasons.append(
+                    "Amount: exact match" if claimed == bill_amount else "Amount: matches bill total rounded to the nearest rupee"
+                )
+            else:
+                reasons.append(
+                    "Amount: exact match once catering is excluded"
+                    if claimed == bill_excl_catering
+                    else "Amount: matches bill total (catering excluded) rounded to the nearest rupee"
+                )
             if amount_is_unique:
                 score += 15
                 reasons.append("Amount: unique exact match - no other bill on this document shares it")
-        elif diff <= max(1.0, claimed * 0.01) or (diff_excl_catering is not None and diff_excl_catering <= max(1.0, claimed * 0.01)):
-            score += 20
-            reasons.append("Amount: close match (minor rounding)" if diff <= max(1.0, claimed * 0.01) else "Amount: close match once catering is excluded")
         else:
             # A bill whose amount IS known and is clearly different is strong
             # negative evidence - real accounting practice means a genuine
