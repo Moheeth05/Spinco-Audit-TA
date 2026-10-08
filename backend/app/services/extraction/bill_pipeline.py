@@ -198,6 +198,7 @@ def extract_and_match_bills(
             expense.bill_id = None
             expense.bill_amount = None
             expense.bill_date = None
+            expense.candidate_bill_id = None
             continue
 
         expense_dict = {
@@ -213,6 +214,7 @@ def extract_and_match_bills(
         expense.bill_match_score = outcome.score
         expense.bill_match_confidence = outcome.confidence
         expense.bill_match_reasons = "; ".join(outcome.reasons) if outcome.reasons else None
+        expense.candidate_bill_id = outcome.candidate_bill_id
 
         if outcome.status == "MATCHED" and outcome.matched_bill_id is not None:
             matched_bill = bills_by_id[outcome.matched_bill_id]

@@ -122,8 +122,15 @@ def check_policy_limit(*, claimed_amount, category_label: str, policy) -> CheckR
 
 
 def check_bill_amount(
-    *, claimed_amount, bill_match_status: str, bill, bill_match_reasons: str | None = None, document_required: bool | None = None
+    *, claimed_amount, bill, bill_match_reasons: str | None = None, document_required: bool | None = None
 ) -> CheckResult:
+    """`bill` is the best PLAUSIBLE candidate (bill_matcher.py's
+    candidate_bill_id), not necessarily a CONFIRMED match - the combined
+    ranking score that decides MATCHED/REVIEW_REQUIRED/MULTIPLE_CANDIDATES
+    is a candidate-selection signal only (see bill_matcher.py's module
+    docstring); it must not gate whether this candidate's own amount
+    evidence gets examined. None here means no candidate cleared even the
+    minimum plausibility floor (bill_match_status == NO_MATCH)."""
     check_type = "Bill Amount Check"
     if document_required is False:
         # No supporting document is expected for this category at all (e.g.
@@ -134,11 +141,11 @@ def check_bill_amount(
         # have a bill in the first place (spec: BATTA must never be sent
         # through bill-matching review at all).
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
-    if bill is None or bill_match_status != "MATCHED":
+    if bill is None:
         return CheckResult(
             check_type=check_type,
             result=REVIEW_REQUIRED,
-            details=bill_match_reasons or "No confirmed matching bill is available for this expense.",
+            details=bill_match_reasons or "No plausible matching bill is available for this expense.",
             claimed_amount=claimed_amount,
         )
 
@@ -222,16 +229,18 @@ def check_bill_amount(
 
 
 def check_bill_date(
-    *, expense_date: date | None, bill_match_status: str, bill, bill_match_reasons: str | None = None, document_required: bool | None = None
+    *, expense_date: date | None, bill, bill_match_reasons: str | None = None, document_required: bool | None = None
 ) -> CheckResult:
+    """`bill` is the best plausible candidate, not necessarily confirmed -
+    see check_bill_amount's docstring for why."""
     check_type = "Bill Date Check"
     if document_required is False:
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
-    if bill is None or bill_match_status != "MATCHED":
+    if bill is None:
         return CheckResult(
             check_type=check_type,
             result=REVIEW_REQUIRED,
-            details=bill_match_reasons or "No confirmed matching bill is available for this expense.",
+            details=bill_match_reasons or "No plausible matching bill is available for this expense.",
             expense_date=expense_date,
         )
     if bill.bill_date is None:
@@ -280,6 +289,17 @@ def check_bill_date(
 def check_required_document(
     *, bill_match_status: str, policy, document_required: bool | None, bill_match_reasons: str | None = None
 ) -> CheckResult:
+    """Answers only "is a plausible supporting document present" - whether
+    that document's evidence actually CONFIRMS the claim is a separate
+    question, answered independently by check_bill_amount/check_bill_date/
+    check_category_consistency against the same candidate. MATCHED (a
+    confident, uniquely-best candidate) and REVIEW_REQUIRED (a single
+    plausible candidate that just didn't clear the auto-confirm score) both
+    mean a real document was found - PASS here, same as before; the other
+    three checks are what surface a genuine field-level problem with it.
+    MULTIPLE_CANDIDATES is a materially different kind of uncertainty (which
+    bill, if either, is even the right one) and stays REVIEW_REQUIRED here
+    regardless of how the top candidate's own fields check out."""
     check_type = "Required Document Check"
     if policy is None:
         return CheckResult(
@@ -301,8 +321,8 @@ def check_required_document(
             remarks="Not applicable",
         )
 
-    if bill_match_status == "MATCHED":
-        return CheckResult(check_type=check_type, result=PASS, details="A matching supporting bill was found.", remarks="Document present")
+    if bill_match_status in ("MATCHED", "REVIEW_REQUIRED"):
+        return CheckResult(check_type=check_type, result=PASS, details="A plausible supporting bill was found.", remarks="Document present")
     if bill_match_status == "NO_MATCH":
         return CheckResult(
             check_type=check_type,
@@ -314,7 +334,7 @@ def check_required_document(
     return CheckResult(
         check_type=check_type,
         result=REVIEW_REQUIRED,
-        details=bill_match_reasons or "Bill matching for this expense was ambiguous (multiple candidates or uncertain match).",
+        details=bill_match_reasons or "Bill matching for this expense was ambiguous (multiple candidates) - which document applies could not be confidently determined.",
     )
 
 
@@ -322,16 +342,23 @@ def check_required_document(
 
 
 def check_category_consistency(
-    *, category: str | None, bill_match_status: str, bill, document_required: bool | None = None
+    *, category: str | None, bill, document_required: bool | None = None
 ) -> CheckResult:
+    """`bill` is the best plausible candidate, not necessarily confirmed -
+    see check_bill_amount's docstring for why. This check is what prevents
+    an amount+date match from auto-verifying a claim whose actual
+    service/product contradicts the claimed category (e.g. a flight ticket
+    matched by coincidence to a LODGING claim) - it must keep running
+    against a plausible candidate even when the combined ranking score
+    didn't clear the auto-confirm bar, not only once a match is confirmed."""
     check_type = "Category Consistency Check"
     if document_required is False:
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No supporting document is required for this category.", remarks="Not applicable")
-    if bill is None or bill_match_status != "MATCHED":
+    if bill is None:
         return CheckResult(
             check_type=check_type,
             result=NOT_APPLICABLE,
-            details="No confirmed matching bill is available to compare against.",
+            details="No plausible matching bill is available to compare against.",
             remarks="Not applicable",
         )
     if not bill.category_guess:

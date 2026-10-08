@@ -60,6 +60,10 @@ def _make_expense(db, report_id, **kwargs):
         claimed_amount=2000.0, bill_match_status="NO_MATCH", trip_match_status="NOT_PROCESSED",
     )
     defaults.update(kwargs)
+    # candidate_bill_id must mirror a directly-set bill_id - see
+    # test_exception_engine.py's _make_expense() for why.
+    if defaults.get("bill_id") is not None and "candidate_bill_id" not in kwargs:
+        defaults["candidate_bill_id"] = defaults["bill_id"]
     e = Expense(**defaults)
     db.add(e)
     db.commit()

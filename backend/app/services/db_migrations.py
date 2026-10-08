@@ -32,6 +32,10 @@ _USER_COLUMNS = [
 # that already have an `expenses` table without this column.
 _EXPENSE_COLUMNS = [
     ("expenses", "merchant", "VARCHAR(255)"),
+    # Candidate-vs-confirmed bill matching split (see models/expense_report.py's
+    # Expense.candidate_bill_id) - new nullable column on the pre-existing
+    # `expenses` table for a pre-existing database that predates this feature.
+    ("expenses", "candidate_bill_id", "INTEGER"),
 ]
 
 # Post-UAT correction 2: manual "Verify" workflow (see

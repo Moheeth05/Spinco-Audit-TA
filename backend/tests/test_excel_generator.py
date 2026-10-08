@@ -83,6 +83,12 @@ def _make_expense(db, report_id, **kwargs):
         trip_match_status="NOT_PROCESSED",
     )
     defaults.update(kwargs)
+    # candidate_bill_id (what checks.py evaluates amount/date/category
+    # against) must mirror a directly-set bill_id, exactly as the real
+    # matching pipeline would for a genuinely matched bill - see the
+    # identical note in test_exception_engine.py's _make_expense().
+    if defaults.get("bill_id") is not None and "candidate_bill_id" not in kwargs:
+        defaults["candidate_bill_id"] = defaults["bill_id"]
     e = Expense(**defaults)
     db.add(e)
     db.commit()
@@ -384,10 +390,29 @@ def test_9_er39832_reference_case_in_workbook(client, sample_pdf_path):
         assert len(exc_rows) > 0
         # The genuine bill-tie review condition must be present, with a specific,
         # evidence-based reason (post-UAT correction 2, Part 6) - not a generic
-        # "no confirmed matching bill" placeholder.
+        # "no confirmed matching bill" placeholder. The matching redesign now
+        # also independently evaluates the strongest candidate's own
+        # amount/date/category evidence rather than discarding it just
+        # because the match is ambiguous - so depending on this real
+        # borderline scanned fuel bill's own extraction (not something this
+        # matching redesign touches), the result can legitimately be either
+        # a "BILL MATCH REVIEW REQUIRED" row (ambiguity text, or a specific
+        # missing-date finding) or a confirmed "DATE MISMATCH" exception
+        # that suppresses the former as the same already-explained bill-side
+        # problem (exception_engine.py's existing, unchanged dedup rule) -
+        # any of these is a real, specific, evidence-based reason, never the
+        # old generic placeholder.
         bill_review = [r for r in exc_rows if r[7] == "BILL MATCH REVIEW REQUIRED"]
-        assert bill_review
-        assert "plausible match" in bill_review[0][10].lower() or "score" in bill_review[0][10].lower()
+        date_mismatch = [r for r in exc_rows if r[7] == "DATE MISMATCH"]
+        assert bill_review or date_mismatch
+        if bill_review:
+            reason = bill_review[0][10].lower()
+            assert (
+                "plausible match" in reason
+                or "score" in reason
+                or "could not be reliably extracted" in reason
+                or "does not match" in reason
+            )
 
         er_rows = [r for r in _sheet_rows(wb[SHEET_EXPENSE_REPORTS]) if r[0] == report_id]
         assert er_rows[0][16] != "ACCOUNT VERIFIED"

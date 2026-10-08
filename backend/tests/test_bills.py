@@ -527,9 +527,9 @@ def test_check_bill_amount_accepts_whole_rupee_rounding():
         page_number = 5
         raw_text = "Total 4499.77"
 
-    floor_result = checks.check_bill_amount(claimed_amount=4499, bill_match_status="MATCHED", bill=_Bill())
+    floor_result = checks.check_bill_amount(claimed_amount=4499, bill=_Bill())
     assert floor_result.result == checks.PASS
-    ceil_result = checks.check_bill_amount(claimed_amount=4500, bill_match_status="MATCHED", bill=_Bill())
+    ceil_result = checks.check_bill_amount(claimed_amount=4500, bill=_Bill())
     assert ceil_result.result == checks.PASS
 
 
@@ -543,10 +543,10 @@ def test_check_bill_amount_rejects_amounts_beyond_whole_rupee_rounding():
         page_number = 5
         raw_text = "Total 4499.77"
 
-    too_low = checks.check_bill_amount(claimed_amount=4498, bill_match_status="MATCHED", bill=_Bill())
+    too_low = checks.check_bill_amount(claimed_amount=4498, bill=_Bill())
     assert too_low.result == checks.EXCEPTION
     assert too_low.exception_type == "AMOUNT MISMATCH"
-    too_high = checks.check_bill_amount(claimed_amount=4501, bill_match_status="MATCHED", bill=_Bill())
+    too_high = checks.check_bill_amount(claimed_amount=4501, bill=_Bill())
     assert too_high.result == checks.EXCEPTION
 
 
@@ -560,9 +560,9 @@ def test_check_bill_amount_whole_rupee_bill_only_accepts_exact():
         page_number = 5
         raw_text = "Total 4500.00"
 
-    exact = checks.check_bill_amount(claimed_amount=4500, bill_match_status="MATCHED", bill=_Bill())
+    exact = checks.check_bill_amount(claimed_amount=4500, bill=_Bill())
     assert exact.result == checks.PASS
-    off_by_one = checks.check_bill_amount(claimed_amount=4501, bill_match_status="MATCHED", bill=_Bill())
+    off_by_one = checks.check_bill_amount(claimed_amount=4501, bill=_Bill())
     assert off_by_one.result == checks.EXCEPTION
 
 
@@ -1044,7 +1044,7 @@ def test_catering_excluded_amount_matches_claimed_within_tolerance():
         page_number = 47
         raw_text = "Catering Charges (Incl. of GST)\n368.00"
 
-    result = checks.check_bill_amount(claimed_amount=2436.0, bill_match_status="MATCHED", bill=_Bill())
+    result = checks.check_bill_amount(claimed_amount=2436.0, bill=_Bill())
     assert result.result == checks.PASS
 
 

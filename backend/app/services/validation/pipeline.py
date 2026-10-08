@@ -108,7 +108,17 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
     try:
         for expense in expenses:
             policy = find_policy(db, expense.category)
+            # `bill` (confirmed) still gates duplicate-bill detection exactly
+            # as before - that check is specifically about two CONFIRMED
+            # claims pointing at the same bill, and must not fire on two
+            # expenses that merely share the same low-confidence candidate.
             bill = bills_by_id.get(expense.bill_id) if expense.bill_id else None
+            # `candidate_bill` (best plausible candidate, confirmed or not)
+            # is what amount/date/category evaluation now runs against - see
+            # bill_matcher.py's module docstring and checks.py's
+            # check_bill_amount docstring for why this must not wait for
+            # bill_match_status to reach MATCHED.
+            candidate_bill = bills_by_id.get(expense.candidate_bill_id) if expense.candidate_bill_id else None
             document_required = is_document_required(policy) if policy else None
 
             expense.policy_basis = policy.reimbursement_basis if policy else None
@@ -122,15 +132,13 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                 ),
                 checks.check_bill_amount(
                     claimed_amount=expense.claimed_amount,
-                    bill_match_status=expense.bill_match_status,
-                    bill=bill,
+                    bill=candidate_bill,
                     bill_match_reasons=expense.bill_match_reasons,
                     document_required=document_required,
                 ),
                 checks.check_bill_date(
                     expense_date=expense.expense_date,
-                    bill_match_status=expense.bill_match_status,
-                    bill=bill,
+                    bill=candidate_bill,
                     bill_match_reasons=expense.bill_match_reasons,
                     document_required=document_required,
                 ),
@@ -142,8 +150,7 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                 ),
                 checks.check_category_consistency(
                     category=expense.category,
-                    bill_match_status=expense.bill_match_status,
-                    bill=bill,
+                    bill=candidate_bill,
                     document_required=document_required,
                 ),
                 checks.check_duplicate_bill(
@@ -157,7 +164,13 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     original_expense=bill_original_expense.get(expense.bill_id) if expense.bill_id else None,
                     document_required=document_required,
                 ),
-                checks.check_catering(category=expense.category, bill=bill, claimed_amount=expense.claimed_amount),
+                # Catering must be judged against the same candidate evidence
+                # amount/date/category use, not gated separately behind full
+                # confirmation - otherwise a claim could reach PASS via
+                # genuinely-matching candidate evidence while its bundled
+                # catering charge never gets reviewed, simply because the
+                # combined ranking score didn't cross the auto-confirm bar.
+                checks.check_catering(category=expense.category, bill=candidate_bill, claimed_amount=expense.claimed_amount),
                 checks.check_batta_trip_match(
                     category=expense.category,
                     expense_date=expense.expense_date,

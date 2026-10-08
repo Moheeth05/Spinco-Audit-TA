@@ -336,7 +336,17 @@ def test_22_phase1_5_regression_still_works(client, sample_pdf_path):
     ev = client.get(f"/api/expenses/{first['id']}/validations").json()
     amount_check = next(v for v in ev if v["check_type"] == "Bill Amount Check")
     assert first["bill_match_status"] == "MULTIPLE_CANDIDATES"
-    assert amount_check["result"] == "REVIEW_REQUIRED"
+    # The matching redesign independently evaluates the strongest
+    # candidate's own amount evidence even when the overall match is
+    # ambiguous (see validation/checks.py's check_bill_amount docstring) -
+    # this real document's best candidate genuinely has amount Rs.2,000.00,
+    # matching the claim exactly, so this now correctly resolves PASS rather
+    # than defaulting to REVIEW_REQUIRED purely because bill_match_status
+    # isn't "MATCHED". The genuine ambiguity between candidate bills is
+    # still visible elsewhere (bill_match_status itself, and the
+    # BILL MATCH REVIEW REQUIRED / confirmed exception on this expense -
+    # see test_exception_engine.py's ER-39832 reference case).
+    assert amount_check["result"] == "PASS"
 
     # Non-Batta expenses must never get a Batta Trip Match Check result other than NOT_APPLICABLE.
     for e in expenses:

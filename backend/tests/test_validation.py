@@ -79,18 +79,18 @@ def test_5_policy_limit_unknown_policy_is_review_required():
 
 
 def test_6_bill_amount_exact_match_passes():
-    result = checks.check_bill_amount(claimed_amount=2000.0, bill_match_status="MATCHED", bill=_bill(amount=2000.0))
+    result = checks.check_bill_amount(claimed_amount=2000.0, bill=_bill(amount=2000.0))
     assert result.result == checks.PASS
 
 
 def test_7_bill_amount_mismatch_is_exception():
-    result = checks.check_bill_amount(claimed_amount=2000.0, bill_match_status="MATCHED", bill=_bill(amount=1800.0))
+    result = checks.check_bill_amount(claimed_amount=2000.0, bill=_bill(amount=1800.0))
     assert result.result == checks.EXCEPTION
     assert result.exception_type == "AMOUNT MISMATCH"
 
 
-def test_8_bill_amount_no_confirmed_match_is_review_required():
-    result = checks.check_bill_amount(claimed_amount=2000.0, bill_match_status="MULTIPLE_CANDIDATES", bill=None)
+def test_8_bill_amount_no_plausible_candidate_is_review_required():
+    result = checks.check_bill_amount(claimed_amount=2000.0, bill=None)
     assert result.result == checks.REVIEW_REQUIRED
 
 
@@ -99,20 +99,20 @@ def test_8_bill_amount_no_confirmed_match_is_review_required():
 
 def test_9_bill_date_match_passes():
     d = date(2026, 6, 1)
-    result = checks.check_bill_date(expense_date=d, bill_match_status="MATCHED", bill=_bill(bill_date=d))
+    result = checks.check_bill_date(expense_date=d, bill=_bill(bill_date=d))
     assert result.result == checks.PASS
 
 
 def test_10_bill_date_mismatch_is_exception():
     result = checks.check_bill_date(
-        expense_date=date(2026, 6, 1), bill_match_status="MATCHED", bill=_bill(bill_date=date(2026, 6, 5))
+        expense_date=date(2026, 6, 1), bill=_bill(bill_date=date(2026, 6, 5))
     )
     assert result.result == checks.EXCEPTION
     assert result.exception_type == "DATE MISMATCH"
 
 
-def test_11_bill_date_no_confirmed_match_is_review_required():
-    result = checks.check_bill_date(expense_date=date(2026, 6, 1), bill_match_status="NO_MATCH", bill=None)
+def test_11_bill_date_no_plausible_candidate_is_review_required():
+    result = checks.check_bill_date(expense_date=date(2026, 6, 1), bill=None)
     assert result.result == checks.REVIEW_REQUIRED
 
 
@@ -151,14 +151,14 @@ def test_15_required_document_ambiguous_match_is_review_required():
 
 def test_16_category_consistency_match_passes():
     result = checks.check_category_consistency(
-        category="OWN CAR PETROL", bill_match_status="MATCHED", bill=_bill(category_guess="Fuel")
+        category="OWN CAR PETROL", bill=_bill(category_guess="Fuel")
     )
     assert result.result == checks.PASS
 
 
 def test_17_category_consistency_mismatch_is_exception():
     result = checks.check_category_consistency(
-        category="OWN CAR PETROL", bill_match_status="MATCHED", bill=_bill(category_guess="Lodging")
+        category="OWN CAR PETROL", bill=_bill(category_guess="Lodging")
     )
     assert result.result == checks.EXCEPTION
     assert result.exception_type == "CATEGORY MISMATCH"
@@ -166,7 +166,7 @@ def test_17_category_consistency_mismatch_is_exception():
 
 def test_18_category_consistency_train_bus_interchangeable():
     result = checks.check_category_consistency(
-        category="TRAIN / BUS FARE", bill_match_status="MATCHED", bill=_bill(category_guess="Bus")
+        category="TRAIN / BUS FARE", bill=_bill(category_guess="Bus")
     )
     assert result.result == checks.PASS
 
@@ -289,6 +289,7 @@ def test_26_pipeline_duplicate_bill_detected_across_two_expenses(client):
                     category="OWN CAR PETROL",
                     claimed_amount=2000.0,
                     bill_id=bill.id,
+                    candidate_bill_id=bill.id,
                     bill_amount=2000.0,
                     bill_date=date(2026, 6, 1),
                     bill_match_status="MATCHED",

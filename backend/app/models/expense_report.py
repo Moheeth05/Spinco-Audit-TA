@@ -93,6 +93,21 @@ class Expense(Base):
     bill_amount: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
     bill_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
+    # The best-scoring plausible bill for this expense, set whenever
+    # bill_matcher.py found ANY candidate above its minimum-plausibility
+    # floor - independently of whether that candidate was confident enough
+    # to become the CONFIRMED bill_id above (MATCHED/REVIEW_REQUIRED/
+    # MULTIPLE_CANDIDATES all populate this; only NO_MATCH leaves it None).
+    # Exists so validation/checks.py can independently evaluate a candidate's
+    # actual amount/date/category evidence without that evidence being
+    # gated behind the combined ranking score crossing the auto-confirm
+    # threshold (see bill_matcher.py's module docstring). Deliberately a
+    # separate column from bill_id - every existing bill_id consumer
+    # (Excel export, API responses, duplicate-bill detection) keeps reading
+    # "the confirmed match" exactly as before; nothing about bill_id's own
+    # meaning changes.
+    candidate_bill_id: Mapped[int | None] = mapped_column(ForeignKey("bills.id"), nullable=True, index=True)
+
     # Phase 4 bill-matching outcome: NOT_PROCESSED | MATCHED | MULTIPLE_CANDIDATES |
     # NO_MATCH | REVIEW_REQUIRED. This is matching evidence only, not a policy verdict -
     # "MISSING BILL" etc. are exceptions the later validation phase derives from NO_MATCH.

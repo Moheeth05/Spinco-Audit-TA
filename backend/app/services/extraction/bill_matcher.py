@@ -33,6 +33,19 @@ Decision thresholds:
     score >= 70                 -> MATCHED, confidence HIGH
     score >= 45                 -> MATCHED, confidence MEDIUM
     25 <= score < 45 (sole candidate) -> REVIEW_REQUIRED (too uncertain to auto-confirm)
+
+This score is a RANKING signal only - it picks which bill (if any) is worth
+evaluating for a given expense, and labels how confident that pick is. It is
+NOT a gate on whether the candidate's own amount/date/category evidence gets
+examined: that independent, field-by-field evaluation happens in
+validation/checks.py, against MatchOutcome.candidate_bill_id, for every
+status except NO_MATCH (including REVIEW_REQUIRED and MULTIPLE_CANDIDATES -
+a candidate that isn't confident enough to auto-confirm, or isn't uniquely
+distinguishable from a close second, can still have its own real evidence
+checked and shown to the auditor, rather than being discarded outright).
+MatchOutcome.matched_bill_id remains the separate, narrower "confirmed"
+signal only MATCHED sets - every existing consumer of a confirmed match
+(Excel export, API responses, duplicate-bill detection) is unaffected.
 """
 
 import difflib
@@ -71,6 +84,14 @@ class MatchOutcome:
     confidence: str | None  # HIGH | MEDIUM | LOW
     reasons: list[str]
     candidates: list[BillCandidate]
+    # The best-scoring candidate's bill id whenever ANY candidate cleared
+    # MIN_THRESHOLD - set for every status except NO_MATCH, including
+    # REVIEW_REQUIRED and MULTIPLE_CANDIDATES, so validation/checks.py can
+    # independently evaluate that candidate's real amount/date/category
+    # evidence without waiting for this module's own ranking score to cross
+    # the auto-confirm bar (see module docstring: this score ranks
+    # candidates, it does not gate whether their evidence gets examined).
+    candidate_bill_id: int | None = None
 
 
 def score_pair(
@@ -207,6 +228,7 @@ def match_expense(
             confidence=None,
             reasons=["No supporting bills were found on this document."],
             candidates=[],
+            candidate_bill_id=None,
         )
 
     bills_by_id = {bill["id"]: bill for bill in bills}
@@ -220,10 +242,22 @@ def match_expense(
         amount_is_unique = bill.get("amount") is not None and amount_counts.get(bill["amount"], 0) == 1
         score, reasons = score_pair(expense, bill, amount_is_unique=amount_is_unique, first_bill_page=first_bill_page)
         scored.append(BillCandidate(bill_id=bill["id"], score=score, reasons=reasons))
-    scored.sort(key=lambda c: c.score, reverse=True)
+    # Tie-break on bill_id, not just score: validation/checks.py now
+    # evaluates the top candidate's own amount/date/category evidence (see
+    # MatchOutcome.candidate_bill_id), so which specific bill wins a
+    # genuine tie must be reproducible every time, not an accident of
+    # whatever order `bills` happened to arrive in - "deterministic,
+    # explainable, auditable" applies to candidate selection too, not only
+    # to the final PASS/EXCEPTION/REVIEW_REQUIRED decision.
+    scored.sort(key=lambda c: (-c.score, c.bill_id))
 
     best = scored[0]
     second = scored[1] if len(scored) > 1 else None
+    # Only NO_MATCH (best below the plausibility floor) leaves this None -
+    # every other status, including REVIEW_REQUIRED and MULTIPLE_CANDIDATES,
+    # exposes the top candidate so its real field evidence can still be
+    # evaluated (see MatchOutcome.candidate_bill_id).
+    candidate_bill_id = best.bill_id if best.score >= MIN_THRESHOLD else None
 
     if best.score < MIN_THRESHOLD:
         claimed = expense.get("claimed_amount")
@@ -245,6 +279,7 @@ def match_expense(
                 f"Closest candidate: {best_desc} (score {best.score}/{MIN_THRESHOLD} needed)."
             ],
             candidates=scored[:3],
+            candidate_bill_id=None,
         )
 
     if second and second.score >= MIN_THRESHOLD and (best.score - second.score) < CANDIDATE_MARGIN:
@@ -261,6 +296,7 @@ def match_expense(
                 f"available evidence."
             ],
             candidates=scored[:3],
+            candidate_bill_id=candidate_bill_id,
         )
 
     if best.score >= HIGH_THRESHOLD:
@@ -283,6 +319,7 @@ def match_expense(
                 f"is too weak to auto-confirm: {weak_evidence}."
             ],
             candidates=scored[:3],
+            candidate_bill_id=candidate_bill_id,
         )
 
     return MatchOutcome(
@@ -292,4 +329,5 @@ def match_expense(
         confidence=confidence,
         reasons=best.reasons,
         candidates=scored[:3],
+        candidate_bill_id=candidate_bill_id,
     )

@@ -71,6 +71,15 @@ def _make_expense(db, report_id, **kwargs):
         trip_match_status="NOT_PROCESSED",
     )
     defaults.update(kwargs)
+    # These tests build Expense rows directly, bypassing bill_matcher.py -
+    # candidate_bill_id (what checks.py now evaluates amount/date/category
+    # against, see validation/pipeline.py) must mirror bill_id whenever a
+    # test sets one without separately overriding candidate_bill_id, exactly
+    # as the real matching pipeline would for a genuinely matched/plausible
+    # bill (every CONFIRMED bill_id was, definitionally, also the top
+    # candidate).
+    if defaults.get("bill_id") is not None and "candidate_bill_id" not in kwargs:
+        defaults["candidate_bill_id"] = defaults["bill_id"]
     e = Expense(**defaults)
     db.add(e)
     db.commit()
@@ -592,8 +601,28 @@ def test_22_23_er39832_reference_case(client, sample_pdf_path):
 
     exceptions = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
     ref_expense_items = [e for e in exceptions if e["s_no"] == 1]
-    assert any(e["exception_type"] == "BILL MATCH REVIEW REQUIRED" and e["severity"] == "REVIEW REQUIRED" for e in ref_expense_items)
-    assert not any(e["severity"] == "EXCEPTION" for e in ref_expense_items)
+    # This real document has three separate ~Rs.2000 fuel bills (pages 3, 5,
+    # 12), so this expense's bill-tie is genuinely ambiguous between them
+    # (MULTIPLE_CANDIDATES). The matching redesign now also independently
+    # evaluates the strongest candidate's own amount/date/category evidence
+    # instead of discarding it merely because the overall match is ambiguous
+    # ("do not blindly discard candidate evidence") - that candidate's
+    # amount and category genuinely match, so whatever its date extraction
+    # happens to be (a real but genuinely borderline scanned fuel receipt -
+    # see bill_parser.py/ocr_engine.py, not something this matching redesign
+    # touches), the result must be a specific, evidence-based finding:
+    # either a genuine DATE MISMATCH, or (if that candidate's own date
+    # wasn't reliably extracted this run) a specific REVIEW_REQUIRED reason
+    # naming that - never the old generic "no confirmed matching bill"
+    # placeholder either way. (A confirmed DATE MISMATCH legitimately
+    # suppresses the separate, more generic "BILL MATCH REVIEW REQUIRED"
+    # ambiguity record here - exception_engine.py's existing, unchanged
+    # dedup rule: one already-explained bill-side problem, not two restated
+    # findings.)
+    assert any(e["exception_type"] == "DATE MISMATCH" and e["severity"] == "EXCEPTION" for e in ref_expense_items) or any(
+        e["exception_type"] == "BILL MATCH REVIEW REQUIRED" and "could not be reliably extracted" in (e["reason"] or "")
+        for e in ref_expense_items
+    )
 
 
 # ---------- 24: ER-40223 embedded trip/Batta behavior ----------
@@ -824,3 +853,306 @@ def test_32_verification_is_audit_logged(client):
         assert "audit trail check" in (events[0].details or "")
     finally:
         db.close()
+
+
+# ---------- 33-38: matching redesign - independent field-level evaluation ----------
+#
+# bill_matcher.py's combined ranking score (see its module docstring) now
+# only decides WHICH bill is worth evaluating, never WHETHER its amount/
+# date/category evidence gets examined - these tests build a real
+# bill_matcher.match_expense() outcome (not a hand-picked bill_match_status)
+# for a candidate that lands below the old MATCHED auto-confirm bar, and
+# confirm validation/checks.py still evaluates that candidate's real
+# evidence rather than defaulting everything to REVIEW_REQUIRED/
+# NOT_APPLICABLE purely because the combined score didn't clear 45.
+
+from app.services.extraction import bill_matcher  # noqa: E402
+
+
+def _bill_dict(bill, **overrides):
+    d = {
+        "id": bill.id,
+        "amount": float(bill.amount) if bill.amount is not None else None,
+        "bill_date": bill.bill_date,
+        "vendor": bill.vendor,
+        "description": bill.description,
+        "category_guess": bill.category_guess,
+        "bill_number": bill.bill_number,
+        "page_number": bill.page_number,
+        "raw_text": bill.raw_text,
+    }
+    d.update(overrides)
+    return d
+
+
+def test_33_review_tier_candidate_with_exact_date_now_evaluates_date_and_category(client):
+    """Mirrors a real corpus case (ER-41115.pdf s_no 17/18): a single,
+    non-ambiguous candidate whose date matches exactly and category is
+    compatible, but whose amount was never extracted. Combined score lands
+    in the old 25-44 "dead zone" (date 30 + category 10 = 40, confidence
+    LOW) - under the old gate, Bill Date Check and Category Consistency
+    Check would both have defaulted to REVIEW_REQUIRED/NOT_APPLICABLE
+    without ever looking at this evidence. They must now resolve for real."""
+    db = SessionLocal()
+    try:
+        report = _make_report(db, er_id="ER-REVIEWTIER-DATE", total_claimed=500.0)
+        _make_bill(
+            db, report.id, amount=None, bill_date=date(2026, 6, 1), category_guess="Fuel", vendor=None, raw_text=""
+        )
+        bill = db.query(Bill).filter(Bill.expense_report_id == report.id).first()
+
+        expense_dict = {
+            "claimed_amount": 500.0,
+            "expense_date": date(2026, 6, 1),
+            "category": "OWN CAR PETROL",
+            "expense_details": "",
+        }
+        outcome = bill_matcher.match_expense(expense_dict, [_bill_dict(bill)])
+        assert outcome.status == "REVIEW_REQUIRED"
+        assert 25 <= outcome.score < 45
+        assert outcome.candidate_bill_id == bill.id  # evidence preserved, not discarded
+
+        _make_expense(
+            db,
+            report.id,
+            category="OWN CAR PETROL",
+            claimed_amount=500.0,
+            expense_date=date(2026, 6, 1),
+            bill_match_status=outcome.status,
+            candidate_bill_id=outcome.candidate_bill_id,
+        )
+        validate_expense_report(db, report.id)
+
+        from app.models.validation import ValidationResult
+
+        results = {
+            r.check_type: r.result
+            for r in db.query(ValidationResult).filter(ValidationResult.expense_report_id == report.id).all()
+        }
+        assert results["Bill Date Check"] == "PASS"
+        assert results["Category Consistency Check"] == "PASS"
+        assert results["Required Document Check"] == "PASS"
+        # Amount genuinely was never extracted - never invented, stays REVIEW_REQUIRED.
+        assert results["Bill Amount Check"] == "REVIEW_REQUIRED"
+    finally:
+        db.close()
+
+
+def test_34_amount_evidence_resolves_independently_of_missing_date_and_category(client):
+    """A lone bill whose amount uniquely and exactly matches the claim is,
+    by itself, strong enough evidence to auto-confirm (amount exact +40,
+    unique +15 = 55 - this is unchanged bill_matcher.py weighting, not new
+    behavior). What IS new: Bill Amount Check must independently resolve
+    PASS from the candidate's own amount, while Bill Date Check and
+    Category Consistency Check independently and correctly stay
+    REVIEW_REQUIRED for their own genuinely-missing evidence (never
+    invented) - each field's own evidence decides its own outcome, not one
+    shared gate."""
+    db = SessionLocal()
+    try:
+        report = _make_report(db, er_id="ER-AMOUNT-ONLY-EVIDENCE", total_claimed=1500.0)
+        _make_bill(db, report.id, amount=1500.0, bill_date=None, category_guess=None, vendor=None, raw_text="")
+        bill = db.query(Bill).filter(Bill.expense_report_id == report.id).first()
+
+        expense_dict = {
+            "claimed_amount": 1500.0,
+            "expense_date": date(2026, 6, 10),
+            "category": "COURIER CHARGES",
+            "expense_details": "",
+        }
+        outcome = bill_matcher.match_expense(expense_dict, [_bill_dict(bill)])
+        assert outcome.status == "MATCHED"
+        assert outcome.candidate_bill_id == bill.id == outcome.matched_bill_id
+
+        _make_expense(
+            db,
+            report.id,
+            category="COURIER CHARGES",
+            claimed_amount=1500.0,
+            expense_date=date(2026, 6, 10),
+            bill_id=outcome.matched_bill_id,
+            bill_match_status=outcome.status,
+            candidate_bill_id=outcome.candidate_bill_id,
+        )
+        validate_expense_report(db, report.id)
+
+        from app.models.validation import ValidationResult
+
+        results = {
+            r.check_type: r.result
+            for r in db.query(ValidationResult).filter(ValidationResult.expense_report_id == report.id).all()
+        }
+        assert results["Bill Amount Check"] == "PASS"
+        assert results["Required Document Check"] == "PASS"
+        # Date/category genuinely unknown - never invented, stay REVIEW_REQUIRED.
+        assert results["Bill Date Check"] == "REVIEW_REQUIRED"
+        assert results["Category Consistency Check"] == "REVIEW_REQUIRED"
+    finally:
+        db.close()
+
+
+def test_35_contradictory_category_is_exception_even_at_review_tier(client):
+    """Decision: date/amount matching must NOT override a contradictory
+    category/service - generalized beyond the old MATCHED-only tier. A
+    candidate whose date matches exactly but whose category evidence
+    actively contradicts the claim (a Fuel receipt standing in for a
+    LODGING claim) must surface CATEGORY MISMATCH even though the combined
+    score never reaches the auto-confirm bar."""
+    db = SessionLocal()
+    try:
+        report = _make_report(db, er_id="ER-REVIEWTIER-CATEGORY-CONFLICT", total_claimed=4797.0)
+        _make_bill(
+            db, report.id, amount=None, bill_date=date(2026, 8, 19), category_guess="Fuel", vendor=None, raw_text=""
+        )
+        bill = db.query(Bill).filter(Bill.expense_report_id == report.id).first()
+
+        expense_dict = {
+            "claimed_amount": 4797.0,
+            "expense_date": date(2026, 8, 19),
+            "category": "LODGING",
+            "expense_details": "",
+        }
+        outcome = bill_matcher.match_expense(expense_dict, [_bill_dict(bill)])
+        assert outcome.status == "REVIEW_REQUIRED"
+        assert outcome.candidate_bill_id == bill.id
+
+        _make_expense(
+            db,
+            report.id,
+            category="LODGING",
+            claimed_amount=4797.0,
+            expense_date=date(2026, 8, 19),
+            bill_match_status=outcome.status,
+            candidate_bill_id=outcome.candidate_bill_id,
+        )
+        report = _evaluate(db, report.id)
+
+        from app.models.validation import ValidationResult
+
+        results = {
+            r.check_type: r.result
+            for r in db.query(ValidationResult).filter(ValidationResult.expense_report_id == report.id).all()
+        }
+        assert results["Bill Date Check"] == "PASS"
+        assert results["Category Consistency Check"] == "EXCEPTION"
+        # A genuine field exception always wins the overall decision, no
+        # matter how many other fields passed.
+        assert report.overall_status == "EXCEPTION"
+        assert "CATEGORY MISMATCH" in _exception_types(db, report.id)
+    finally:
+        db.close()
+
+
+def test_36_multiple_candidates_evaluates_strongest_but_stays_review_required(client):
+    """Genuine ambiguity (two similarly-plausible bills) must still resolve
+    to REVIEW REQUIRED overall - but the strongest candidate's own evidence
+    must still be evaluated and shown, not blindly discarded."""
+    db = SessionLocal()
+    try:
+        report = _make_report(db, er_id="ER-MULTI-CANDIDATES", total_claimed=2000.0)
+        _make_bill(db, report.id, page_number=5, amount=2000.0, bill_date=date(2026, 6, 1), category_guess="Fuel")
+        _make_bill(db, report.id, page_number=9, amount=2000.0, bill_date=date(2026, 6, 1), category_guess="Fuel")
+        bills = db.query(Bill).filter(Bill.expense_report_id == report.id).order_by(Bill.page_number).all()
+
+        expense_dict = {
+            "claimed_amount": 2000.0,
+            "expense_date": date(2026, 6, 1),
+            "category": "OWN CAR PETROL",
+            "expense_details": "",
+        }
+        outcome = bill_matcher.match_expense(expense_dict, [_bill_dict(b) for b in bills])
+        assert outcome.status == "MULTIPLE_CANDIDATES"
+        assert outcome.candidate_bill_id in {b.id for b in bills}
+
+        _make_expense(
+            db,
+            report.id,
+            category="OWN CAR PETROL",
+            claimed_amount=2000.0,
+            expense_date=date(2026, 6, 1),
+            bill_match_status=outcome.status,
+            candidate_bill_id=outcome.candidate_bill_id,
+        )
+        report = _evaluate(db, report.id)
+
+        from app.models.validation import ValidationResult
+
+        results = {
+            r.check_type: r.result
+            for r in db.query(ValidationResult).filter(ValidationResult.expense_report_id == report.id).all()
+        }
+        # The strongest candidate's own amount/date/category evidence is
+        # real and genuinely matches - evaluated and shown, not discarded.
+        assert results["Bill Amount Check"] == "PASS"
+        assert results["Bill Date Check"] == "PASS"
+        # But WHICH bill actually applies is still genuinely ambiguous.
+        assert results["Required Document Check"] == "REVIEW_REQUIRED"
+        assert report.overall_status == "REVIEW REQUIRED"
+    finally:
+        db.close()
+
+
+def test_37_vendor_only_evidence_never_verifies_alone(client):
+    """Vendor/description similarity is supporting evidence only (no
+    standalone vendor exception/check - matching reasons carry it instead).
+    A candidate with ONLY a strong vendor/description match and nothing
+    else must not clear the matching floor on its own, so it can never
+    silently verify a claim by text similarity alone."""
+    db = SessionLocal()
+    try:
+        report = _make_report(db, er_id="ER-VENDOR-ONLY", total_claimed=999.0)
+        _make_bill(
+            db,
+            report.id,
+            amount=None,
+            bill_date=None,
+            category_guess=None,
+            vendor="Granville Greens Cafe and Restaurant",
+            description="dining receipt",
+            raw_text="",
+        )
+        bill = db.query(Bill).filter(Bill.expense_report_id == report.id).first()
+
+        expense_dict = {
+            "claimed_amount": 999.0,
+            "expense_date": date(2026, 6, 1),
+            "category": "STAFF WELFARE",
+            "expense_details": "Granville Greens Cafe and Restaurant dining receipt",
+        }
+        outcome = bill_matcher.match_expense(expense_dict, [_bill_dict(bill)])
+        # Vendor/description text similarity alone (+15 at most) never
+        # clears MIN_THRESHOLD (25) on its own.
+        assert outcome.status == "NO_MATCH"
+        assert outcome.candidate_bill_id is None
+
+        _make_expense(
+            db,
+            report.id,
+            category="STAFF WELFARE",
+            claimed_amount=999.0,
+            expense_date=date(2026, 6, 1),
+            bill_match_status=outcome.status,
+            candidate_bill_id=outcome.candidate_bill_id,
+        )
+        report = _evaluate(db, report.id)
+        assert report.overall_status != "ACCOUNT VERIFIED"
+        assert "MISSING BILL" in _exception_types(db, report.id)
+    finally:
+        db.close()
+
+
+def test_38_whole_rupee_rule_still_applies_through_candidate_evaluation():
+    """The whole-rupee amount-matching rule (money.amounts_match) is
+    unchanged - this just confirms it still applies when check_bill_amount
+    is evaluating a merely-plausible candidate, not only a confirmed one."""
+    from types import SimpleNamespace
+
+    from app.services.validation import checks
+
+    candidate = SimpleNamespace(amount=4499.77, page_number=5, raw_text="Total 4499.77")
+    floor_result = checks.check_bill_amount(claimed_amount=4499, bill=candidate)
+    assert floor_result.result == checks.PASS
+    ceil_result = checks.check_bill_amount(claimed_amount=4500, bill=candidate)
+    assert ceil_result.result == checks.PASS
+    rejected = checks.check_bill_amount(claimed_amount=4498, bill=candidate)
+    assert rejected.result == checks.EXCEPTION
