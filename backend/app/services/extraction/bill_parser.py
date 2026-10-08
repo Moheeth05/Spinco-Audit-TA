@@ -70,6 +70,7 @@ DATE_LABELS = [
     (4, "bill date"),
     (3, "date of travel"),
     (3, "journey date"),
+    (3, "start date"),
     (2, "txn date"),
     (2, "booking date"),
     (1, "date"),
@@ -166,16 +167,31 @@ def parsed_has_evidence(parsed: "ParsedBill", text: str) -> bool:
 
 
 _FLAT_WINDOW_CHARS = 40
+# How many further *blank-separated* lines below a label to search for its
+# value once the label's own line and the single immediate next line both
+# came up empty - covers "Grand Total\n\n₹2,329.65"-style receipts where a
+# label and its value are separated only by blank spacer lines. Deliberately
+# does NOT bridge over a non-blank line: a real-corpus regression proved that
+# doing so lets a bare column-header label (e.g. a table's "Amount" header
+# above a "Description | Amount" row) reach through an intervening line-item
+# label (e.g. "Ride fare (in INR)") and grab *that* field's own value instead
+# of correctly finding nothing and falling through to this module's
+# arithmetic-sum-of-components fallback. Bridging blank lines only keeps the
+# legitimate spacer-gap case while never overshooting into another field.
+_MAX_VALUE_LOOKAHEAD_LINES = 3
 
 
 def _label_value_window(text: str, idx: int, label_len: int) -> str:
     """The text to search for this label occurrence's value: the rest of the
     label's own line first; if that line has nothing after the label, the
-    single line that follows (covers "Total\\n₹2,329.65"-style receipts).
-    Falls back to a short flat character window when the OCR pass produced
-    no line breaks at all (some badly-skewed thermal-print scans collapse
-    into one line), so a next-line lookup can't accidentally run past
-    several unrelated following lines."""
+    single immediate next line, skipping over up to _MAX_VALUE_LOOKAHEAD_LINES
+    blank spacer lines to reach it (covers "Total\\n\\n₹2,329.65"-style
+    receipts). Stops at the first non-blank line, whatever it contains - it
+    never keeps searching past one real line of content, so it can't
+    accidentally run past that line into some other field's own value (see
+    _MAX_VALUE_LOOKAHEAD_LINES for why). Falls back to a short flat character
+    window when the text has no line breaks at all (some badly-skewed
+    thermal-print scans collapse into one line)."""
     line_end = text.find("\n", idx)
     if line_end == -1:
         return text[idx : idx + label_len + _FLAT_WINDOW_CHARS]
@@ -184,9 +200,49 @@ def _label_value_window(text: str, idx: int, label_len: int) -> str:
     if _AMOUNT_TOKEN_RE.search(own_line_rest) or _LOOSE_NUMBER_RE.search(own_line_rest):
         return text[idx:line_end]
 
-    next_line_end = text.find("\n", line_end + 1)
-    next_line = text[line_end + 1 : next_line_end] if next_line_end != -1 else text[line_end + 1 :]
-    return next_line
+    search_from = line_end + 1
+    for _ in range(_MAX_VALUE_LOOKAHEAD_LINES):
+        next_end = text.find("\n", search_from)
+        line = text[search_from:next_end] if next_end != -1 else text[search_from:]
+        if line.strip():
+            return line
+        if next_end == -1:
+            break
+        search_from = next_end + 1
+    return ""
+
+
+_FUZZY_AMOUNT_LABELS = ("amount", "total")  # short, single-word, high-confidence labels only
+_FUZZY_WORD_RE = re.compile(r"[A-Za-z]{3,}")
+
+
+def _edit_distance_le(a: str, b: str, max_dist: int) -> bool:
+    """True if the Levenshtein distance between a and b is <= max_dist."""
+    if abs(len(a) - len(b)) > max_dist:
+        return False
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i] + [0] * len(b)
+        for j, cb in enumerate(b, 1):
+            cost = 0 if ca == cb else 1
+            cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost)
+        prev = cur
+    return prev[-1] <= max_dist
+
+
+def _find_fuzzy_labelled_amount(text: str) -> float | None:
+    for m in _FUZZY_WORD_RE.finditer(text):
+        word = m.group(0).lower()
+        for label in _FUZZY_AMOUNT_LABELS:
+            if word == label or not _edit_distance_le(word, label, 1):
+                continue
+            window = _label_value_window(text, m.start(), len(m.group(0)))
+            tokens = _AMOUNT_TOKEN_RE.findall(window)  # strict only - no loose-number fallback here
+            if tokens:
+                amt = parse_amount(tokens[0])
+                if amt is not None and amt >= 10:
+                    return amt
+    return None
 
 
 def _find_amount(text: str) -> tuple[float | None, str, list[str]]:
@@ -226,6 +282,22 @@ def _find_amount(text: str) -> tuple[float | None, str, list[str]]:
             return next(iter(candidates)), confidence, warnings
         warnings.append(f"Multiple differing amounts found at the same label priority: {sorted(candidates)}.")
         return None, "LOW", warnings
+
+    # No EXACT amount label found anywhere - last resort before giving up on
+    # a labelled read entirely: a known label whose OWN letters were
+    # OCR-corrupted by a single dropped/substituted character (confirmed
+    # real case: "Amount" -> "mount", the leading "A" misattributed to the
+    # next word on a thermal-print receipt). Deliberately narrow: only a
+    # short, high-value label set, only a single-character edit distance,
+    # and only accepted when a STRICT (not loose) amount token - a real
+    # currency/decimal-shaped value, not a bare loose number - sits in the
+    # normal label/value window right after it. This never loosens what
+    # counts as a valid VALUE, only how corrupted the LABEL text itself is
+    # allowed to be.
+    fuzzy_amt = _find_fuzzy_labelled_amount(text)
+    if fuzzy_amt is not None:
+        warnings.append("Amount label itself was OCR-corrupted (single character) but recovered via fuzzy label matching.")
+        return fuzzy_amt, "MEDIUM", warnings
 
     # No labeled amount anywhere - only trust an unlabeled figure if it's at least
     # plausibly a bill total; small bare decimals are usually something else

@@ -2,6 +2,7 @@
 out to have no usable native text. See services/interfaces.py:PDFProcessor.
 """
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,80 @@ MIN_NATIVE_TEXT_CHARS = 20
 # why this stays at the text layer rather than asking the model for
 # structured fields directly.
 MIN_OCR_CONFIDENCE = 0.55
+
+# Generalized, document-agnostic signal for "does this page's linear text
+# already pair a recognizable field label with a nearby value?" - used only
+# to decide whether the (more expensive) position-aware re-extraction below
+# is worth attempting for a given native-text page, never as a field
+# extraction decision itself. Deliberately a small, generic set of English
+# financial-document terms, not tied to any single vendor/layout/document.
+_AMOUNT_LIKE_RE = re.compile(r"(?:₹|rs\.?|inr)\s*[\d,]+(?:\.\d{1,2})?|\b\d[\d,]*\.\d{2}\b", re.IGNORECASE)
+_VALUE_PROXIMITY_LABELS = ("amount", "total", "fare", "catering", "charge", "payable", "balance")
+
+
+_MAX_LABEL_LINE_CHARS = 50  # a form-field label line is short; a boilerplate/
+# terms-and-conditions sentence merely containing one of these common words
+# (e.g. "A clerkage charge of Rs.60 per passenger..." genuinely contains
+# "charge" next to a currency-shaped "Rs.60") is not a label - it's prose,
+# reliably distinguished by length alone without needing document-specific
+# exclusion lists.
+
+
+def _text_has_labelled_values(text: str) -> bool:
+    lines = text.split("\n")
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped or len(stripped) > _MAX_LABEL_LINE_CHARS:
+            continue
+        lower = stripped.lower()
+        if any(label in lower for label in _VALUE_PROXIMITY_LABELS):
+            window = line + "\n" + (lines[i + 1] if i + 1 < len(lines) else "")
+            if _AMOUNT_LIKE_RE.search(window):
+                return True
+    return False
+
+
+def _reconstruct_native_text(page: "fitz.Page") -> str:
+    """Position-aware text reconstruction via PyMuPDF's structured
+    get_text("dict") mode: groups text spans into visual rows by Y-coordinate
+    proximity, each row ordered left-to-right, rows ordered top-to-bottom.
+
+    PyMuPDF's own linear get_text() follows the PDF's internal content-stream
+    text-run order, which for some table/form layouts interleaves or
+    separates a label from its value even though they share a visual row
+    (confirmed on a real IRCTC ticket: "Catering Charges (Incl. of GST)" and
+    its "₹ 174.00" value are emitted as entirely separate, non-adjacent runs
+    in linear order). This never adds, removes, or guesses any text - it is
+    a strict re-grouping of exactly the same spans PyMuPDF already found,
+    using their own bounding-box coordinates instead of stream order.
+    """
+    d = page.get_text("dict")
+    spans: list[dict[str, Any]] = []
+    for block in d["blocks"]:
+        if "lines" not in block:
+            continue
+        for line in block["lines"]:
+            for span in line["spans"]:
+                text = span["text"]
+                if text.strip():
+                    x0, y0, _, _ = span["bbox"]
+                    spans.append({"x0": x0, "y0": y0, "text": text})
+    if not spans:
+        return ""
+
+    spans.sort(key=lambda s: (s["y0"], s["x0"]))
+    y_tolerance = 3.0
+    rows: list[list[dict[str, Any]]] = []
+    row_y: float | None = None
+    for s in spans:
+        if rows and row_y is not None and abs(s["y0"] - row_y) <= y_tolerance:
+            rows[-1].append(s)
+        else:
+            rows.append([s])
+            row_y = s["y0"]
+
+    lines = [" ".join(s["text"] for s in sorted(row, key=lambda s: s["x0"])) for row in rows]
+    return "\n".join(lines)
 
 
 class PyMuPDFTextExtractor(PDFProcessor):
@@ -95,11 +170,33 @@ class PyMuPDFTextExtractor(PDFProcessor):
     def bill_pages_from(self, pdf_path: Path, start_page: int) -> list[dict[str, Any]]:
         """All pages from start_page (1-indexed) through the end of the
         document - the supporting-bill region content_pages() deliberately
-        stops before. OCR is applied per page where native text is thin."""
+        stops before. OCR is applied per page where native text is thin;
+        position-aware re-extraction is applied per native page where the
+        fast linear extraction didn't already pair a label with a value."""
         pages = self.split_pages(pdf_path)
         subset = [p for p in pages if p["page_number"] >= start_page]
         self._apply_ocr(pdf_path, subset)
+        self._apply_position_aware_fallback(pdf_path, subset)
         return subset
+
+    def _apply_position_aware_fallback(self, pdf_path: Path, pages: list[dict[str, Any]]) -> None:
+        candidates = [
+            p for p in pages if p["source"] == "native" and p["has_selectable_text"] and not _text_has_labelled_values(p["text"])
+        ]
+        if not candidates:
+            return
+        doc = fitz.open(pdf_path)
+        try:
+            for page in candidates:
+                reconstructed = _reconstruct_native_text(doc[page["page_number"] - 1])
+                # Only adopt the reconstruction if it actually resolves the
+                # thing the fast path couldn't - never swap in a worse or
+                # merely-different result for its own sake.
+                if reconstructed.strip() and _text_has_labelled_values(reconstructed):
+                    page["text"] = reconstructed
+                    page["source"] = "native_positioned"
+        finally:
+            doc.close()
 
     def detect_document_type(self, pdf_path: Path) -> str:
         pages = self.content_pages(pdf_path)

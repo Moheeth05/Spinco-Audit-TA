@@ -218,6 +218,154 @@ def test_category_nozzle_keyword_clean_spelling():
     assert cat_guess == "Fuel"
 
 
+# ---------- Position-aware / line-structure extraction (generalized - not
+# tied to any specific document). Real patterns confirmed in the reference
+# corpus: a native-PDF table whose label/value columns are emitted in
+# separated reading order by PyMuPDF's linear get_text(), and an OCR'd
+# receipt whose label and value survive individually but lose all line
+# structure once flattened into one space-joined string. ----------
+
+
+def test_ocr_engine_preserves_line_structure_not_flat_string():
+    """TesseractOCREngine must group words by Tesseract's own
+    (block_num, par_num, line_num) layout fields into real lines, not flatten
+    the whole page into one space-joined string - this is what makes an
+    existing, correctly-recognized 'Amount(Rs) : 03908.04' pair findable by
+    the ordinary same-line label search."""
+    import sys
+    from io import BytesIO
+
+    from PIL import Image
+
+    from app.services.extraction.ocr_engine import TesseractOCREngine
+
+    class _FakePytesseract:
+        Output = type("Output", (), {"DICT": "dict"})
+
+        @staticmethod
+        def image_to_data(image, output_type):
+            # Two logical lines: "Nozzle No. : 03" and "Amount(Rs) : 03908.04"
+            n = 7
+            return {
+                "text": ["Nozzle", "No.", ":", "03", "Amount(Rs)", ":", "03908.04"],
+                "conf": ["95", "95", "95", "95", "90", "90", "90"],
+                "block_num": [1, 1, 1, 1, 1, 1, 1],
+                "par_num": [1, 1, 1, 1, 1, 1, 1],
+                "line_num": [1, 1, 1, 1, 2, 2, 2],
+                "left": [0] * n,
+                "top": [0] * n,
+                "width": [10] * n,
+                "height": [10] * n,
+            }
+
+        @staticmethod
+        def get_tesseract_version():
+            return "5.0"
+
+    real_png = BytesIO()
+    Image.new("RGB", (10, 10), "white").save(real_png, format="PNG")
+
+    engine = TesseractOCREngine()
+    engine._available = True
+    sys.modules["pytesseract"] = _FakePytesseract()
+    try:
+        result = engine.extract_text(real_png.getvalue())
+    finally:
+        del sys.modules["pytesseract"]
+
+    assert result["text"] == "Nozzle No. : 03\nAmount(Rs) : 03908.04"
+    assert len(result["words"]) == 7
+    assert result["words"][4]["text"] == "Amount(Rs)"
+    assert result["words"][4]["line_num"] == 2
+
+
+def test_ocr_line_preserved_amount_label_with_parenthetical():
+    """Real corpus pattern (ER-40706): 'Amount(Rs) : 03908.04' - the label
+    itself is correctly OCR'd, but was previously unreachable once the whole
+    page collapsed into one line with no line breaks at all."""
+    text = "Rate(Rs/L) : 116.38\nVolume(L) : 00033.58\nAmount(Rs) : 03908.04\nDate : 14/07/26"
+    parsed = bill_parser.parse_bill_text(text)
+    assert parsed.amount == 3908.04
+
+
+def test_native_position_aware_fallback_recovers_separated_label_value():
+    """Generalized reconstruction: PyMuPDF's get_text('dict') groups spans
+    into visual rows by Y-coordinate, recovering a label/value pair that
+    linear get_text() separated - confirmed on a real IRCTC ticket's
+    Payment Details table. Not testable without a real PDF page object here,
+    so this directly tests the reconstruction's underlying text-detection
+    heuristic and the pairing logic it feeds."""
+    from app.services.extraction.text_extraction import _text_has_labelled_values
+
+    # Values present but their labels were stripped by linear extraction -
+    # must be detected as NOT already having labelled values (triggers the
+    # position-aware fallback).
+    stripped = "₹ 1,766.00\n₹ 174.00\n₹ 35.40\nPG Charges as applicable"
+    assert _text_has_labelled_values(stripped) is False
+
+    # Once reconstructed with correct row grouping, label and value share a line.
+    reconstructed = "Ticket Fare ₹ 1,766.00\nCatering Charges (Incl. of GST) ₹ 174.00"
+    assert _text_has_labelled_values(reconstructed) is True
+
+
+def test_position_aware_trigger_ignores_boilerplate_prose():
+    """Real false-positive this exact heuristic had to be fixed for: long
+    terms-and-conditions prose that merely CONTAINS a label word near a
+    currency-shaped number ('A clerkage charge of Rs.60 per passenger...')
+    must not be mistaken for a genuine short label/value pair - a form-field
+    label line is short; a sentence is not."""
+    from app.services.extraction.text_extraction import _text_has_labelled_values
+
+    boilerplate = (
+        "A clerkage charge of Rs.60 per passenger plus GST for AC Classes and Rs.60 per "
+        "passenger for Non AC classes will be deducted if the ticket remains Waitlisted."
+    )
+    assert _text_has_labelled_values(boilerplate) is False
+
+
+def test_label_value_lookahead_stops_at_next_label_not_its_value():
+    """Negative test: a wider lookahead for a label's value must never
+    overshoot into a DIFFERENT field's own value just because the real
+    label's own line and the immediate next line were both empty of a
+    number."""
+    text = "Total\n\nDate: 07/07/26"
+    amt, _, _ = bill_parser._find_amount(text)
+    assert amt != 7.0  # must never read "07" out of the date as the total
+    assert amt is None  # no genuine amount value was ever provided
+
+
+def test_label_value_lookahead_recovers_value_two_lines_below():
+    text = "Grand Total\n\nRs. 2,500.00"
+    amt, _, _ = bill_parser._find_amount(text)
+    assert amt == 2500.0
+
+
+def test_fuzzy_amount_label_recovers_single_character_drop():
+    """Real corpus pattern (ER-41115 page 49): 'Amount' OCR'd as 'mount'
+    (the leading 'A' misattributed to the next word) - a confirmed,
+    narrowly-scoped OCR corruption, not a layout/position issue."""
+    text = "Nozzle No. : 03\nmount : 546.00\nDate : 09/08/26"
+    parsed = bill_parser.parse_bill_text(text)
+    assert parsed.amount == 546.0
+
+
+def test_fuzzy_amount_label_does_not_fire_when_exact_label_already_found():
+    """The fuzzy fallback must never override a real, correctly-labelled
+    amount found elsewhere on the same bill."""
+    text = "Total Rs. 500.00\nSome unrelated tonal description nearby 999.00"
+    amt, _, _ = bill_parser._find_amount(text)
+    assert amt == 500.0
+
+
+def test_fuzzy_amount_label_requires_strict_value_not_loose_number():
+    """Negative test: a fuzzy-matched label must not grab an unrelated bare
+    number via the loose-number fallback - only a properly currency/decimal
+    -shaped value is accepted for a fuzzy label match."""
+    from app.services.extraction.bill_parser import _find_fuzzy_labelled_amount
+
+    assert _find_fuzzy_labelled_amount("tonal reference 12345 unrelated") is None
+
+
 def test_vendor_extraction_prefers_company_suffix_line():
     text = "RATHNA ELECTRICALS & HARDWARES\nGSTIN: 33ARWMPK8203C1ZW\nGrand Total\nRs.220.00"
     parsed = bill_parser.parse_bill_text(text)

@@ -37,7 +37,10 @@ class PDFProcessor(ABC):
 class OCREngine(ABC):
     @abstractmethod
     def extract_text(self, image_bytes: bytes) -> dict[str, Any]:
-        """Return {"text": str, "confidence": float} for a scanned/photographed page."""
+        """Return {"text": str, "confidence": float, "words": list[dict]} for
+        a scanned/photographed page - `text` is line-structured (not a flat
+        space-joined string), `words` carries each word's own bounding box
+        and layout indices for callers that need true spatial reasoning."""
 
 
 class ExpenseExtractor(ABC):
