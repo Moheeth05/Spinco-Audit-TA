@@ -1128,3 +1128,252 @@ def test_original_claim_on_a_shared_bill_is_not_itself_flagged_duplicate():
 
     original_result = checks.check_duplicate_bill(bill_match_status="MATCHED", bill=_Bill(), is_duplicate=False)
     assert original_result.result == checks.PASS
+
+
+# ---------- Real-world document extraction/classification regression corpus ----------
+#
+# Excerpts below are taken verbatim (OCR artifacts and all) from real pages
+# of the reference corpus (c967267ef0f4_ER-41115.pdf, backed up under
+# backups/dipak-cleanup-20260924-170758/) - never a synthetic stand-in for
+# a real-world failure mode. None of these hardcode a filename/page number
+# into production logic; the production code under test has no idea these
+# strings came from that specific document.
+
+# Page 25: a real Cleartrip/Air India Express flight ticket. Its own fare
+# breakdown includes a line item literally named "Airline Fuel Charge" -
+# confirmed real false positive for the old bare "FUEL" keyword match.
+_REAL_FLIGHT_TICKET_TEXT = """25
+Trip ID :  260818517608
+Kolkata to Bagdogra  Wed, 19 Aug 2026
+Air India Express CCU  07:45 09:05  IXB
+IX - 1248  Wed, 19 Aug 2026 1h 20min Wed, 19 Aug 2026
+Fare type: CLASSIC Kolkata - Netaji Subhas Chandra Economy Bagdogra - Bagdogra
+Bose Airport Terminal 2
+Baggage (per Adult/Child) - Check-in: 15KG (1 piece), Cabin: 7KG (1 piece)
+Seats - 13A
+TRAVELLERS AIRLINE PNR TICKET NO.
+Mr Dipak Kumar Pal
+T5G2KC T5G2KC
+FARE BREAKUP
+Base Fare: Rs. 3,333
+Airline Fuel Charge: Rs. 299
+Cute Fee: Rs. 45
+Other charges: Rs. 1,545
+Total Fare: Rs. 4,797"""
+
+# Page 27: the matching boarding pass for the same flight - no amount at
+# all, previously category_guess=None (no keyword in the list matched a
+# boarding pass), now Flight via the named airline.
+_REAL_BOARDING_PASS_TEXT = """r AIR INDIA
+express airindiaexpress.com
+DIPAK KUMAR PAL
+IX1248 CCU TO IXB 19 Aug 26
+GATE E BOARDING DEPARTURE SEAT PNR
+07a 2 0705 0745 13A VA
+GATE CLOSES 25 MINUTES BEFORE DEPARTURE TIME"""
+
+# Page 44: a real hotel tax invoice (Palm Grove Suites Inn & Spa) whose own
+# name never contains "hotel", and whose printed address happens to read
+# "...BESIDE KESAR KUNTI FUEL STATION" (a nearby landmark) - confirmed real
+# false positive for the old bare "FUEL" keyword, and confirmed real gap in
+# the old Lodging keyword list (no "HOTEL"/"LODGING"/"ROOM CHARGE"/
+# "ACCOMMODATION" anywhere on this genuine hotel bill).
+_REAL_HOTEL_BILL_FUEL_LANDMARK_TEXT = """GUEST NAME
+ADDRESS
+MOBILE NO
+NATIONALITY
+GSTIN
+DATE
+19/08/2026
+20/08/2026
+ROOM TARIFF
+PALM GROVE SUITES INN & SPA
+BESIDE KESAR KUNTI FUEL STATION
+TAX INVOICE : B2627-00406
+BILL DATE : 21/08/2026
+ROOMNO : 102
+PARTICULARS SAC
+Room Tariff 9963"""
+
+# Page 24: a real Uber "not a tax invoice" cash-trip receipt - amount and
+# timestamp both already extract correctly today; locked in here as an
+# explicit regression test so a future change can't silently break it.
+_REAL_UBER_SCREENSHOT_TEXT = """Total =388.26
+Congratulations! You unlocked a discount on your ride
+Booking fee @ 44.00
+Suggested fare 352.18
+Promotion -7.92
+Payments
+Cash 388.26
+8/19/26 5:48 am
+This receipt reflects the suggested fare (excluding GST) and is not a tax invoice but it can be used for
+official reimbursement purposes. No GST is being recovered by Uber from the riders on this trip.
+Uber does not provide transport services; Issued on behalf of SADIQUE SHAIKH"""
+
+# Page 28: a real handwritten Tamang Taxi Service receipt. The printed
+# letterhead OCRs cleanly; the handwritten amount (boxed "Rs. 4000/-") and
+# handwritten date do not, under Tesseract at any tested PSM mode - a
+# genuine, confirmed limitation (see PHASE4 investigation), not something
+# this suite claims to have solved.
+_REAL_HANDWRITTEN_TAXI_RECEIPT_TEXT = """TAMANG TAXI SERVICE
+RANGPO, EAST SIKKIM
+Mob.:
+SLN0. CERNO- SkKBCZa2
+Name
+From 2PO2OGEK...AIRPORTIo.WMA TS! f
+the sum of Rupees AEA th. 8.9 0..Cataag emis See
+Signature
+28"""
+
+# A real fuel-pump receipt's own printed date field, confirmed on this
+# corpus in ISO 8601 (YYYY-MM-DD), a format dates.py did not recognize at
+# all before this round.
+_REAL_FUEL_RECEIPT_ISO_DATE_TEXT = """WEH TYPE: Petrol
+MEH NO:
+CUSTOMER NAME:
+DATE: 2026-09-23
+MODE: Cash
+LST NO:
+MAT NO:
+ATTENDANT ID: not available
+Thank You! Visit Again
+Save Fuel, Save Money."""
+
+
+def test_real_flight_ticket_classified_as_flight_not_fuel():
+    parsed = bill_parser.parse_bill_text(_REAL_FLIGHT_TICKET_TEXT)
+    assert parsed.category_guess == "Flight"
+
+
+def test_real_flight_ticket_amount_and_date_still_extract_correctly():
+    """The category fix must not disturb the amount/date extraction that
+    already worked correctly on this real document."""
+    parsed = bill_parser.parse_bill_text(_REAL_FLIGHT_TICKET_TEXT)
+    assert parsed.amount == 4797.0
+    assert parsed.bill_date is not None
+    assert (parsed.bill_date.year, parsed.bill_date.month, parsed.bill_date.day) == (2026, 8, 19)
+
+
+def test_real_boarding_pass_classified_as_flight():
+    """Previously category_guess=None entirely - no keyword in the old list
+    matched a boarding pass at all."""
+    parsed = bill_parser.parse_bill_text(_REAL_BOARDING_PASS_TEXT)
+    assert parsed.category_guess == "Flight"
+
+
+def test_real_hotel_bill_classified_as_lodging_not_fuel():
+    """Confirmed real false positive: the old bare FUEL keyword matched this
+    hotel bill's own address line ("...FUEL STATION" as a landmark), and the
+    old Lodging keyword list had no term matching this bill's actual
+    wording (no "hotel"/"lodging"/"room charge"/"accommodation" anywhere on
+    it) - it used to resolve to category_guess=None."""
+    parsed = bill_parser.parse_bill_text(_REAL_HOTEL_BILL_FUEL_LANDMARK_TEXT)
+    assert parsed.category_guess == "Lodging"
+
+
+def test_genuine_fuel_pump_receipts_still_classify_as_fuel():
+    """Regression guard: narrowing the bare FUEL keyword must not weaken
+    detection of an actual fuel-pump receipt - NOZZLE/PETROL/DIESEL remain
+    unconditionally strong signals, and a bare FUEL not adjacent to the two
+    confirmed false-positive contexts (preceded by "Airline ", followed by
+    " Station") still matches."""
+    assert bill_parser.parse_bill_text("Bharat Petroleum\nProduct : Petrol\nNozzle No. : 03").category_guess == "Fuel"
+    assert bill_parser.parse_bill_text("ABC Fuels\nFUEL RECEIPT\nAmount: Rs.500.00").category_guess == "Fuel"
+
+
+def test_uber_cash_screenshot_amount_and_timestamp_extract_correctly():
+    """Locks in already-correct real-corpus behavior (post-UAT: the 'not a
+    tax invoice' disclaimer text must never block recognizing this as real
+    supporting evidence)."""
+    parsed = bill_parser.parse_bill_text(_REAL_UBER_SCREENSHOT_TEXT)
+    assert parsed.amount == 388.26
+    assert parsed.bill_date is not None
+    assert (parsed.bill_date.year, parsed.bill_date.month, parsed.bill_date.day) == (2026, 8, 19)
+    assert parsed.category_guess == "Cab/Taxi"
+
+
+def test_handwritten_taxi_receipt_vendor_and_category_recognized():
+    """What Tesseract CAN read on this real handwritten receipt - the
+    printed letterhead - is correctly recognized."""
+    parsed = bill_parser.parse_bill_text(_REAL_HANDWRITTEN_TAXI_RECEIPT_TEXT)
+    assert parsed.category_guess == "Cab/Taxi"
+    assert parsed.vendor is not None
+    assert "TAMANG" in parsed.vendor.upper()
+
+
+def test_handwritten_taxi_receipt_amount_and_date_never_fabricated():
+    """Confirmed real OCR limitation: the handwritten amount/date on this
+    receipt do not survive Tesseract at any tested PSM mode. The system
+    must preserve that uncertainty - never invent Rs.4,000 or a date just
+    because the document type is otherwise recognized.
+
+    None/None/REVIEW_REQUIRED are also ParsedBill's dataclass defaults, so
+    asserting only those would pass even against a no-op parser - the
+    category_guess assertion proves real parsing of this exact text ran
+    (it is derived from the "TAXI SERVICE" text, never a default)."""
+    parsed = bill_parser.parse_bill_text(_REAL_HANDWRITTEN_TAXI_RECEIPT_TEXT)
+    assert parsed.category_guess == "Cab/Taxi"
+    assert parsed.amount is None
+    assert parsed.bill_date is None
+    assert parsed.status == "REVIEW_REQUIRED"
+
+
+def test_iso_date_format_recognized():
+    """Real corpus gap: dates.py had no pattern at all for YYYY-MM-DD."""
+    from app.services.extraction.dates import find_all_dates
+
+    dates = find_all_dates(_REAL_FUEL_RECEIPT_ISO_DATE_TEXT)
+    assert date(2026, 9, 23) in dates
+
+
+def test_iso_date_never_confused_with_ddmmyyyy():
+    """Regression guard: adding YYYY-MM-DD must never change how an
+    existing DD/MM/YYYY or DD-MM-YYYY date is read."""
+    from app.services.extraction.dates import find_all_dates
+
+    assert find_all_dates("Date: 23-09-2026") == [date(2026, 9, 23)]
+    assert find_all_dates("Date: 23/09/2026") == [date(2026, 9, 23)]
+
+
+def test_airfare_category_maps_to_flight_evidence():
+    """Real gap: the AIRFARE policy category had no bill-evidence mapping at
+    all - an airfare claim could never reach Category Consistency PASS,
+    only REVIEW_REQUIRED, regardless of how good the matched bill's
+    evidence was."""
+    from app.services.category_map import expected_bill_label
+
+    assert expected_bill_label("AIRFARE") == "Flight"
+
+
+def test_real_flight_ticket_wrongly_filed_as_lodging_is_category_exception(client):
+    """End-to-end, real-corpus-grounded: this exact flight ticket is the
+    real candidate bill for a real expense the employee mis-filed under
+    LODGING (own expense description literally says "Air ticket from CCU to
+    Bagdogra") - amount and date both match the claim exactly, but the
+    actual service (Flight) directly contradicts the claimed category
+    (LODGING). Must remain a confirmed CATEGORY MISMATCH, never silently
+    verified just because amount+date line up."""
+    from app.services.validation import checks
+
+    class _Bill:
+        page_number = 25
+        category_guess = "Flight"
+
+    result = checks.check_category_consistency(category="LODGING", bill=_Bill())
+    assert result.result == checks.EXCEPTION
+    assert result.exception_type == "CATEGORY MISMATCH"
+
+
+def test_airfare_claim_with_matching_flight_evidence_passes_category_check():
+    """The positive counterpart: a correctly-filed AIRFARE claim whose
+    matched bill shows real Flight evidence must now cleanly PASS - this
+    was previously impossible (REVIEW_REQUIRED at best) since AIRFARE had
+    no expected-evidence mapping at all."""
+    from app.services.validation import checks
+
+    class _Bill:
+        page_number = 25
+        category_guess = "Flight"
+
+    result = checks.check_category_consistency(category="AIRFARE", bill=_Bill())
+    assert result.result == checks.PASS

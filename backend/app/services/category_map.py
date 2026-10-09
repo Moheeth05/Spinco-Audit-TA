@@ -19,6 +19,7 @@ CATEGORY_TO_BILL_LABEL = {
     "OWN CAR PETROL": "Fuel",
     "COMPANY CAR PETROL": "Fuel",
     "TWO WHEELER PETROL": "Fuel",
+    "AIRFARE": "Flight",
     "LODGING": "Lodging",
     "CAB CHARGES": "Cab/Taxi",
     "LOCAL CONVEYANCE": "Cab/Taxi",

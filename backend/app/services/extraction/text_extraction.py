@@ -29,6 +29,12 @@ MIN_OCR_CONFIDENCE = 0.55
 _AMOUNT_LIKE_RE = re.compile(r"(?:₹|rs\.?|inr)\s*[\d,]+(?:\.\d{1,2})?|\b\d[\d,]*\.\d{2}\b", re.IGNORECASE)
 _VALUE_PROXIMITY_LABELS = ("amount", "total", "fare", "catering", "charge", "payable", "balance")
 
+# Loose, structural "this looks like a date" shape (DD/MM/YY(YY) or
+# YYYY-MM-DD) - deliberately NOT dates.py's own validated patterns; this
+# only has to answer "is there anything date-shaped on the page at all",
+# not parse a specific date, so it stays cheap and self-contained here.
+_DATE_LIKE_RE = re.compile(r"\b\d{1,4}[/-]\d{1,2}[/-]\d{1,4}\b")
+
 
 _MAX_LABEL_LINE_CHARS = 50  # a form-field label line is short; a boilerplate/
 # terms-and-conditions sentence merely containing one of these common words
@@ -133,10 +139,26 @@ class PyMuPDFTextExtractor(PDFProcessor):
                         page["ocr_confidence"] = result["confidence"]
                         page["has_selectable_text"] = True
 
-                    # Local OCR came back empty, or confident enough that it
-                    # isn't "insufficient" (MIN_OCR_CONFIDENCE) - only then
-                    # is the optional NVIDIA fallback worth its network call.
-                    text_is_weak = not result["text"].strip() or result["confidence"] < MIN_OCR_CONFIDENCE
+                    # Local OCR came back empty, confident enough that it
+                    # isn't "insufficient" (MIN_OCR_CONFIDENCE), OR - a
+                    # genuinely real, confirmed case - its own average
+                    # word-confidence looks fine (clean printed template
+                    # text pulls the average up) while the two fields that
+                    # actually matter are nowhere on the page at all (a
+                    # handwritten amount/date filled into a printed form's
+                    # blank lines came out as unrecognizable noise). Only
+                    # then is the optional NVIDIA fallback worth its network
+                    # call - this never fires on a page that already has a
+                    # usable amount or date, confident or not.
+                    text_is_weak = (
+                        not result["text"].strip()
+                        or result["confidence"] < MIN_OCR_CONFIDENCE
+                        or (
+                            len(result["text"].strip()) >= MIN_NATIVE_TEXT_CHARS
+                            and not _AMOUNT_LIKE_RE.search(result["text"])
+                            and not _DATE_LIKE_RE.search(result["text"])
+                        )
+                    )
                     if text_is_weak and nvidia_ocr.is_available():
                         fallback = nvidia_ocr.extract_text_from_image(image_bytes)
                         if fallback is not None and fallback["text"].strip():

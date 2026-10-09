@@ -95,13 +95,47 @@ VENDOR_SUFFIX_RE = re.compile(
 )
 
 CATEGORY_KEYWORDS = [
+    # Checked before Fuel below: a flight ticket's own fare breakdown often
+    # includes a line item literally named "Airline Fuel Charge" (confirmed
+    # real case: a Cleartrip/Air India Express ticket), which must never be
+    # read as fuel-pump evidence. Named airlines are the actual service
+    # provider (never a booking platform like Cleartrip/MakeMyTrip, which is
+    # a vendor, not the service itself - see module-level guidance on
+    # keeping document type/service/vendor distinct) plus structural airport/
+    # boarding terms that only appear on a real ticket or boarding pass.
+    (
+        re.compile(
+            r"\b(AIR INDIA(?:\s+EXPRESS)?|INDIGO|SPICEJET|VISTARA|AKASA(?:\s+AIR)?|GO\s*FIRST|GOAIR|ALLIANCE AIR|"
+            r"BOARDING PASS|BAGGAGE|CABIN BAGGAGE|BOARDING TIME|DEPARTURE GATE)\b",
+            re.IGNORECASE,
+        ),
+        "Flight",
+    ),
     # NOZZLE/NOZL: confirmed on every real fuel-pump receipt in the
     # reference corpus (5/5) as a standalone fuel-dispenser line-item term
     # ("Nozzle No. :01") - a reliable second signal for pumps whose OCR text
     # garbles PETROL/DIESEL/FUEL itself (e.g. "Fue]", "Diese l" with an
-    # inserted space) but still renders "Nozl"/"Nozzle" legibly.
-    (re.compile(r"\b(PETROL|DIESEL|FUEL|AUTOFUEL|NOZZLE|NOZL)\b", re.IGNORECASE), "Fuel"),
-    (re.compile(r"\b(HOTEL|LODGING|ROOM CHARGE|ACCOMMODATION)\b", re.IGNORECASE), "Lodging"),
+    # inserted space) but still renders "Nozl"/"Nozzle" legibly. These
+    # (plus PETROL/DIESEL/AUTOFUEL) are unambiguous on their own. The bare
+    # word "FUEL" is not - confirmed real false positives: a flight ticket's
+    # "Airline Fuel Charge" fare line, and a hotel bill whose own printed
+    # address happens to read "...BESIDE KESAR KUNTI FUEL STATION" (a nearby
+    # landmark, not a transaction) - excluded narrowly by context rather
+    # than dropping "FUEL" entirely, which stays a reliable signal in every
+    # other position.
+    (re.compile(r"\b(PETROL|DIESEL|AUTOFUEL|NOZZLE|NOZL)\b", re.IGNORECASE), "Fuel"),
+    (re.compile(r"(?<!AIRLINE )\bFUEL\b(?!\s+STATION)", re.IGNORECASE), "Fuel"),
+    # ROOM TARIFF/ROOM NO/GUEST NAME/CHECK-IN/CHECK-OUT: confirmed on a real
+    # hotel tax invoice whose own printed name ("... Suites Inn & Spa") never
+    # contains the word "hotel" at all - these front-desk/folio terms are
+    # reliable, vendor-name-independent hotel evidence.
+    (
+        re.compile(
+            r"\b(HOTEL|LODGING|ROOM CHARGE|ACCOMMODATION|ROOM TARIFF|ROOM NO|GUEST NAME|CHECK-IN|CHECK-OUT)\b",
+            re.IGNORECASE,
+        ),
+        "Lodging",
+    ),
     # A cab/ride-hailing bill rarely prints the literal word "cab"/"taxi" - it
     # prints what the service actually is (a ride fare, a passenger transport
     # service). These are the terms real ride-receipts use (see the

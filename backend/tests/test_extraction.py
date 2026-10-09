@@ -504,6 +504,81 @@ def test_ocr_fallback_extracts_text_from_image_only_page():
         tmp_path.unlink(missing_ok=True)
 
 
+def test_ocr_fallback_escalates_when_confident_but_amount_and_date_both_absent(monkeypatch):
+    """Real corpus case: a handwritten taxi receipt's printed template text
+    (vendor name, address) reads with decent average confidence, pulling the
+    page's overall score above MIN_OCR_CONFIDENCE, while the handwritten
+    amount/date filled into the form's blank lines come out as unrecognizable
+    noise - neither field is anywhere in the OCR'd text. The old confidence-
+    only gate never escalated this page to the optional NVIDIA fallback; it
+    must now, since genuinely critical fields are missing despite a
+    deceptively fine-looking confidence average."""
+    from app.services.extraction import nvidia_ocr
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    class _FakeOCR:
+        def extract_text(self, image_bytes):
+            return {
+                "text": "TAMANG TAXI SERVICE\nRANGPO, EAST SIKKIM\nSignature",
+                "confidence": 0.75,  # comfortably above MIN_OCR_CONFIDENCE
+                "words": [],
+            }
+
+    monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    called = {}
+
+    def _fake_fallback(image_bytes):
+        called["fired"] = True
+        return {"text": "TAMANG TAXI SERVICE\nDate: 19/08/26\nRs. 4000/-", "confidence": 0.9}
+
+    monkeypatch.setattr(nvidia_ocr, "extract_text_from_image", _fake_fallback)
+
+    pdf_bytes = _make_image_only_pdf("irrelevant - OCR is faked below")
+    tmp_path = Path("ocr_escalation_test_tmp.pdf")
+    tmp_path.write_bytes(pdf_bytes)
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=_FakeOCR())
+        pages = extractor.content_pages(tmp_path)
+        assert called.get("fired") is True
+        assert pages[0]["source"] == "nvidia_ocr"
+        assert "4000" in pages[0]["text"]
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_ocr_fallback_does_not_escalate_when_amount_and_date_present(monkeypatch):
+    """Regression guard: a confident OCR result that already has a usable
+    amount and date must never trigger the (more expensive) NVIDIA fallback,
+    confidence-driven escalation or not."""
+    from app.services.extraction import nvidia_ocr
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    class _FakeOCR:
+        def extract_text(self, image_bytes):
+            return {
+                "text": "Cash Rs. 388.26\n8/19/26 5:48 am",
+                "confidence": 0.7,
+                "words": [],
+            }
+
+    monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+
+    def _fail_if_called(image_bytes):
+        raise AssertionError("NVIDIA fallback must not fire when amount and date are both already present")
+
+    monkeypatch.setattr(nvidia_ocr, "extract_text_from_image", _fail_if_called)
+
+    pdf_bytes = _make_image_only_pdf("irrelevant - OCR is faked below")
+    tmp_path = Path("ocr_no_escalation_test_tmp.pdf")
+    tmp_path.write_bytes(pdf_bytes)
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=_FakeOCR())
+        pages = extractor.content_pages(tmp_path)
+        assert pages[0]["source"] == "ocr"
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
 # ---------- 15: extraction failure handling ----------
 
 

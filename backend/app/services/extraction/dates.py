@@ -26,6 +26,14 @@ _MONTH_NAMES = {
 _MONTH_ALT = "|".join(sorted(_MONTH_NAMES, key=len, reverse=True))
 
 _DATE_PATTERN = re.compile(r"\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b")
+# ISO 8601 (YYYY-MM-DD) - confirmed on a real fuel-pump receipt ("DATE:
+# 2006-09-23"). Unambiguous: the leading 4-digit year can never be confused
+# with _DATE_PATTERN above (which starts with a 1-2 digit day/month), and
+# ISO order is always year-month-day, never day-first - no DD/MM-style
+# ambiguity to resolve. Hyphen-only, matching the standard's own separator;
+# a slash-separated "2026/09/23" is rare enough in this domain's real
+# documents to be deliberately left unsupported rather than guessed at.
+_DATE_PATTERN_ISO = re.compile(r"\b(\d{4})-(\d{1,2})-(\d{1,2})\b")
 # A 2-digit year, confirmed on real fuel-pump/thermal receipts in the
 # reference corpus ("Date : 07/07/26", "Date : 13/07/26", a bare "8/19/26"
 # on a Uber receipt with no "Date:" label at all) - never confused with the
@@ -61,6 +69,13 @@ def find_all_dates(text: str) -> list[date]:
 
     for match in _DATE_PATTERN.finditer(text):
         day, month, year = (int(g) for g in match.groups())
+        d = _safe_date(year, month, day)
+        if d:
+            found.append((match.start(), d))
+            strong_dates.add(d)
+
+    for match in _DATE_PATTERN_ISO.finditer(text):
+        year, month, day = (int(g) for g in match.groups())
         d = _safe_date(year, month, day)
         if d:
             found.append((match.start(), d))
