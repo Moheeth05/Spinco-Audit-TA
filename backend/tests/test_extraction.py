@@ -579,6 +579,222 @@ def test_ocr_fallback_does_not_escalate_when_amount_and_date_present(monkeypatch
         tmp_path.unlink(missing_ok=True)
 
 
+# ---------- 300 DPI OCR retry on completely empty results ----------
+#
+# TASK: Implement a Targeted 300 DPI OCR Retry for Empty Results. See
+# experiments/node-extraction/benchmarks/dpi-200-vs-300/REPORT.md for the
+# evidence this is built on: retrying ONLY a completely empty first OCR
+# result at 300 DPI captured the one unambiguous win found in that
+# benchmark, while a page that already had some (even low-confidence) text
+# at the default DPI must never be retried - that benchmark also found a
+# real regression on a page like that.
+
+
+class _SequencedOCR:
+    """Returns one scripted result per call, in order. Also records the
+    pixel dimensions of each image it was asked to OCR (via PIL), so a test
+    can confirm a retry really was rendered at a higher resolution without
+    needing to mock PyMuPDF's own rendering."""
+
+    def __init__(self, results: list[dict]):
+        self._results = list(results)
+        self.calls = 0
+        self.image_sizes: list[tuple[int, int]] = []
+
+    def extract_text(self, image_bytes):
+        from PIL import Image
+
+        self.image_sizes.append(Image.open(BytesIO(image_bytes)).size)
+        self.calls += 1
+        return self._results[self.calls - 1]
+
+
+def _image_only_pdf_tmp(tmp_name: str, text: str = "Expense Report ER-99999") -> Path:
+    pdf_bytes = _make_image_only_pdf(text)
+    tmp_path = Path(tmp_name)
+    tmp_path.write_bytes(pdf_bytes)
+    return tmp_path
+
+
+def test_empty_200dpi_result_retries_and_succeeds_at_300dpi():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR(
+        [
+            {"text": "", "confidence": 0.0, "words": []},
+            {"text": "AUTO CARE CENTRE\nAMOUNT: 2500.00 INR", "confidence": 0.71, "words": []},
+        ]
+    )
+    tmp_path = _image_only_pdf_tmp("ocr_retry_success_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)
+        assert ocr.calls == 2
+        assert ocr.image_sizes[1][0] > ocr.image_sizes[0][0]  # 300 DPI render is wider than the 200 DPI render
+        assert pages[0]["source"] == "ocr"
+        assert pages[0]["has_selectable_text"] is True
+        assert "2500.00" in pages[0]["text"]
+        assert pages[0]["ocr_confidence"] == 0.71
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_empty_at_both_resolutions_leaves_page_without_usable_text():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR(
+        [
+            {"text": "", "confidence": 0.0, "words": []},
+            {"text": "", "confidence": 0.0, "words": []},
+        ]
+    )
+    tmp_path = _image_only_pdf_tmp("ocr_retry_both_empty_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)
+        assert ocr.calls == 2
+        assert pages[0]["source"] == "native"  # unchanged - the retry also came back empty
+        assert pages[0]["has_selectable_text"] is False
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_whitespace_only_first_result_triggers_retry():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR(
+        [
+            {"text": "   \n\t  ", "confidence": 0.0, "words": []},
+            {"text": "Recovered text", "confidence": 0.6, "words": []},
+        ]
+    )
+    tmp_path = _image_only_pdf_tmp("ocr_retry_whitespace_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)
+        assert ocr.calls == 2
+        assert pages[0]["text"] == "Recovered text"
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_non_empty_low_confidence_first_result_does_not_retry():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR([{"text": "some low-confidence text", "confidence": 0.1, "words": []}])
+    tmp_path = _image_only_pdf_tmp("ocr_no_retry_low_confidence_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)
+        assert ocr.calls == 1  # never retried - only a completely EMPTY result retries, never low confidence alone
+        assert pages[0]["text"] == "some low-confidence text"
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_first_ocr_exception_propagates_unchanged():
+    """Locks in existing (unchanged) behaviour: an exception from the FIRST,
+    default-DPI OCR call is outside this task's scope (only RETRY
+    exceptions must degrade safely) - it must still propagate exactly as it
+    did before this change."""
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    class _BoomOnFirstCall:
+        def extract_text(self, image_bytes):
+            raise RuntimeError("boom")
+
+    tmp_path = _image_only_pdf_tmp("ocr_first_call_exception_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=_BoomOnFirstCall())
+        with pytest.raises(RuntimeError, match="boom"):
+            extractor.content_pages(tmp_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_retry_exception_does_not_crash_extraction():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    class _EmptyThenBoom:
+        def __init__(self):
+            self.calls = 0
+
+        def extract_text(self, image_bytes):
+            self.calls += 1
+            if self.calls == 1:
+                return {"text": "", "confidence": 0.0, "words": []}
+            raise RuntimeError("retry boom")
+
+    ocr = _EmptyThenBoom()
+    tmp_path = _image_only_pdf_tmp("ocr_retry_exception_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)  # must not raise
+        assert ocr.calls == 2
+        assert pages[0]["source"] == "native"
+        assert pages[0]["has_selectable_text"] is False
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_exactly_one_retry_per_page():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR(
+        [
+            {"text": "", "confidence": 0.0, "words": []},
+            {"text": "", "confidence": 0.0, "words": []},
+        ]
+    )
+    tmp_path = _image_only_pdf_tmp("ocr_retry_exactly_once_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        extractor.content_pages(tmp_path)
+        assert ocr.calls == 2  # the default-DPI attempt plus exactly one 300 DPI retry, never more
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_retry_preserves_page_number_and_result_structure():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR(
+        [
+            {"text": "", "confidence": 0.0, "words": []},
+            {"text": "Recovered", "confidence": 0.65, "words": []},
+        ]
+    )
+    tmp_path = _image_only_pdf_tmp("ocr_retry_structure_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)
+        page = pages[0]
+        assert page["page_number"] == 1  # single-page test PDF - the retry must target the same page
+        assert set(page.keys()) >= {"page_number", "text", "has_selectable_text", "source", "ocr_confidence"}
+        assert isinstance(page["text"], str)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_retry_does_not_duplicate_or_concatenate_text():
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR(
+        [
+            {"text": "", "confidence": 0.0, "words": []},
+            {"text": "Only the retry's text", "confidence": 0.65, "words": []},
+        ]
+    )
+    tmp_path = _image_only_pdf_tmp("ocr_retry_no_duplication_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)
+        assert pages[0]["text"] == "Only the retry's text"
+        assert pages[0]["text"].count("Only the retry's text") == 1
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
 # ---------- 15: extraction failure handling ----------
 
 

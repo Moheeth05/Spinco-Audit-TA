@@ -2,6 +2,7 @@
 out to have no usable native text. See services/interfaces.py:PDFProcessor.
 """
 
+import logging
 import re
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,8 @@ from app.services.extraction import nvidia_ocr
 from app.services.extraction.classifier import classify_text
 from app.services.interfaces import OCREngine, PDFProcessor
 
+logger = logging.getLogger(__name__)
+
 MIN_NATIVE_TEXT_CHARS = 20
 # Below this, Tesseract's own result is treated as "cannot confidently
 # provide required evidence" and the (opt-in) NVIDIA Nemotron OCR v2
@@ -19,6 +22,16 @@ MIN_NATIVE_TEXT_CHARS = 20
 # why this stays at the text layer rather than asking the model for
 # structured fields directly.
 MIN_OCR_CONFIDENCE = 0.55
+
+# Render DPI used for the one-shot retry when the default-DPI OCR pass (see
+# _apply_ocr below) comes back completely empty. Deliberately triggered only
+# by a totally empty/whitespace-only result, never by low confidence alone -
+# see experiments/node-extraction/benchmarks/dpi-200-vs-300/REPORT.md, which
+# found that re-rendering sharper reliably helped pages that returned
+# nothing at the default DPI, but that retrying pages which already had some
+# (even low-confidence) text risked changing - not improving - the result on
+# at least one real document in that benchmark.
+OCR_RETRY_DPI = 300
 
 # Generalized, document-agnostic signal for "does this page's linear text
 # already pair a recognizable field label with a nearby value?" - used only
@@ -124,6 +137,27 @@ class PyMuPDFTextExtractor(PDFProcessor):
         finally:
             doc.close()
 
+    def _retry_ocr_at_higher_dpi(self, doc: "fitz.Document", page_number: int) -> tuple[bytes, dict[str, Any]] | None:
+        """One-shot retry for a page whose default-DPI OCR pass returned no
+        usable text at all. Renders the SAME page again at OCR_RETRY_DPI and
+        re-runs the SAME OCR engine/config - nothing else changes. Returns
+        None (never raises) if the retry itself fails, or if it still comes
+        back empty - either way the caller keeps the original empty result,
+        exactly as if this retry had never been attempted."""
+        try:
+            retry_image_bytes = doc[page_number - 1].get_pixmap(dpi=OCR_RETRY_DPI).tobytes("png")
+            retry_result = self.ocr_engine.extract_text(retry_image_bytes)
+        except Exception:  # noqa: BLE001 - a retry must degrade silently, never break extraction
+            logger.exception("OCR retry at %d DPI raised for page %d", OCR_RETRY_DPI, page_number)
+            return None
+
+        if not retry_result["text"].strip():
+            logger.info("OCR retry at %d DPI still returned no text for page %d", OCR_RETRY_DPI, page_number)
+            return None
+
+        logger.info("OCR retry at %d DPI recovered text for page %d (default DPI returned none)", OCR_RETRY_DPI, page_number)
+        return retry_image_bytes, retry_result
+
     def _apply_ocr(self, pdf_path: Path, pages: list[dict[str, Any]]) -> None:
         if not self.ocr_engine:
             return
@@ -133,6 +167,12 @@ class PyMuPDFTextExtractor(PDFProcessor):
                 if not page["has_selectable_text"]:
                     image_bytes = doc[page["page_number"] - 1].get_pixmap(dpi=200).tobytes("png")
                     result = self.ocr_engine.extract_text(image_bytes)
+
+                    if not result["text"].strip():
+                        retried = self._retry_ocr_at_higher_dpi(doc, page["page_number"])
+                        if retried is not None:
+                            image_bytes, result = retried
+
                     if result["text"].strip():
                         page["text"] = result["text"]
                         page["source"] = "ocr"
