@@ -179,6 +179,18 @@ def extract_and_match_bills(
             BillMatchCandidate.expense_id.in_([e.id for e in expenses])
         ).delete(synchronize_session=False)
 
+    # Bills already claimed by an earlier expense in this same pass (either a
+    # CONFIRMED single-bill match, or as one half of an earlier expense's
+    # split-payment pair - see bill_matcher.MatchOutcome.split_payment_bill_ids)
+    # must never be offered again as split-payment evidence for a LATER
+    # expense; a normal single-bill MATCHED candidate can still independently
+    # score the same bill for two expenses (existing, unchanged behaviour -
+    # check_duplicate_bill is the established downstream safety net for
+    # that), but the split-payment fallback has no equivalent downstream
+    # check (it never sets a confirmed bill_id), so it must not double-count
+    # a bill at match time instead.
+    claimed_bill_ids: set[int] = set()
+
     for rank, expense in enumerate(expenses, start=1):
         if _is_batta(expense.category):
             # BATTA (daily allowance) has no supporting-document requirement
@@ -208,7 +220,9 @@ def extract_and_match_bills(
             "expense_details": expense.expense_details,
             "expense_rank": rank,
         }
-        outcome = bill_matcher.match_expense(expense_dict, bill_dicts, first_bill_page=first_bill_page)
+        outcome = bill_matcher.match_expense(
+            expense_dict, bill_dicts, first_bill_page=first_bill_page, excluded_bill_ids=claimed_bill_ids
+        )
 
         expense.bill_match_status = outcome.status
         expense.bill_match_score = outcome.score
@@ -224,11 +238,14 @@ def extract_and_match_bills(
             expense.bill_date = matched_bill.bill_date
             matched_bill.match_status = "MATCHED"
             matched_bill.matched_expense_id = expense.id
+            claimed_bill_ids.add(matched_bill.id)
         else:
             expense.bill_found = False
             expense.bill_id = None
             expense.bill_amount = None
             expense.bill_date = None
+            if outcome.split_payment_bill_ids is not None:
+                claimed_bill_ids.update(outcome.split_payment_bill_ids)
 
         for rank, candidate in enumerate(outcome.candidates, start=1):
             db.add(

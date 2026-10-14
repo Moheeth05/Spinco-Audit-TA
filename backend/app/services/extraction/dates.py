@@ -59,6 +59,36 @@ def parse_date(text: str | None) -> date | None:
     return dates[0] if dates else None
 
 
+def could_represent_date(text: str | None, candidate: date) -> bool:
+    """True if some numeric date-shaped token in `text`, under EITHER
+    structurally valid day/month reading, equals `candidate` - never invents
+    a date, only recognizes that already-present text could also represent a
+    specific, already-known date written in the other day/month convention.
+
+    Confirmed real case: a US-issued Uber receipt prints a bare "7/1/26"
+    (meant as July 1, MM/DD) which this module's own DD/MM-first default
+    (see find_all_dates above) reads as January 7 - producing a false DATE
+    MISMATCH against an Expense Report date of July 1 extracted correctly
+    elsewhere. Used only by validation/checks.py's check_bill_date, as a
+    narrow reconciliation check against the expense's OWN already-extracted
+    date - it never changes what gets stored as a bill's own parsed
+    bill_date, and a genuine mismatch (no reading of any date in the text
+    equals the candidate) is completely unaffected."""
+    text = text or ""
+    for match in _DATE_PATTERN.finditer(text):
+        day, month, year = (int(g) for g in match.groups())
+        for d, m in ((day, month), (month, day)):
+            if _safe_date(year, m, d) == candidate:
+                return True
+    for match in _DATE_PATTERN_SHORT_YEAR.finditer(text):
+        a, b, yy = (int(g) for g in match.groups())
+        year = 2000 + yy
+        for d, m in ((a, b), (b, a)):
+            if _safe_date(year, m, d) == candidate:
+                return True
+    return False
+
+
 def find_all_dates(text: str) -> list[date]:
     text = text or ""
     found: list[tuple[int, date]] = []  # (position, date) - kept in document order

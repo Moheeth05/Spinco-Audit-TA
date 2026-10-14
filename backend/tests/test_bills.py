@@ -1377,3 +1377,258 @@ def test_airfare_claim_with_matching_flight_evidence_passes_category_check():
 
     result = checks.check_category_consistency(category="AIRFARE", bill=_Bill())
     assert result.result == checks.PASS
+
+
+# ---------- TASK: Intelligent Bill Extraction, Category Inference, Date
+# Normalization & Expense-to-Bill Matching - regression tests ----------
+#
+# Grounded in 4 real examples found in D:\Bills\uat-data-test\database\
+# spinco_ta.db (disposable UAT test data, never production/UAT-live data):
+# a CAB CHARGES Rs.3,500 split across two same-day UPI payments to the same
+# payee (ER-41115.pdf expense id=10), a CAB CHARGES Rs.1,500 and a LODGING
+# Rs.1,224 claim each HIGH-confidence MATCHED to a UPI/PhonePe payment
+# screenshot with no recoverable category keyword (expense ids=7,8), and a
+# genuine DATE MISMATCH caused by a US-formatted Uber receipt's bare
+# "7/1/26" being parsed day-first as January 7 instead of July 1
+# (rohit.pdf expense id=90/91). Fixture text below is the REAL raw_text
+# recovered from those documents, not invented.
+
+
+def test_could_represent_date_resolves_ambiguous_short_year_the_other_way():
+    """Real case: an Uber receipt's bare '7/1/26' (meant MM/DD, July 1) is
+    parsed day-first (January 7) by find_all_dates' own default - but
+    could_represent_date must still recognize it ALSO reads as July 1."""
+    from app.services.extraction.dates import could_represent_date
+
+    assert could_represent_date("Cash. Rs.237.32\n7/1/26 10:45 AM", date(2026, 7, 1)) is True
+
+
+def test_could_represent_date_resolves_ambiguous_4digit_year_the_other_way():
+    from app.services.extraction.dates import could_represent_date
+
+    assert could_represent_date("Paid on 07/01/2026 via UPI", date(2026, 7, 1)) is True
+
+
+def test_could_represent_date_does_not_invent_a_genuine_mismatch():
+    """A date that doesn't match EITHER reading must stay unresolved - this
+    is the regression guard that proves the reconciliation is narrow, not a
+    general tolerance widening."""
+    from app.services.extraction.dates import could_represent_date
+
+    assert could_represent_date("Paid on 15/08/2026 via UPI", date(2026, 7, 1)) is False
+
+
+def test_could_represent_date_handles_missing_text():
+    from app.services.extraction.dates import could_represent_date
+
+    assert could_represent_date(None, date(2026, 7, 1)) is False
+    assert could_represent_date("", date(2026, 7, 1)) is False
+
+
+def test_check_bill_date_reconciles_ambiguous_uber_receipt_format():
+    """The real rohit.pdf case, end to end through check_bill_date: the
+    bill's own parsed bill_date (Jan 7, from the DD/MM-first default) does
+    NOT equal the expense date (Jul 1), but the bill's raw receipt text
+    is ambiguous and also reads as Jul 1 - must PASS, not DATE MISMATCH."""
+    from app.services.validation import checks
+
+    class _Bill:
+        bill_date = date(2026, 1, 7)
+        page_number = 7
+        raw_text = "Uber\nThanks for riding, Rohit\nTotal 237.32\nCash. %237.32\n7/1/26 10:45 AM"
+
+    result = checks.check_bill_date(expense_date=date(2026, 7, 1), bill=_Bill())
+    assert result.result == checks.PASS
+    assert "reconciled" in (result.details or "").lower()
+
+
+def test_check_bill_date_still_flags_a_genuine_mismatch():
+    """Regression guard: a bill genuinely dated differently, with no
+    ambiguous-reading rescue available anywhere in its text, must still
+    raise DATE MISMATCH exactly as before."""
+    from app.services.validation import checks
+
+    class _Bill:
+        bill_date = date(2026, 8, 20)
+        page_number = 12
+        raw_text = "Hotel Ayush\nCheck-in 20 Aug 2026\nAmount Rs.1500"
+
+    result = checks.check_bill_date(expense_date=date(2026, 8, 12), bill=_Bill())
+    assert result.result == checks.EXCEPTION
+    assert result.exception_type == "DATE MISMATCH"
+
+
+def test_check_category_consistency_passes_high_confidence_match_with_no_category_evidence():
+    """Real case: a CAB CHARGES/LODGING claim HIGH-confidence matched
+    (amount+date exact) to a UPI payment screenshot whose text contains no
+    recognizable category keyword at all (just an amount and a payee name) -
+    must PASS, not REVIEW_REQUIRED, for 'secondary metadata absent' alone."""
+    from app.services.validation import checks
+
+    class _Bill:
+        category_guess = None
+        page_number = 13
+
+    result = checks.check_category_consistency(category="CAB CHARGES", bill=_Bill(), bill_match_confidence="HIGH")
+    assert result.result == checks.PASS
+    assert "not conflicting" in (result.remarks or "").lower() or "not conflicting" in (result.details or "").lower()
+
+
+def test_check_category_consistency_still_reviews_weak_match_with_no_category_evidence():
+    """Regression guard: the softening is scoped to HIGH-confidence matches
+    only - a MEDIUM/LOW-confidence match with no category evidence at all
+    stays REVIEW_REQUIRED exactly as before, since the match itself is
+    still uncertain there."""
+    from app.services.validation import checks
+
+    class _Bill:
+        category_guess = None
+        page_number = 13
+
+    medium = checks.check_category_consistency(category="CAB CHARGES", bill=_Bill(), bill_match_confidence="MEDIUM")
+    assert medium.result == checks.REVIEW_REQUIRED
+    unspecified = checks.check_category_consistency(category="CAB CHARGES", bill=_Bill(), bill_match_confidence=None)
+    assert unspecified.result == checks.REVIEW_REQUIRED
+
+
+def test_check_category_consistency_still_flags_genuine_conflict_even_at_high_confidence():
+    """Critical regression guard: the softening must NEVER mask a genuine
+    CONFLICT - a HIGH-confidence amount+date match whose bill evidence
+    actively contradicts the claimed category (e.g. a flight ticket bundled
+    with a LODGING claim) must still raise CATEGORY MISMATCH."""
+    from app.services.validation import checks
+
+    class _Bill:
+        category_guess = "Flight"
+        page_number = 9
+
+    result = checks.check_category_consistency(category="LODGING", bill=_Bill(), bill_match_confidence="HIGH")
+    assert result.result == checks.EXCEPTION
+    assert result.exception_type == "CATEGORY MISMATCH"
+
+
+def test_vendor_extraction_skips_upi_screenshot_chrome_and_finds_the_real_payee():
+    """Real case (ER-41115.pdf page 13): a UPI/PhonePe payment-confirmation
+    screenshot's OCR'd text used to extract the literal word 'Amount' as the
+    vendor (the first eligible-looking line). Must now skip the bare label,
+    the garbled amount figure, and the amount-in-words line, landing on the
+    real payee name."""
+    raw_text = (
+        "Amount\n~1,500\nRupees One Thousand Five Hundred\nOnly\n"
+        "Money Transfer Edit\nTo\nBhagabat Sahu BS\nUPI ID: 9331952798@ptyes\n"
+        "ICICI Bank - 2910\nPaid at 06:55 PM, 12 Aug 2026\nUPI Ref No: 312317039728 Copy\nPayment Details"
+    )
+    vendor, is_strong = bill_parser._find_vendor(raw_text)
+    assert vendor is not None
+    assert "amount" not in vendor.lower()
+    assert "bhagabat" in vendor.lower()
+
+
+def test_vendor_extraction_skips_phonepe_chrome_and_finds_make_my_trip():
+    """Real case (ER-41115.pdf page 16): same UPI-screenshot noise pattern,
+    this time with a real identifiable merchant name ('Make My Trip') buried
+    after several lines of payment-app UI chrome and a payment-reference
+    line - must be recovered instead of the leading banner text."""
+    raw_text = (
+        "< Paid Successfully Share Help\nAmount\n1,224 @\n"
+        "Rupees One Thousand Two Hundred\nTwenty Four Only\n"
+        "Payment for MEBFD2326F430E1\nTravel Edit\nSplit this Payment\nTo\n"
+        "Make My Trip GQ\nUPI ID: makemytrip1online@ybl\non a PhonePe\nFrom\nDipak Kumar Pal"
+    )
+    vendor, is_strong = bill_parser._find_vendor(raw_text)
+    assert vendor is not None
+    assert "make my trip" in vendor.lower()
+
+
+def test_vendor_extraction_company_suffix_regression_unaffected():
+    """Regression guard: the existing strong-pass (company-suffix) vendor
+    match must be completely unaffected by the new exclusion list."""
+    vendor, is_strong = bill_parser._find_vendor("RATHNA\nELECTRICALS & HARDWARES\nInvoice No. 664")
+    assert is_strong is True
+    assert "HARDWARES" in vendor.upper()
+
+
+def test_matcher_finds_split_payment_pair_summing_to_claimed_amount():
+    """The real ER-41115.pdf case: a Rs.3,500 car-booking claim has no
+    single matching bill, but two same-day UPI payments to the same payee
+    (Rs.1,500 and Rs.2,000) sum exactly to the claimed amount - must become
+    REVIEW_REQUIRED with named evidence, not a silent MISSING BILL."""
+    d = date(2026, 8, 13)
+    expense = {"claimed_amount": 3500.0, "expense_date": d, "category": "CAB CHARGES", "expense_details": "Car booking"}
+    bills = [
+        {"id": 11, "page_number": 18, "amount": 1500.0, "bill_date": d, "vendor": "Amount", "description": None, "category_guess": None, "bill_number": None},
+        {"id": 12, "page_number": 19, "amount": 2000.0, "bill_date": d, "vendor": "Amount", "description": None, "category_guess": None, "bill_number": None},
+        # An unrelated bill on the same document must not interfere.
+        {"id": 9, "page_number": 14, "amount": None, "bill_date": date(2026, 8, 12), "vendor": "Hotel Ayush", "description": None, "category_guess": "Lodging", "bill_number": None},
+    ]
+    outcome = bill_matcher.match_expense(expense, bills)
+    assert outcome.status == "REVIEW_REQUIRED"
+    assert outcome.candidate_bill_id is None  # no single bill's own amount should be checked against the full claim
+    assert any("page 18" in r and "page 19" in r for r in outcome.reasons)
+
+
+def test_matcher_split_payment_fallback_never_overrides_a_real_single_match():
+    """Regression guard: when a single bill already clears MIN_THRESHOLD,
+    the split-payment fallback must never be consulted at all."""
+    d = date(2026, 8, 13)
+    expense = {"claimed_amount": 3500.0, "expense_date": d, "category": "CAB CHARGES", "expense_details": "Car booking"}
+    bills = [
+        {"id": 20, "page_number": 20, "amount": 3500.0, "bill_date": d, "vendor": "Falcon Cabs", "description": None, "category_guess": "Cab/Taxi", "bill_number": None},
+        {"id": 11, "page_number": 18, "amount": 1500.0, "bill_date": d, "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+        {"id": 12, "page_number": 19, "amount": 2000.0, "bill_date": d, "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+    ]
+    outcome = bill_matcher.match_expense(expense, bills)
+    assert outcome.status == "MATCHED"
+    assert outcome.matched_bill_id == 20
+
+
+def test_matcher_no_split_payment_pair_still_no_match():
+    """Regression guard: when no pair of bills sums to the claimed amount
+    either, the outcome is unchanged NO_MATCH - the fallback must not
+    manufacture evidence that isn't really there."""
+    d = date(2026, 8, 13)
+    expense = {"claimed_amount": 3500.0, "expense_date": d, "category": "CAB CHARGES", "expense_details": None}
+    bills = [
+        {"id": 11, "page_number": 18, "amount": 1500.0, "bill_date": d, "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+        {"id": 12, "page_number": 19, "amount": 1999.0, "bill_date": d, "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+    ]
+    outcome = bill_matcher.match_expense(expense, bills)
+    assert outcome.status == "NO_MATCH"
+    assert outcome.candidate_bill_id is None
+
+
+def test_matcher_split_payment_pair_excludes_already_claimed_bills():
+    """Critical correctness guard, found during live verification against
+    the real UAT data: a bill already CONFIRMED as another expense's own
+    bill_id (page 13, Rs.1,500, matched to a different Rs.1,500 CAB CHARGES
+    claim) must never be reused as split-payment evidence for THIS expense,
+    even though its amount would otherwise pair up correctly. The pipeline
+    (bill_pipeline.py) passes already-claimed bill ids via excluded_bill_ids;
+    without that exclusion this bill would be silently double-counted
+    across two unrelated expenses."""
+    d = date(2026, 8, 13)
+    expense = {"claimed_amount": 3500.0, "expense_date": d, "category": "CAB CHARGES", "expense_details": "Car booking"}
+    bills = [
+        # Already claimed by a different expense - must be excluded.
+        {"id": 8, "page_number": 13, "amount": 1500.0, "bill_date": date(2026, 8, 12), "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+        # The real, still-available pair for THIS expense.
+        {"id": 11, "page_number": 18, "amount": 1500.0, "bill_date": d, "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+        {"id": 12, "page_number": 19, "amount": 2000.0, "bill_date": d, "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+    ]
+    outcome = bill_matcher.match_expense(expense, bills, excluded_bill_ids={8})
+    assert outcome.status == "REVIEW_REQUIRED"
+    assert outcome.split_payment_bill_ids == (11, 12)
+    assert any("page 18" in r and "page 19" in r and "page 13" not in r for r in outcome.reasons)
+
+
+def test_matcher_split_payment_pair_requires_dates_near_claimed_date():
+    """Regression guard: two bills that sum correctly but are dated well
+    away from the claimed date must not be treated as split-payment
+    evidence - date proximity is a required signal, not optional."""
+    expense = {"claimed_amount": 3500.0, "expense_date": date(2026, 8, 13), "category": "CAB CHARGES", "expense_details": None}
+    bills = [
+        {"id": 11, "page_number": 18, "amount": 1500.0, "bill_date": date(2026, 1, 1), "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+        {"id": 12, "page_number": 19, "amount": 2000.0, "bill_date": date(2026, 1, 1), "vendor": None, "description": None, "category_guess": None, "bill_number": None},
+    ]
+    outcome = bill_matcher.match_expense(expense, bills)
+    assert outcome.status == "NO_MATCH"

@@ -15,6 +15,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from app.services.category_map import detect_catering_amount, expected_bill_label, mentions_catering, normalize_category
+from app.services.extraction.dates import could_represent_date
 from app.services.extraction.money import amounts_match
 
 PASS = "PASS"
@@ -271,6 +272,29 @@ def check_bill_date(
             source_page=bill.page_number,
         )
 
+    # The parsed bill_date doesn't equal the expense date - but the bill's
+    # own raw date text may be genuinely ambiguous (day/month order) and, read
+    # the other way, could represent the SAME calendar date as the expense
+    # (confirmed real case: a US-formatted Uber receipt's bare "7/1/26",
+    # meant as July 1, parsed by this app's DD/MM-first default as January
+    # 7 - see dates.py:could_represent_date). This never widens tolerance for
+    # a genuine mismatch: it only fires when some date-shaped token in the
+    # bill's own text, under its other structurally valid reading, exactly
+    # equals the expense's own already-extracted date.
+    if could_represent_date(getattr(bill, "raw_text", None), expense_date):
+        return CheckResult(
+            check_type=check_type,
+            result=PASS,
+            details=(
+                f"Expense {_fmt_date(expense_date)} vs Bill {_fmt_date(bill.bill_date)} "
+                f"(reconciled: the bill's own date text is ambiguous and also reads as {_fmt_date(expense_date)})"
+            ),
+            remarks="Dates match once the bill's ambiguous date format is reconciled",
+            expense_date=expense_date,
+            bill_date=bill.bill_date,
+            source_page=bill.page_number,
+        )
+
     return CheckResult(
         check_type=check_type,
         result=EXCEPTION,
@@ -342,7 +366,7 @@ def check_required_document(
 
 
 def check_category_consistency(
-    *, category: str | None, bill, document_required: bool | None = None
+    *, category: str | None, bill, document_required: bool | None = None, bill_match_confidence: str | None = None
 ) -> CheckResult:
     """`bill` is the best plausible candidate, not necessarily confirmed -
     see check_bill_amount's docstring for why. This check is what prevents
@@ -362,6 +386,31 @@ def check_category_consistency(
             remarks="Not applicable",
         )
     if not bill.category_guess:
+        # Missing category evidence is a different, weaker kind of
+        # uncertainty than CONFLICTING evidence (handled below) - it means
+        # the bill's content didn't contain a recognizable category keyword
+        # at all (common on a payment-app screenshot that only shows an
+        # amount and a payee, e.g. a UPI "Paid to <name>" transfer), not that
+        # anything on the bill contradicts the claim. When the bill was
+        # otherwise confidently matched (HIGH confidence: amount, date, and
+        # usually more all independently agreed), withholding PASS on this
+        # one missing, secondary field alone would be exactly the "false
+        # REVIEW REQUIRED for an absent optional field" failure mode this
+        # task was raised to fix - confirmed on two real cases (a CAB
+        # CHARGES UPI transfer and a LODGING-via-MakeMyTrip payment
+        # screenshot, both HIGH-confidence amount+date matches). A weaker
+        # (MEDIUM/LOW) match with no category evidence at all stays
+        # REVIEW_REQUIRED, unchanged - there the match itself is still
+        # uncertain, so withholding evidence doesn't have the same
+        # "secondary field on an otherwise-solid match" character.
+        if bill_match_confidence == "HIGH":
+            return CheckResult(
+                check_type=check_type,
+                result=PASS,
+                details="The matched bill's content did not contain a recognizable category keyword, but the match itself (amount, date) is HIGH confidence with no conflicting evidence.",
+                remarks="Category evidence absent, not conflicting - match is otherwise strong",
+                source_page=bill.page_number,
+            )
         return CheckResult(
             check_type=check_type,
             result=REVIEW_REQUIRED,

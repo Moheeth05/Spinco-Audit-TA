@@ -152,6 +152,7 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     category=expense.category,
                     bill=candidate_bill,
                     document_required=document_required,
+                    bill_match_confidence=expense.bill_match_confidence,
                 ),
                 checks.check_duplicate_bill(
                     bill_match_status=expense.bill_match_status,

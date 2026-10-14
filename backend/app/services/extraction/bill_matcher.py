@@ -92,6 +92,12 @@ class MatchOutcome:
     # the auto-confirm bar (see module docstring: this score ranks
     # candidates, it does not gate whether their evidence gets examined).
     candidate_bill_id: int | None = None
+    # Set only by the split-payment fallback (see _find_split_payment_pair) -
+    # the two bill ids it used as combined evidence. The caller (bill_pipeline.py)
+    # must treat both as claimed, same as a confirmed matched_bill_id, so a
+    # LATER expense's own matching/split-payment search can never reuse
+    # either bill as if it were still unclaimed evidence.
+    split_payment_bill_ids: tuple[int, int] | None = None
 
 
 def score_pair(
@@ -217,8 +223,58 @@ def _describe_bill(bill: dict[str, Any] | None) -> str:
     return ", ".join(parts) if parts else "no distinguishing evidence"
 
 
+def _find_split_payment_pair(
+    expense: dict[str, Any], bills: list[dict[str, Any]], excluded_bill_ids: set[int] | None = None
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    """Fallback evidence check for when NO single bill plausibly supports
+    this expense: two separate payments on the same document, both dated on
+    (or within a day of) the expense date, whose amounts sum EXACTLY to the
+    claimed amount, are real, named evidence worth a human review - not a
+    confirmed match (this app's schema records one candidate bill per
+    expense, not a combination), but clearly better than a silent MISSING
+    BILL that hides this evidence entirely.
+
+    Confirmed real case: an expense claims Rs.3,500 for a car booking; no
+    single bill on the document comes close, but two UPI payments to the
+    same payee, both dated the claimed day, are Rs.1,500 and Rs.2,000 -
+    exactly Rs.3,500 combined (a fare evidently paid in two instalments).
+
+    Deliberately conservative: requires an EXACT amount sum (the same
+    whole-rupee tolerance as a single-bill match, via amounts_match) AND
+    both dates within 1 day of the claimed date - a coincidental pair of
+    amounts summing to a third, specific, already-claimed figure while both
+    also fall on the right day is not a realistic accident. Returns the
+    lowest-bill-id qualifying pair for deterministic, reproducible output."""
+    claimed = expense.get("claimed_amount")
+    exp_date = expense.get("expense_date")
+    if claimed is None or exp_date is None:
+        return None
+
+    excluded = excluded_bill_ids or set()
+    eligible = sorted(
+        (
+            b
+            for b in bills
+            if b["id"] not in excluded
+            and b.get("amount") is not None
+            and b.get("bill_date") is not None
+            and abs((exp_date - b["bill_date"]).days) <= 1
+        ),
+        key=lambda b: b["id"],
+    )
+    for i in range(len(eligible)):
+        for j in range(i + 1, len(eligible)):
+            a, b = eligible[i], eligible[j]
+            if amounts_match(claimed, a["amount"] + b["amount"]):
+                return a, b
+    return None
+
+
 def match_expense(
-    expense: dict[str, Any], bills: list[dict[str, Any]], first_bill_page: int | None = None
+    expense: dict[str, Any],
+    bills: list[dict[str, Any]],
+    first_bill_page: int | None = None,
+    excluded_bill_ids: set[int] | None = None,
 ) -> MatchOutcome:
     if not bills:
         return MatchOutcome(
@@ -260,6 +316,24 @@ def match_expense(
     candidate_bill_id = best.bill_id if best.score >= MIN_THRESHOLD else None
 
     if best.score < MIN_THRESHOLD:
+        pair = _find_split_payment_pair(expense, bills, excluded_bill_ids=excluded_bill_ids)
+        if pair is not None:
+            first, second = pair
+            return MatchOutcome(
+                status="REVIEW_REQUIRED",
+                matched_bill_id=None,
+                score=best.score,
+                confidence=None,
+                reasons=[
+                    f"No single bill matches, but two separate payments together plausibly support this expense: "
+                    f"{_describe_bill(first)} and {_describe_bill(second)} - their amounts sum to the claimed "
+                    f"total and both fall on the claimed date. This app matches one bill per expense, so this "
+                    f"needs human confirmation rather than an automated match."
+                ],
+                candidates=scored[:3],
+                candidate_bill_id=None,
+                split_payment_bill_ids=(first["id"], second["id"]),
+            )
         claimed = expense.get("claimed_amount")
         exp_date = expense.get("expense_date")
         best_desc = _describe_bill(bills_by_id.get(best.bill_id))

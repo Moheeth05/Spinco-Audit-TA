@@ -23,6 +23,7 @@ AMOUNT_LABELS = [
     (5, "total amount"),
     (4, "net amount"),
     (4, "amount payable"),
+    (4, "paid amount"),
     (4, "total payable"),
     (4, "total fare"),
     (3, "total reimbursable"),
@@ -411,6 +412,34 @@ def _find_bill_number(text: str) -> str | None:
     return None
 
 
+# A UPI/payment-app "transaction successful" screenshot (confirmed real on
+# several real pages: Google Pay/PhonePe money-transfer confirmations used as
+# supporting evidence for cash-paid cab/local expenses) has no company name
+# at all - just a bare field label, an amount-in-words line, or UI chrome
+# describing the screen itself ("Paid Successfully", "Share", "Edit"). Left
+# unexcluded, the weak vendor fallback below picked up whichever of these
+# happened to be the first eligible-looking line - confirmed real defect:
+# vendor extracted as the literal word "Amount" on multiple real bills.
+# Narrow and line-content-based (never a payee-name denylist) so a genuine,
+# unusual vendor name is never excluded by familiarity alone.
+_GENERIC_NONVENDOR_LINE_RE = [
+    re.compile(r"^(name|date|amount|total|merchant|vendor|to|from|paid to|sent to)\s*[:\-]?\s*$", re.IGNORECASE),
+    re.compile(r"^rupees\b", re.IGNORECASE),  # amount-in-words, e.g. "Rupees One Thousand Five Hundred"
+    re.compile(r"\bonly\s*$", re.IGNORECASE),  # amount-in-words tail, e.g. "Twenty Four Only" / bare "Only"
+    re.compile(r"^[<>~]?\s*[\d,]{2,}\s*[&@#%]?\s*$"),  # a garbled OCR read of the amount figure itself, e.g. "1,224 @"
+    re.compile(
+        r"\b(money transfer|paid successfully|sent successfully|share help|payment details|transfer details|split this payment)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"^payment for\b", re.IGNORECASE),
+    re.compile(r"^\w+\s+edit$", re.IGNORECASE),  # a short UI category tag, e.g. "Travel Edit"
+]
+
+
+def _is_generic_nonvendor_line(s: str) -> bool:
+    return any(pattern.search(s) for pattern in _GENERIC_NONVENDOR_LINE_RE)
+
+
 def _find_vendor(text: str) -> tuple[str | None, bool]:
     for line in text.split("\n"):
         s = line.strip()
@@ -424,7 +453,12 @@ def _find_vendor(text: str) -> tuple[str | None, bool]:
             return s, True
     for line in text.split("\n"):
         s = line.strip()
-        if 3 <= len(s) <= 60 and re.search(r"[A-Za-z]{3,}", s) and not _AMOUNT_TOKEN_RE.fullmatch(s):
+        if (
+            3 <= len(s) <= 60
+            and re.search(r"[A-Za-z]{3,}", s)
+            and not _AMOUNT_TOKEN_RE.fullmatch(s)
+            and not _is_generic_nonvendor_line(s)
+        ):
             return s, False
     return None, False
 
