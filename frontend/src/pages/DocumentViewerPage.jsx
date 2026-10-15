@@ -438,8 +438,12 @@ function VerifyModal({ exception, onClose, onVerified }) {
 
 function ExceptionsTable({ rows, canVerify, onVerifyClick, onJump, showStatusAction }) {
   return (
-    <div className="table-wrap">
-      <table className="data-table">
+    // table-wrap--scroll bounds the container's height so its horizontal
+    // scrollbar stays at the bottom of the VISIBLE area (not below the last row,
+    // which is off-screen once the Reason text wraps), and data-table--wide gives
+    // the columns a readable minimum width instead of squeezing them.
+    <div className="table-wrap table-wrap--scroll" tabIndex={0} role="region" aria-label="Exceptions table (scrollable)">
+      <table className="data-table data-table--wide">
         <thead>
           <tr>
             <th>S.No</th>
@@ -470,15 +474,15 @@ function ExceptionsTable({ rows, canVerify, onVerifyClick, onJump, showStatusAct
               <td className="num">
                 {e.bill_amount != null ? formatINR(e.bill_amount) : e.policy_limit != null ? formatINR(e.policy_limit) : '-'}
               </td>
-              <td style={{ fontSize: 12.5 }}>{e.reason}</td>
-              <td>
+              <td className="cell-reason">{e.reason}</td>
+              <td className="cell-nowrap">
                 {e.source_page != null ? (
                   <ViewSourceButton page={e.source_page} onJump={onJump} />
                 ) : (
                   <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>Source not available</span>
                 )}
               </td>
-              <td>
+              <td className="cell-nowrap">
                 {e.status === 'RESOLVED' ? (
                   <span
                     style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--success, #16a34a)' }}
@@ -502,6 +506,9 @@ function ExceptionsTable({ rows, canVerify, onVerifyClick, onJump, showStatusAct
   )
 }
 
+const EXCEPTION_VIEW = 'EXCEPTION'
+const REVIEW_VIEW = 'REVIEW REQUIRED'
+
 function ExceptionsPanel({ extraction, documentId, onJump }) {
   const reportId = documentId.split(':')[1]
   const { data: exceptions, loading, error, refetch } = useApi(`/expense-reports/${reportId}/exceptions`)
@@ -517,28 +524,116 @@ function ExceptionsPanel({ extraction, documentId, onJump }) {
   const activeExceptions = (exceptions || []).filter((e) => e.status !== 'RESOLVED')
   const resolvedExceptions = (exceptions || []).filter((e) => e.status === 'RESOLVED')
 
+  // Exceptions (definitive policy/evidence violations - AMOUNT MISMATCH,
+  // DATE MISMATCH, CATEGORY MISMATCH, DUPLICATE BILL, OVER LIMIT, MISSING
+  // BILL, etc.) and Review Required (uncertain cases needing human judgment
+  // - ambiguous matching, insufficient OCR evidence, unresolved
+  // classification) are kept in separate sections rather than one combined
+  // table, so an auditor can immediately see how many of each exist and
+  // triage them differently - a confirmed violation and "we need you to
+  // look at this" are not the same kind of problem. Both read the SAME
+  // underlying e.severity value the backend already computes (see
+  // exception_engine.py's EXCEPTION/REVIEW_REQUIRED constants) - this is a
+  // display split only, never a reclassification; nothing here changes
+  // which severity a record has.
+  const genuineExceptions = activeExceptions.filter((e) => e.severity === 'EXCEPTION')
+  const reviewRequiredItems = activeExceptions.filter((e) => e.severity === 'REVIEW REQUIRED')
+
+  // The section header counts intentionally use the report's own canonical
+  // exception_count/review_required_count (also shown in ReportStatusBanner
+  // just above, and on the Expense Reports list, Home dashboard, and
+  // Analytics) rather than genuineExceptions.length/reviewRequiredItems.length
+  // directly - those count DISTINCT EXPENSES whose validation_status landed
+  // on EXCEPTION or REVIEW REQUIRED (exception_engine.py's report.exception_count/
+  // review_required_count), while the row arrays below count individual
+  // ExceptionRecord rows - one expense can genuinely fail two different
+  // checks (e.g. both an amount mismatch and a date mismatch), producing two
+  // real, separately-reportable rows for one counted expense. Showing every
+  // row is correct (each is a distinct underlying problem, not a duplicate -
+  // see module notes above), but the HEADER number must match the one
+  // already shown elsewhere on this same page and everywhere else in the
+  // app, or the counts would visibly disagree.
+  const exceptionHeaderCount = extraction?.exception_count ?? genuineExceptions.length
+  const reviewRequiredHeaderCount = extraction?.review_required_count ?? reviewRequiredItems.length
+
+  // One selectable view at a time. The choice only decides which already-
+  // classified rows are displayed - it never touches a record's severity.
+  // Until the user picks, open on Exceptions, or on Review Required when the
+  // report has none of the former (so nobody lands on an empty tab by default).
+  const [selectedView, setSelectedView] = useState(null)
+  const view = selectedView ?? (exceptionHeaderCount === 0 && reviewRequiredHeaderCount > 0 ? REVIEW_VIEW : EXCEPTION_VIEW)
+  const isExceptionView = view === EXCEPTION_VIEW
+  const visibleRows = isExceptionView ? genuineExceptions : reviewRequiredItems
+  const visibleCount = isExceptionView ? exceptionHeaderCount : reviewRequiredHeaderCount
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <ReportStatusBanner extraction={extraction} />
 
-      <div className="card">
+      <div className="btn-group" role="tablist" aria-label="Exception views" style={{ alignSelf: 'flex-start' }}>
+        <button
+          type="button"
+          role="tab"
+          id="exceptions-tab-exception"
+          aria-selected={isExceptionView}
+          aria-controls="exceptions-tabpanel"
+          className={isExceptionView ? 'active' : ''}
+          onClick={() => setSelectedView(EXCEPTION_VIEW)}
+        >
+          Exceptions ({exceptionHeaderCount})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="exceptions-tab-review"
+          aria-selected={!isExceptionView}
+          aria-controls="exceptions-tabpanel"
+          className={!isExceptionView ? 'active' : ''}
+          onClick={() => setSelectedView(REVIEW_VIEW)}
+        >
+          Review Required ({reviewRequiredHeaderCount})
+        </button>
+      </div>
+
+      <div
+        className="card"
+        id="exceptions-tabpanel"
+        role="tabpanel"
+        aria-labelledby={isExceptionView ? 'exceptions-tab-exception' : 'exceptions-tab-review'}
+        data-view={isExceptionView ? 'exceptions' : 'review-required'}
+      >
         <div className="card-header">
           <div>
-            <div className="card-title">Active Exceptions</div>
-            <div className="card-subtitle">Unresolved exceptions and review-required conditions, deduplicated to one row per underlying problem</div>
+            <div className="card-title">{isExceptionView ? 'Exceptions' : 'Review Required'} ({visibleCount})</div>
+            <div className="card-subtitle">
+              {isExceptionView
+                ? 'Confirmed policy/evidence violations - amount, date, or category mismatches, duplicate bills, over-limit claims, and other definitive issues'
+                : 'Uncertain cases needing human judgment - ambiguous bill matching, insufficient evidence, or unresolved classification'}
+            </div>
           </div>
         </div>
         <div className="card-body">
           {loading && <LoadingState rows={3} />}
           {error && <ErrorState title="Could not load exceptions" description="The server may be unreachable." />}
-          {!loading && !error && activeExceptions.length === 0 && (
+          {!loading && !error && visibleRows.length === 0 && (
             <div className="state-panel" style={{ padding: '32px 16px' }}>
-              <div className="state-title">No active exceptions</div>
-              <div className="state-description">Every applicable check on this report currently passes or has been verified.</div>
+              <div className="state-title">{isExceptionView ? 'No exceptions' : 'Nothing needs review'}</div>
+              <div className="state-description">
+                {isExceptionView
+                  ? 'No confirmed policy or evidence violations on this report.'
+                  : 'Every applicable check currently has enough evidence to decide.'}
+              </div>
             </div>
           )}
-          {!loading && !error && activeExceptions.length > 0 && (
-            <ExceptionsTable rows={activeExceptions} canVerify={canVerify} onVerifyClick={setVerifying} onJump={onJump} showStatusAction />
+          {!loading && !error && visibleRows.length > 0 && (
+            <>
+              {visibleRows.length !== visibleCount && (
+                <div className="card-subtitle" style={{ marginBottom: 10 }}>
+                  {visibleRows.length} records across {visibleCount} {visibleCount === 1 ? 'expense' : 'expenses'} - one expense can fail more than one check.
+                </div>
+              )}
+              <ExceptionsTable rows={visibleRows} canVerify={canVerify} onVerifyClick={setVerifying} onJump={onJump} showStatusAction />
+            </>
           )}
         </div>
       </div>

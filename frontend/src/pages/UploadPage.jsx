@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock, Eye, FileText, Loader2, Map, Trash2 } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Clock, Eye, FileText, Loader2, Map as MapIcon, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApi } from '../api/useApi'
@@ -15,7 +15,7 @@ import { formatISTDateTime } from '../lib/datetime'
 
 const TABS = [
   { key: 'EXPENSE_REPORT', label: 'Expense Reports', icon: FileText },
-  { key: 'TRIP_REPORT', label: 'Trip Reports', icon: Map },
+  { key: 'TRIP_REPORT', label: 'Trip Reports', icon: MapIcon },
 ]
 
 function formatBytes(bytes) {

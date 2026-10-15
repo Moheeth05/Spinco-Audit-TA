@@ -87,6 +87,18 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+  /* .card is used as a flex item (column stacks, e.g. the Document Viewer's
+     exception/review panels) and as a grid item (2-column layouts) in
+     different pages. Both flexbox and grid give an item an implicit
+     "automatic minimum size" equal to its content's natural width unless
+     min-width is explicitly set - a wide table inside the card then forces
+     the card (and everything above it) wider instead of letting the
+     table's own .table-wrap overflow-x:auto ever activate, cutting off the
+     rightmost columns with no way to reach them. min-width: 0 overrides
+     that automatic minimum (a documented no-op for a plain block-context
+     .card - see the .grid-2/.grid-3 min-width fix below for the same
+     pattern applied at the grid level). */
+  min-width: 0;
 }
 
 .card-header {
@@ -210,6 +222,37 @@
 
 .table-wrap {
   overflow-x: auto;
+  /* Same automatic-minimum-size reasoning as .card above, in case a table
+     ever sits inside a flex/grid context without a .card wrapper between
+     them. */
+  min-width: 0;
+}
+
+/* Opt-in for tables that are wider than their card: the container gets a
+   bounded height and scrolls in BOTH directions, so the horizontal scrollbar
+   is always at the bottom edge of the visible box (reachable without first
+   scrolling past every row) and the sticky header stays visible. */
+.table-wrap--scroll {
+  max-height: max(320px, calc(100vh - 420px));
+  overflow: auto;
+}
+
+.table-wrap--scroll:focus-visible {
+  outline: 2px solid var(--blue-600);
+  outline-offset: -2px;
+}
+
+table.data-table.data-table--wide {
+  min-width: 1180px;
+}
+
+.data-table--wide td.cell-reason {
+  min-width: 280px;
+  font-size: 12.5px;
+}
+
+.data-table td.cell-nowrap {
+  white-space: nowrap;
 }
 
 table.data-table {
