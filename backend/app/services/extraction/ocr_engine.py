@@ -53,6 +53,84 @@ def _configure_tesseract() -> None:
                 os.environ["TESSDATA_PREFIX"] = str(tessdata_dir)
 
 
+# Tesseract's own OSD (orientation & script detection) confidence is an
+# unbounded score, not a 0-1 probability - empirically, a page this app's
+# own real corpus actually needed orientation for was never found (every
+# real document on hand is already upright), so this threshold is a
+# conservative, documented judgment call rather than one calibrated against
+# a confirmed real example: low enough to catch a genuinely rotated page,
+# high enough that a borderline/noisy OSD read (observed on legitimate
+# upright pages at confidence as low as 0.65) is never acted on. Revisit
+# with a real rotated example if one is ever found.
+_MIN_OSD_CONFIDENCE = 1.0
+
+# Running OSD (a second, full Tesseract invocation) on every OCR'd page measured
+# as a real 1.3-2.3x runtime cost per page (see experiments/node-extraction/
+# benchmarks/handwritten-ocr-20261014/REPORT.md) - acceptable for a single
+# diagnostic page, but compounds badly across a real multi-page, multi-bill
+# batch upload (confirmed: a 2-file real batch left the synchronous upload
+# request running long enough that it never completed before the app was
+# closed). Only pay that cost on a page whose first-pass result already looks
+# weak enough that a wrong orientation is a plausible explanation - a clean
+# upright page (the common case, confirmed: every real document page tested
+# so far reports rotate=0) never triggers OSD at all.
+_WEAK_RESULT_CONFIDENCE = 0.6
+
+
+def _correct_orientation(image: Any) -> tuple[Any, int]:
+    """Uses Tesseract's own OSD model (osd.traineddata - already bundled
+    with this app for OCR, but never previously invoked) to detect a
+    confident 90/180/270-degree rotation and correct it before the real OCR
+    pass. Returns (possibly-rotated image, degrees corrected - 0 if none).
+
+    Never guesses: OSD routinely fails outright on a sparse/low-content page
+    (confirmed real behaviour - raises TesseractError, caught and treated as
+    "no correction" here) or reports a genuinely-zero rotation on an
+    already-upright page; both leave the image untouched."""
+    import pytesseract
+
+    try:
+        osd = pytesseract.image_to_osd(image, output_type=pytesseract.Output.DICT)
+    except Exception:  # noqa: BLE001 - OSD is a best-effort hint, never fatal to OCR itself
+        return image, 0
+
+    angle = osd.get("rotate") or 0
+    confidence = osd.get("orientation_conf") or 0
+    if not angle or confidence < _MIN_OSD_CONFIDENCE:
+        return image, 0
+
+    # Tesseract's own "rotate" value is how many degrees to rotate the
+    # image CLOCKWISE to correct it; PIL's Image.rotate() is
+    # counterclockwise, hence the negation.
+    return image.rotate(-angle, expand=True), int(angle)
+
+
+def preprocess_for_difficult_ocr(image_bytes: bytes) -> bytes:
+    """A measured, targeted preprocessing pass - deliberately used ONLY by
+    the existing narrow retry path (text_extraction.py's
+    _retry_ocr_at_higher_dpi, reached only when the first OCR pass returned
+    no usable text at all), never applied to a normal page's first pass, per
+    this task's explicit "avoid expensive multi-pass OCR for every normal
+    printed document" requirement.
+
+    Grayscale -> contrast boost -> a fixed global threshold (binarization).
+    Standard, well-understood techniques for improving legibility of a
+    faint/low-contrast photographed receipt; no new dependency (PIL only,
+    already used throughout this module) and no adaptive/per-image-tuned
+    algorithm that would make behaviour hard to predict - this only adjusts
+    how the SAME pixels are presented to Tesseract, never invents content.
+    """
+    from PIL import Image, ImageEnhance, ImageOps
+
+    image = Image.open(BytesIO(image_bytes))
+    gray = ImageOps.grayscale(image)
+    contrasted = ImageEnhance.Contrast(gray).enhance(1.6)
+    thresholded = contrasted.point(lambda p: 0 if p < 140 else 255)
+    out = BytesIO()
+    thresholded.save(out, format="PNG")
+    return out.getvalue()
+
+
 class TesseractOCREngine(OCREngine):
     def __init__(self):
         self._available: bool | None = None
@@ -69,29 +147,14 @@ class TesseractOCREngine(OCREngine):
                 self._available = False
         return self._available
 
-    def extract_text(self, image_bytes: bytes) -> dict[str, Any]:
-        """Returns {"text": str, "confidence": float, "words": list[dict]}.
-
-        `text` preserves Tesseract's own logical line structure (grouped by
-        its (block_num, par_num, line_num) layout analysis, the same fields
-        `image_to_data()` already computes) instead of flattening every word
-        on the page into one space-joined string. A thermal-receipt label
-        and its value (e.g. "Amount(Rs)" and "03908.04") routinely end up as
-        separate words on the SAME Tesseract line - collapsing all lines
-        together (the previous behaviour) destroyed that structure and
-        broke every downstream line-based label/value search in
-        bill_parser.py, even when both words were individually read
-        correctly. `words` additionally exposes each word's own bounding box
-        (left/top/width/height) and layout indices, for callers that need
-        true spatial (not just line-order) reasoning.
-        """
-        if not self.is_available():
-            return {"text": "", "confidence": 0.0, "words": []}
-
+    def _ocr_pass(self, image: Any) -> dict[str, Any]:
+        """One Tesseract image_to_data call, parsed into this engine's
+        {text, confidence, words} shape. No orientation handling here -
+        that's the caller's decision (extract_text), so this can be reused
+        for both the first pass and an optional orientation-corrected retry
+        without paying for OSD twice."""
         import pytesseract
-        from PIL import Image
 
-        image = Image.open(BytesIO(image_bytes))
         data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
 
         words: list[dict[str, Any]] = []
@@ -128,3 +191,56 @@ class TesseractOCREngine(OCREngine):
         text_out = "\n".join(" ".join(line_words) for line_words in lines)
 
         return {"text": text_out, "confidence": avg_confidence, "words": words}
+
+    def extract_text(self, image_bytes: bytes) -> dict[str, Any]:
+        """Returns {"text": str, "confidence": float, "words": list[dict],
+        "rotation_applied": int}.
+
+        `text` preserves Tesseract's own logical line structure (grouped by
+        its (block_num, par_num, line_num) layout analysis, the same fields
+        `image_to_data()` already computes) instead of flattening every word
+        on the page into one space-joined string. A thermal-receipt label
+        and its value (e.g. "Amount(Rs)" and "03908.04") routinely end up as
+        separate words on the SAME Tesseract line - collapsing all lines
+        together (the previous behaviour) destroyed that structure and
+        broke every downstream line-based label/value search in
+        bill_parser.py, even when both words were individually read
+        correctly. `words` additionally exposes each word's own bounding box
+        (left/top/width/height) and layout indices, for callers that need
+        true spatial (not just line-order) reasoning.
+
+        Orientation correction (_correct_orientation) only runs when this
+        first pass already looks weak (empty text or confidence below
+        _WEAK_RESULT_CONFIDENCE) - see that constant's comment for why a
+        clean, already-upright page (the common case) must never pay for a
+        second Tesseract invocation. `rotation_applied` is 0 unless a
+        confident correction was made AND it was adopted.
+        """
+        if not self.is_available():
+            return {"text": "", "confidence": 0.0, "words": [], "rotation_applied": 0}
+
+        from PIL import Image
+
+        image = Image.open(BytesIO(image_bytes))
+        result = self._ocr_pass(image)
+
+        if result["text"].strip() and result["confidence"] >= _WEAK_RESULT_CONFIDENCE:
+            return {**result, "rotation_applied": 0}
+
+        corrected, rotation_applied = _correct_orientation(image)
+        if not rotation_applied:
+            return {**result, "rotation_applied": 0}
+
+        rotated_result = self._ocr_pass(corrected)
+        # Only adopt the rotated result if it's actually better - OSD can be
+        # confident about an orientation that doesn't help this particular
+        # page's legibility (e.g. a genuinely poor-quality scan), and this
+        # must never regress a result the first pass already produced.
+        rotated_is_better = (
+            bool(rotated_result["text"].strip())
+            and len(rotated_result["text"]) >= len(result["text"])
+            and rotated_result["confidence"] >= result["confidence"]
+        )
+        if rotated_is_better:
+            return {**rotated_result, "rotation_applied": rotation_applied}
+        return {**result, "rotation_applied": 0}

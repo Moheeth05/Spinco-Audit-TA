@@ -686,8 +686,12 @@ def test_26_phase1_6_regression_still_works(client):
     )
     result = resp.json()["results"][0]
     assert result["success"]
-    assert result["extraction_status"] == "EXTRACTED"
     report_id = result["document_id"].split(":")[1]
+    # Extraction now runs in the background (see api/uploads.py) - the upload
+    # response itself no longer carries the post-extraction status, only a
+    # follow-up GET does.
+    detail = client.get(f"/api/documents/{result['document_id']}/extraction").json()
+    assert detail["extraction_status"] == "EXTRACTED"
 
     bills = client.get(f"/api/expense-reports/{report_id}/bills").json()
     assert len(bills) > 0

@@ -778,7 +778,11 @@ def test_phase1_policy_master_regression(client):
 
 def test_phase3_extraction_status_unaffected_by_bill_matching(client, sample_pdf_path):
     result = _upload(client, sample_pdf_path.name, sample_pdf_path.read_bytes()).json()["results"][0]
-    assert result["extraction_status"] == "EXTRACTED"
+    # Extraction now runs in the background (see api/uploads.py) - the upload
+    # response itself no longer carries the post-extraction status, only a
+    # follow-up GET does.
+    detail = client.get(f"/api/documents/{result['document_id']}/extraction").json()
+    assert detail["extraction_status"] == "EXTRACTED"
 
 
 # ---------- Post-UAT correction 2: the flagship CAB CHARGES example ----------

@@ -1,11 +1,12 @@
 import hashlib
+import logging
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import SessionLocal, get_db
 from app.models.expense_report import ExpenseReport
 from app.models.trip import TripReport
 from app.schemas.uploads import UploadBatchResponse, UploadListItem, UploadResultItem
@@ -19,9 +20,36 @@ from app.models.user import User
 from app.services.permissions import UPLOAD_DOCUMENTS, get_current_user, require_permission
 
 router = APIRouter(tags=["uploads"])
+logger = logging.getLogger(__name__)
 
 
-def _process_one(db: Session, file: UploadFile, *, expense: bool, user: User) -> UploadResultItem:
+def _run_extraction_in_background(kind: str, pk: int) -> None:
+    """Runs on its own DB session (the request's session is closed by the
+    time a background task executes - see FastAPI's BackgroundTasks docs),
+    after the upload response has already been sent. This is what lets
+    upload_expense_reports/upload_trip_reports return as soon as the file is
+    validated and stored, instead of blocking on the full OCR/extraction
+    pipeline - a real multi-file, multi-page batch upload was measured
+    taking long enough synchronously that the app was closed before it ever
+    finished (see ocr_engine.py's _WEAK_RESULT_CONFIDENCE comment for the
+    other half of this fix). run_extraction already sets its own
+    extraction_status=PROCESSING/EXTRACTED/FAILED on the row and never
+    raises past its own try/except, but this is still wrapped defensively
+    since an uncaught exception in a background task is otherwise silently
+    swallowed by Starlette with no trace at all.
+    """
+    db = SessionLocal()
+    try:
+        run_extraction(db, kind, pk)
+    except Exception:  # noqa: BLE001 - background task: must never crash the server, but must be visible
+        logger.exception("Background extraction failed for %s:%s", kind, pk)
+    finally:
+        db.close()
+
+
+def _process_one(
+    db: Session, file: UploadFile, *, expense: bool, user: User, background_tasks: BackgroundTasks
+) -> UploadResultItem:
     content = file.file.read()
     original_filename = file.filename or "document.pdf"
 
@@ -85,14 +113,15 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool, user: User) ->
 
     # Auto-extraction: the document enters extraction processing immediately after
     # a successful upload, no manual step required (a manual reprocess endpoint
-    # also exists). A failure here is captured as extraction_status=FAILED on the
+    # also exists). Runs in the background rather than blocking this response -
+    # the upload itself (validate/store/create row) is already done and
+    # successful at this point, and OCR/extraction for a real multi-page,
+    # multi-file batch can take long enough that waiting for it here left the
+    # HTTP request (and the frontend's upload UI) hanging indefinitely. A
+    # failure during extraction is captured as extraction_status=FAILED on the
     # row itself - it must never fail the upload response, since the file was
     # genuinely received, validated, and stored successfully.
-    try:
-        run_extraction(db, EXPENSE if expense else TRIP, row.id)
-        db.refresh(row)
-    except Exception:  # noqa: BLE001 - upload succeeded regardless of extraction outcome
-        pass
+    background_tasks.add_task(_run_extraction_in_background, EXPENSE if expense else TRIP, row.id)
 
     return UploadResultItem(
         filename=original_filename,
@@ -107,21 +136,23 @@ def _process_one(db: Session, file: UploadFile, *, expense: bool, user: User) ->
 
 @router.post("/api/uploads/expense-reports", response_model=UploadBatchResponse)
 def upload_expense_reports(
+    background_tasks: BackgroundTasks,
     files: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
     user: User = Depends(require_permission(UPLOAD_DOCUMENTS)),
 ):
-    results = [_process_one(db, f, expense=True, user=user) for f in files]
+    results = [_process_one(db, f, expense=True, user=user, background_tasks=background_tasks) for f in files]
     return UploadBatchResponse(results=results)
 
 
 @router.post("/api/uploads/trip-reports", response_model=UploadBatchResponse)
 def upload_trip_reports(
+    background_tasks: BackgroundTasks,
     files: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
     user: User = Depends(require_permission(UPLOAD_DOCUMENTS)),
 ):
-    results = [_process_one(db, f, expense=False, user=user) for f in files]
+    results = [_process_one(db, f, expense=False, user=user, background_tasks=background_tasks) for f in files]
     return UploadBatchResponse(results=results)
 
 
