@@ -78,6 +78,73 @@ def _make_er_with_bill_pages(bill_page_lines: list[list[str]]) -> bytes:
     return buf.getvalue()
 
 
+def _make_er_with_two_expenses_and_bills(
+    *,
+    amount: float,
+    date_a: str,
+    date_b: str,
+    bill_amount: float,
+    bill_date_a: str,
+    bill_date_b: str,
+) -> bytes:
+    """Two CAB CHARGES expense lines (same claimed amount, independently
+    configurable dates) plus two separate supporting-bill pages (same bill
+    amount, independently configurable dates) - end-to-end fixture for the
+    "two separate same-amount bills must not be collapsed into one"
+    regression (see bill_matcher.py::match_expense's excluded_bill_ids
+    preference logic)."""
+    from io import BytesIO
+
+    doc = fitz.open()
+    page = doc.new_page()
+    amt_str = f"Rs.{amount:,.2f}"
+    total_str = f"Rs.{amount * 2:,.2f}"
+    header_lines = [
+        "Expense Report",
+        "ER-90002",
+        "Amount to be Reimbursed",
+        total_str,
+        "Report",
+        "August",
+        "Submitted By",
+        "TEST EMPLOYEE",
+        "test@spincotech.com",
+        "Submitted On",
+        "01/09/2026",
+        "EXPENSE SUMMARY",
+        "1.",
+        date_a,
+        "CAB CHARGES",
+        "Cab ride one",
+        amt_str,
+        "2.",
+        date_b,
+        "CAB CHARGES",
+        "Cab ride two",
+        amt_str,
+        "REPORT SUMMARY BY CURRENCY",
+        "Total Reimbursable Amount",
+        total_str,
+        "TEST EMPLOYEE ( T001 )",
+    ]
+    y = 40
+    for line in header_lines:
+        page.insert_text((30, y), line, fontsize=9)
+        y += 12
+
+    for bill_date, label in ((bill_date_a, "A"), (bill_date_b, "B")):
+        bp = doc.new_page()
+        y = 40
+        for line in [f"Falcon Cabs {label}", f"Date: {bill_date}", f"Amount (Rs.): {bill_amount:.2f}", "THANK YOU"]:
+            bp.insert_text((30, y), line, fontsize=9)
+            y += 12
+
+    buf = BytesIO()
+    doc.save(buf)
+    doc.close()
+    return buf.getvalue()
+
+
 # ---------- 1-8: bill field extraction (unit-level, via the parser directly) ----------
 
 
@@ -1132,6 +1199,47 @@ def test_original_claim_on_a_shared_bill_is_not_itself_flagged_duplicate():
 
     original_result = checks.check_duplicate_bill(bill_match_status="MATCHED", bill=_Bill(), is_duplicate=False)
     assert original_result.result == checks.PASS
+
+
+# ---------- End-to-end regression: two separate same-amount bills must not be
+# reported as duplicates. The matcher/allocation behaviour itself (including
+# the real ER-41115 / ER-39832 shared-bill cases) is covered in
+# tests/test_bill_allocation.py. ----------
+
+def test_end_to_end_two_same_amount_bills_same_date_no_duplicate_exception(client):
+    """End-to-end regression (not just the matcher unit) for the exact
+    reported scenario: two separate Rs.600 bills, same date, uploaded as
+    part of a real expense report. Neither expense should raise DUPLICATE
+    BILL once each is correctly matched to its own distinct bill."""
+    pdf = _make_er_with_two_expenses_and_bills(
+        amount=600.0, date_a="19/08/2026", date_b="19/08/2026",
+        bill_amount=600.0, bill_date_a="19/08/2026", bill_date_b="19/08/2026",
+    )
+    resp = _upload(client, "ER-90002.pdf", pdf)
+    assert resp.status_code == 200
+    doc_id = resp.json()["results"][0]["document_id"]
+    report_id = doc_id.split(":")[1]
+
+    exceptions = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    duplicate_exceptions = [e for e in exceptions if e["exception_type"] == "DUPLICATE BILL"]
+    assert duplicate_exceptions == [], duplicate_exceptions
+
+
+def test_end_to_end_two_same_amount_bills_different_dates_no_duplicate_exception(client):
+    """Same scenario, but the two bills (and the two expenses) are on
+    different dates."""
+    pdf = _make_er_with_two_expenses_and_bills(
+        amount=600.0, date_a="01/08/2026", date_b="05/08/2026",
+        bill_amount=600.0, bill_date_a="01/08/2026", bill_date_b="05/08/2026",
+    )
+    resp = _upload(client, "ER-90003.pdf", pdf)
+    assert resp.status_code == 200
+    doc_id = resp.json()["results"][0]["document_id"]
+    report_id = doc_id.split(":")[1]
+
+    exceptions = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    duplicate_exceptions = [e for e in exceptions if e["exception_type"] == "DUPLICATE BILL"]
+    assert duplicate_exceptions == [], duplicate_exceptions
 
 
 # ---------- Real-world document extraction/classification regression corpus ----------

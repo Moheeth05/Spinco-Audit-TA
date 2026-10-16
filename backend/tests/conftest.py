@@ -39,6 +39,26 @@ def _cleanup_test_dir():
     shutil.rmtree(_TEST_DIR, ignore_errors=True)
 
 
+@pytest.fixture(autouse=True)
+def _hosted_providers_off_and_no_live_http(monkeypatch):
+    """Every test starts with all hosted-provider configuration cleared (so a
+    developer's real key/flag in their shell can never leak into a test) and
+    with httpx.post - the only call the provider modules use - replaced by a
+    function that fails the test. A test that exercises a provider path
+    mocks httpx.post itself (monkeypatch.setattr runs after this fixture and
+    wins), so a real outbound request from the test suite is impossible."""
+    import httpx
+
+    for name in list(os.environ):
+        if name.startswith(("SPINCO_NVIDIA_", "SPINCO_DEEPSEEK_")):
+            monkeypatch.delenv(name, raising=False)
+
+    def _no_live_http(*args, **kwargs):
+        raise AssertionError("a test attempted a real httpx.post call; mock it explicitly")
+
+    monkeypatch.setattr(httpx, "post", _no_live_http)
+
+
 @pytest.fixture(scope="session")
 def _shared_test_client():
     """One TestClient - and therefore one ASGI lifespan/anyio blocking-portal

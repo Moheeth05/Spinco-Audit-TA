@@ -14,7 +14,13 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal, InvalidOperation
 
-from app.services.category_map import detect_catering_amount, expected_bill_label, mentions_catering, normalize_category
+from app.services.category_map import (
+    detect_catering_amount,
+    expected_bill_label,
+    is_multi_service_aggregator,
+    mentions_catering,
+    normalize_category,
+)
 from app.services.extraction.dates import could_represent_date
 from app.services.extraction.money import amounts_match
 
@@ -396,13 +402,39 @@ def check_category_consistency(
         # usually more all independently agreed), withholding PASS on this
         # one missing, secondary field alone would be exactly the "false
         # REVIEW REQUIRED for an absent optional field" failure mode this
-        # task was raised to fix - confirmed on two real cases (a CAB
-        # CHARGES UPI transfer and a LODGING-via-MakeMyTrip payment
-        # screenshot, both HIGH-confidence amount+date matches). A weaker
-        # (MEDIUM/LOW) match with no category evidence at all stays
-        # REVIEW_REQUIRED, unchanged - there the match itself is still
-        # uncertain, so withholding evidence doesn't have the same
-        # "secondary field on an otherwise-solid match" character.
+        # was raised to fix - confirmed on a real case (a CAB CHARGES UPI
+        # transfer to an individual, a HIGH-confidence amount+date match).
+        #
+        # EXCEPT when the bill is from a known multi-service travel
+        # aggregator (Cleartrip, MakeMyTrip, etc.) - there, "no category
+        # evidence" is a meaningfully different, more ambiguous signal: the
+        # vendor itself books flights, hotels, AND ground transport under one
+        # brand, so an amount+date match alone says nothing about WHICH
+        # service this document represents. Auto-passing that would be
+        # exactly "pass an expense simply because the vendor is a travel
+        # aggregator", explicitly required not to happen - this always stays
+        # REVIEW_REQUIRED with a specific reason, regardless of match
+        # confidence (confirmed real case: a LODGING claim's matched bill was
+        # a PhonePe payment screenshot reading "To Make My Trip" - no hotel/
+        # flight/transport term anywhere, genuinely indeterminate).
+        #
+        # A weaker (MEDIUM/LOW) non-aggregator match with no category
+        # evidence at all stays REVIEW_REQUIRED too, unchanged - there the
+        # match itself is still uncertain, so withholding evidence doesn't
+        # have the same "secondary field on an otherwise-solid match"
+        # character.
+        if is_multi_service_aggregator(getattr(bill, "vendor", None)) or is_multi_service_aggregator(getattr(bill, "raw_text", None)):
+            return CheckResult(
+                check_type=check_type,
+                result=REVIEW_REQUIRED,
+                details=(
+                    "The matched bill is from a multi-service travel-booking aggregator and its content did not "
+                    "establish which service (flight, lodging, or ground transport) it represents - the vendor "
+                    "name alone is not evidence of category."
+                ),
+                remarks="Aggregator vendor with no service-type evidence - needs manual review",
+                source_page=bill.page_number,
+            )
         if bill_match_confidence == "HIGH":
             return CheckResult(
                 check_type=check_type,
@@ -441,7 +473,51 @@ def check_category_consistency(
         result=EXCEPTION,
         exception_type="CATEGORY MISMATCH",
         details=f"Expected evidence: {expected}; bill evidence: {bill.category_guess}",
-        remarks="Supporting bill does not appear consistent with the claimed expense category.",
+        remarks=(
+            f"Supporting bill does not appear consistent with the claimed expense category: claimed "
+            f"{normalize_category(category) or category} (expects {expected} evidence), but the bill on page "
+            f"{bill.page_number} reads as {bill.category_guess} evidence."
+        ),
+        source_page=bill.page_number,
+    )
+
+
+# ---------- 5b. Multi-page bill grouping review ----------
+
+
+def check_bill_grouping_review(*, bill) -> CheckResult:
+    """A bill assembled from bill_grouping.py's conservative continuation-
+    evidence grouping (2+ PDF pages treated as one logical bill - see
+    models/bill.py's Bill.page_number_end) must never be treated as fully
+    confirmed on amount/date/category confidence alone. The page grouping
+    itself is a judgment call bill_pipeline.py deliberately never trusts
+    silently (every grouped bill's own extraction_status starts
+    REVIEW_REQUIRED) - this check is what makes that uncertainty actually
+    block ACCOUNT VERIFIED, rather than being overridden the moment the
+    grouped bill's amount/date/category all happen to look confident
+    (confirmed real gap: without this check, a grouped bill with a clean
+    amount+date+category match reached ACCOUNT VERIFIED with zero
+    exceptions, even though the page-grouping that produced those fields was
+    never independently confirmed by a human). Checked against the same
+    candidate bill the other amount/date/category checks use - see
+    check_bill_amount's docstring for why that's the right evidence source
+    even before a match is confirmed."""
+    check_type = "Bill Grouping Review Check"
+    if bill is None or bill.page_number_end is None:
+        return CheckResult(
+            check_type=check_type,
+            result=NOT_APPLICABLE,
+            details="This bill was not assembled from multiple pages.",
+            remarks="Not applicable",
+        )
+    return CheckResult(
+        check_type=check_type,
+        result=REVIEW_REQUIRED,
+        details=(
+            f"This bill was assembled from pages {bill.page_number}-{bill.page_number_end} based on continuation "
+            "evidence, not a single page - verify the page grouping is correct before treating this as confirmed."
+        ),
+        remarks="Multi-page bill grouping requires manual confirmation.",
         source_page=bill.page_number,
     )
 

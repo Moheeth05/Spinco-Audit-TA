@@ -99,6 +99,7 @@ def get_expense_lines(report_id: int, db: Session = Depends(get_db), _user: User
             expense_date=e.expense_date,
             category=e.category,
             merchant=e.merchant,
+            reference_id=e.reference_id,
             expense_details=e.expense_details,
             claimed_amount=e.claimed_amount,
             source_page=e.source_page,

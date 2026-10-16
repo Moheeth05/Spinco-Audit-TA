@@ -36,6 +36,11 @@ _EXPENSE_COLUMNS = [
     # Expense.candidate_bill_id) - new nullable column on the pre-existing
     # `expenses` table for a pre-existing database that predates this feature.
     ("expenses", "candidate_bill_id", "INTEGER"),
+    # P0 follow-up: separates a "Ref# : <value>" expense-row prefix line from
+    # category (see models/expense_report.py's Expense.reference_id) for
+    # pre-existing databases that already have an `expenses` table without
+    # this column.
+    ("expenses", "reference_id", "VARCHAR(100)"),
 ]
 
 # Post-UAT correction 2: manual "Verify" workflow (see
@@ -57,6 +62,10 @@ _BILL_COLUMNS = [
     ("bills", "document_type_confidence", "FLOAT"),
     ("bills", "transaction_reference", "VARCHAR(100)"),
     ("bills", "catering_amount", "NUMERIC(12, 2)"),
+    # Multi-page bill grouping (see models/bill.py's Bill.page_number_end and
+    # extraction/bill_grouping.py) - new nullable column on the pre-existing
+    # `bills` table for a pre-existing database that predates this feature.
+    ("bills", "page_number_end", "INTEGER"),
 ]
 
 _ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS + _EXCEPTION_COLUMNS + _BILL_COLUMNS

@@ -8,6 +8,7 @@ class BillOut(BaseModel):
 
     id: int
     page_number: int | None
+    page_number_end: int | None
     vendor: str | None
     bill_number: str | None
     bill_date: date | None

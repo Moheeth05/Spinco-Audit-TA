@@ -181,6 +181,7 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
                 expense_date=line["expense_date"],
                 category=_resolve_category(db, line["category"], line.get("merchant")),
                 merchant=line.get("merchant"),
+                reference_id=line.get("reference_id"),
                 expense_details=line["expense_details"],
                 claimed_amount=line["claimed_amount"],
                 source_page=line["source_page"],

@@ -75,6 +75,12 @@ _REVIEW_FAMILY_BY_CHECK_TYPE = {
     # problem at all: the bill matched fine, the auditor just needs to see
     # that catering was bundled into the fare.
     "Catering Check": "CATERING INCLUDED",
+    # Its own family, not folded into "BILL MATCH REVIEW REQUIRED" - a
+    # grouped bill can be a confident, uniquely-matched MATCH (no matching
+    # ambiguity at all) while still needing a human to confirm the page-
+    # grouping itself was correct; that's a different kind of uncertainty
+    # from "which bill, if any, actually matches this expense".
+    "Bill Grouping Review Check": "BILL GROUPING REVIEW REQUIRED",
 }
 
 # Coarser "root cause" grouping used only to suppress a review-required
@@ -100,6 +106,12 @@ _REVIEW_FAMILY_ROOT = {
     "BILL MATCH REVIEW REQUIRED": "BILL",
     "TRIP MATCH REVIEW REQUIRED": "TRIP",
     "REPORT TOTAL REVIEW REQUIRED": "TOTAL",
+    # Same root as the other bill-evidence families - if this expense
+    # already has a confirmed BILL-rooted EXCEPTION (AMOUNT MISMATCH,
+    # MISSING BILL, etc.), a separate "also verify the page grouping" review
+    # row would just be redundant noise on top of the already-surfaced
+    # problem; the auditor is already looking at this bill.
+    "BILL GROUPING REVIEW REQUIRED": "BILL",
 }
 
 

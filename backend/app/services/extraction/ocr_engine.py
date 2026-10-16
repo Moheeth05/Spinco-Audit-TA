@@ -6,12 +6,17 @@ so photographed supporting bills (out of scope until Phase 4) are left
 alone rather than OCR'd unnecessarily.
 """
 
+import logging
 import os
+import threading
+import time
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 from app.services.interfaces import OCREngine
+
+logger = logging.getLogger(__name__)
 
 _configured = False
 
@@ -34,9 +39,14 @@ def _configure_tesseract() -> None:
     global _configured
     if _configured:
         return
-    _configured = True
 
     import pytesseract
+
+    # Marked done only once pytesseract actually imported: if the import
+    # fails, a later retry (see TesseractOCREngine.is_available) must still
+    # run the configuration below, not skip it and then probe the wrong
+    # (default PATH) Tesseract forever.
+    _configured = True
 
     explicit_cmd = os.environ.get("SPINCO_TESSERACT_CMD")
     if explicit_cmd:
@@ -131,21 +141,73 @@ def preprocess_for_difficult_ocr(image_bytes: bytes) -> bytes:
     return out.getvalue()
 
 
+# A failed Tesseract availability check is a TEMPORARY condition (e.g. a
+# process spawn failing under load), not a permanent verdict: it used to be
+# cached as False for the life of the process, which silently disabled OCR for
+# every later page - and in the long-lived packaged backend, until restart.
+# Only a success is cached. A failed check is retried a couple of times
+# straight away (a transient glitch usually clears within a moment), and if it
+# still fails the next check is held off for a cooldown so a persistently
+# missing Tesseract costs at most one bounded round of checks per cooldown, no
+# matter how many pages or threads ask.
+_AVAILABILITY_PROBE_ATTEMPTS = 3
+_AVAILABILITY_PROBE_RETRY_DELAY_SECONDS = 0.25
+_AVAILABILITY_RETRY_COOLDOWN_SECONDS = 5.0
+
+# Indirection so tests can drive time without real waiting.
+_monotonic = time.monotonic
+_sleep = time.sleep
+
+
 class TesseractOCREngine(OCREngine):
     def __init__(self):
+        # True once Tesseract has been confirmed usable, and then never
+        # re-checked. Never set to False: failure is not cached (see above).
         self._available: bool | None = None
+        self._probe_lock = threading.Lock()
+        self._next_probe_at: float | None = None
 
     def is_available(self) -> bool:
-        if self._available is None:
-            try:
-                _configure_tesseract()
-                import pytesseract
+        if self._available:
+            return True
 
-                pytesseract.get_tesseract_version()
+        # One check at a time: concurrent OCR worker threads that arrive while
+        # a check is in flight wait for its result instead of each starting
+        # their own, and a failed round's cooldown applies to all of them.
+        with self._probe_lock:
+            if self._available:
+                return True
+            if self._next_probe_at is not None and _monotonic() < self._next_probe_at:
+                return False
+
+            last_error: Exception | None = None
+            for attempt in range(_AVAILABILITY_PROBE_ATTEMPTS):
+                try:
+                    _configure_tesseract()
+                    import pytesseract
+
+                    pytesseract.get_tesseract_version()
+                except Exception as exc:  # noqa: BLE001 - any failure to run Tesseract means "not available right now"
+                    last_error = exc
+                    if attempt + 1 < _AVAILABILITY_PROBE_ATTEMPTS:
+                        _sleep(_AVAILABILITY_PROBE_RETRY_DELAY_SECONDS)
+                    continue
+
+                recovered = self._next_probe_at is not None
                 self._available = True
-            except Exception:
-                self._available = False
-        return self._available
+                self._next_probe_at = None
+                if recovered:
+                    logger.info("Tesseract is available again; local OCR has resumed.")
+                return True
+
+            self._next_probe_at = _monotonic() + _AVAILABILITY_RETRY_COOLDOWN_SECONDS
+            logger.warning(
+                "Tesseract availability check failed (%s: %s); local OCR is unavailable and will be re-checked in %.0fs.",
+                type(last_error).__name__,
+                last_error,
+                _AVAILABILITY_RETRY_COOLDOWN_SECONDS,
+            )
+            return False
 
     def _ocr_pass(self, image: Any) -> dict[str, Any]:
         """One Tesseract image_to_data call, parsed into this engine's

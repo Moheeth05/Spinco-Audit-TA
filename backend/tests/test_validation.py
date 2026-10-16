@@ -36,6 +36,7 @@ def _policy(**kwargs):
 def _bill(**kwargs):
     defaults = dict(
         page_number=3,
+        page_number_end=None,
         amount=2000.0,
         bill_date=date(2026, 6, 1),
         category_guess="Fuel",
@@ -169,6 +170,33 @@ def test_18_category_consistency_train_bus_interchangeable():
         category="TRAIN / BUS FARE", bill=_bill(category_guess="Bus")
     )
     assert result.result == checks.PASS
+
+
+# ---------- 18b: multi-page bill grouping review ----------
+#
+# Confirmed real gap (live UAT): a grouped (multi-page) bill with a fully
+# confident amount+date+category reached ACCOUNT VERIFIED with zero
+# exceptions, even though the page-grouping that produced those fields was
+# never independently confirmed by a human - this check closes that gap.
+
+
+def test_18b_single_page_bill_is_not_applicable():
+    result = checks.check_bill_grouping_review(bill=_bill(page_number_end=None))
+    assert result.result == checks.NOT_APPLICABLE
+
+
+def test_18b_no_candidate_bill_is_not_applicable():
+    result = checks.check_bill_grouping_review(bill=None)
+    assert result.result == checks.NOT_APPLICABLE
+
+
+def test_18b_grouped_bill_always_requires_review_even_with_confident_fields():
+    """The exact confirmed-gap scenario: amount/date/category are all
+    confident (category_guess='Fuel' is a clean compatible match), but the
+    bill spans pages 2-3 - this must still be REVIEW_REQUIRED."""
+    result = checks.check_bill_grouping_review(bill=_bill(page_number=2, page_number_end=3))
+    assert result.result == checks.REVIEW_REQUIRED
+    assert "2-3" in result.details
 
 
 # ---------- 19-20: duplicate bill ----------
@@ -388,10 +416,12 @@ def test_28_revalidate_does_not_duplicate_rows(client):
     assert resp2.status_code == 200
 
     validations = client.get(f"/api/expense-reports/{report_id}/validations").json()
-    # 8 per-expense checks (Phase 6 added Batta Trip Match Check, which
-    # correctly returns NOT_APPLICABLE here since this expense isn't BATTA)
-    # + 1 report-level total check = 9, not 18.
-    assert len(validations) == 9
+    # 9 per-expense checks (Phase 6 added Batta Trip Match Check, which
+    # correctly returns NOT_APPLICABLE here since this expense isn't BATTA;
+    # the multi-page bill grouping follow-up added Bill Grouping Review
+    # Check, NOT_APPLICABLE here since there's no candidate bill at all)
+    # + 1 report-level total check = 10, not 20.
+    assert len(validations) == 10
 
 
 # ---------- 29: mandatory ER-39832 reference case (real PDF) ----------

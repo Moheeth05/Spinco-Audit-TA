@@ -6,6 +6,7 @@ can't be found stays None and is surfaced as a warning."""
 import re
 from typing import Any
 
+from app.services.category_map import is_policy_master_category
 from app.services.extraction.dates import parse_date
 from app.services.extraction.money import parse_amount
 
@@ -20,6 +21,29 @@ SIGNATURE_RE = re.compile(r"^([A-Z][A-Za-z .]+?)\s*\(\s*([A-Z]{1,6}\d{1,6})\s*\)
 # original 4 sample ERs this parser was built against don't have it, so
 # this is opt-in: only consumed when actually present, never assumed).
 MERCHANT_LINE_RE = re.compile(r"^Merchant\s*:\s*(.+)$", re.IGNORECASE)
+# A second, independently-optional prefix line some real layouts print
+# (observed real case: "Ref# : T2609020947244431394997"). Confirmed real P0
+# defect this fixes: code that only ever rescued ONE specific labelled line
+# (hardcoded to "Merchant") stored a Ref# line's text directly as the
+# category whenever one was present - the reference number ended up in
+# Expense.category, and the real category got pushed down into
+# expense_details as free text.
+REFERENCE_LINE_RE = re.compile(r"^Ref(?:erence)?#?\s*:\s*(.+)$", re.IGNORECASE)
+# A real multi-page document (ER-40513, 28 rows) was found to print at LEAST
+# five distinct kinds of optional "Label : value" line ahead of the category
+# (Merchant, Ref#, Expense Location, PNR Number, Attendees, Start & End KM) -
+# an open-ended set no fixed list of per-label regexes can ever fully
+# enumerate for an unseen future report. Rather than keep adding one more
+# hardcoded label pattern every time a new document surfaces another one,
+# extract_expense_lines() instead recognizes the category line by what it
+# IS (a real, closed, 29-name Policy Master category - see
+# category_map.is_policy_master_category) rather than by what line position
+# it happens to occupy. Every line between the date and the first such match
+# is preserved - Merchant/Ref# into their own fields since those are the two
+# the rest of the system needs separately, everything else folded into
+# expense_details as evidence text - never discarded, never mistaken for the
+# category.
+MAX_PRE_CATEGORY_LINES = 8
 
 
 def _flatten(pages: list[dict[str, Any]]) -> list[tuple[int, str]]:
@@ -175,18 +199,50 @@ def extract_expense_lines(pages: list[dict[str, Any]]) -> tuple[list[dict[str, A
             i = idx + 1
 
             cat_page, category, idx = _next_nonblank(flat, i)
-            i = idx + 1
             merchant, merchant_page = None, None
-            if category is not None:
+            reference, reference_page = None, None
+            pre_category_lines: list[str] = []
+            # Scan forward from the date line for the first line that
+            # actually IS one of the 29 real categories - see
+            # MAX_PRE_CATEGORY_LINES's comment above for why membership,
+            # not position, is what identifies it. `i` is only ever advanced
+            # once a line has actually been consumed (as Merchant/Ref#/
+            # evidence/category) - if the scan instead runs into the next
+            # row marker or the amount line, it stops WITHOUT consuming that
+            # line, so the amount-scan loop below still sees it.
+            while category is not None:
+                if ROW_START_RE.match(category) or AMOUNT_ONLY_RE.match(category):
+                    category = None
+                    break
                 m = MERCHANT_LINE_RE.match(category)
                 if m:
-                    # That line was "Merchant : X", not the category - the
-                    # real category is the line after it.
                     merchant, merchant_page = m.group(1).strip(), cat_page
-                    cat_page, category, idx = _next_nonblank(flat, i)
                     i = idx + 1
+                    cat_page, category, idx = _next_nonblank(flat, i)
+                    continue
+                m = REFERENCE_LINE_RE.match(category)
+                if m:
+                    reference, reference_page = m.group(1).strip(), cat_page
+                    i = idx + 1
+                    cat_page, category, idx = _next_nonblank(flat, i)
+                    continue
+                if is_policy_master_category(category):
+                    i = idx + 1
+                    break
+                if len(pre_category_lines) >= MAX_PRE_CATEGORY_LINES:
+                    # Never seen a genuine category within a generous bound -
+                    # give up rather than risk scanning past the amount line
+                    # into the next row entirely; downstream policy lookup
+                    # will correctly fail to resolve whatever raw text this
+                    # row does end up with, surfacing as REVIEW_REQUIRED
+                    # rather than silently guessing.
+                    category = None
+                    break
+                pre_category_lines.append(category)
+                i = idx + 1
+                cat_page, category, idx = _next_nonblank(flat, i)
 
-            detail_lines: list[str] = []
+            detail_lines: list[str] = list(pre_category_lines)
             amount = None
             amount_page = row_page
             found_amount = False
@@ -219,6 +275,7 @@ def extract_expense_lines(pages: list[dict[str, Any]]) -> tuple[list[dict[str, A
                     "expense_date": expense_date,
                     "category": category,
                     "merchant": merchant,
+                    "reference_id": reference,
                     "expense_details": details,
                     "claimed_amount": amount,
                     "source_page": row_page,

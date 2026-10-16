@@ -89,6 +89,60 @@ def could_represent_date(text: str | None, candidate: date) -> bool:
     return False
 
 
+# A US-style receipt timestamp: a bare short date immediately followed by a
+# 12-hour clock time ("7/6/26 10:22 AM" - Uber's payment line). This exact shape
+# is what ties the date to ONE issuer format; an Indian fuel-pump receipt
+# ("Date : 13/07/26", 24-hour time) never matches it.
+_US_TIMESTAMP_RE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{2})\s+\d{1,2}:\d{2}\s*[AaPp]\.?[Mm]\b")
+
+
+def _us_timestamps(text: str | None) -> list[tuple[int, int, int]]:
+    return [(int(a), int(b), int(yy)) for a, b, yy in _US_TIMESTAMP_RE.findall(text or "")]
+
+
+def us_timestamp_convention(texts: list[str | None]) -> str | None:
+    """Which order this report's US-style timestamps use, proven ONLY by a
+    timestamp that cannot be read the other way: "MDY" when some timestamp has
+    a second number above 12 ("7/17/26" can only be July 17) and none has a
+    first number above 12 ("13/7/26" can only be 13 July); "DMY" for the
+    reverse; None when there is no proof or the report contradicts itself.
+    Never inferred from an expense date or from a claim - evidence from the
+    bills' own text only."""
+    mdy = dmy = False
+    for text in texts:
+        for a, b, _ in _us_timestamps(text):
+            if a <= 12 < b:
+                mdy = True
+            elif b <= 12 < a:
+                dmy = True
+    if mdy and not dmy:
+        return "MDY"
+    if dmy and not mdy:
+        return "DMY"
+    return None
+
+
+def month_first_reading(text: str | None, parsed: date | None, convention: str | None) -> date | None:
+    """The month-first (MM/DD) reading of a receipt whose ONLY date evidence is
+    one ambiguous US-style timestamp that find_all_dates read day-first (so
+    "7/6/26" was stored as 7 June instead of 6 July) - returned only when the
+    report's own receipts prove this format is month-first (see
+    us_timestamp_convention). None (leave the stored date alone) in every other
+    case: other dates on the page, an unambiguous timestamp, a symmetric
+    ("7/7/26") one, or no proven convention."""
+    if convention != "MDY" or parsed is None:
+        return None
+    stamps = _us_timestamps(text)
+    if len(stamps) != 1 or find_all_dates(text or "") != [parsed]:
+        return None
+    a, b, yy = stamps[0]
+    if not (1 <= a <= 12 and 1 <= b <= 12) or a == b:
+        return None
+    if parsed != _safe_date(2000 + yy, b, a):  # the stored date must really be the day-first misreading
+        return None
+    return _safe_date(2000 + yy, a, b)
+
+
 def find_all_dates(text: str) -> list[date]:
     text = text or ""
     found: list[tuple[int, date]] = []  # (position, date) - kept in document order

@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Clock, Eye, FileText, Loader2, Map as MapIcon, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApi } from '../api/useApi'
 import { deleteDocument, uploadFiles } from '../api/uploads'
@@ -25,6 +25,14 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
+// extraction_status values that mean the background extraction hasn't finished yet.
+const EXTRACTION_PENDING = new Set(['NOT_PROCESSED', 'PROCESSING'])
+const POLL_INTERVAL_MS = 3000
+
+function isExtractionPending(upload) {
+  return upload.processing_status !== 'FAILED' && EXTRACTION_PENDING.has(upload.extraction_status)
+}
+
 function QueueStatusIcon({ status }) {
   if (status === 'PROCESSING') return <Loader2 size={15} className="spin" color="var(--blue-600)" />
   if (status === 'PROCESSED') return <CheckCircle2 size={15} color="var(--success)" />
@@ -36,7 +44,30 @@ export default function UploadPage() {
   const navigate = useNavigate()
   const [tab, setTab] = useState('EXPENSE_REPORT')
   const [queue, setQueue] = useState([]) // [{ filename, size, status, progress, errorMessage }]
-  const { data: uploads, loading, error, refetch } = useApi('/uploads')
+  const { data: uploads, loading, error, refetch, refetchSilently } = useApi('/uploads')
+
+  // The upload request returns as soon as the file is stored; extraction/OCR
+  // continues in the background and can take minutes for a large scanned
+  // report. Poll quietly until nothing is pending so the queue and the
+  // Uploaded Files table reflect the real state without a manual refresh.
+  const anyPending = (uploads || []).some(isExtractionPending)
+  useEffect(() => {
+    if (!anyPending) return undefined
+    const timer = setInterval(refetchSilently, POLL_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [anyPending, refetchSilently])
+
+  const uploadsById = new Map((uploads || []).map((u) => [u.document_id, u]))
+
+  // A queue row only counts as finished once extraction itself is done.
+  function effectiveQueueState(row) {
+    if (row.status !== 'PROCESSED') return { status: row.status, errorMessage: row.errorMessage }
+    const upload = row.documentId ? uploadsById.get(row.documentId) : null
+    if (!upload) return { status: row.status, errorMessage: row.errorMessage }
+    if (isExtractionPending(upload)) return { status: 'PROCESSING', errorMessage: 'Extracting data from the PDF - this can take a few minutes for scanned reports.' }
+    if (upload.extraction_status === 'FAILED') return { status: 'FAILED', errorMessage: 'Extraction failed. Open the file to see details or reprocess it.' }
+    return { status: row.status, errorMessage: row.errorMessage }
+  }
 
   async function handleFiles(files) {
     const queueEntries = files.map((f) => ({ filename: f.name, size: f.size, status: 'PROCESSING', progress: 0 }))
@@ -58,6 +89,7 @@ export default function UploadPage() {
             status: result.success ? 'PROCESSED' : 'FAILED',
             progress: 100,
             errorMessage: result.error_message,
+            documentId: result.document_id,
           }
         })
       )
@@ -94,7 +126,7 @@ export default function UploadPage() {
     {
       key: 'processing_status',
       header: 'Status',
-      render: (r) => <StatusBadge status={r.processing_status} />,
+      render: (r) => <StatusBadge status={isExtractionPending(r) ? 'PROCESSING' : r.processing_status} />,
     },
     {
       key: 'action',
@@ -132,21 +164,24 @@ export default function UploadPage() {
       {queue.length > 0 && (
         <Card title="Processing Queue" subtitle="This session's in-flight and just-completed uploads">
           <div>
-            {queue.map((row, i) => (
-              <div key={i} className="queue-row">
-                <div>
-                  <div className="queue-filename">{row.filename}</div>
-                  {row.errorMessage && <div className="queue-error">{row.errorMessage}</div>}
-                  {row.status === 'PROCESSING' && <ProgressBar percent={row.progress} />}
+            {queue.map((row, i) => {
+              const { status, errorMessage } = effectiveQueueState(row)
+              return (
+                <div key={i} className="queue-row">
+                  <div>
+                    <div className="queue-filename">{row.filename}</div>
+                    {errorMessage && <div className={status === 'PROCESSING' ? 'queue-note' : 'queue-error'}>{errorMessage}</div>}
+                    {status === 'PROCESSING' && <ProgressBar percent={row.progress} />}
+                  </div>
+                  <div className="queue-size">{formatBytes(row.size)}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
+                    <QueueStatusIcon status={status} />
+                    {status}
+                  </div>
+                  <div />
                 </div>
-                <div className="queue-size">{formatBytes(row.size)}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600 }}>
-                  <QueueStatusIcon status={row.status} />
-                  {row.status}
-                </div>
-                <div />
-              </div>
-            ))}
+              )
+            })}
           </div>
         </Card>
       )}

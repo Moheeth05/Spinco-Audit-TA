@@ -525,6 +525,7 @@ def test_ocr_fallback_escalates_when_confident_but_amount_and_date_both_absent(m
             }
 
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     called = {}
 
     def _fake_fallback(image_bytes):
@@ -562,6 +563,7 @@ def test_ocr_fallback_does_not_escalate_when_amount_and_date_present(monkeypatch
             }
 
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     def _fail_if_called(image_bytes):
         raise AssertionError("NVIDIA fallback must not fire when amount and date are both already present")
@@ -640,10 +642,14 @@ def test_empty_200dpi_result_retries_and_succeeds_at_300dpi():
 
 
 def test_empty_at_both_resolutions_leaves_page_without_usable_text():
+    """Updated for the handwritten-OCR task: the retry now has TWO stages
+    (plain higher-DPI, then preprocessed higher-DPI) - both must come back
+    empty here, so 3 total OCR calls (default pass + both retry stages)."""
     from app.services.extraction.text_extraction import PyMuPDFTextExtractor
 
     ocr = _SequencedOCR(
         [
+            {"text": "", "confidence": 0.0, "words": []},
             {"text": "", "confidence": 0.0, "words": []},
             {"text": "", "confidence": 0.0, "words": []},
         ]
@@ -652,8 +658,8 @@ def test_empty_at_both_resolutions_leaves_page_without_usable_text():
     try:
         extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
         pages = extractor.content_pages(tmp_path)
-        assert ocr.calls == 2
-        assert pages[0]["source"] == "native"  # unchanged - the retry also came back empty
+        assert ocr.calls == 3
+        assert pages[0]["source"] == "native"  # unchanged - every retry attempt also came back empty
         assert pages[0]["has_selectable_text"] is False
     finally:
         tmp_path.unlink(missing_ok=True)
@@ -737,20 +743,51 @@ def test_retry_exception_does_not_crash_extraction():
         tmp_path.unlink(missing_ok=True)
 
 
-def test_exactly_one_retry_per_page():
+def test_retry_is_bounded_never_loops_indefinitely():
+    """Updated for the handwritten-OCR task: the retry mechanism now has two
+    bounded stages (plain higher-DPI, then preprocessed higher-DPI) - when
+    both come back empty, it must still stop at exactly 3 total OCR calls,
+    never retry a third time or loop."""
     from app.services.extraction.text_extraction import PyMuPDFTextExtractor
 
     ocr = _SequencedOCR(
         [
             {"text": "", "confidence": 0.0, "words": []},
             {"text": "", "confidence": 0.0, "words": []},
+            {"text": "", "confidence": 0.0, "words": []},
         ]
     )
-    tmp_path = _image_only_pdf_tmp("ocr_retry_exactly_once_tmp.pdf")
+    tmp_path = _image_only_pdf_tmp("ocr_retry_bounded_tmp.pdf")
     try:
         extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
         extractor.content_pages(tmp_path)
-        assert ocr.calls == 2  # the default-DPI attempt plus exactly one 300 DPI retry, never more
+        assert ocr.calls == 3  # default pass + plain-DPI retry + preprocessed retry, never more
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def test_preprocessed_retry_recovers_text_when_plain_retry_still_empty():
+    """The new second retry stage: when both the default pass AND the plain
+    higher-DPI retry come back empty, a THIRD attempt (same DPI, with
+    grayscale/contrast/threshold preprocessing applied) gets a chance -
+    confirms it fires and its result is adopted when it succeeds."""
+    from app.services.extraction.text_extraction import PyMuPDFTextExtractor
+
+    ocr = _SequencedOCR(
+        [
+            {"text": "", "confidence": 0.0, "words": []},
+            {"text": "", "confidence": 0.0, "words": []},
+            {"text": "Recovered via preprocessing", "confidence": 0.5, "words": []},
+        ]
+    )
+    tmp_path = _image_only_pdf_tmp("ocr_retry_preprocessed_success_tmp.pdf")
+    try:
+        extractor = PyMuPDFTextExtractor(ocr_engine=ocr)
+        pages = extractor.content_pages(tmp_path)
+        assert ocr.calls == 3
+        assert pages[0]["text"] == "Recovered via preprocessing"
+        assert pages[0]["source"] == "ocr"
+        assert pages[0]["has_selectable_text"] is True
     finally:
         tmp_path.unlink(missing_ok=True)
 

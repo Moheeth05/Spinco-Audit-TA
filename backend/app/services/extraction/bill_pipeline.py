@@ -13,7 +13,7 @@ from app.models.bill import Bill
 from app.models.bill_match import BillMatchCandidate
 from app.models.expense_report import Expense, ExpenseReport
 from app.services.category_map import normalize_category
-from app.services.extraction import bill_matcher, bill_parser, candidate_cleanup, document_classifier
+from app.services.extraction import bill_grouping, bill_matcher, bill_parser, candidate_cleanup, dates, document_classifier
 from app.services.extraction.text_extraction import PyMuPDFTextExtractor
 
 
@@ -81,10 +81,19 @@ def extract_and_match_bills(
     db.commit()
 
     bills: list[Bill] = []
-    for page in bill_pages:
-        if not bill_parser.has_bill_evidence(page["text"]):
+    bill_texts: list[tuple[Bill, str]] = []  # (bill, the exact text it was parsed from), for date reconciliation
+    # Conservative continuation-evidence grouping (bill_grouping.py) - a
+    # no-op for every single-page bill (the entire real corpus, by
+    # construction: each page becomes its own one-page "group" unless
+    # genuine continuation evidence says otherwise). See bill_grouping.py's
+    # module docstring for exactly what evidence triggers grouping.
+    for group in bill_grouping.group_bill_pages(bill_pages):
+        combined_text = "\n".join(p["text"] for p in group)
+        if not bill_parser.has_bill_evidence(combined_text):
             continue
-        segments = bill_parser.split_bill_segments(page["text"])
+        is_grouped = len(group) > 1
+        first_page, last_page = group[0], group[-1]
+        segments = bill_parser.split_bill_segments(combined_text)
         is_multi = len(segments) > 1
         page_had_evidence = False
         for segment in segments:
@@ -92,23 +101,35 @@ def extract_and_match_bills(
             if not bill_parser.parsed_has_evidence(parsed, segment):
                 continue
             page_had_evidence = True
-            if page.get("source") == "nvidia_ocr":
+            if any(p.get("source") == "nvidia_ocr" for p in group):
                 # Provenance/traceability (no schema change - this bill's
                 # existing page_number column already anchors it to a
                 # document+page for "View Source" navigation; this note
                 # documents which text this page's fields were parsed from).
                 parsed.warnings.append(
-                    f"Page text recovered via NVIDIA Nemotron OCR v2 fallback "
-                    f"(local OCR confidence too low or empty; OCR confidence {page.get('ocr_confidence'):.2f})."
+                    "Page text recovered via NVIDIA Nemotron OCR v2 fallback for at least one page in this group "
+                    "(local OCR confidence too low or empty)."
                 )
             if is_multi:
                 parsed.status = "REVIEW_REQUIRED"
                 parsed.warnings.append(
                     "This page appears to contain multiple bills; automatic separation may be unreliable."
                 )
+            if is_grouped:
+                # Grouping is always a judgment call, never silently trusted
+                # - every multi-page group is flagged for human review with
+                # an explicit, honest reason, regardless of how confident its
+                # own amount/date extraction otherwise looks.
+                parsed.status = "REVIEW_REQUIRED"
+                parsed.warnings.append(
+                    f"Pages {first_page['page_number']}-{last_page['page_number']} were grouped as one logical "
+                    "bill based on continuation evidence (a repeated invoice/bill number or an explicit "
+                    "continuation marker) - verify this grouping is correct before relying on it."
+                )
             bill = Bill(
                 expense_report_id=row.id,
-                page_number=page["page_number"],
+                page_number=first_page["page_number"],
+                page_number_end=last_page["page_number"] if is_grouped else None,
                 vendor=parsed.vendor,
                 bill_number=parsed.bill_number,
                 bill_date=parsed.bill_date,
@@ -123,20 +144,39 @@ def extract_and_match_bills(
             )
             db.add(bill)
             bills.append(bill)
+            bill_texts.append((bill, segment))
 
         if not page_had_evidence:
             # Last-resort fallback: bill_parser.py's own deterministic rules
-            # found nothing on this page at all (not even a malformed
+            # found nothing on this group at all (not even a malformed
             # amount/GSTIN/bill-number), so give the optional NVIDIA
-            # classifier one chance at it. Disabled by default and a no-op
-            # unless configured (document_classifier.is_available()) - when
-            # unavailable or the response doesn't validate, this page is
+            # classifier one chance per page. Disabled by default and a
+            # no-op unless configured (document_classifier.is_available()) -
+            # when unavailable or the response doesn't validate, each page is
             # dropped exactly as it always was before this feature existed.
-            classification = document_classifier.classify_page(page["text"])
-            if classification is not None and classification.document_type != "NOT_APPLICABLE":
-                bill = _bill_from_classification(row.id, page, classification)
-                db.add(bill)
-                bills.append(bill)
+            for page in group:
+                classification = document_classifier.classify_page(page["text"])
+                if classification is not None and classification.document_type != "NOT_APPLICABLE":
+                    bill = _bill_from_classification(row.id, page, classification)
+                    db.add(bill)
+                    bills.append(bill)
+    # US-style receipts (Uber's "7/6/26 10:22 AM") print the date month-first,
+    # which the day-first default reads as 7 June instead of 6 July whenever
+    # both numbers are <= 12. Resolved ONLY from the report's own receipts: if
+    # another receipt in this format has a second number above 12 (7/17/26 can
+    # only be July 17) and none contradicts it, the format is proven month-first
+    # for this report and the ambiguous receipts are read the same way. Never
+    # guessed from an expense date; a report with no proof is left untouched.
+    convention = dates.us_timestamp_convention([text for _, text in bill_texts])
+    for bill, text in bill_texts:
+        corrected = dates.month_first_reading(text, bill.bill_date, convention)
+        if corrected is not None:
+            note = (
+                f"Receipt date read month-first as {corrected.isoformat()} (not {bill.bill_date.isoformat()}): this "
+                "report's other receipts in the same format prove it prints MM/DD/YY."
+            )
+            bill.extraction_notes = f"{bill.extraction_notes}; {note}" if bill.extraction_notes else note
+            bill.bill_date = corrected
     db.commit()
     for bill in bills:
         db.refresh(bill)
@@ -179,29 +219,42 @@ def extract_and_match_bills(
             BillMatchCandidate.expense_id.in_([e.id for e in expenses])
         ).delete(synchronize_session=False)
 
-    # Bills already claimed by an earlier expense in this same pass (either a
-    # CONFIRMED single-bill match, or as one half of an earlier expense's
-    # split-payment pair - see bill_matcher.MatchOutcome.split_payment_bill_ids)
-    # must never be offered again as split-payment evidence for a LATER
-    # expense; a normal single-bill MATCHED candidate can still independently
-    # score the same bill for two expenses (existing, unchanged behaviour -
-    # check_duplicate_bill is the established downstream safety net for
-    # that), but the split-payment fallback has no equivalent downstream
-    # check (it never sets a confirmed bill_id), so it must not double-count
-    # a bill at match time instead.
-    claimed_bill_ids: set[int] = set()
+    # BATTA (daily allowance) has no supporting-document requirement at all
+    # (Policy Master's document_required is DNA for BATTA) - it is validated
+    # against Trip Report evidence only (see batta_pipeline.py), never against
+    # a bill. Scanning bill candidates for it anyway is worse than
+    # unnecessary: a BATTA claim can incidentally score against some
+    # unrelated travel/cab bill filed the same day, which used to surface as
+    # confusing "no bill found"/"ambiguous match" review noise on an expense
+    # that was never supposed to have a bill in the first place. A None entry
+    # tells bill_matcher.allocate_bills to skip it.
+    expense_dicts: list[dict | None] = [
+        None
+        if _is_batta(expense.category)
+        else {
+            "s_no": expense.s_no,
+            "claimed_amount": float(expense.claimed_amount) if expense.claimed_amount is not None else None,
+            "expense_date": expense.expense_date,
+            "category": expense.category,
+            "expense_details": expense.expense_details,
+            "expense_rank": rank,
+        }
+        for rank, expense in enumerate(expenses, start=1)
+    ]
 
-    for rank, expense in enumerate(expenses, start=1):
-        if _is_batta(expense.category):
-            # BATTA (daily allowance) has no supporting-document requirement
-            # at all (Policy Master's document_required is DNA for BATTA) -
-            # it is validated against Trip Report evidence only (see
-            # batta_pipeline.py), never against a bill. Scanning bill
-            # candidates for it anyway is worse than unnecessary: a BATTA
-            # claim can incidentally score against some unrelated travel/cab
-            # bill filed the same day, which used to surface as confusing
-            # "no bill found"/"ambiguous match" review noise on an expense
-            # that was never supposed to have a bill in the first place.
+    # Whole-report allocation (see bill_matcher.allocate_bills): per-expense
+    # matching, split-payment exclusion of already-claimed bills, and - new -
+    # evidence-based reconciliation when one bill was confidently chosen by
+    # more than one claim, so the claim the bill actually fits is not
+    # penalised for merely being processed second (or having a higher S.No).
+    outcomes = bill_matcher.allocate_bills(expense_dicts, bill_dicts, first_bill_page=first_bill_page)
+
+    # Bill.matched_expense_id records ONE expense per bill: the best-fitting
+    # confirmed claimant (highest match score), not simply the last one written.
+    best_claimant_score: dict[int, float] = {}
+
+    for expense, outcome in zip(expenses, outcomes):
+        if outcome is None:
             expense.bill_match_status = "NOT_APPLICABLE"
             expense.bill_match_score = None
             expense.bill_match_confidence = None
@@ -212,17 +265,6 @@ def extract_and_match_bills(
             expense.bill_date = None
             expense.candidate_bill_id = None
             continue
-
-        expense_dict = {
-            "claimed_amount": float(expense.claimed_amount) if expense.claimed_amount is not None else None,
-            "expense_date": expense.expense_date,
-            "category": expense.category,
-            "expense_details": expense.expense_details,
-            "expense_rank": rank,
-        }
-        outcome = bill_matcher.match_expense(
-            expense_dict, bill_dicts, first_bill_page=first_bill_page, excluded_bill_ids=claimed_bill_ids
-        )
 
         expense.bill_match_status = outcome.status
         expense.bill_match_score = outcome.score
@@ -237,15 +279,14 @@ def extract_and_match_bills(
             expense.bill_amount = matched_bill.amount
             expense.bill_date = matched_bill.bill_date
             matched_bill.match_status = "MATCHED"
-            matched_bill.matched_expense_id = expense.id
-            claimed_bill_ids.add(matched_bill.id)
+            if matched_bill.id not in best_claimant_score or (outcome.score or 0) > best_claimant_score[matched_bill.id]:
+                matched_bill.matched_expense_id = expense.id
+                best_claimant_score[matched_bill.id] = outcome.score or 0
         else:
             expense.bill_found = False
             expense.bill_id = None
             expense.bill_amount = None
             expense.bill_date = None
-            if outcome.split_payment_bill_ids is not None:
-                claimed_bill_ids.update(outcome.split_payment_bill_ids)
 
         for rank, candidate in enumerate(outcome.candidates, start=1):
             db.add(

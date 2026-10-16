@@ -83,17 +83,26 @@ def test_explicit_enabled_false_overrides_configured_key(monkeypatch):
     assert nvidia_fallback.is_available() is False
 
 
+def test_key_alone_does_not_enable(monkeypatch):
+    """Strict opt-in: a configured key with no enable flag stays disabled."""
+    monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.delenv("SPINCO_NVIDIA_ENABLED", raising=False)
+    assert nvidia_ocr.is_available() is False
+    assert nvidia_fallback.is_available() is False
+
+
 # ---------- 2. NVIDIA enabled ----------
 
 
-def test_enabled_when_key_present(monkeypatch):
+def test_enabled_when_key_present_and_flag_true(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
-    monkeypatch.delenv("SPINCO_NVIDIA_ENABLED", raising=False)
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     assert nvidia_ocr.is_available() is True
 
 
 def test_enabled_calls_confirmed_endpoint_and_parses_response(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     captured = {}
 
     def _fake_post(url, headers=None, json=None, timeout=None):
@@ -120,6 +129,7 @@ def test_enabled_calls_confirmed_endpoint_and_parses_response(monkeypatch):
 
 def test_missing_date_recovered_through_better_ocr_text(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(
         httpx,
         "post",
@@ -135,6 +145,7 @@ def test_missing_date_recovered_through_better_ocr_text(monkeypatch):
 
 def test_missing_amount_recovered_through_better_ocr_text(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(
         httpx,
         "post",
@@ -147,6 +158,7 @@ def test_missing_amount_recovered_through_better_ocr_text(monkeypatch):
 
 def test_vendor_recovered_through_better_ocr_text(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(
         httpx,
         "post",
@@ -165,18 +177,21 @@ def test_vendor_recovered_through_better_ocr_text(monkeypatch):
 
 def test_malformed_response_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, {"unexpected": "shape"}))
     assert nvidia_ocr.extract_text_from_image(FAKE_IMAGE) is None
 
 
 def test_empty_detections_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _ocr_response([])))
     assert nvidia_ocr.extract_text_from_image(FAKE_IMAGE) is None
 
 
 def test_timeout_returns_none_without_raising(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     def _raise_timeout(*a, **k):
         raise httpx.TimeoutException("timed out")
@@ -187,18 +202,21 @@ def test_timeout_returns_none_without_raising(monkeypatch):
 
 def test_api_error_5xx_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(500, {}))
     assert nvidia_ocr.extract_text_from_image(FAKE_IMAGE) is None
 
 
 def test_api_error_429_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(429, {}))
     assert nvidia_ocr.extract_text_from_image(FAKE_IMAGE) is None
 
 
 def test_invalid_key_unauthorized_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-invalid")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(401, {}))
     assert nvidia_ocr.extract_text_from_image(FAKE_IMAGE) is None
 
@@ -209,6 +227,7 @@ def test_invalid_key_unauthorized_returns_none(monkeypatch):
 def test_api_key_never_appears_in_exception_or_result(monkeypatch):
     secret = "nvapi-super-secret-value-do-not-leak"
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", secret)
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     def _raise(*a, **k):
         raise RuntimeError("boom - simulated failure")
@@ -234,6 +253,7 @@ def test_ocr_result_shape_carries_no_verdict_field(monkeypatch):
     {"text", "confidence"} - there is no field it could populate that any
     caller could mistake for ACCOUNT VERIFIED / EXCEPTION / MATCHED."""
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _ocr_response([("hello", 0.9)])))
     result = nvidia_ocr.extract_text_from_image(FAKE_IMAGE)
     assert set(result.keys()) == {"text", "confidence"}
@@ -244,6 +264,7 @@ def test_recovered_text_still_requires_deterministic_bill_matcher(monkeypatch):
     plain ParsedBill that must go through bill_matcher/checks - it never
     marks anything MATCHED/ACCOUNT VERIFIED itself."""
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(
         httpx,
         "post",
@@ -263,6 +284,7 @@ def test_batta_never_triggers_nvidia_ocr_or_bill_matching(monkeypatch):
     from app.services.extraction.bill_pipeline import _is_batta
 
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     def _fail_if_called(*a, **k):
         raise AssertionError("BATTA must never trigger an NVIDIA OCR call")
@@ -283,6 +305,7 @@ def test_batta_never_triggers_nvidia_ocr_or_bill_matching(monkeypatch):
 
 def test_catering_detected_in_nvidia_recovered_irctc_text(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(
         httpx,
         "post",
@@ -325,6 +348,7 @@ def test_nvidia_never_overrides_a_value_bill_parser_already_extracted(monkeypatc
     assert parsed.amount == 546.00
 
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     def _fail_if_called(*a, **k):
         raise AssertionError("nvidia_fallback must not be invoked when amount/date are already extracted")
@@ -344,6 +368,7 @@ def test_low_confidence_local_ocr_triggers_nvidia_fallback_in_pipeline(monkeypat
     (mocked, available) NVIDIA fallback to be tried and its better text used;
     a confident local OCR result is left alone (no NVIDIA call at all)."""
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     calls = {"count": 0}
 
@@ -389,6 +414,7 @@ def test_low_confidence_local_ocr_triggers_nvidia_fallback_in_pipeline(monkeypat
 
 def test_same_image_bytes_only_calls_api_once(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     calls = {"count": 0}
 
     def _fake_post(*a, **k):
@@ -404,6 +430,7 @@ def test_same_image_bytes_only_calls_api_once(monkeypatch):
 
 def test_cache_key_is_content_hash(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _ocr_response([("x", 0.9)])))
     nvidia_ocr.extract_text_from_image(FAKE_IMAGE)
     expected_key = hashlib.sha256(FAKE_IMAGE).hexdigest()

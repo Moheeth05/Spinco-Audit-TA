@@ -2,10 +2,11 @@
 deterministic pipeline (native PDF text -> OCR -> bill_parser.py's labelled/
 arithmetic amount and date rules) couldn't confidently extract from.
 
-Disabled by default. Enabled only by setting the SPINCO_NVIDIA_API_KEY
-environment variable (and, if SPINCO_NVIDIA_ENABLED is set at all, only when
-it isn't "false" - a shared master kill-switch also honored by
-nvidia_ocr.py) - never hardcoded, never committed, never logged, never
+Disabled by default. Enabled only when SPINCO_NVIDIA_API_KEY is set AND
+SPINCO_NVIDIA_ENABLED is explicitly true (the shared NVIDIA switch, also
+honored by nvidia_ocr.py and document_classifier.py; a missing or
+unrecognised flag means disabled - see provider_gate.py). extract_structured_
+fields re-checks the gate itself, so a direct call is safe too - never hardcoded, never committed, never logged, never
 exposed to the frontend, never stored in audit logs or error messages (see
 is_available()/_redact below). If it isn't set, every function in this
 module is a no-op and the application behaves exactly as it does today.
@@ -27,14 +28,18 @@ guessed - see _validate_response().
 """
 
 import json
+import logging
 import os
 from dataclasses import dataclass
 from typing import Any
 
 import httpx
 
+from app.services.extraction import provider_gate
 from app.services.extraction.dates import parse_date
 from app.services.extraction.money import parse_amount
+
+logger = logging.getLogger(__name__)
 
 # NVIDIA's NIM catalog exposes an OpenAI-compatible chat completions API -
 # this is the standard public endpoint shape, not a project-specific one.
@@ -66,15 +71,9 @@ def _redact(value: str | None) -> str:
 
 
 def is_available() -> bool:
-    if not os.environ.get("SPINCO_NVIDIA_API_KEY"):
-        return False
-    # Shared master kill-switch (also honored by nvidia_ocr.py) - purely
-    # additive: unset behaves exactly as before (enabled iff the key is
-    # configured).
-    enabled = os.environ.get("SPINCO_NVIDIA_ENABLED")
-    if enabled is not None and enabled.strip().lower() in ("false", "0", "no"):
-        return False
-    return True
+    # SPINCO_NVIDIA_ENABLED is the shared NVIDIA switch (also honored by
+    # nvidia_ocr.py and document_classifier.py); it must be explicitly true.
+    return provider_gate.provider_enabled("SPINCO_NVIDIA_API_KEY", "SPINCO_NVIDIA_ENABLED")
 
 
 @dataclass
@@ -147,14 +146,19 @@ def extract_structured_fields(bill_text: str, *, timeout: float = 20.0) -> Fallb
     call failed for any reason. Never raises - a network/API problem here
     must never break document extraction, it just means no supplementary
     fields are offered and bill_parser.py's own result stands as-is."""
-    api_key = os.environ.get("SPINCO_NVIDIA_API_KEY")
-    if not api_key:
+    # Enforced here, not just by the caller: a direct call must never reach
+    # the network while the provider is disabled.
+    if not is_available():
         return None
+    api_key = os.environ.get("SPINCO_NVIDIA_API_KEY")
     if not bill_text or not bill_text.strip():
         return None
 
     base_url = os.environ.get("SPINCO_NVIDIA_BASE_URL", _DEFAULT_BASE_URL)
     model = os.environ.get("SPINCO_NVIDIA_MODEL", _DEFAULT_MODEL)
+    if not provider_gate.is_safe_endpoint(base_url):
+        logger.warning("NVIDIA text fallback skipped: configured base URL is not a valid https URL.")
+        return None
 
     try:
         response = httpx.post(
@@ -181,5 +185,6 @@ def extract_structured_fields(bill_text: str, *, timeout: float = 20.0) -> Fallb
         if not isinstance(data, dict):
             return None
         return _validate_response(data)
-    except Exception:  # noqa: BLE001 - a fallback must degrade silently, never break extraction
+    except Exception as exc:  # noqa: BLE001 - a fallback must degrade silently, never break extraction
+        logger.warning("NVIDIA text fallback call failed (%s); using local extraction only.", type(exc).__name__)
         return None

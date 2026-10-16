@@ -1,7 +1,7 @@
 {
   "name": "spinco-ta-audit",
   "productName": "Spinco TA Audit",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "SPINCO TA / Travel Expense Audit & Automation System - desktop application",
   "private": true,
   "main": "electron/main.js",

@@ -91,6 +91,7 @@ def test_disabled_returns_none_without_any_http_call(monkeypatch):
 
 def test_empty_text_returns_none_without_any_http_call(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     def _fail_if_called(*a, **k):
         raise AssertionError("httpx.post must never be called for empty text")
@@ -109,6 +110,7 @@ def test_empty_text_returns_none_without_any_http_call(monkeypatch):
 )
 def test_valid_classification_each_document_type(monkeypatch, doc_type):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(
         httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(_full_payload(document_type=doc_type))))
     )
@@ -127,6 +129,7 @@ def test_valid_classification_each_document_type(monkeypatch, doc_type):
 
 def test_not_applicable_carries_no_evidence_fields(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = {"document_type": "NOT_APPLICABLE", "confidence": 0.9}
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     result = document_classifier.classify_page("blank page / signature only")
@@ -138,6 +141,7 @@ def test_not_applicable_carries_no_evidence_fields(monkeypatch):
 
 def test_low_confidence_yields_low_field_confidence(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(confidence=0.3)
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     result = document_classifier.classify_page("some page text")
@@ -149,6 +153,7 @@ def test_string_amount_is_reparsed_through_parse_amount(monkeypatch):
     """The model's own amount string must survive the same deterministic
     parser as everything else - not be trusted verbatim."""
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(total_amount="Rs. 1,234.50", catering_amount=None)
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     result = document_classifier.classify_page("some page text")
@@ -161,6 +166,7 @@ def test_non_iso_date_is_dropped_not_guessed(monkeypatch):
     instruction and returns a different format must not be guessed at - the
     date field is simply left absent, everything else still validates."""
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(date="07/08/2026")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     result = document_classifier.classify_page("some page text")
@@ -174,6 +180,7 @@ def test_non_iso_date_is_dropped_not_guessed(monkeypatch):
 
 def test_invalid_document_type_enum_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(document_type="RANDOM_MADE_UP_TYPE")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     assert document_classifier.classify_page("some page text") is None
@@ -181,6 +188,7 @@ def test_invalid_document_type_enum_returns_none(monkeypatch):
 
 def test_missing_document_type_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = {"confidence": 0.8}
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     assert document_classifier.classify_page("some page text") is None
@@ -188,6 +196,7 @@ def test_missing_document_type_returns_none(monkeypatch):
 
 def test_non_numeric_confidence_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(confidence="very sure")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     assert document_classifier.classify_page("some page text") is None
@@ -195,6 +204,7 @@ def test_non_numeric_confidence_returns_none(monkeypatch):
 
 def test_out_of_range_confidence_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(confidence=1.5)
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
     assert document_classifier.classify_page("some page text") is None
@@ -202,12 +212,14 @@ def test_out_of_range_confidence_returns_none(monkeypatch):
 
 def test_unparseable_json_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response("not json at all {{{")))
     assert document_classifier.classify_page("some page text") is None
 
 
 def test_code_fenced_json_is_recovered(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload_str = json.dumps(_full_payload(document_type="RECEIPT"))
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(f"```json\n{payload_str}\n```")))
     result = document_classifier.classify_page("some page text")
@@ -217,6 +229,7 @@ def test_code_fenced_json_is_recovered(monkeypatch):
 
 def test_prose_wrapped_json_is_recovered(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload_str = json.dumps(_full_payload(document_type="TICKET"))
     monkeypatch.setattr(
         httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(f"Here is the classification:\n{payload_str}\nHope that helps!"))
@@ -231,12 +244,14 @@ def test_prose_wrapped_json_is_recovered(monkeypatch):
 
 def test_timeout_returns_none_without_raising(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: (_ for _ in ()).throw(httpx.TimeoutException("timed out")))
     assert document_classifier.classify_page("some page text") is None
 
 
 def test_api_error_5xx_returns_none(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(500, {}))
     assert document_classifier.classify_page("some page text") is None
 
@@ -247,6 +262,12 @@ def test_api_error_5xx_returns_none(monkeypatch):
 def test_explicit_enabled_false_overrides_configured_key(monkeypatch):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
     monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "false")
+    assert document_classifier.is_available() is False
+
+
+def test_key_alone_does_not_enable(monkeypatch):
+    monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.delenv("SPINCO_NVIDIA_ENABLED", raising=False)
     assert document_classifier.is_available() is False
 
 
@@ -287,6 +308,7 @@ def _one_page_pdf(tmp_path: Path, text: str) -> Path:
 
 def test_ambiguous_page_triggers_classifier_fallback_and_creates_review_required_bill(client, monkeypatch, tmp_path):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(document_type="TRANSACTION_SCREENSHOT", total_amount="899.00", catering_amount=None)
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
 
@@ -311,6 +333,7 @@ def test_ambiguous_page_triggers_classifier_fallback_and_creates_review_required
 
 def test_not_applicable_classification_creates_no_bill(client, monkeypatch, tmp_path):
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = {"document_type": "NOT_APPLICABLE", "confidence": 0.95}
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
 
@@ -350,6 +373,7 @@ def test_deterministically_extracted_page_never_calls_classifier(client, monkeyp
     """Performance guarantee: the classifier is a LAST-RESORT fallback, never
     invoked for a page bill_parser.py already extracted evidence from."""
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
 
     def _fail_if_called(*a, **k):
         raise AssertionError("classifier must not be called for a page with deterministic evidence")
@@ -379,6 +403,7 @@ def test_classifier_derived_bill_flows_through_ordinary_matcher(client, monkeypa
     exact match still scores HIGH and matches; a plausible-but-wrong amount
     does not match just because document_type happens to be BILL."""
     monkeypatch.setenv("SPINCO_NVIDIA_API_KEY", "nvapi-test-key")
+    monkeypatch.setenv("SPINCO_NVIDIA_ENABLED", "true")
     payload = _full_payload(document_type="BILL", total_amount="899.00", date="2026-08-07", catering_amount=None)
     monkeypatch.setattr(httpx, "post", lambda *a, **k: _FakeResponse(200, _chat_response(json.dumps(payload))))
 

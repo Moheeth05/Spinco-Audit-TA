@@ -1,0 +1,381 @@
+{
+  "_meta": {
+    "purpose": "Research-backed terminology reference for mapping real bill/receipt text to canonical Policy Master expense categories. Documentation/provenance only - never loaded at runtime, never used to make network calls from the classification pipeline. The actual runtime vocabulary lives in bill_parser.py's CATEGORY_KEYWORDS (regex patterns, hand-derived from this research with additional false-positive guarding) and category_map.py's CATEGORY_TO_BILL_LABEL.",
+    "scope_note": "Of the 29 canonical Policy Master categories, 4 never require a supporting document (BATTA, COMPANY CAR MAINTENANCE, OFFICE EXPENSES - DRIVER SALARY, TWO WHEELER MAINTENANCE - all document_required=DNA/NO) and so never reach category-consistency validation. Of the remaining 25, 9 already had working bill-evidence vocabulary before this research (AIRFARE, CAB CHARGES, LOCAL CONVEYANCE, LODGING, MARKETING EXPENSES - FOOD, OWN/COMPANY CAR/TWO WHEELER PETROL, PRINTING & STATIONERY, STAFF WELFARE, TRAIN / BUS FARE). This file's dedicated research covers the 16 categories/topics with a demonstrated real-world gap: 12 categories with zero bill-evidence vocabulary at all, plus targeted broadening for Fuel (brand/OCR gap), Lodging (hotel-name near-miss), and Transport Charges (mapping correction).",
+    "research_date": "2026-10-09",
+    "research_method": "Each entry below was researched individually via multiple targeted web searches (not one generic query), prioritizing official vendor/provider/government documentation, Indian accounting/GST references, and established accounting-software documentation. Every item is attributed either to a cited source URL or explicitly listed under inferred_not_sourced. Entries are read-only research notes - no entry was copied verbatim into runtime regex without additional false-positive review (see bill_parser.py comments for what was actually adopted and why)."
+  },
+  "categories": [
+    {
+      "canonical_category": "TOLL TAX CHARGES",
+      "common_names": ["Toll Tax", "Toll Charges", "Road Toll", "Highway Toll", "User Fee (Toll)", "NH Fee"],
+      "alternative_invoice_descriptions": ["Toll Plaza Receipt", "Toll Fee Receipt", "FASTag Toll Deduction", "Electronic Toll Collection Charge", "Toll Payment Receipt"],
+      "abbreviations": ["NH (National Highway)", "ETC (Electronic Toll Collection)", "NETC (National Electronic Toll Collection)", "TMS (Toll Management System)"],
+      "industry_terminology": ["User Fee", "National Highways Fee (Determination of Rates and Collection) Rules, 2008", "Toll Plaza", "Toll Booth", "Toll Management System (TMS)", "four-party model (Issuer, Acquirer, NPCI, Toll Plaza Operator)", "vehicle class/category", "tag ID / Tag Status"],
+      "indian_english_terminology": ["Toll Tax (colloquial; distinct from RTO-collected Road Tax)"],
+      "vendor_specific_terminology": ["FASTag", "NETC FASTag", "NPCI", "IHMCL", "issuer-bank FASTag statements (ICICI/HDFC/Axis/Paytm)", "plaza code", "transaction ID"],
+      "common_ocr_errors": ["TOLL -> T0LL", "PLAZA -> PLA2A", "FASTAG -> FAS TAG / FastTaq"],
+      "positive_evidence": ["TOLL PLAZA", "TOLL TAX", "TOLL FEE", "FASTAG", "NHAI", "USER FEE", "NETC", "plaza-name + TOLL co-occurrence", "vehicle class field"],
+      "exclusion_or_conflicting_evidence": [
+        "'Road Tax' is an RTO-levied annual/one-time vehicle registration tax, NOT a toll - must not be conflated despite the shared word 'Tax'.",
+        "FASTag is also used for airport parking deduction at some airports - a bare FASTag deduction is not automatically a highway toll; prefer anchoring on TOLL PLAZA/NHAI over bare FASTAG alone.",
+        "Generic 'fee' or 'tax' words alone are not sufficient; must co-occur with toll/plaza/NHAI/FASTag terms."
+      ],
+      "easily_confused_with": ["RATES & TAXES", "LOCAL CONVEYANCE", "CAB CHARGES (toll often a line-item within a cab trip invoice)", "TRANSPORT CHARGES"],
+      "sources": [
+        {"url": "https://www.icici.bank.in/blogs/fastag/how-to-download-fastag-statement", "note": "FASTag toll-transaction record fields: plaza name, plaza code, amount, vehicle class, transaction ID"},
+        {"url": "https://www.hdfc.bank.in/blogs/payzapp/what-is-toll-plaza-booth-payzapp", "note": "Defines toll tax as the NH fee collected at highways/expressways/bridges"},
+        {"url": "https://www.taxbuddy.com/blog/toll-tax-in-india", "note": "Distinguishes toll tax from RTO-collected road tax"},
+        {"url": "https://npci.org.in/what-we-do/netc-fastag/faqs", "note": "Official NPCI FAQ: FASTag RFID tag, NETC program, four-party ecosystem"},
+        {"url": "https://eparlib.nic.in/bitstream/123456789/2981109/1/AU592_9PcikN.pdf", "note": "Parliamentary answer using 'user fee (toll)' terminology under NH Fee Rules 2008"}
+      ],
+      "inferred_not_sourced": ["Exact bank SMS/statement narration wording for a toll debit", "Exact printed field layout of a handheld toll-booth POS receipt"]
+    },
+    {
+      "canonical_category": "TRANSPORT CHARGES",
+      "common_names": ["Transport Charges", "Transportation Charges", "Freight Charges", "Cartage", "Goods Transport Charges", "Logistics Charges", "Carriage Charges"],
+      "alternative_invoice_descriptions": ["Freight & Forwarding", "Inward/Outward Freight", "Vehicle Hire Charges", "Truck Hire Charges", "Lorry Hire Charges", "Transport Contractor Bill", "GTA Services Invoice"],
+      "abbreviations": ["GTA (Goods Transport Agency)", "LR (Lorry Receipt)", "RCM (Reverse Charge Mechanism)", "FOR (Free on Road)"],
+      "industry_terminology": ["Consignment Note (makes a road transporter a GTA under GST)", "forward vs reverse charge GST on freight", "composite supply (freight bundled into sale invoice)", "vehicle/carriage registration number", "origin/destination"],
+      "indian_english_terminology": ["Cartage", "Lorry Receipt (LR)", "Transport Contractor", "Loading/Unloading Charges"],
+      "vendor_specific_terminology": ["named transporter/fleet-operator company", "GTA consignment note number", "truck/vehicle registration number field"],
+      "common_ocr_errors": ["GTA misread as GIA/G7A", "freight line merging with goods-line amount on composite invoices"],
+      "positive_evidence": ["CONSIGNMENT NOTE", "GOODS TRANSPORT AGENCY", "GTA", "FREIGHT", "CARTAGE", "LORRY RECEIPT", "LR NO", "TRANSPORTER", "VEHICLE HIRE CHARGES", "TRUCK HIRE"],
+      "exclusion_or_conflicting_evidence": [
+        "A passenger bus/train ticket (seat number, PNR, passenger name, stations) is NOT transport charges - it belongs to TRAIN / BUS FARE. The old mapping of TRANSPORT CHARGES to a bare 'Bus' bill-evidence label was over-broad and has been corrected.",
+        "A point-to-point passenger cab/taxi invoice is CAB CHARGES, not TRANSPORT CHARGES, even if it says 'vehicle hire' - goods/freight context (consignment note, GTA, goods description) is the distinguishing signal.",
+        "A reimbursed-fuel line bundled into a vehicle-hire invoice is expected and not itself evidence of CAB vs TRANSPORT distinction."
+      ],
+      "easily_confused_with": ["TRAIN / BUS FARE", "CAB CHARGES", "LOCAL CONVEYANCE", "COURIER CHARGES", "SERVICE PURCHASES/SERVICE CHARGE"],
+      "sources": [
+        {"url": "https://tallysolutions.com/gst/gst-on-freight/", "note": "GTA definition, consignment-note fields, forward vs reverse charge GST on freight"},
+        {"url": "https://cleartax.in/s/freight-charges-hsn-code-and-gst-rate", "note": "GST treatment of freight billed separately vs bundled (composite supply)"},
+        {"url": "https://www.taxmann.com/post/blog/gst-is-applicable-to-reimbursed-fuel-charges-for-motor-vehicle-hire-services-aar/", "note": "AAR ruling: reimbursed fuel on a vehicle-hire invoice taxed with the hire"},
+        {"url": "https://www.zoho.com/in/expense/help/configuring-preferences/categories/", "note": "Zoho Expense: Travel as parent, cab charges as sub-category - ground/goods transport tracked separately from passenger fare"}
+      ],
+      "inferred_not_sourced": ["That Indian corporate expense systems specifically name a ledger 'Transport Charges' as an ICAI-defined standard term", "That in THIS application's travel-expense-audit domain, 'Transport Charges' most often means company-arranged vehicle/truck hire or cargo freight rather than a transport company's own revenue ledger"]
+    },
+    {
+      "canonical_category": "OWN CAR PETROL / COMPANY CAR PETROL / TWO WHEELER PETROL (shared Fuel evidence, broadening)",
+      "common_names": ["Petrol", "Diesel", "Fuel", "Motor Spirit (MS)", "High Speed Diesel (HSD)", "CNG", "Auto Gas / AutoLPG"],
+      "alternative_invoice_descriptions": ["Fuel Purchase", "Vehicle Fuel Bill", "POL (Petroleum, Oil & Lubricants)", "Fuel Receipt"],
+      "abbreviations": ["MS (Motor Spirit = petrol)", "HSD", "POL", "XP95 / XP100", "CNG", "LPG/AutoGas", "Ltr/L"],
+      "industry_terminology": ["nozzle number", "density (Kg/m3)", "rate per litre", "preset type"],
+      "indian_english_terminology": ["Petrol Pump", "Filling Station", "Fuel Station"],
+      "vendor_specific_terminology": [
+        "Indian Oil/IOCL - brands: High Speed Diesel, XtraGreen (diesel), XP95/XP100 (premium petrol); Servo = lubricants/greases, NOT fuel",
+        "Bharat Petroleum/BPCL - brand: Speed, Speed 97",
+        "Hindustan Petroleum/HPCL - brand: Power, Power99",
+        "Nayara Energy (formerly Essar Oil, rebranded 2018; legacy stations may still show Essar branding)",
+        "Dealer/outlet business names commonly end in 'PETROLEUM' (confirmed real case: 'UNNATI PETROLEUM') or 'AUTO FUELS'/'FILLING STATION'"
+      ],
+      "common_ocr_errors": ["PETROL -> PETR0L", "DIESEL -> 'DIESE L' (inserted space - confirmed real case)", "FUEL -> 'Fue]' (confirmed real case)", "NOZZLE -> NOZL / stray leading character fused on (confirmed real case: 'ZNozzle')"],
+      "positive_evidence": ["PETROL", "DIESEL", "PETROLEUM", "AUTOFUEL", "HSD", "NOZZLE/NOZL", "litres/Ltrs", "Rate/L", "XtraGreen, XP95, XP100, Speed, Power", "FILLING STATION/FUEL STATION (as self-description)", "CNG", "AutoGas/AutoLPG"],
+      "exclusion_or_conflicting_evidence": [
+        "CONFIRMED already-fixed false positive: an airline's own 'Airline Fuel Charge' fare line is not fuel-purchase evidence - existing negative lookbehind must not be reopened by new vocabulary.",
+        "CONFIRMED already-fixed false positive: a hotel address mentioning a nearby 'fuel station' is not fuel-purchase evidence - existing negative lookahead must not be reopened; same caution applies to bare PETROLEUM/FILLING STATION.",
+        "'MS' (Motor Spirit) collides with 'M/S' (Messrs, extremely common Indian invoice company-name prefix) and should NOT be added as a standalone keyword.",
+        "'Servo' is IOCL's lubricant/grease brand, not fuel - evidence of a maintenance purchase, not Fuel.",
+        "Bare 'PETROLEUM' risks matching an unrelated company's trade name (e.g. a logistics firm named '...Petroleum Pvt Ltd') - only safe when it appears alongside litres/rate/nozzle/density fuel-dispenser context, not as a bare standalone match."
+      ],
+      "easily_confused_with": ["COMPANY CAR MAINTENANCE / TWO WHEELER MAINTENANCE", "AIRFARE (fuel-surcharge line)", "LODGING (hotel address referencing a fuel station)", "TRANSPORT CHARGES/CAB CHARGES (reimbursed-fuel line)"],
+      "sources": [
+        {"url": "https://www.iocl.com/pages/XtraGreen", "note": "XtraGreen branded diesel, IOCL"},
+        {"url": "https://icmrindia.org/casestudies/catalogue/Marketing/Indian Petroleum Industry.htm", "note": "BPCL Speed, IOC Premium, HPCL Power branded petrol"},
+        {"url": "https://bharatpetroleum.in/our-businesses/fuels-and-services", "note": "BPCL Speed/Speed 97"},
+        {"url": "https://www.worldoil.com/news/2018/6/8/indian-essar-oil-limited-rebrands-as-nayara-energy-limited", "note": "Essar Oil to Nayara Energy rebrand, legacy Essar branding retained at some outlets"},
+        {"url": "https://hindustanpetroleum.com/pages/fuels", "note": "HPCL HSD product"},
+        {"url": "https://www.bharatpetroleum.in/bharat-petroleum/pdf/RETAIL.pdf", "note": "HSD and Motor Spirit (MS) as formal product names"}
+      ],
+      "inferred_not_sourced": ["Meaning of 'FIP'/'ATOT'/'VTOT' dispenser-printout labels", "Reliance's retail fuel brand (Jio-bp)", "That dealer names ending in 'PETROLEUM' is a widespread naming convention (only independently confirmed via the one real defect case)"]
+    },
+    {
+      "canonical_category": "TRAVEL-OTHERS",
+      "common_names": ["Travel - Others", "Travel Miscellaneous", "Other Travel Expenses", "Sundry Travel Expenses"],
+      "alternative_invoice_descriptions": ["Visa Fee Receipt", "Travel Insurance Premium Receipt", "Excess Baggage Charges", "Airport Parking Tax Invoice", "Lounge Access Fee", "Forex Conversion Receipt", "Passport Fee Receipt"],
+      "abbreviations": ["UDF (User Development Fee, usually bundled into air fare)", "DCC (Dynamic Currency Conversion)"],
+      "industry_terminology": ["visa fee", "overseas/corporate travel insurance", "excess baggage fee", "airport parking tariff", "forex/cross-currency markup", "lounge access"],
+      "indian_english_terminology": ["Visa Fee", "Parking Fee", "Baggage Charges"],
+      "vendor_specific_terminology": ["VFS Global/embassy visa fee receipts", "Bajaj Allianz/ICICI Lombard corporate travel insurance", "AAI/private airport parking tax invoices", "Priority Pass/DreamFolks lounge vouchers", "forex card issuer (BookMyForex, Thomas Cook) receipts"],
+      "common_ocr_errors": [],
+      "positive_evidence": ["VISA FEE", "VISA APPLICATION", "TRAVEL INSURANCE", "OVERSEAS MEDICLAIM", "EXCESS BAGGAGE", "BAGGAGE CHARGES", "AIRPORT PARKING", "LOUNGE ACCESS", "FOREX", "CURRENCY CONVERSION", "DCC"],
+      "exclusion_or_conflicting_evidence": [
+        "Bare 'VISA' must NEVER be used standalone - it is the ubiquitous Visa payment-card network brand printed on nearly every card-swipe POS receipt. Always require an anchoring phrase (VISA FEE, VISA APPLICATION, VISA SERVICES) or an embassy/VFS Global name.",
+        "Bare 'PARKING' is ambiguous (can appear on a hotel bill or an unrelated retail/mall receipt) - anchor to AIRPORT PARKING or a named airport operator.",
+        "Bare 'INSURANCE' is far too broad (vehicle/health/general corporate insurance) - anchor to TRAVEL INSURANCE or OVERSEAS MEDICLAIM."
+      ],
+      "easily_confused_with": ["AIRFARE", "LODGING", "MARKETING - SEMINAR EXPS", "MEMBERSHIP & SUBSCRIPTION FEE", "CAB CHARGES/TOLL TAX CHARGES/TRANSPORT CHARGES/LOCAL CONVEYANCE", "TRAIN / BUS FARE"],
+      "sources": [
+        {"url": "https://www.keka.com/employee-travel-policy", "note": "Visa/passport fees in a sample Indian corporate travel policy 'Other' bucket"},
+        {"url": "https://www.icicilombard.com/business-insurance-old/corporate-overseas-travel", "note": "Corporate overseas travel insurance: baggage loss, passport loss benefits"},
+        {"url": "https://www.bajajallianz.com/travel-insurance-online/corporate-travel-insurance", "note": "Corporate travel insurance: overseas medical, evacuation, baggage loss, trip delay"},
+        {"url": "https://owncloud.iitd.ac.in/nextcloud/index.php/s/aDnbNRqayRZg96w/download/TA%20DA%20Form%20%28IRD%29.pdf", "note": "Official TA/DA claim form: 'Lodging, Boarding, Registration fee, Visa fee, Insurance etc.' catch-all line"},
+        {"url": "https://www.iiests.ac.in/uploads/forms/TRAVELLING%20ALLOWANCE%20CLAIM%20FORM-II.pdf", "note": "Travelling allowance claim form listing 'Visa fee, if applicable'"},
+        {"url": "https://www.cardtrail.in/glossary/glossary-forex-markup-india/", "note": "Forex/cross-currency markup terminology, ~1-3.5% + 18% GST"}
+      ],
+      "inferred_not_sourced": ["The literal label 'Travel - Others'/'Travel Miscellaneous' as a named policy line item - inferred as a plausible catch-all from adjacent sourced items", "Whether airport lounge access is typically eligible under Indian corporate travel policy"]
+    },
+    {
+      "canonical_category": "INTERNET CHARGES",
+      "common_names": ["Broadband bill", "Internet bill", "Wi-Fi bill", "Data connection charges", "Fiber/Fibernet bill", "Connectivity charges"],
+      "alternative_invoice_descriptions": ["Connectivity Services", "Broadband & Fixed Line Plan", "Plan rental", "Recurring/One-time/Usage Charges", "Internet access services"],
+      "abbreviations": ["ISP", "FTTH", "Mbps/Gbps", "STB"],
+      "industry_terminology": ["Static IP address", "Leased line", "Contention ratio", "Fair Usage Policy (FUP)", "Activation fee", "Installation fee", "SAC 998422/998421/998419"],
+      "indian_english_terminology": ["Broadband connection", "Data pack", "Wi-Fi router rental", "Recharge (postpaid/prepaid broadband)"],
+      "vendor_specific_terminology": ["Jio Fiber: Connectivity Services/Platform Services", "Airtel Xstream: Broadband ID, HSN 998412", "ACT Fibernet: speed-tier plan, static IP add-on", "BSNL: LEASED LINE (1:1)"],
+      "common_ocr_errors": ["Flbernet (Fibernet)", "Xstrearn (Xstream)", "8roadband (Broadband)"],
+      "positive_evidence": ["broadband", "internet", "wifi/wi-fi", "data plan", "fiber/fibre", "static IP", "leased line", "connectivity services", "router", "Mbps/Gbps", "jio fiber/airtel xstream/act fibernet/hathway/bsnl broadband named as provider"],
+      "exclusion_or_conflicting_evidence": [
+        "A mobile/cellular recharge or postpaid mobile bill (voice+SMS) without a broadband/fiber/router component is a telephone service expense, not INTERNET CHARGES, even when the same brand (Jio/Airtel) bundles both.",
+        "A standalone OTT/streaming subscription (Netflix, Hotstar) without a broadband line charge is not internet charges.",
+        "A router/modem bought retail (not as an ISP connection line item) belongs elsewhere."
+      ],
+      "easily_confused_with": ["TELEPHONE ACCESSORIES", "RATES & TAXES", "SERVICE PURCHASES/SERVICE CHARGE"],
+      "sources": [
+        {"url": "https://www.airtel.in/terms-conditions/airtel-xstream-fiber", "note": "GST on rental/activation fee, FUP throttle, STB deposit terms"},
+        {"url": "https://www.actcorp.in/blog/benefits-of-static-ip-addresses-for-businesses", "note": "Static IP as a fixed address, separate add-on"},
+        {"url": "https://cag.gov.in/uploads/download_audit_report/2015/Union_Compliance_Communication_IT_20_2015_chapter_8.pdf", "note": "BSNL leased line defined as dedicated rented communication link"},
+        {"url": "https://busy.in/sac-code-998422/", "note": "SAC 998422 = Internet access services, wired/wireless"},
+        {"url": "https://www.adityabirlacapital.com/abc-of-money/chapter-99-gst-rate-hsn-code-for-jio-fiber-broadband-service", "note": "SAC 998422, 18% GST for Jio Fiber/broadband"}
+      ],
+      "inferred_not_sourced": ["Hathway invoice terminology specifics", "'Wi-Fi router rental' as a standalone ISP invoice line wording"]
+    },
+    {
+      "canonical_category": "TELEPHONE ACCESSORIES",
+      "common_names": ["Mobile accessories", "Phone accessories", "Cellphone accessories"],
+      "alternative_invoice_descriptions": ["Charging data cable", "USB-C cable", "Mobile charger/adapter", "Wired/wireless earphones", "Flip case/back cover", "Screen guard/tempered glass", "Power bank", "Bluetooth speaker/headset", "Mobile stand/holder", "Memory/SD card"],
+      "abbreviations": ["mAh", "TWS", "USB-C/Type-C", "HSN"],
+      "industry_terminology": ["HSN 8504 (charger/adapter), 8518 (earphones/speakers), 8544 (cables), 8507 (power bank), 8523 (memory card), 3926 (plastic case), 4202 (leather case), 7007 (screen protector)"],
+      "indian_english_terminology": ["Mobile cover", "Data cable", "Ear phone", "Mobile holder/stand", "Tempered glass"],
+      "vendor_specific_terminology": ["Amazon.in tax invoices with per-item HSN + IGST 18%", "Croma (Infiniti Retail Ltd) till/order number tax invoices", "IndiaMART wholesale listings"],
+      "common_ocr_errors": ["Pow3r bank", "Earphone5", "Scr3en guard"],
+      "positive_evidence": ["charger", "adapter", "data cable", "USB cable", "earphone(s)", "earbuds", "headset", "power bank", "phone case/cover", "screen guard", "tempered glass", "mobile stand/holder", "HSN 8504/8518/8544/8507/3926/4202/7007"],
+      "exclusion_or_conflicting_evidence": [
+        "A mobile recharge voucher, prepaid top-up, or postpaid mobile bill (service, not product) must NOT be classified here.",
+        "Purchase of the phone/handset itself is not an accessory.",
+        "A broadband/Wi-Fi router billed by an ISP is INTERNET CHARGES, not an accessory purchase.",
+        "A SIM card purchase/activation fee is a telecom service item, not an accessory."
+      ],
+      "easily_confused_with": ["INTERNET CHARGES", "REPAIRS - COMPUTERS", "PRINTING & STATIONERY"],
+      "sources": [
+        {"url": "https://accountune.com/hsn-code-mobile-accessories", "note": "HSN/GST table for charger, earphones, cables, power bank, cases, screen protectors"},
+        {"url": "https://dir.indiamart.com/mumbai/cellphone-accessories-parts.html", "note": "Real wholesale invoice-style line items"},
+        {"url": "https://www.scribd.com/document/742454848/Invoice", "note": "Amazon.in tax invoice example for mobile accessories"}
+      ],
+      "inferred_not_sourced": ["Exact Croma/Amazon.in category-page label wording", "'Telephone accessories' as an exact phrase on a real retail invoice - invoices use item-specific names instead"]
+    },
+    {
+      "canonical_category": "REPAIRS - COMPUTERS",
+      "common_names": ["Laptop repair", "Computer repair", "IT hardware repair", "Laptop servicing", "PC repair"],
+      "alternative_invoice_descriptions": ["Service charge", "Diagnostic/diagnosis fee", "Labour charges", "Spare parts replacement", "Screen replacement", "Motherboard repair", "Onsite warranty service"],
+      "abbreviations": ["AMC", "ASC (Authorized Service Center)", "CRU", "ADP"],
+      "industry_terminology": ["Comprehensive AMC (repairs+parts) vs non-comprehensive (service/labour only)", "Fault response/resolution time", "Chip-level/motherboard-level repair", "In-warranty vs out-of-warranty"],
+      "indian_english_terminology": ["Laptop servicing", "System repair", "Computer service center", "Repair quotation"],
+      "vendor_specific_terminology": ["ASUS India carry-in: fixed service charge + diagnosis fee + part cost + service tax", "Dell ASC: parts/service billed as separate line items", "Govt AMC tenders: comprehensive basis inclusive of repairs and spare parts"],
+      "common_ocr_errors": ["Moth3rboard", "Diagn0stic", "Lab0ur charges"],
+      "positive_evidence": ["laptop/computer repair", "servicing", "AMC", "authorized service center", "diagnostic/diagnosis fee", "labour charges", "spare parts", "motherboard repair", "screen replacement", "hardware repair", "IT service center", "chip-level repair"],
+      "exclusion_or_conflicting_evidence": [
+        "Purchase of a new computer/laptop (capital asset) is not a repair expense.",
+        "New accessory purchases (mouse, keyboard, cables) without a repair/service context belong elsewhere, unless explicitly a repair invoice's spare-parts line.",
+        "Software subscription/license renewal is not a hardware repair."
+      ],
+      "easily_confused_with": ["TELEPHONE ACCESSORIES", "SERVICE PURCHASES/SERVICE CHARGE", "PRINTING & STATIONERY", "MEMBERSHIP & SUBSCRIPTION FEE (AMC could be misread as subscription)"],
+      "sources": [
+        {"url": "https://asus.com/in/support/faq/1048135", "note": "ASUS India carry-in repair process: fixed service charge, separate diagnosis fee"},
+        {"url": "https://www.bajajfinserv.in/dell-service-center-in-mumbai", "note": "Dell ASC bills parts and service as separate line items"},
+        {"url": "https://dpe.gov.in/sites/default/files/comprehensive_contracts.pdf", "note": "Government comprehensive AMC definition"}
+      ],
+      "inferred_not_sourced": ["Exact HP/Lenovo ASC invoice wording in India", "'Diagnostic charges' as a universal standard line-item label (confirmed only for ASUS)"]
+    },
+    {
+      "canonical_category": "RATES & TAXES",
+      "common_names": ["Rates and Taxes", "Municipal rates and taxes", "Local taxes and licence fees"],
+      "alternative_invoice_descriptions": ["Property tax demand/receipt", "Professional tax challan", "Shop & Establishment licence renewal", "Factory/trade licence fee", "Municipal corporation tax receipt", "Road tax (vehicle) renewal"],
+      "abbreviations": ["PT (Professional Tax)"],
+      "industry_terminology": ["Tally: user-created 'Rates and Taxes' ledger under Indirect Expenses, distinct from the 'Duties & Taxes' Current Liabilities group (GST/TDS payable)", "MoSPI ASI definition: professional tax, property tax, factory licence fees, road tax, sales tax renewal fees; excludes income tax"],
+      "indian_english_terminology": ["Property tax", "Professional tax", "Municipal tax", "Licence fee", "Trade licence renewal"],
+      "vendor_specific_terminology": ["State professional tax challans (frequency varies by state)", "Municipal corporation property tax receipts/demand notices"],
+      "common_ocr_errors": ["Munlcipal", "Pr0fessional tax"],
+      "positive_evidence": ["property tax", "professional tax", "municipal tax/corporation tax", "trade licence fee", "shop & establishment licence renewal", "factory licence fee", "road tax (vehicle, govt-issued)", "challan issued by government/municipal authority"],
+      "exclusion_or_conflicting_evidence": [
+        "A CGST/SGST/IGST line on an ordinary vendor purchase invoice is routine transactional GST, NOT 'Rates & Taxes' as an expense head.",
+        "Income tax is explicitly excluded from this head.",
+        "TENDER FEE and MEMBERSHIP & SUBSCRIPTION FEE are distinct categories despite both being government/association-related payments - do not absorb them here."
+      ],
+      "easily_confused_with": ["TENDER FEE", "MEMBERSHIP & SUBSCRIPTION FEE", "SERVICE PURCHASES/SERVICE CHARGE"],
+      "sources": [
+        {"url": "https://microdata.gov.in/NADA43/index.php/catalog/17/datafile/F7/V90", "note": "MoSPI ASI 'Rates and Taxes' field definition"},
+        {"url": "https://help.tallysolutions.com/article/te9rel52/Creating_Masters/Accounts_Info/Creating_Expenses_Income_Ledger.htm", "note": "Tally ledger-creation guidance, Indirect Expenses group"},
+        {"url": "https://www.zoho.com/in/payroll/academy/taxes-and-compliance/guide-to-professional-tax.html", "note": "Professional tax as a state-level statutory levy"}
+      ],
+      "inferred_not_sourced": ["Whether 'Rates and Taxes' is a mandatory standalone Schedule III disclosure line", "Exact municipal property-tax receipt phrasing (varies by state/municipality)"]
+    },
+    {
+      "canonical_category": "CALIBRATION CHARGE",
+      "common_names": ["Calibration Charges", "Calibration Certificate", "Calibration Fee", "Instrument Calibration"],
+      "alternative_invoice_descriptions": ["Testing and Calibration Charges", "Site/Onsite Calibration Charges", "Verification and Stamping Charges"],
+      "abbreviations": ["NABL", "ISO/IEC 17025", "ILAC-MRA"],
+      "industry_terminology": ["NABL accredited laboratory", "traceability certificate", "measurement uncertainty", "ISO/IEC 17025:2017", "verification certificate", "calibration due date"],
+      "indian_english_terminology": ["Calibration charges", "Legal Metrology verification and stamping fee", "Calibration Certificate No."],
+      "vendor_specific_terminology": ["NABL Certificate No. (CC-xxxx format)", "STQC", "Centre for Quality Management, Standards and Calibration Services"],
+      "common_ocr_errors": ["Caiibration/Callbration", "NASL (for NABL)", "17O25 (for 17025)"],
+      "positive_evidence": ["calibration certificate", "calibration charges", "NABL accredited", "ISO/IEC 17025", "traceability certificate", "instrument calibration", "testing and calibration laboratory", "calibration due"],
+      "exclusion_or_conflicting_evidence": [
+        "'AMC'/'annual maintenance contract' wording alone (no calibration/certificate language) is more likely REPAIRS - COMPUTERS or SERVICE PURCHASES.",
+        "Generic 'repair charges' or 'testing charges' without an instrument + lab/certificate context is ambiguous, not positive evidence."
+      ],
+      "easily_confused_with": ["REPAIRS - COMPUTERS", "SERVICE PURCHASES/SERVICE CHARGE", "RATES & TAXES"],
+      "sources": [
+        {"url": "https://ncbindia.com/wp-content/uploads/PT_Schemes/NCCBMRateList-CalibrationFor2024-25.pdf", "note": "NABL-accredited lab calibration rate list terminology"},
+        {"url": "https://www.stqc.gov.in/sites/default/files/NABL%20Accrediation%20Certificate-Calibration%20.pdf", "note": "NABL accreditation certificate format"},
+        {"url": "https://bnpmindia.com/Admin/TenderDocument/27.01.2022_OTE_0649_Calibration%20of%20Instruments.pdf", "note": "Real calibration invoice line (SAC 998346)"}
+      ],
+      "inferred_not_sourced": ["SAC 998346 as THE correct code - confirmed via one buyer invoice example only, not an official CBIC list"]
+    },
+    {
+      "canonical_category": "MEMBERSHIP & SUBSCRIPTION FEE",
+      "common_names": ["Membership Fee", "Annual Membership Fee", "Subscription Fee", "Membership Renewal", "Annual Subscription"],
+      "alternative_invoice_descriptions": ["Annual Fee Circular", "COP Fee (Certificate of Practice)", "Renewal Fee", "Associate/Fellow Membership Fee", "Organisation Member Subscription"],
+      "abbreviations": ["ICAI", "ICSI", "IEEE", "CII", "FICCI", "COP"],
+      "industry_terminology": ["Self-Service Portal fee", "admission fee (chamber membership)", "organisation-member subscription tiered by turnover", "SAC 9995 - membership organisation services"],
+      "indian_english_terminology": ["Annual Fee Circular", "Membership/CoP Fee", "Associate/Fellow Member fee"],
+      "vendor_specific_terminology": ["eservices.icai.org payment receipt", "icsi.edu Member Portal renewal", "IEEE order receipt with order/member number", "Indian Chamber of Commerce Associate Membership Schedule"],
+      "common_ocr_errors": ["ICAl/ICSl (I/l confusion)", "Membershlp/Subscrlption"],
+      "positive_evidence": ["membership fee", "annual subscription", "renewal fee", "ICAI/ICSI/IEEE/CII/FICCI + fee/dues/circular", "Certificate of Practice fee", "SAC 9995", "admission fee + membership", "association dues"],
+      "exclusion_or_conflicting_evidence": [
+        "Software/SaaS subscription invoices (SAC 998314/998315, 'Enterprise Plan', 'license', per-user/per-seat wording) indicate INTERNET CHARGES or SERVICE PURCHASES, NOT professional membership - both use the word 'subscription', so this distinction must be explicit.",
+        "Event/seminar delegate registration fee -> MARKETING - SEMINAR EXPS, not membership, even from the same chamber."
+      ],
+      "easily_confused_with": ["INTERNET CHARGES", "SERVICE PURCHASES/SERVICE CHARGE", "MARKETING - SEMINAR EXPS"],
+      "sources": [
+        {"url": "https://icai.org/post/annual-fee-circular-2023-24", "note": "ICAI official annual fee circular terminology"},
+        {"url": "https://getswipe.in/blog/post/membership-organization-services-gst-rates-sac-code-9995", "note": "SAC 9995 for membership-organisation services, 18% GST"},
+        {"url": "https://www.iccindiaonline.org/DATA/forms/ANNUAL-FEE-ORGANIZATION-MEMBER.pdf", "note": "ICC India organisation-member subscription terminology"}
+      ],
+      "inferred_not_sourced": ["IEEE invoice field layout generalized from a single compliance-document example", "CII/FICCI exact fee-schedule/invoice terminology (not directly sourced)"]
+    },
+    {
+      "canonical_category": "TENDER FEE",
+      "common_names": ["Tender Fee", "Tender Document Fee", "Cost of Tender Document", "RFP Fee", "Tender Form Cost"],
+      "alternative_invoice_descriptions": ["Tender Fee (DD/BC in original)", "Bid Processing Fee", "Tender fee inclusive of GST"],
+      "abbreviations": ["EMD (Earnest Money Deposit - see exclusion)", "NIT", "RFP", "CPPP", "GeM", "DD", "BG"],
+      "industry_terminology": ["non-refundable tender fee", "bid security (EMD)", "performance security (post-award, different from EMD)", "GeM transaction/milestone charges"],
+      "indian_english_terminology": ["Tender Fee (DD/BC in original), Bid Security (EMD) (DD/BC/BG in original)", "cost of tender document"],
+      "vendor_specific_terminology": ["NIT reference number", "CPPP transaction ID", "GeM order/contract reference number"],
+      "common_ocr_errors": ["Tendar Fee", "EMD misread as END/EMO"],
+      "positive_evidence": ["tender fee", "tender document fee", "cost of tender document", "non-refundable ... tender", "RFP fee", "bid document fee"],
+      "exclusion_or_conflicting_evidence": [
+        "EMD/'Earnest Money Deposit'/'Bid Security' ALONE must NOT be treated as positive evidence for TENDER FEE - real tender notices (NTPC, RBI, DRDO) list EMD as a distinct, typically refundable line item separate from the non-refundable Tender Fee; EMD is conceptually a deposit, not an expense, unless forfeited.",
+        "GeM 'transaction charges' on an AWARDED contract are a post-award platform commission paid by the seller, not a fee paid to participate in a tender - do not conflate.",
+        "Platform registration on GeM/CPPP is free - 'registration' language alone is not tender-fee evidence."
+      ],
+      "easily_confused_with": ["RATES & TAXES", "SERVICE PURCHASES/SERVICE CHARGE"],
+      "sources": [
+        {"url": "https://ntpctender.ntpc.co.in/uploads/job_35378.html", "note": "Real NTPC tender notice: Tender Fee and Bid Security (EMD) as two distinct line items"},
+        {"url": "https://advocategandhi.com/understanding-earnest-money-deposit-emd-a-complete-legal-and-practical-guide-for-the-general-public/", "note": "EMD (pre-bid, refundable) vs performance security (post-award)"},
+        {"url": "https://iimcal.ac.in/node/4650", "note": "Real tender listing a fixed tender fee (GST-inclusive) separate from EMD"}
+      ],
+      "inferred_not_sourced": ["GeM/CPPP 'bid processing fee' as standard terminology - GeM's own documented term is 'transaction charge', applied post-award"]
+    },
+    {
+      "canonical_category": "SERVICE PURCHASES/SERVICE CHARGE",
+      "common_names": ["Service Charges", "Service Purchases", "Professional Charges", "Consultancy Charges", "AMC Charges", "Outsourced Services"],
+      "alternative_invoice_descriptions": ["Annual Maintenance Contract (AMC) invoice", "Professional Fees", "Consultancy Fees", "Business Support Services invoice", "Retainer Fee"],
+      "abbreviations": ["AMC", "SAC 9983 (998311/998312/998224)"],
+      "industry_terminology": ["SAC 9983 - other professional, technical and business services", "manpower supply services (SAC 9985, adjacent but distinct)"],
+      "indian_english_terminology": ["Service Purchase Ledger (Tally)", "Indirect Expenses ledger group"],
+      "vendor_specific_terminology": ["Quarterly AMC bill certified by Engineer-in-charge", "GST tax invoice quoting SAC 9983xx"],
+      "common_ocr_errors": ["Servlce Charges", "AMC misread as AIVIC"],
+      "positive_evidence": ["service charges", "service purchases", "AMC/annual maintenance contract", "professional charges", "consultancy charges"],
+      "exclusion_or_conflicting_evidence": [
+        "This is a genuine catch-all in Indian accounting practice (confirmed: Tally's own documentation positions 'Service Purchase Ledger' as a generic bucket for any bought-in service; SAC 9983 and its sub-codes cover AMC, consultancy, and generic 'service charges' interchangeably regardless of invoice label).",
+        "No source gives this category a distinguishing vocabulary separate from REPAIRS - COMPUTERS, CALIBRATION CHARGE, COURIER CHARGES, MARKETING EXPENSES - OTHERS, etc. (all of which are themselves 'services').",
+        "ARCHITECTURAL CONSEQUENCE: positive-evidence keywords for this category must only ever be checked LAST, after every other category's own (more specific) pattern has already failed to match - this category is a residual/fallback, never an override.",
+        "Reliable positive-evidence matching is NOT fully achievable here per research; this category should lean on REVIEW_REQUIRED/human judgment rather than confident automated PASS, and false-positive/false-negative risk remains structurally high even with the fallback-only ordering."
+      ],
+      "easily_confused_with": ["Nearly every other category - most notably REPAIRS - COMPUTERS, CALIBRATION CHARGE, COURIER CHARGES, TELEPHONE ACCESSORIES, MEMBERSHIP & SUBSCRIPTION FEE, MARKETING EXPENSES - OTHERS, TENDER FEE"],
+      "sources": [
+        {"url": "https://help.tallysolutions.com/docs/te9rel64/Tax_India/Service_tax/Service_Purchase_Ledger.htm", "note": "Tally's own definition of a Service Purchase ledger as a generic bought-in-service bucket"},
+        {"url": "https://www.gimbooks.com/blog/service-charge-hsn-code-9983-gst-rate/amp/", "note": "SAC 9983 Service Charge billing examples; confirms invoice label doesn't change classification"},
+        {"url": "https://cag.gov.in/uploads/tenders/tenders-Tender-documents-for-AMC-06213317fce83c3-26640138.pdf", "note": "Real government AMC tender terminology"}
+      ],
+      "inferred_not_sourced": ["The recommendation to treat this category as fallback-only/REVIEW_REQUIRED-leaning is the researching agent's own synthesis, not a directly documented recommendation from any source"]
+    },
+    {
+      "canonical_category": "MARKETING - SEMINAR EXPS",
+      "common_names": ["Conference Registration Fee", "Delegate Fee", "Seminar Registration Fee", "Workshop Fee", "Exhibition Stall Charges", "Trade Fair Participation Fee"],
+      "alternative_invoice_descriptions": ["Registration Fee (Indian/Foreign Delegate)", "Stall Rent", "Space Rent", "Booth Charges", "Shell Scheme Charges", "Bare Space charges", "Pro Forma Invoice (stall booking)", "Early Bird Registration", "Member/Non-Member Delegate Fee"],
+      "abbreviations": ["Reg. Fee", "Del. Fee", "SAC 999293 (training/coaching)", "SAC 998596 (event organisation)"],
+      "industry_terminology": ["Exhibitor Manual", "Shell Scheme", "Space Only/Raw Space", "Booking deposit (exhibition)"],
+      "indian_english_terminology": ["Delegate Fee", "Stall Rent", "Participation Charges"],
+      "vendor_specific_terminology": ["ITPO stall booking", "FICCI/CII event registration"],
+      "common_ocr_errors": ["REGISTRATI0N", "SEMINAR -> SEMIN AR", "W0RKSH0P"],
+      "positive_evidence": ["REGISTRATION FEE", "DELEGATE FEE", "DELEGATE", "SEMINAR", "CONFERENCE", "WORKSHOP FEE", "STALL", "EXHIBITION", "TRADE FAIR", "BOOTH", "SHELL SCHEME", "SPACE RENT", "PARTICIPATION FEE"],
+      "exclusion_or_conflicting_evidence": [
+        "Bare 'REGISTRATION' alone is too weak (GST registration, vehicle registration, company registration) - require co-occurrence with SEMINAR/CONFERENCE/DELEGATE/WORKSHOP/EXHIBITION/EVENT.",
+        "TENDER-related registration/document fees use similar wording but belong to TENDER FEE - disambiguate via 'tender'/'bid document' vs 'delegate'/'conference'/'seminar'.",
+        "MEMBERSHIP & SUBSCRIPTION FEE invoices can also say 'registration' for annual renewal - disambiguate via 'annual membership'/'subscription' vs event-specific wording."
+      ],
+      "easily_confused_with": ["TENDER FEE", "MEMBERSHIP & SUBSCRIPTION FEE", "MARKETING EXPENSES - OTHERS", "MARKETING EXPENSES - FOOD"],
+      "sources": [
+        {"url": "https://doonuniversity.ac.in/iasta/registration", "note": "Indian/foreign delegate fee, GST-inclusive"},
+        {"url": "https://texprocil.org/circular/1732015823-Eserve-198_of_2024.pdf", "note": "Stall rate + 18% GST, shell-scheme-only stall, cancellation terms"},
+        {"url": "https://busy.in/sac-code-999293/", "note": "SAC 999293 = commercial training/coaching services"},
+        {"url": "https://busy.in/gst-rates/event-management", "note": "SAC 998596 event management services"}
+      ],
+      "inferred_not_sourced": ["SAC 998596 as THE code event-management-agency seminar invoices use", "'DELEGATE KIT'/'CONFERENCE KIT' appearing verbatim on invoices"]
+    },
+    {
+      "canonical_category": "MARKETING EXPENSES - OTHERS",
+      "common_names": ["Advertising Expenses", "Promotional Materials", "Sponsorship", "Corporate Gifting/Client Gifts", "Banner/Hoarding/Flex Printing", "Branding & Collateral"],
+      "alternative_invoice_descriptions": ["Advertisement Charges", "Publicity Expenses", "Display & Signage Charges", "Flex Printing/Banner Printing", "Hoarding Rental", "Branded Merchandise", "Event Sponsorship Fee", "Agency Fee"],
+      "abbreviations": ["Advt. Exps.", "HSN 4911 (printed matter/posters/banners)", "HSN 3920 (PVC/flex sheet)", "SAC 9989 (printing services)"],
+      "industry_terminology": ["Agency fee vs. pass-through media cost", "Input Tax Credit block on gifts (Section 17(5)(h) CGST Act)"],
+      "indian_english_terminology": ["Festive gifting (Diwali/Christmas client gifts)", "Advertisement & Publicity"],
+      "vendor_specific_terminology": ["Sign/flex vendor invoices describing flex/banner/hoarding printing, distinct from plain stationery/photocopy printing"],
+      "common_ocr_errors": ["ADVERTISMENT", "H0ARDING"],
+      "positive_evidence": ["ADVERTISEMENT", "ADVERTISING", "PUBLICITY", "PROMOTIONAL", "SPONSORSHIP", "FLEX BANNER", "HOARDING", "BRANDED MERCHANDISE", "CORPORATE GIFT", "CLIENT GIFT", "BROCHURE PRINTING", "FLYER PRINTING", "SIGNAGE"],
+      "exclusion_or_conflicting_evidence": [
+        "Plain 'PRINTING' or 'STATIONERY' alone must NOT trigger this category - reserve for PRINTING & STATIONERY unless accompanied by marketing-specific context (BROCHURE/FLYER/BANNER/FLEX/HOARDING/COLLATERAL/POSTER).",
+        "'GIFT' alone is ambiguous (could be a personal/STAFF WELFARE gift) - require 'CLIENT GIFT'/'CORPORATE GIFT'/'PROMOTIONAL GIFT' co-occurrence.",
+        "Catering/food at an event belongs to MARKETING EXPENSES - FOOD, not here.",
+        "Event registration/delegate/stall wording belongs to MARKETING - SEMINAR EXPS, not here."
+      ],
+      "easily_confused_with": ["MARKETING - SEMINAR EXPS", "MARKETING EXPENSES - FOOD", "PRINTING & STATIONERY", "STAFF WELFARE"],
+      "sources": [
+        {"url": "https://accountingtools.com/articles/marketing-expense", "note": "Standard marketing-expense items: advertising, agency fees, customer gifts, printed materials, sponsorships"},
+        {"url": "https://www.agileregulatory.com/blogs/2026-new-updates-all-hs-codes-hsn-codes-for-flex-printing-with-gst-rates", "note": "Flex banner printing HSN 4911"},
+        {"url": "https://blog.ipleaders.in/deductibility-provisions-gifts-business-clients-businesses/", "note": "Customary client gifting as business promotional expense"}
+      ],
+      "inferred_not_sourced": ["No ICAI/Tally-standard chart-of-accounts document found defining this category's exact scope - inferred by elimination from accountingtools.com's general list minus the FOOD/SEMINAR carve-outs", "Section 17(5)(h) CGST Act ITC-block on gifts - general tax-law knowledge, not directly sourced in this round"]
+    },
+    {
+      "canonical_category": "LODGING (vocabulary broadening)",
+      "common_names": ["Hotel Folio", "Room Tariff", "Accommodation Charges", "Guest Folio"],
+      "alternative_invoice_descriptions": ["Booking ID/CRS Booking ID", "Folio Number", "Nights Stayed", "Room Type", "Declared Room Tariff", "Extra Bed Charges"],
+      "abbreviations": ["CGST/SGST (intra-state)", "IGST (inter-state)", "GSTIN"],
+      "industry_terminology": ["Folio (guest's running account)", "Room Tariff (declared/rack rate for GST slab)", "GST slab tied to declared room tariff (sources conflict on exact current thresholds - flagged unverified)"],
+      "indian_english_terminology": ["Lodging and Boarding", "Guest Name", "Room No.", "Tariff Card"],
+      "vendor_specific_terminology": ["OYO: GST invoice issued post-checkout, GSTIN must be entered at booking", "Treebo: CRS booking ID + folio number, billing entity sometimes 'Ruptub Solutions' rather than the hotel's own name"],
+      "common_ocr_errors": ["H0TEL", "ACC0MMODATION", "CHECK-lN/CHECK-ouT", "TARIFF -> TARRIF"],
+      "positive_evidence": ["HOTEL", "LODGING", "ROOM CHARGE", "ACCOMMODATION", "ROOM TARIFF", "ROOM NO", "GUEST NAME", "CHECK-IN", "CHECK-OUT", "FOLIO", "FOLIO NO", "NIGHTS STAYED"],
+      "exclusion_or_conflicting_evidence": [
+        "CRITICAL FALSE-POSITIVE RISK: short generic hotel-brand-suffix words - INN, SUITES, RESORT, RESIDENCY, GRAND/GRANDE, REGENCY, PALACE - must NOT be added as standalone strong-match keywords. These are proprietary brand-tier names (Hyatt Regency, Country Inn & Suites, The Residency Group) with no documented universal naming convention, and carry real collision risk: 'Inn' is a common short English word/substring, 'Grand'/'Grande' collides with 'Grand Total' on virtually every invoice, 'Palace' collides with venue/monument names, 'Suites'/'Resort' can appear on unrelated property/venue bills.",
+        "If used at all, these suffix words should only count as a WEAK secondary signal co-occurring with another weak structural hotel signal (FOLIO, TARIFF, NIGHTS, BOOKING ID, CHECK-IN/CHECK-OUT) - never alone.",
+        "A UPI/bank-transfer screenshot paid to a business whose name happens to contain one of these suffix words (confirmed real case: 'Palm Grove Suites Inn') typically carries NO other lodging-specific text at all - this is a known, currently-unsolved residual gap that keyword vocabulary cannot fully close; it would need payee-name fuzzy-matching or merchant-category-code logic instead.",
+        "Room service/restaurant items on a folio bill at restaurant GST rate, not room rate - don't let 'RESTAURANT'/'ROOM SERVICE' alone override an otherwise-clear hotel-folio classification.",
+        "'RESORT' overlaps with conference/seminar venues (often resorts/hotels) - when both seminar and hotel language appear together, the two categories may both have partial evidence and are not mutually exclusive."
+      ],
+      "easily_confused_with": ["MARKETING - SEMINAR EXPS (conference venues)", "TRAVEL-OTHERS", "RATES & TAXES"],
+      "sources": [
+        {"url": "https://razorpay.com/learn/gst-on-hotel-rooms/", "note": "GST on hotel rooms: tariff-based slab structure, declared-tariff basis"},
+        {"url": "https://www.kanakkupillai.com/learn/gst-on-hotel-rooms/", "note": "GST slab details, hotel-registration + tariff invoice trigger"},
+        {"url": "https://vyaparapp.in/invoice-formats/hotel/pdf", "note": "Standard hotel invoice field checklist"},
+        {"url": "https://www.scribd.com/document/659666505/Invoice-Format", "note": "Treebo-style proforma: CRS booking ID, folio number, billing entity distinct from hotel name"},
+        {"url": "https://www.ttgasia.com/2018/01/19/country-inn-suites-renamed-to-ride-radisson-recognition/", "note": "Country Inn & Suites as a trademarked brand-tier name"},
+        {"url": "https://classicalsymphonies.fandom.com/wiki/The_Residency_Group_of_Hotels", "note": "'The Residency Group' as a proprietary hotel chain brand name"}
+      ],
+      "inferred_not_sourced": ["No source documents a formal industry-wide naming convention for Inn/Suites/Resort/Residency/Regency/Grande/Palace in Indian hotels - the absence of such a source is itself part of the finding (brand names, not a lexical pattern)", "Recommendation to treat UPI-screenshot-only lodging cases as a payee-name/MCC-matching problem - this is the researching agent's own analysis, not sourced"]
+    }
+  ]
+}

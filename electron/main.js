@@ -160,6 +160,17 @@ function startBackend(dirs) {
   if (fs.existsSync(path.join(tesseractDirPath(), "tesseract.exe"))) {
     env.SPINCO_TESSERACT_DIR = tesseractDirPath();
   }
+  // Hosted AI providers (NVIDIA OCR/text/classifier, DeepSeek) are always OFF
+  // in the packaged app. `...process.env` above would otherwise hand the
+  // backend whatever provider variables happen to exist in the launching
+  // shell or machine environment, so a developer's leftover
+  // SPINCO_*_ENABLED=true could silently start sending company documents to
+  // an external service. Forced here rather than merely unset so that no
+  // inherited value, in either direction, can enable them. Enabling a
+  // provider in a packaged build needs a deliberate, separate change (with
+  // secure credential storage) - see backend/.env.example.
+  env.SPINCO_NVIDIA_ENABLED = "false";
+  env.SPINCO_DEEPSEEK_ENABLED = "false";
 
   const child = spawn(exePath, [], {
     env,

@@ -82,6 +82,15 @@ class Expense(Base):
     # written into `category`; kept only as supporting evidence for
     # matching/search/audit.
     merchant: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Separate from category and merchant - some real Expense Report layouts
+    # print a "Ref# : <value>" payment/transaction-reference line ahead of
+    # the category line too (see extraction/expense_report_parser.py's
+    # REFERENCE_LINE_RE). Confirmed real P0 defect this column fixes: before
+    # it existed, that line was the one being misread as the category -
+    # never written into `category`, kept only as supporting evidence. Not
+    # the same thing as Bill.transaction_reference, which is reference
+    # evidence found on a supporting BILL page, not the expense claim line.
+    reference_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     expense_details: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     claimed_amount: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
 

@@ -95,13 +95,22 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
     # regardless of what Bill.matched_expense_id happens to record (that field
     # only remembers the most recent match, not every expense that claimed it).
     bill_usage = Counter(e.bill_id for e in expenses if e.bill_id is not None)
-    # Deterministic "original" claim per re-used bill (lowest s_no wins) - an
-    # auditor reading a DUPLICATE BILL exception needs to know which claim is
-    # considered original, not just that a duplicate exists (Part 13-14).
-    # Only the later claim(s) are flagged; the original itself passes this
-    # check like any other uniquely-matched bill.
+    # Deterministic "original" claim per re-used bill - an auditor reading a
+    # DUPLICATE BILL exception needs to know which claim is considered
+    # original, not just that a duplicate exists (Part 13-14). Only the
+    # other claim(s) are flagged; the original itself passes this check like
+    # any other uniquely-matched bill.
+    #
+    # The original is the claim the bill FITS best (highest stored match
+    # score), not simply the lowest S.No - ordering by S.No alone flagged the
+    # better-supported claim as the duplicate whenever an earlier, weaker
+    # claim happened to match the same bill. S.No only breaks an exact tie
+    # (and decides when no scores are stored at all, as before).
     bill_original_expense: dict[int, Expense] = {}
-    for expense in sorted(expenses, key=lambda e: (e.s_no if e.s_no is not None else 0, e.id)):
+    for expense in sorted(
+        expenses,
+        key=lambda e: (-(e.bill_match_score if e.bill_match_score is not None else 0), e.s_no if e.s_no is not None else 0, e.id),
+    ):
         if expense.bill_id is not None and expense.bill_id not in bill_original_expense:
             bill_original_expense[expense.bill_id] = expense
 
@@ -154,6 +163,7 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     document_required=document_required,
                     bill_match_confidence=expense.bill_match_confidence,
                 ),
+                checks.check_bill_grouping_review(bill=candidate_bill),
                 checks.check_duplicate_bill(
                     bill_match_status=expense.bill_match_status,
                     bill=bill,

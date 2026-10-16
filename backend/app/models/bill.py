@@ -13,6 +13,15 @@ class Bill(Base):
     expense_report_id: Mapped[int] = mapped_column(ForeignKey("expense_reports.id"), index=True)
 
     page_number: Mapped[int | None] = mapped_column(nullable=True)
+    # Equal to page_number (or NULL) for every single-page bill - the entire
+    # real corpus, unchanged by this column's existence. Set to the LAST
+    # page only when bill_grouping.py's conservative continuation evidence
+    # grouped 2+ consecutive pages into one logical bill - page_number
+    # itself stays the group's FIRST page, so every existing "View Source"
+    # consumer (frontend jump-to-page, API) keeps working unchanged; this
+    # column is the (coarse, page-range rather than per-field) provenance
+    # record for a grouped bill's full page span.
+    page_number_end: Mapped[int | None] = mapped_column(nullable=True)
     vendor: Mapped[str | None] = mapped_column(String(255), nullable=True)
     bill_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     bill_date: Mapped[date | None] = mapped_column(Date, nullable=True)

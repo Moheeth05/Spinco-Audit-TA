@@ -11,9 +11,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from app.services.extraction import nvidia_fallback
+from app.services.extraction import deepseek_fallback, nvidia_fallback
 from app.services.extraction.dates import find_all_dates
-from app.services.extraction.money import parse_amount
+from app.services.extraction.money import parse_amount, parse_amount_in_words
 
 GSTIN_RE = re.compile(r"\b\d{2}[A-Z]{5}\d{4}[A-Z][A-Z\d]Z[A-Z\d]\b")
 
@@ -126,13 +126,29 @@ CATEGORY_KEYWORDS = [
     # other position.
     (re.compile(r"\b(PETROL|DIESEL|AUTOFUEL|NOZZLE|NOZL)\b", re.IGNORECASE), "Fuel"),
     (re.compile(r"(?<!AIRLINE )\bFUEL\b(?!\s+STATION)", re.IGNORECASE), "Fuel"),
+    # Oil-company brand names (category_vocabulary.json, OWN/COMPANY CAR/TWO
+    # WHEELER PETROL entry) - reliable standalone like the airline names
+    # above, a dealer's own letterhead naming the oil company it resells for.
+    (re.compile(r"\b(BHARAT PETROLEUM|HINDUSTAN PETROLEUM|INDIAN\s*OIL|IOCL|BPCL|HPCL|NAYARA|XTRAGREEN|\bHSD\b)\b", re.IGNORECASE), "Fuel"),
+    # PETROLEUM alone (e.g. a dealer name like "UNNATI PETROLEUM" - the
+    # confirmed real defect this research traced) is NOT used unguarded:
+    # research flagged real collision risk against an unrelated company whose
+    # trade name happens to end in "Petroleum". Only counted as fuel evidence
+    # when a fuel-dispenser-specific field (nozzle/rate/volume/density/
+    # product) also appears nearby on the same page.
+    (re.compile(r"\bPETROLEUM\b(?=[\s\S]{0,300}\b(?:NOZZLE|NOZL|RATE|VOLUME|LTR|LITRE|DENSITY|PRODUCT)\b)", re.IGNORECASE), "Fuel"),
     # ROOM TARIFF/ROOM NO/GUEST NAME/CHECK-IN/CHECK-OUT: confirmed on a real
     # hotel tax invoice whose own printed name ("... Suites Inn & Spa") never
     # contains the word "hotel" at all - these front-desk/folio terms are
-    # reliable, vendor-name-independent hotel evidence.
+    # reliable, vendor-name-independent hotel evidence. FOLIO/NIGHTS STAYED
+    # added per category_vocabulary.json's LODGING broadening entry, which
+    # explicitly researched and then explicitly REJECTED adding bare hotel-
+    # brand-suffix words (Inn/Suites/Resort/Residency/Grand/Regency/Palace) -
+    # those collide with ordinary prose and "Grand Total" - so none of them
+    # are added here.
     (
         re.compile(
-            r"\b(HOTEL|LODGING|ROOM CHARGE|ACCOMMODATION|ROOM TARIFF|ROOM NO|GUEST NAME|CHECK-IN|CHECK-OUT)\b",
+            r"\b(HOTEL|LODGING|ROOM CHARGE|ACCOMMODATION|ROOM TARIFF|ROOM NO|GUEST NAME|CHECK-IN|CHECK-OUT|FOLIO|NIGHTS STAYED)\b",
             re.IGNORECASE,
         ),
         "Lodging",
@@ -146,11 +162,169 @@ CATEGORY_KEYWORDS = [
     (re.compile(r"\b(UBER|OLA|CAB|TAXI|RIDE FARE|RIDE|PASSENGERS?\s+TRANSPORT(?:\s+SERVICES?)?)\b", re.IGNORECASE), "Cab/Taxi"),
     (re.compile(r"\b(FOOD|RESTAURANT|MEAL|DINE|MESS|CAFE|BAR)\b", re.IGNORECASE), "Food"),
     (re.compile(r"\b(COURIER|DTDC|AWB)\b", re.IGNORECASE), "Courier"),
+    # Checked before the bare "PRINTING" pattern below, same reason Flight is
+    # checked before Fuel above: "Flex Banner Printing"/"Brochure Printing"/
+    # "Flyer Printing" all contain the literal word "Printing", which must
+    # not be claimed by ordinary office PRINTING & STATIONERY.
+    (
+        re.compile(
+            r"\b(ADVERTISEMENT|ADVERTISING|PUBLICITY EXPENSES?|SPONSORSHIP|FLEX (?:BANNER|PRINTING)|HOARDING|"
+            r"BRANDED MERCHANDISE|CORPORATE GIFT|CLIENT GIFT|BROCHURE PRINTING|FLYER PRINTING|SIGNAGE)\b",
+            re.IGNORECASE,
+        ),
+        "Marketing Collateral",
+    ),
     (re.compile(r"\b(PRINTING|STATIONERY|STATIONARY)\b", re.IGNORECASE), "Printing & Stationery"),
     (re.compile(r"\b(TRAIN|RAILWAY|IRCTC|PNR)\b", re.IGNORECASE), "Train"),
     (re.compile(r"\bBUS\b", re.IGNORECASE), "Bus"),
+    # Checked before the bare "HARDWARE" pattern below - "Hardware Repair"
+    # contains the literal word "Hardware", which must not be claimed by the
+    # pre-existing generic Hardware/Electrical label.
+    (
+        re.compile(
+            r"\b(LAPTOP REPAIR|COMPUTER REPAIR|MOTHERBOARD REPAIR|SCREEN REPLACEMENT|HARDWARE REPAIR|"
+            r"IT SERVICE CENTER|AUTHORIZED SERVICE CENTER|LAPTOP SERVICING|CHIP-LEVEL REPAIR|DIAGNOSTIC FEE|DIAGNOSIS FEE)\b",
+            re.IGNORECASE,
+        ),
+        "Computer Repair",
+    ),
     (re.compile(r"\b(ELECTRICAL|HARDWARE)\b", re.IGNORECASE), "Hardware/Electrical"),
+    # TOLL TAX CHARGES - deliberately excludes "ROAD TAX" (an RTO vehicle tax,
+    # not a toll - see category_vocabulary.json's exclusion note; that belongs
+    # to the Statutory Tax pattern below instead).
+    (re.compile(r"\b(TOLL PLAZA|TOLL TAX|TOLL FEE|FASTAG|NETC|\bNHAI\b)\b", re.IGNORECASE), "Toll"),
+    # TRANSPORT CHARGES - goods/freight movement evidence only (see
+    # category_map.py's comment on why this category no longer shares the
+    # passenger-ticket "Bus" label). A passenger cab/bus/train ticket must
+    # never match here.
+    (
+        re.compile(
+            r"\b(CONSIGNMENT NOTE|GOODS TRANSPORT AGENCY|\bGTA\b|LORRY RECEIPT|\bLR NO\b|TRUCK HIRE|VEHICLE HIRE CHARGES|CARTAGE|FREIGHT)\b",
+            re.IGNORECASE,
+        ),
+        "Freight/Transport",
+    ),
+    (re.compile(r"\b(CALIBRATION|NABL ACCREDITED|ISO[\s/]?IEC\s*17025|TRACEABILITY CERTIFICATE)\b", re.IGNORECASE), "Calibration"),
+    # Phrase-anchored, not bare "INTERNET" - a bare word that common enough to
+    # appear in unrelated boilerplate/footer text (e.g. "visit our website").
+    (
+        re.compile(
+            r"\b(BROADBAND|WI-?FI|STATIC IP|LEASED LINE|FIBERNET|FIBRENET|JIO FIBER|AIRTEL XSTREAM|ACT FIBERNET|"
+            r"HATHWAY|BSNL BROADBAND|CONNECTIVITY SERVICES|INTERNET (?:BILL|CHARGES|SERVICES?|CONNECTION))\b",
+            re.IGNORECASE,
+        ),
+        "Internet",
+    ),
+    # TELEPHONE ACCESSORIES - products, not a mobile/telecom service bill.
+    # "MOBILE "/"PHONE "/"DATA " prefixes on charger/cable keep this from
+    # matching a laptop charger or an unrelated cable (see
+    # category_vocabulary.json's exclusion note: a mobile recharge or
+    # telecom service bill must never land here).
+    (
+        re.compile(
+            r"\b(MOBILE CHARGER|PHONE CHARGER|DATA CABLE|USB CABLE|EARPHONES?|EARBUDS|HEADSET|HEADPHONES?|"
+            r"POWER BANK|SCREEN GUARD|TEMPERED GLASS|PHONE CASE|MOBILE COVER|MOBILE STAND)\b",
+            re.IGNORECASE,
+        ),
+        "Phone Accessories",
+    ),
+    # RATES & TAXES - a statutory/government levy, never a routine GST line
+    # on an ordinary purchase invoice (see category_vocabulary.json's
+    # exclusion note - a CGST/SGST line alone must never match here).
+    (
+        re.compile(
+            r"\b(PROPERTY TAX|PROFESSIONAL TAX|MUNICIPAL (?:CORPORATION )?TAX|TRADE LICEN[CS]E|FACTORY LICEN[CS]E|"
+            r"SHOP (?:AND|&) ESTABLISHMENT LICEN[CS]E|ROAD TAX)\b",
+            re.IGNORECASE,
+        ),
+        "Statutory Tax",
+    ),
+    # Never bare "SUBSCRIPTION" - collides with a SaaS/software subscription
+    # (INTERNET CHARGES/SERVICE PURCHASES territory, see exclusion note).
+    (
+        re.compile(
+            r"\b(MEMBERSHIP FEE|ANNUAL MEMBERSHIP|MEMBERSHIP RENEWAL|\bICAI\b|\bICSI\b|\bIEEE\b|"
+            r"CERTIFICATE OF PRACTICE|\bCOP FEE\b|ANNUAL FEE CIRCULAR|ASSOCIATION DUES)\b",
+            re.IGNORECASE,
+        ),
+        "Membership",
+    ),
+    # Never bare "EMD"/"EARNEST MONEY DEPOSIT" - real tender notices list
+    # that as a separate, usually-refundable line item, not an expense (see
+    # category_vocabulary.json's exclusion note).
+    (re.compile(r"\b(TENDER FEE|TENDER DOCUMENT|COST OF TENDER|BID DOCUMENT FEE)\b", re.IGNORECASE), "Tender Fee"),
+    # Each anchored to an explicit "...FEE"/"...APPLICATION" etc. phrase -
+    # bare VISA/PARKING/INSURANCE are all explicitly flagged as unsafe
+    # standalone matches (VISA is the card-network brand on most POS
+    # receipts; PARKING/INSURANCE are too generic) - see
+    # category_vocabulary.json's TRAVEL-OTHERS exclusion note.
+    (
+        re.compile(
+            r"\b(VISA FEE|VISA APPLICATION|TRAVEL INSURANCE|OVERSEAS MEDICLAIM|EXCESS BAGGAGE|BAGGAGE CHARGES|"
+            r"AIRPORT PARKING|LOUNGE ACCESS|CURRENCY CONVERSION|DYNAMIC CURRENCY CONVERSION|\bDCC\b|\bFOREX\b)\b",
+            re.IGNORECASE,
+        ),
+        "Travel Miscellaneous",
+    ),
+    # "REGISTRATION" only in event-specific phrase form (never bare) - a bare
+    # word collides with GST/vehicle/company registration (see
+    # category_vocabulary.json's exclusion note).
+    (
+        re.compile(
+            r"\b(DELEGATE FEE|SEMINAR REGISTRATION|CONFERENCE REGISTRATION|WORKSHOP FEE|EXHIBITION STALL|"
+            r"TRADE FAIR|SHELL SCHEME|STALL (?:RENT|CHARGES)|BOOTH CHARGES|SPACE RENT)\b",
+            re.IGNORECASE,
+        ),
+        "Seminar/Conference",
+    ),
+    # SERVICE PURCHASES/SERVICE CHARGE - deliberately LAST. Research
+    # (category_vocabulary.json) found this is a genuine catch-all sharing
+    # SAC 9983 and generic "service"/"professional"/"consultancy" wording
+    # with most of the categories above it, with no vocabulary that reliably
+    # distinguishes it from them. Checked only once every more specific
+    # category above has already failed to match, so a specific match never
+    # loses to this one - exactly mirroring how _find_category itself
+    # returns on the first match in list order.
+    (
+        re.compile(
+            r"\b(SERVICE CHARGES?|SERVICE PURCHASES?|\bAMC\b|ANNUAL MAINTENANCE CONTRACT|PROFESSIONAL (?:CHARGES|FEES)|"
+            r"CONSULTANCY (?:CHARGES|FEES))\b",
+            re.IGNORECASE,
+        ),
+        "Service Purchase",
+    ),
 ]
+
+# Small, deliberately conservative set of category-defining words known to
+# suffer real OCR corruption on thermal-print/scanned receipts (confirmed
+# real case: "Nozzle" OCR'd with a stray leading character fused onto it with
+# no word-boundary gap, "Diesel" OCR'd as "Diese l" with an inserted space -
+# both defeat the strict \b-anchored patterns above even though the word is
+# plainly present to a human reader). Only ever consulted as a fallback, once
+# the strict pass above has already found nothing - never overrides a strict
+# match, never widens what counts as a match for anything already strict-
+# matchable. Kept to a handful of long (>=5 char), highly category-specific
+# words for the same reason _FUZZY_AMOUNT_LABELS stays short and conservative
+# - short/common words (e.g. "BUS", "MS", "INN") are never eligible here, the
+# false-positive risk of fuzzy-matching them is too high.
+_FUZZY_CATEGORY_WORDS = [
+    ("NOZZLE", "Fuel"),
+    ("PETROL", "Fuel"),
+    ("DIESEL", "Fuel"),
+    ("HOTEL", "Lodging"),
+    ("COURIER", "Courier"),
+    ("STATIONERY", "Printing & Stationery"),
+]
+_FUZZY_CATEGORY_WORD_RE = re.compile(r"[A-Za-z]{4,}")
+
+
+def _find_category_fuzzy(text: str) -> tuple[str | None, str | None]:
+    for m in _FUZZY_CATEGORY_WORD_RE.finditer(text):
+        word = m.group(0).upper()
+        for keyword, label in _FUZZY_CATEGORY_WORDS:
+            if _edit_distance_le(word, keyword, 1):
+                return label, m.group(0)
+    return None, None
 
 BILL_EVIDENCE_RE = re.compile(
     r"\b(RECEIPT|INVOICE|TAX INVOICE|BILL|GSTIN|THANK YOU|CASH BILL|RETAIL INVOICE)\b", re.IGNORECASE
@@ -281,6 +455,57 @@ def _find_fuzzy_labelled_amount(text: str) -> float | None:
 
 
 def _find_amount(text: str) -> tuple[float | None, str, list[str]]:
+    """The bill's amount: the printed figure (_find_printed_amount),
+    cross-checked against any amount spelled out in words on the same page."""
+    amount, confidence, warnings = _find_printed_amount(text)
+    return _reconcile_with_amount_in_words(text, amount, confidence, warnings)
+
+
+def _reconcile_with_amount_in_words(
+    text: str, amount: float | None, confidence: str, warnings: list[str]
+) -> tuple[float | None, str, list[str]]:
+    """Payment-app screenshots print the amount twice - as a figure and as
+    "Rupees Five Hundred Only". OCR often reads the rupee glyph as a leading
+    digit, turning "₹500" into "7500". The words are independent evidence,
+    used only to check a figure that WAS read:
+
+      * no printed figure at all -> unchanged (None). The words alone are not
+        used to create an amount: that would silently turn every unreadable
+        bill that happens to print a total in words into a confirmable one;
+      * figure == words (to the rupee) -> unchanged;
+      * figure is exactly one extra leading digit + the words' value
+        ("7500" vs "500": the symbol was read as a digit) -> the words win,
+        MEDIUM, with the discrepancy recorded;
+      * any other disagreement -> keep the printed figure but drop to LOW so
+        the bill needs review; never silently pick one of two conflicting
+        readings."""
+    words = parse_amount_in_words(text)
+    if words is None or amount is None:
+        return amount, confidence, warnings
+    if abs(amount - words) < 1:
+        return amount, confidence, warnings
+    printed_digits, word_digits = f"{int(round(amount))}", f"{int(words)}"
+    if float(amount).is_integer() and len(printed_digits) == len(word_digits) + 1 and printed_digits[1:] == word_digits and printed_digits[0] != "0":
+        return (
+            words,
+            "MEDIUM",
+            [
+                *warnings,
+                f"Printed amount read as Rs.{amount:,.0f} but the bill's amount in words is Rs.{words:,.0f}; "
+                "the currency symbol was most likely read as a leading digit, so the amount in words was used.",
+            ],
+        )
+    return (
+        amount,
+        "LOW",
+        [
+            *warnings,
+            f"Printed amount Rs.{amount:,.2f} disagrees with the amount in words (Rs.{words:,.2f}); needs review.",
+        ],
+    )
+
+
+def _find_printed_amount(text: str) -> tuple[float | None, str, list[str]]:
     warnings: list[str] = []
     labeled: dict[int, set[float]] = {}
     loose_used = False
@@ -412,6 +637,16 @@ def _find_bill_number(text: str) -> str | None:
     return None
 
 
+# Mirrors bill_grouping._CONTINUATION_MARKER_RE (duplicated rather than
+# imported - bill_grouping.py imports bill_parser.py, not the reverse).
+# Confirmed real defect this guards against: a genuine multi-page bill's
+# continuation page, with no vendor of its own, fell through to the weak
+# fallback below and had a line like "Continued from page 1" picked up as if
+# it were a vendor name.
+_CONTINUATION_MARKER_RE = re.compile(
+    r"\b(CONTINUED|CONTD\.?|CONTINUATION)\b|\bPAGE\s+\d+\s+OF\s+\d+\b", re.IGNORECASE
+)
+
 # A UPI/payment-app "transaction successful" screenshot (confirmed real on
 # several real pages: Google Pay/PhonePe money-transfer confirmations used as
 # supporting evidence for cash-paid cab/local expenses) has no company name
@@ -440,6 +675,23 @@ def _is_generic_nonvendor_line(s: str) -> bool:
     return any(pattern.search(s) for pattern in _GENERIC_NONVENDOR_LINE_RE)
 
 
+def has_confident_vendor_line(text: str) -> bool:
+    """Public (used by bill_grouping.py to decide whether a page carries
+    strong enough evidence of being a NEW bill's own start): the same
+    strict, line-end-anchored company-suffix match _find_vendor's first
+    branch uses, exposed on its own so callers don't need a weaker, re-
+    implemented check that would risk false-triggering on ordinary prose
+    merely containing a suffix word (e.g. "Advisory services continued")."""
+    for line in text.split("\n"):
+        s = line.strip()
+        if not (3 <= len(s) <= 80):
+            continue
+        last_words = " ".join(s.split()[-4:])
+        if VENDOR_SUFFIX_RE.search(last_words):
+            return True
+    return False
+
+
 def _find_vendor(text: str) -> tuple[str | None, bool]:
     for line in text.split("\n"):
         s = line.strip()
@@ -457,6 +709,7 @@ def _find_vendor(text: str) -> tuple[str | None, bool]:
             3 <= len(s) <= 60
             and re.search(r"[A-Za-z]{3,}", s)
             and not _AMOUNT_TOKEN_RE.fullmatch(s)
+            and not _CONTINUATION_MARKER_RE.search(s)
             and not _is_generic_nonvendor_line(s)
         ):
             return s, False
@@ -468,7 +721,7 @@ def _find_category(text: str) -> tuple[str | None, str | None]:
         m = pattern.search(text)
         if m:
             return label, m.group(0)
-    return None, None
+    return _find_category_fuzzy(text)
 
 
 def parse_bill_text(text: str) -> ParsedBill:
@@ -496,26 +749,41 @@ def parse_bill_text(text: str) -> ParsedBill:
 
     # Optional last-resort supplementary pass (Part 8/33) - only attempted
     # when local extraction left the two signals bill_matcher.py weighs most
-    # heavily (amount, date) genuinely missing, and only when
-    # SPINCO_NVIDIA_API_KEY is configured; a no-op otherwise (see
+    # heavily (amount, date) genuinely missing, and only when a structured-
+    # extraction fallback provider is configured; a no-op otherwise (see
     # nvidia_fallback.py's module docstring for the full pipeline
     # position/rules - it only fills gaps, never overrides a value already
     # extracted deterministically, and every field it returns still passes
     # through the same numeric/date parsers as everything else).
-    if (bill.amount is None or bill.bill_date is None) and nvidia_fallback.is_available():
-        fallback = nvidia_fallback.extract_structured_fields(text)
+    #
+    # At most ONE provider is tried per bill, never both - this project's
+    # intended split is NVIDIA for OCR (image-to-text, see nvidia_ocr.py)
+    # and DeepSeek for this text-interpretation step, so DeepSeek is
+    # preferred here when configured; nvidia_fallback.py remains available
+    # as a fallback-of-the-fallback for a deployment that only has an NVIDIA
+    # key configured (existing behaviour, unchanged for that case).
+    if bill.amount is None or bill.bill_date is None:
+        fallback = None
+        provider_label = None
+        if deepseek_fallback.is_available():
+            fallback = deepseek_fallback.extract_structured_fields(text)
+            provider_label = "DeepSeek"
+        elif nvidia_fallback.is_available():
+            fallback = nvidia_fallback.extract_structured_fields(text)
+            provider_label = "NVIDIA"
+
         if fallback is not None:
             if bill.amount is None and fallback.amount is not None:
                 bill.amount = fallback.amount.value
                 amount_confidence = fallback.amount.confidence
-                bill.warnings.append(f"Amount supplied by the optional NVIDIA extraction fallback ({fallback.amount.confidence} confidence).")
+                bill.warnings.append(f"Amount supplied by the optional {provider_label} extraction fallback ({fallback.amount.confidence} confidence).")
             if bill.bill_date is None and fallback.date is not None:
                 bill.bill_date = fallback.date.value
                 date_confidence = fallback.date.confidence
-                bill.warnings.append(f"Date supplied by the optional NVIDIA extraction fallback ({fallback.date.confidence} confidence).")
+                bill.warnings.append(f"Date supplied by the optional {provider_label} extraction fallback ({fallback.date.confidence} confidence).")
             if bill.vendor is None and fallback.vendor is not None:
                 bill.vendor = fallback.vendor.value
-                bill.warnings.append("Vendor supplied by the optional NVIDIA extraction fallback.")
+                bill.warnings.append(f"Vendor supplied by the optional {provider_label} extraction fallback.")
             if bill.category_guess is None and fallback.category_evidence is not None:
                 bill.description = fallback.category_evidence.value
 

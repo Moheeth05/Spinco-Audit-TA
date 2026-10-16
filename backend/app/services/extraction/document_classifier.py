@@ -13,7 +13,9 @@ parse_date the rest of the pipeline uses, never trusts a raw model value
 directly, never raises). Uses the SAME already-configured NVIDIA credentials
 (SPINCO_NVIDIA_API_KEY/SPINCO_NVIDIA_ENABLED) - no new provider, no new
 config surface. Disabled by default; every function here is a no-op unless
-NVIDIA is configured, exactly like nvidia_fallback.py.
+NVIDIA is configured AND SPINCO_NVIDIA_ENABLED is explicitly true (see
+provider_gate.py), exactly like nvidia_fallback.py. classify_page re-checks
+the gate itself, so a direct call is safe too.
 
 This is supporting-EVIDENCE classification only. It never decides PASS/
 MATCHED/ACCOUNT VERIFIED/EXCEPTION on its own - a bill created from its
@@ -24,6 +26,7 @@ as "no evidence found" (returns None), never as a confident classification.
 """
 
 import json
+import logging
 import os
 from dataclasses import dataclass
 from datetime import date as date_cls
@@ -31,7 +34,10 @@ from typing import Any
 
 import httpx
 
+from app.services.extraction import provider_gate
 from app.services.extraction.money import parse_amount
+
+logger = logging.getLogger(__name__)
 
 _DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1"
 _DEFAULT_MODEL = "meta/llama-3.1-70b-instruct"
@@ -75,12 +81,7 @@ class ClassificationResult:
 
 
 def is_available() -> bool:
-    if not os.environ.get("SPINCO_NVIDIA_API_KEY"):
-        return False
-    enabled = os.environ.get("SPINCO_NVIDIA_ENABLED")
-    if enabled is not None and enabled.strip().lower() in ("false", "0", "no"):
-        return False
-    return True
+    return provider_gate.provider_enabled("SPINCO_NVIDIA_API_KEY", "SPINCO_NVIDIA_ENABLED")
 
 
 def _validate_response(data: dict) -> ClassificationResult | None:
@@ -167,6 +168,9 @@ def classify_page(page_text: str, *, timeout: float = 20.0) -> ClassificationRes
     api_key = os.environ.get("SPINCO_NVIDIA_API_KEY")
     base_url = os.environ.get("SPINCO_NVIDIA_BASE_URL", _DEFAULT_BASE_URL)
     model = os.environ.get("SPINCO_NVIDIA_MODEL", _DEFAULT_MODEL)
+    if not provider_gate.is_safe_endpoint(base_url):
+        logger.warning("NVIDIA document classifier skipped: configured base URL is not a valid https URL.")
+        return None
 
     try:
         response = httpx.post(
@@ -202,5 +206,6 @@ def classify_page(page_text: str, *, timeout: float = 20.0) -> ClassificationRes
         if not isinstance(data, dict):
             return None
         return _validate_response(data)
-    except Exception:  # noqa: BLE001 - a fallback must degrade silently, never break extraction
+    except Exception as exc:  # noqa: BLE001 - a fallback must degrade silently, never break extraction
+        logger.warning("NVIDIA document classifier call failed (%s); treating page as unclassified.", type(exc).__name__)
         return None

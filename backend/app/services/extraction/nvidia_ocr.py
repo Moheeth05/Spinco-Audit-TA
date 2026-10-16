@@ -2,9 +2,11 @@
 PDF pages that local Tesseract OCR (ocr_engine.py) reads with too little, or
 too-low-confidence, text to be useful.
 
-Disabled by default - enabled only when SPINCO_NVIDIA_API_KEY is set (and
-SPINCO_NVIDIA_ENABLED, if set at all, is not "false"). If disabled, every
-function here is a no-op and the application behaves exactly as it did
+Disabled by default - enabled only when SPINCO_NVIDIA_API_KEY is set AND
+SPINCO_NVIDIA_ENABLED is explicitly true (see provider_gate.py; a missing or
+unrecognised flag means disabled, and a key alone never enables it).
+extract_text_from_image re-checks the gate itself, so a direct call is safe
+too. If disabled, every function here is a no-op and the application behaves exactly as it did
 before this module existed. Never hardcoded, never committed, never logged,
 never exposed to the frontend, never stored in audit logs or error messages
 (see is_available()/_redact - the key itself never appears in an exception
@@ -45,10 +47,15 @@ data[].text_detections[].text_prediction.{text, confidence}.
 
 import base64
 import hashlib
+import logging
 import os
 from typing import Any
 
 import httpx
+
+from app.services.extraction import provider_gate
+
+logger = logging.getLogger(__name__)
 
 _DEFAULT_MODEL = "nvidia/nemotron-ocr-v2"
 _DEFAULT_ENDPOINT = f"https://ai.api.nvidia.com/v1/cv/{_DEFAULT_MODEL}"
@@ -68,12 +75,7 @@ def _redact(value: str | None) -> str:
 
 
 def is_available() -> bool:
-    if not os.environ.get("SPINCO_NVIDIA_API_KEY"):
-        return False
-    enabled = os.environ.get("SPINCO_NVIDIA_ENABLED")
-    if enabled is not None and enabled.strip().lower() in ("false", "0", "no"):
-        return False
-    return True
+    return provider_gate.provider_enabled("SPINCO_NVIDIA_API_KEY", "SPINCO_NVIDIA_ENABLED")
 
 
 def clear_cache() -> None:
@@ -103,6 +105,9 @@ def extract_text_from_image(image_bytes: bytes, *, timeout: float = 30.0) -> dic
     if not endpoint:
         model = os.environ.get("SPINCO_NVIDIA_OCR_MODEL", _DEFAULT_MODEL)
         endpoint = f"https://ai.api.nvidia.com/v1/cv/{model}"
+    if not provider_gate.is_safe_endpoint(endpoint):
+        logger.warning("NVIDIA OCR skipped: configured endpoint is not a valid https URL.")
+        return None
 
     result: dict[str, Any] | None = None
     try:
@@ -141,7 +146,10 @@ def extract_text_from_image(image_bytes: bytes, *, timeout: float = 30.0) -> dic
         if joined:
             avg_confidence = sum(confidences) / len(confidences) if confidences else 0.5
             result = {"text": joined, "confidence": avg_confidence}
-    except Exception:  # noqa: BLE001 - a fallback must degrade silently, never break extraction
+    except Exception as exc:  # noqa: BLE001 - a fallback must degrade silently, never break extraction
+        # Only the exception TYPE is logged - never its message, which for an
+        # HTTP error can echo request details.
+        logger.warning("NVIDIA OCR call failed (%s); keeping local OCR result.", type(exc).__name__)
         result = None
 
     _cache[cache_key] = result

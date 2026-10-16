@@ -207,6 +207,7 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                         "expense_date": e.expense_date,
                         "category": e.category,
                         "merchant": e.merchant,
+                        "reference_id": e.reference_id,
                         "expense_details": e.expense_details,
                         "claimed_amount": e.claimed_amount,
                         "source_page": e.source_page,
@@ -272,6 +273,7 @@ def _build_extraction_detail(db: Session, document_id: str, ref, row) -> dict:
                     {
                         "id": b.id,
                         "page_number": b.page_number,
+                        "page_number_end": b.page_number_end,
                         "vendor": b.vendor,
                         "bill_number": b.bill_number,
                         "bill_date": b.bill_date,
