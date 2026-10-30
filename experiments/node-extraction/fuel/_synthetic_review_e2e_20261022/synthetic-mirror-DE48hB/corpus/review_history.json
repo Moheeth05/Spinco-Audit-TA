@@ -1,0 +1,50 @@
+{
+ "schema": "fuel-review-history/v1",
+ "note": "Append-only audit trail of apply_verification.mjs invocations.",
+ "events": [
+  {
+   "applied_at": "2026-10-22T06:10:37.180Z",
+   "reviewer_identity_assurance": "self_attested",
+   "authorized_reviewers_enforced": false,
+   "exports": [
+    {
+     "file": "export-1.json",
+     "reviewer_id": "REV-E2E-1",
+     "exported_at": "2026-10-22T10:00:00Z",
+     "sha256": "d4c1ce5e1d024bfcb71b13b839c5668787bb8cc6afc7c2d2ac8cca940d6ec636",
+     "receipts": 3
+    }
+   ],
+   "verified_new": [
+    "SYNTH-AUTH-001",
+    "SYNTH-AUTH-002",
+    "SYNTH-TPL-001"
+   ],
+   "unchanged_matches_existing": [],
+   "adjudication_needed": [],
+   "conflicts": [],
+   "ignored_unknown_ids": []
+  },
+  {
+   "applied_at": "2026-10-22T06:10:37.634Z",
+   "reviewer_identity_assurance": "self_attested",
+   "authorized_reviewers_enforced": false,
+   "exports": [
+    {
+     "file": "export-5.json",
+     "reviewer_id": "REV-E2E-2",
+     "exported_at": "2026-10-22T10:00:00Z",
+     "sha256": "28cb79713292e95d23e94f7db5db67c8ae1461de58984390a815724267c889d3",
+     "receipts": 1
+    }
+   ],
+   "verified_new": [],
+   "unchanged_matches_existing": [],
+   "adjudication_needed": [],
+   "conflicts": [
+    "SYNTH-AUTH-001"
+   ],
+   "ignored_unknown_ids": []
+  }
+ ]
+}

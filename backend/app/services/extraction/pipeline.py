@@ -17,7 +17,14 @@ from app.models.trip import Trip, TripReport
 from app.services.document_ref import EXPENSE, TRIP
 from app.services.exception_engine import evaluate_report
 from app.services.excel_generator import generate_workbook
-from app.services.extraction import batta_pipeline, bill_pipeline, candidate_cleanup, expense_report_parser, trip_report_parser
+from app.services.extraction import (
+    batta_pipeline,
+    bill_pipeline,
+    candidate_cleanup,
+    expense_report_parser,
+    trip_report_parser,
+    verification_carryover,
+)
 from app.services.extraction.classifier import UNKNOWN, classify_text
 from app.services.extraction.shared import text_extractor as _text_extractor
 from app.services.validation.pipeline import validate_expense_report
@@ -171,23 +178,39 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
     old_expense_ids = [
         e.id for e in db.query(Expense.id).filter(Expense.expense_report_id == row.id).all()
     ]
+    # The facts of every verified claim, taken BEFORE its row is deleted - see
+    # verification_carryover.py for why a manual verification must follow its claim.
+    verification_snapshot = verification_carryover.snapshot(db, row.id)
     candidate_cleanup.delete_candidates_for_expense_ids(db, old_expense_ids)
     db.query(Expense).filter(Expense.expense_report_id == row.id).delete()
-    for line in lines:
-        db.add(
-            Expense(
-                expense_report_id=row.id,
-                s_no=line["s_no"],
-                expense_date=line["expense_date"],
-                category=_resolve_category(db, line["category"], line.get("merchant")),
-                merchant=line.get("merchant"),
-                reference_id=line.get("reference_id"),
-                expense_details=line["expense_details"],
-                claimed_amount=line["claimed_amount"],
-                source_page=line["source_page"],
-                extraction_status=line["status"],
-            )
+    new_expenses = [
+        Expense(
+            expense_report_id=row.id,
+            s_no=line["s_no"],
+            expense_date=line["expense_date"],
+            category=_resolve_category(db, line["category"], line.get("merchant")),
+            merchant=line.get("merchant"),
+            reference_id=line.get("reference_id"),
+            expense_details=line["expense_details"],
+            claimed_amount=line["claimed_amount"],
+            source_page=line["source_page"],
+            extraction_status=line["status"],
         )
+        for line in lines
+    ]
+    # Verification carry-over runs in THIS transaction, together with the expense delete/insert above
+    # and the commit below. If it fails nothing is committed - not the replaced expenses, not a
+    # half-moved verification: the whole replacement is rolled back and the extraction is reported
+    # FAILED by run_extraction(), so a verification can never be silently lost or mis-associated.
+    try:
+        carryover_plan = verification_carryover.plan(verification_snapshot, new_expenses)
+        verification_carryover.reserve_ids(db, new_expenses, carryover_plan)
+        db.add_all(new_expenses)
+        db.flush()
+        verification_carryover.apply(db, row.id, carryover_plan)
+    except Exception:
+        db.rollback()
+        raise
     db.commit()  # expenses need real ids before bill matching below can query/reference them
 
     # Prefer the report's own "REPORT SUMMARY" section as the content/bills

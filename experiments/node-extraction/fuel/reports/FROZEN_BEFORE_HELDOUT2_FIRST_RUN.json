@@ -1,0 +1,10 @@
+﻿{
+    "files":  {
+                  "corpus/annotations.json":  "5B19BBE597F13FCD16026EADB59CC57A8383117B1E541C49AF10BC0A280158ED",
+                  "src/fuelExtractor.mjs":  "92C4DB487DB505EBA5D070DFA57D8C769B6451C74FC6BC29470F15E7EE59872F",
+                  "src/ocr.mjs":  "8827E4EA2DB1D89A9238A2736E80518B2CC5A103EBA1C60CCED2D56E28E09D39",
+                  "scripts/make_synthetic_fuel_heldout2.py":  "661E9358F3289DA90A9487F5B9B866A65E4F651DFEBD17DB9C5F2983EED63B19"
+              },
+    "frozen_at":  "2026-10-20T16:26:21",
+    "statement":  "heldout2 generator + labels existed BEFORE the final extractor was run on any heldout2 image. The extractor/OCR code hashes below are the versions that will be run once."
+}

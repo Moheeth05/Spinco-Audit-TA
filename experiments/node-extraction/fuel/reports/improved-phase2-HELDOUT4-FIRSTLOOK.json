@@ -1,0 +1,328 @@
+{
+ "label": "improved-phase2-HELDOUT4-FIRSTLOOK",
+ "impl": "improved",
+ "ocr_mode": "retry2",
+ "ocr_stats": {
+  "hits": 0,
+  "misses": 48,
+  "ocrMs": 28705,
+  "retriedImages": 16
+ },
+ "label_summary": {
+  "mode": "all",
+  "policy": {
+   "assistant_read_labels": "provisional_included",
+   "ai_review_of_company_receipts_permitted": "unknown - must be confirmed by an authorized company person",
+   "authorized_reviewers": [],
+   "notes": [
+    "assistant_read_labels = 'provisional_included': the 22 authentic labels read by the assistant are scored but every report labels them PROVISIONAL and not human-verified.",
+    "Set to 'excluded' (node scripts/set_label_policy.mjs --assistant-labels exclude) if company policy forbids AI review of the receipts: every assistant-read label is then withheld from scoring (its predictions still run, but nothing is scored) until an authorized human has relabelled it.",
+    "A label becomes human-verified only through scripts/apply_verification.mjs from a reviewer export with a reviewer id and authorization_confirmed = true. Nothing else may set it."
+   ]
+  },
+  "human_verified": 0,
+  "assistant_read_provisional_in_use": 23,
+  "assistant_read_excluded": 0,
+  "ignored_invalid_overlay_entries": 0,
+  "total": 269
+ },
+ "heldout_intake_lock": {
+  "locked": false
+ },
+ "generated": "2026-10-22T05:14:27.099Z",
+ "hardware": {
+  "node": "v24.21.0",
+  "cpu": "Intel(R) Core(TM) i3-1005G1 CPU @ 1.20GHz",
+  "cores": 4,
+  "ramGB": 8,
+  "platform": "win32"
+ },
+ "groups": {
+  "synthetic_heldout4": {
+   "receipts": 48,
+   "unscored_labels_excluded": 0,
+   "label_status": {
+    "construction_truth": 48
+   },
+   "pump_name": {
+    "labelled": 47,
+    "coverage": {
+     "n": 44,
+     "d": 47,
+     "rate": 0.9361702127659575
+    },
+    "exact_rate": {
+     "n": 34,
+     "d": 47,
+     "rate": 0.723404255319149
+    },
+    "precision_when_returned": {
+     "n": 34,
+     "d": 44,
+     "rate": 0.7727272727272727
+    },
+    "auto_usable": {
+     "n": 27,
+     "d": 48,
+     "rate": 0.5625
+    },
+    "false_confident_per_auto_usable": {
+     "n": 0,
+     "d": 27,
+     "rate": 0
+    },
+    "false_confident_per_receipt": {
+     "n": 0,
+     "d": 48,
+     "rate": 0
+    },
+    "brand_only_when_dealer_printed": {
+     "n": 0,
+     "d": 47,
+     "rate": 0
+    }
+   },
+   "transaction_date": {
+    "labelled": 42,
+    "coverage": {
+     "n": 36,
+     "d": 42,
+     "rate": 0.8571428571428571
+    },
+    "exact_rate": {
+     "n": 35,
+     "d": 42,
+     "rate": 0.8333333333333334
+    },
+    "precision_when_returned": {
+     "n": 35,
+     "d": 36,
+     "rate": 0.9722222222222222
+    },
+    "auto_usable": {
+     "n": 29,
+     "d": 48,
+     "rate": 0.6041666666666666
+    },
+    "false_confident_per_auto_usable": {
+     "n": 0,
+     "d": 29,
+     "rate": 0
+    },
+    "false_confident_per_receipt": {
+     "n": 0,
+     "d": 48,
+     "rate": 0
+    },
+    "resolvable_on_receipt_alone": {
+     "receipts": 42,
+     "exact": 35,
+     "rate": 0.8333333333333334
+    },
+    "ambiguous_on_receipt_alone": {
+     "receipts": 0,
+     "returned_a_date": 0,
+     "held_for_review": 0,
+     "wrong_and_confident": 0
+    }
+   },
+   "total_amount": {
+    "labelled": 48,
+    "coverage": {
+     "n": 40,
+     "d": 48,
+     "rate": 0.8333333333333334
+    },
+    "exact_rate": {
+     "n": 38,
+     "d": 48,
+     "rate": 0.7916666666666666
+    },
+    "precision_when_returned": {
+     "n": 38,
+     "d": 40,
+     "rate": 0.95
+    },
+    "auto_usable": {
+     "n": 28,
+     "d": 48,
+     "rate": 0.5833333333333334
+    },
+    "false_confident_per_auto_usable": {
+     "n": 0,
+     "d": 28,
+     "rate": 0
+    },
+    "false_confident_per_receipt": {
+     "n": 0,
+     "d": 48,
+     "rate": 0
+    }
+   },
+   "overall": {
+    "review_required_rate": {
+     "n": 32,
+     "d": 48,
+     "rate": 0.6666666666666666
+    },
+    "review_justified": {
+     "n": 23,
+     "d": 32,
+     "rate": 0.71875
+    },
+    "true_accept": {
+     "n": 16,
+     "d": 48,
+     "rate": 0.3333333333333333
+    },
+    "false_accept_rate": {
+     "n": 0,
+     "d": 48,
+     "rate": 0
+    },
+    "all_three_exact": {
+     "n": 30,
+     "d": 48,
+     "rate": 0.625
+    }
+   },
+   "timing": {
+    "extract_ms_mean": 1.1992395833332001,
+    "ocr_ms_mean_first_run_only": null,
+    "ocr_note": "OCR cost is cached; the mean covers only receipts OCR'd in this corpus build"
+   }
+  }
+ },
+ "by_family": {
+  "synthetic_heldout4:nayara_authorised_dealer": {
+   "receipts": 6,
+   "pump_name": "6/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "6/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:nayara_upi_paid": {
+   "receipts": 6,
+   "pump_name": "5/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "4/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:jiobp_ro_fueltotal": {
+   "receipts": 6,
+   "pump_name": "0/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "5/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:jiobp_mobility_rewards": {
+   "receipts": 6,
+   "pump_name": "5/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "5/6 exact",
+   "review_required": "2/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:shell_retail_grade": {
+   "receipts": 6,
+   "pump_name": "6/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "4/6 exact",
+   "review_required": "2/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:shell_select_loyalty": {
+   "receipts": 6,
+   "pump_name": "3/5 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "4/6 exact",
+   "review_required": "3/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:independent_petrol_pump": {
+   "receipts": 6,
+   "pump_name": "5/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "5/6 exact",
+   "review_required": "1/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:independent_ambiguous_date": {
+   "receipts": 6,
+   "pump_name": "4/6 exact",
+   "transaction_date": "0/0 exact",
+   "total_amount": "5/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  }
+ },
+ "by_difficulty": {
+  "synthetic_heldout4:clean": {
+   "receipts": 16,
+   "pump_name": "14/16 exact",
+   "transaction_date": "14/14 exact",
+   "total_amount": "16/16 exact",
+   "review_required": "8/16",
+   "false_accept": "0/16"
+  },
+  "synthetic_heldout4:blur": {
+   "receipts": 5,
+   "pump_name": "3/5 exact",
+   "transaction_date": "5/5 exact",
+   "total_amount": "5/5 exact",
+   "review_required": "4/5",
+   "false_accept": "0/5"
+  },
+  "synthetic_heldout4:noise": {
+   "receipts": 5,
+   "pump_name": "2/5 exact",
+   "transaction_date": "3/4 exact",
+   "total_amount": "3/5 exact",
+   "review_required": "5/5",
+   "false_accept": "0/5"
+  },
+  "synthetic_heldout4:faint": {
+   "receipts": 7,
+   "pump_name": "7/7 exact",
+   "transaction_date": "6/6 exact",
+   "total_amount": "7/7 exact",
+   "review_required": "3/7",
+   "false_accept": "0/7"
+  },
+  "synthetic_heldout4:rotated90": {
+   "receipts": 6,
+   "pump_name": "3/6 exact",
+   "transaction_date": "2/6 exact",
+   "total_amount": "2/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout4:lowres": {
+   "receipts": 4,
+   "pump_name": "1/4 exact",
+   "transaction_date": "1/3 exact",
+   "total_amount": "0/4 exact",
+   "review_required": "4/4",
+   "false_accept": "0/4"
+  },
+  "synthetic_heldout4:skew": {
+   "receipts": 4,
+   "pump_name": "4/4 exact",
+   "transaction_date": "3/3 exact",
+   "total_amount": "4/4 exact",
+   "review_required": "1/4",
+   "false_accept": "0/4"
+  },
+  "synthetic_heldout4:cropped_top": {
+   "receipts": 1,
+   "pump_name": "0/0 exact",
+   "transaction_date": "1/1 exact",
+   "total_amount": "1/1 exact",
+   "review_required": "1/1",
+   "false_accept": "0/1"
+  }
+ }
+}

@@ -1,0 +1,2701 @@
+{
+ "label": "baseline_textnorm",
+ "seed": 1,
+ "provider_calls": 0,
+ "families": {
+  "dev": {
+   "aggregate": {
+    "truth_rows": 35,
+    "pred_rows": 35,
+    "exact_rows": 35,
+    "row_date_ok": 35,
+    "row_amount_ok": 35,
+    "row_category_ok": 35,
+    "receipts": 35,
+    "receipt_found": 35,
+    "amount_ok": 33,
+    "merchant_ok": 35,
+    "date_resolvable": 30,
+    "date_exact": 29,
+    "claims": 35,
+    "expect_SUPPORTED": 24,
+    "alloc_correct": 19,
+    "fully_verified": 14,
+    "wrong_bill": 2,
+    "false_confident": 3,
+    "in_review": 13,
+    "review_justified": 6,
+    "false_duplicate": 0,
+    "date_unresolvable": 5,
+    "date_guessed_ambiguous": 5,
+    "expect_AMBIGUOUS": 5,
+    "expect_UNSUPPORTED": 6,
+    "dup_expected": 1,
+    "dup_caught": 1,
+    "exc_expected": 5,
+    "exc_found": 3,
+    "date_wrong": 1
+   },
+   "seconds": 6.3,
+   "cases": [
+    {
+     "name": "dev:same_amount_diff_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gst_invoice",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-03"
+      },
+      {
+       "rid": "r2",
+       "template": "gst_invoice",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15"
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-22"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 3,
+      "exact_rows": 3,
+      "date_ok": 3,
+      "amount_ok": 3,
+      "category_ok": 3
+     }
+    },
+    {
+     "name": "dev:same_amount_diff_dates_unproven",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "REVIEW_REQUIRED",
+       "confidence": null,
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": true,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "confidence": null,
+       "exceptions": [
+        "DATE MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": true,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "confidence": null,
+       "exceptions": [
+        "DATE MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": true,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-03-07"
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-05-07"
+      },
+      {
+       "rid": "r3",
+       "template": "ride_us",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-09-07"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 3,
+      "exact_rows": 3,
+      "date_ok": 3,
+      "amount_ok": 3,
+      "category_ok": 3
+     }
+    },
+    {
+     "name": "dev:same_day_distinct_times",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "REVIEW_REQUIRED",
+       "confidence": null,
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "REVIEW_REQUIRED",
+       "confidence": null,
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "dev:duplicate_screenshot_reused",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "REVIEW_REQUIRED",
+       "confidence": null,
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "REVIEW_REQUIRED",
+       "confidence": null,
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": true,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": true,
+       "duplicate_not_verified": true
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "dev:same_time_different_txn",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "REVIEW_REQUIRED",
+       "confidence": null,
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "REVIEW_REQUIRED",
+       "confidence": null,
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "dev:pending_failed",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": true,
+       "false_confident": true,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": true,
+       "false_confident": true,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16"
+      },
+      {
+       "rid": "r3",
+       "template": "phonepe",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-17"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 3,
+      "exact_rows": 3,
+      "date_ok": 3,
+      "amount_ok": 3,
+      "category_ok": 3
+     }
+    },
+    {
+     "name": "dev:missing_bill",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "MISSING BILL",
+       "exception_found": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gst_invoice",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "dev:ambiguous_date_no_evidence",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-02"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "dev:labeled_dmy_february_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": true,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "DATE MISMATCH",
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-02-07"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "dev:labeled_mdy_july_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "wrong",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-02-07"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "dev:mixed_formats_in_one_pdf",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 4,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r4"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r4",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-04"
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-21"
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-06"
+      },
+      {
+       "rid": "r4",
+       "template": "gst_invoice",
+       "page": 8,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-18"
+      }
+     ],
+     "row": {
+      "truth_rows": 4,
+      "predicted_rows": 4,
+      "exact_rows": 4,
+      "date_ok": 4,
+      "amount_ok": 4,
+      "category_ok": 4
+     }
+    },
+    {
+     "name": "dev:category_conflict_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "confidence": "HIGH",
+       "exceptions": [
+        "CATEGORY MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "CATEGORY MISMATCH",
+       "exception_found": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-11"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "dev:flight_claimed_as_lodging",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "confidence": "HIGH",
+       "exceptions": [
+        "CATEGORY MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "CATEGORY MISMATCH",
+       "exception_found": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "dev:flight_claimed_as_airfare",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "confidence": "HIGH",
+       "exceptions": [
+        "CATEGORY MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "dev:leading_digit_ocr_confusion",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "dev:decoys_same_amount_other_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "MULTIPLE_CANDIDATES",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "confidence": null,
+       "exceptions": [
+        "DATE MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": true,
+       "exception_expected": "MISSING BILL",
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-08"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-23"
+      },
+      {
+       "rid": "r3",
+       "template": "phonepe",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-27"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 3,
+      "exact_rows": 3,
+      "date_ok": 3,
+      "amount_ok": 3,
+      "category_ok": 3
+     }
+    },
+    {
+     "name": "dev:ocr_only_pages",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "REVIEW_REQUIRED",
+       "confidence": "MEDIUM",
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "REVIEW_REQUIRED",
+       "confidence": "MEDIUM",
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14"
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "dev:split_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "REVIEW_REQUIRED",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "confidence": null,
+       "exceptions": [
+        "AMOUNT MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": true,
+       "exception_expected": null,
+       "exception_found": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-12"
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-12"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    }
+   ]
+  },
+  "heldout": {
+   "aggregate": {
+    "truth_rows": 35,
+    "pred_rows": 0,
+    "exact_rows": 0,
+    "row_date_ok": 0,
+    "row_amount_ok": 0,
+    "row_category_ok": 0,
+    "receipts": 35,
+    "receipt_found": 35,
+    "amount_ok": 35,
+    "merchant_ok": 35,
+    "date_resolvable": 30,
+    "date_exact": 29,
+    "claims": 35,
+    "expect_SUPPORTED": 24,
+    "date_unresolvable": 5,
+    "date_guessed_ambiguous": 5,
+    "expect_AMBIGUOUS": 5,
+    "expect_UNSUPPORTED": 6,
+    "date_wrong": 1
+   },
+   "seconds": 6.7,
+   "cases": [
+    {
+     "name": "heldout:same_amount_diff_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r2",
+       "template": "fuel_pos",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15"
+      },
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 5,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-03"
+      },
+      {
+       "rid": "r3",
+       "template": "fuel_pos",
+       "page": 7,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-22"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:same_amount_diff_dates_unproven",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-03"
+      },
+      {
+       "rid": "r2",
+       "template": "fuel_pos",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-05"
+      },
+      {
+       "rid": "r3",
+       "template": "fuel_pos",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-09"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:same_day_distinct_times",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 5,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:duplicate_screenshot_reused",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:same_time_different_txn",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 5,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:pending_failed",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16"
+      },
+      {
+       "rid": "r3",
+       "template": "phonepe",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-17"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:missing_bill",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:ambiguous_date_no_evidence",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-02"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:labeled_dmy_february_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-02-07"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:labeled_mdy_july_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "wrong",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-02-07"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:mixed_formats_in_one_pdf",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 4,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r4"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-04"
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 5,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-21"
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 7,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "guessed_ambiguous",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-06"
+      },
+      {
+       "rid": "r4",
+       "template": "gst_invoice",
+       "page": 9,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-18"
+      }
+     ],
+     "row": {
+      "truth_rows": 4,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:category_conflict_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-11"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:flight_claimed_as_lodging",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:flight_claimed_as_airfare",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:leading_digit_ocr_confusion",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 5,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:decoys_same_amount_other_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_like",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-08"
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_like",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-23"
+      },
+      {
+       "rid": "r3",
+       "template": "paytm_like",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-27"
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:ocr_only_pages",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_like",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14"
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_like",
+       "page": 5,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:split_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-12"
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-12"
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    }
+   ]
+  }
+ }
+}

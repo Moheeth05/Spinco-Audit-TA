@@ -5,6 +5,7 @@ text_extraction.py:bill_pages_from() for the page range this covers
 (everything Phase 3's content_pages() deliberately left untouched).
 """
 
+from datetime import date
 from pathlib import Path
 
 from sqlalchemy.orm import Session
@@ -12,6 +13,7 @@ from sqlalchemy.orm import Session
 from app.models.bill import Bill
 from app.models.bill_match import BillMatchCandidate
 from app.models.expense_report import Expense, ExpenseReport
+from app.services import category_map
 from app.services.category_map import normalize_category
 from app.services.extraction import bill_grouping, bill_matcher, bill_parser, candidate_cleanup, dates, document_classifier
 from app.services.extraction.text_extraction import PyMuPDFTextExtractor
@@ -42,6 +44,9 @@ def _bill_from_classification(
             f"Page text recovered via NVIDIA Nemotron OCR v2 fallback "
             f"(local OCR confidence too low or empty; OCR confidence {page.get('ocr_confidence'):.2f})."
         )
+    room_food = category_map.analyze_room_service_food(page["text"])
+    if room_food.note:
+        notes.append(room_food.note)
     return Bill(
         expense_report_id=expense_report_id,
         page_number=page["page_number"],
@@ -49,15 +54,103 @@ def _bill_from_classification(
         bill_number=classification.invoice_number.value if classification.invoice_number else None,
         bill_date=classification.date.value if classification.date else None,
         amount=classification.total_amount.value if classification.total_amount else None,
-        raw_text=page["text"][:2000],
+        raw_text=page["text"][: category_map.BILL_RAW_TEXT_CAP],
         document_type=classification.document_type,
         document_type_confidence=classification.type_confidence,
         transaction_reference=classification.transaction_reference.value if classification.transaction_reference else None,
-        catering_amount=classification.catering_amount.value if classification.catering_amount else None,
+        # The classifier's own reading wins; otherwise what the deterministic
+        # detector finds in the page's FULL text (raw_text above is capped).
+        catering_amount=(
+            classification.catering_amount.value
+            if classification.catering_amount
+            else category_map.detect_catering_amount(page["text"])
+        ),
+        catering_mentioned=category_map.mentions_catering(page["text"]),
+        room_service_food_amount=room_food.amount,
+        room_service_food_mentioned=room_food.mentioned,
         extraction_status="REVIEW_REQUIRED",
         extraction_confidence=field_confidence,
         extraction_notes="; ".join(notes),
     )
+
+
+def _date_fields(reading: "dates.DateReading | None") -> dict:
+    """Date provenance columns (see models/bill.py) for a bill's own reading."""
+    if reading is None:
+        return {}
+    return {
+        "bill_date_raw": reading.raw[:40],
+        "bill_date_candidates": "|".join(c.isoformat() for c in reading.candidates)[:60] or None,
+        "bill_date_method": reading.method,
+        "bill_date_confidence": reading.confidence,
+    }
+
+
+def _note(bill: Bill, text: str) -> None:
+    current = bill.extraction_notes
+    bill.extraction_notes = (f"{current}; {text}" if current else text)[:1000]
+
+
+def _apply_group_date_evidence(entries: list[tuple[Bill, str, "bill_parser.ParsedBill"]]) -> None:
+    """Tier-3 date evidence (dates.apply_group_evidence): a receipt whose own
+    text left day/month order open takes it from same-template receipts that
+    PROVE the order. Updates the bill's date and provenance in place; a date no
+    evidence can settle stays unresolved (bill_date NULL, both candidates kept)."""
+    if len(entries) < 2:
+        return
+    texts = [text for _, text, _ in entries]
+    own = [dates.read_dates(text) for text in texts]
+    grouped = dates.apply_group_evidence(texts, own)
+    for (bill, _, parsed), doc_readings in zip(entries, grouped):
+        chosen = parsed.date_reading
+        if chosen is None or not chosen.ambiguous:
+            continue
+        better = next((r for r in doc_readings if r.start == chosen.start and r.value is not None), None)
+        if better is None:
+            continue
+        bill.bill_date = better.value
+        for column, value in _date_fields(better).items():
+            setattr(bill, column, value)
+        _note(
+            bill,
+            f"Date '{better.raw}' read as {better.value.isoformat()} ({'month' if better.order == 'MDY' else 'day'}-first): "
+            "other receipts of the same template in this report print dates in the same format and prove the order.",
+        )
+
+
+def _find_strong_duplicates(entries: list[tuple[Bill, str, "bill_parser.ParsedBill"]]) -> dict[int, tuple[Bill, str]]:
+    """Bills that are the SAME underlying document or transaction as an earlier
+    page: same transaction reference, same invoice (identifying number + vendor +
+    amount + date), or a byte-for-byte identical screenshot (text equal after
+    whitespace/case normalisation). Returns {id(duplicate bill): (canonical bill, reason)};
+    the canonical copy is the lowest page. Two payments are NOT duplicates just
+    because amount and date agree: different readable times or different
+    references make them separate transactions."""
+    by_key: dict[tuple, list[Bill]] = {}
+
+    def add(key: tuple, bill: Bill) -> None:
+        by_key.setdefault(key, []).append(bill)
+
+    for bill, text, parsed in entries:
+        if parsed.transaction_reference:
+            add(("txn", parsed.transaction_reference), bill)
+        if bill.bill_number and any(ch.isdigit() for ch in bill.bill_number) and bill.amount is not None and bill.bill_date is not None:
+            add(("invoice", (bill.vendor or "").lower(), bill.bill_number.lower(), float(bill.amount), bill.bill_date), bill)
+        flat = " ".join(text.lower().split())
+        if len(flat) >= 60:
+            add(("text", flat), bill)
+    reasons = {"txn": "the same transaction reference", "invoice": "the same invoice (number, vendor, amount and date)", "text": "an identical screenshot/page"}
+    found: dict[int, tuple[Bill, str]] = {}
+    for key, members in by_key.items():
+        distinct = list({id(b): b for b in members}.values())
+        if len(distinct) < 2:
+            continue
+        distinct.sort(key=lambda b: (b.page_number or 0))
+        canonical = distinct[0]
+        for dup in distinct[1:]:
+            if id(dup) not in found:
+                found[id(dup)] = (canonical, reasons[key[0]])
+    return found
 
 
 def extract_and_match_bills(
@@ -81,7 +174,7 @@ def extract_and_match_bills(
     db.commit()
 
     bills: list[Bill] = []
-    bill_texts: list[tuple[Bill, str]] = []  # (bill, the exact text it was parsed from), for date reconciliation
+    bill_texts: list[tuple[Bill, str, "bill_parser.ParsedBill"]] = []  # (bill, the exact text it was parsed from, its parse), for date/duplicate evidence
     # Conservative continuation-evidence grouping (bill_grouping.py) - a
     # no-op for every single-page bill (the entire real corpus, by
     # construction: each page becomes its own one-page "group" unless
@@ -133,18 +226,27 @@ def extract_and_match_bills(
                 vendor=parsed.vendor,
                 bill_number=parsed.bill_number,
                 bill_date=parsed.bill_date,
+                **_date_fields(parsed.date_reading),
+                transaction_reference=parsed.transaction_reference,
+                payment_status=parsed.payment_status,
+                transaction_time=parsed.transaction_time,
                 amount=parsed.amount,
                 gstin=parsed.gstin,
                 description=parsed.description,
                 category_guess=parsed.category_guess,
                 raw_text=parsed.raw_text,
+                # Read from the FULL bill text, not the 2,000-char raw_text above.
+                catering_amount=parsed.catering_amount,
+                catering_mentioned=parsed.catering_mentioned,
+                room_service_food_amount=parsed.room_service_food_amount,
+                room_service_food_mentioned=parsed.room_service_food_mentioned,
                 extraction_status=parsed.status,
                 extraction_confidence=parsed.confidence,
                 extraction_notes="; ".join(parsed.warnings) if parsed.warnings else None,
             )
             db.add(bill)
             bills.append(bill)
-            bill_texts.append((bill, segment))
+            bill_texts.append((bill, segment, parsed))
 
         if not page_had_evidence:
             # Last-resort fallback: bill_parser.py's own deterministic rules
@@ -160,40 +262,47 @@ def extract_and_match_bills(
                     bill = _bill_from_classification(row.id, page, classification)
                     db.add(bill)
                     bills.append(bill)
-    # US-style receipts (Uber's "7/6/26 10:22 AM") print the date month-first,
-    # which the day-first default reads as 7 June instead of 6 July whenever
-    # both numbers are <= 12. Resolved ONLY from the report's own receipts: if
-    # another receipt in this format has a second number above 12 (7/17/26 can
-    # only be July 17) and none contradicts it, the format is proven month-first
-    # for this report and the ambiguous receipts are read the same way. Never
-    # guessed from an expense date; a report with no proof is left untouched.
-    convention = dates.us_timestamp_convention([text for _, text in bill_texts])
-    for bill, text in bill_texts:
-        corrected = dates.month_first_reading(text, bill.bill_date, convention)
-        if corrected is not None:
-            note = (
-                f"Receipt date read month-first as {corrected.isoformat()} (not {bill.bill_date.isoformat()}): this "
-                "report's other receipts in the same format prove it prints MM/DD/YY."
-            )
-            bill.extraction_notes = f"{bill.extraction_notes}; {note}" if bill.extraction_notes else note
-            bill.bill_date = corrected
+    # Report-level evidence for dates the receipt itself could not settle (see
+    # dates.apply_group_evidence), then strong-duplicate detection. Both use only the
+    # bills' own text - never an expense date.
+    _apply_group_date_evidence(bill_texts)
+    duplicates = _find_strong_duplicates(bill_texts)
+    for bill in bills:
+        found = duplicates.get(id(bill))
+        if found:
+            canonical, why = found
+            _note(bill, f"Duplicate of the bill on page {canonical.page_number}: {why}. Matching uses only the first copy.")
     db.commit()
     for bill in bills:
         db.refresh(bill)
 
+    # Strong duplicates are one document: only the first copy is offered to the
+    # matcher, so one payment/invoice can never support two independent claims
+    # merely because it was pasted twice (the Duplicate Bill Check then flags the
+    # second claim that relies on it). The duplicate page stays visible, with a note.
+    duplicate_ids = {b.id for b in bills if id(b) in duplicates}
     bill_dicts = [
         {
             "id": b.id,
             "amount": float(b.amount) if b.amount is not None else None,
             "bill_date": b.bill_date,
+            "date_candidates": [date.fromisoformat(c) for c in (b.bill_date_candidates or "").split("|") if c],
             "vendor": b.vendor,
             "description": b.description,
             "category_guess": b.category_guess,
             "bill_number": b.bill_number,
             "page_number": b.page_number,
             "raw_text": b.raw_text,
+            # Full-text charge evidence (see category_map.resolve_*).
+            "catering_amount": float(b.catering_amount) if b.catering_amount is not None else None,
+            "room_service_food_amount": float(b.room_service_food_amount) if b.room_service_food_amount is not None else None,
+            "room_service_food_mentioned": b.room_service_food_mentioned,
+            "payment_status": b.payment_status,
+            "transaction_time": b.transaction_time,
+            "transaction_reference": b.transaction_reference,
         }
         for b in bills
+        if b.id not in duplicate_ids
     ]
     bills_by_id = {b.id: b for b in bills}
     # The "page position matches order" signal (bill_matcher.py) anchors on

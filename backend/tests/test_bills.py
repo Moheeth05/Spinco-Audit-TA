@@ -154,7 +154,8 @@ def test_bill_page_detection_rejects_blank_page():
 
 
 def test_petrol_receipt_amount_extraction():
-    text = "Bharat Petroleum\nProduct: DIESEL\nDate: 01/06/2026\nAmount (Rs.): 2000.00\nTHANK YOU VISIT AGAIN"
+    # 21 cannot be a month, so this date is unambiguous (01/06/2026 would not be: see test_date_evidence.py).
+    text = "Bharat Petroleum\nProduct: DIESEL\nDate: 21/06/2026\nAmount (Rs.): 2000.00\nTHANK YOU VISIT AGAIN"
     parsed = bill_parser.parse_bill_text(text)
     assert parsed.amount == 2000.0
     assert parsed.bill_date is not None
@@ -334,11 +335,17 @@ def test_ocr_engine_preserves_line_structure_not_flat_string():
 
     engine = TesseractOCREngine()
     engine._available = True
+    original = sys.modules.get("pytesseract")
     sys.modules["pytesseract"] = _FakePytesseract()
     try:
         result = engine.extract_text(real_png.getvalue())
     finally:
-        del sys.modules["pytesseract"]
+        # Restore the real module object: deleting it made the next `import pytesseract` build a
+        # fresh module, so later tests that patched the old one (test_ocr_availability) probed the real binary.
+        if original is not None:
+            sys.modules["pytesseract"] = original
+        else:
+            del sys.modules["pytesseract"]
 
     assert result["text"] == "Nozzle No. : 03\nAmount(Rs) : 03908.04"
     assert len(result["words"]) == 7
@@ -1506,52 +1513,25 @@ def test_airfare_claim_with_matching_flight_evidence_passes_category_check():
 # recovered from those documents, not invented.
 
 
-def test_could_represent_date_resolves_ambiguous_short_year_the_other_way():
-    """Real case: an Uber receipt's bare '7/1/26' (meant MM/DD, July 1) is
-    parsed day-first (January 7) by find_all_dates' own default - but
-    could_represent_date must still recognize it ALSO reads as July 1."""
-    from app.services.extraction.dates import could_represent_date
-
-    assert could_represent_date("Cash. Rs.237.32\n7/1/26 10:45 AM", date(2026, 7, 1)) is True
-
-
-def test_could_represent_date_resolves_ambiguous_4digit_year_the_other_way():
-    from app.services.extraction.dates import could_represent_date
-
-    assert could_represent_date("Paid on 07/01/2026 via UPI", date(2026, 7, 1)) is True
-
-
-def test_could_represent_date_does_not_invent_a_genuine_mismatch():
-    """A date that doesn't match EITHER reading must stay unresolved - this
-    is the regression guard that proves the reconciliation is narrow, not a
-    general tolerance widening."""
-    from app.services.extraction.dates import could_represent_date
-
-    assert could_represent_date("Paid on 15/08/2026 via UPI", date(2026, 7, 1)) is False
-
-
-def test_could_represent_date_handles_missing_text():
-    from app.services.extraction.dates import could_represent_date
-
-    assert could_represent_date(None, date(2026, 7, 1)) is False
-    assert could_represent_date("", date(2026, 7, 1)) is False
-
-
-def test_check_bill_date_reconciles_ambiguous_uber_receipt_format():
-    """The real rohit.pdf case, end to end through check_bill_date: the
-    bill's own parsed bill_date (Jan 7, from the DD/MM-first default) does
-    NOT equal the expense date (Jul 1), but the bill's raw receipt text
-    is ambiguous and also reads as Jul 1 - must PASS, not DATE MISMATCH."""
+def test_an_ambiguous_uber_receipt_date_is_never_reconciled_to_the_claim_it_happens_to_equal():
+    """The real rohit.pdf receipt prints a bare '7/1/26'. Read month-first it is July 1; read day-first
+    it is January 7. With no evidence of the order the date stays UNRESOLVED and goes to review - it is
+    not passed because one reading equals the claim date (that was the old 'reconcile' shortcut, which
+    chose a format to make the receipt agree with the claim). Evidence-based resolution of the same
+    receipt is covered in test_date_evidence.py (same-template proof)."""
     from app.services.validation import checks
 
     class _Bill:
-        bill_date = date(2026, 1, 7)
+        bill_date = None
+        bill_date_raw = "7/1/26"
+        bill_date_candidates = "2026-01-07|2026-07-01"
         page_number = 7
         raw_text = "Uber\nThanks for riding, Rohit\nTotal 237.32\nCash. %237.32\n7/1/26 10:45 AM"
 
     result = checks.check_bill_date(expense_date=date(2026, 7, 1), bill=_Bill())
-    assert result.result == checks.PASS
-    assert "reconciled" in (result.details or "").lower()
+    assert result.result == checks.REVIEW_REQUIRED
+    assert result.exception_type is None
+    assert "not evidence" in (result.details or "")
 
 
 def test_check_bill_date_still_flags_a_genuine_mismatch():

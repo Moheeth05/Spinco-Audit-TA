@@ -1,0 +1,144 @@
+{
+  "retrieved": "2026-10-20",
+  "method": "WebFetch (page text only) and WebSearch snippets. No file, image or dataset was downloaded or stored from any external source, and no receipt image or OCR text was sent anywhere. 'verified' below means what was actually read on the page; 'search snippet' means it was only seen in a search result and is NOT verified.",
+  "headline": "No public dataset of authentic Indian petrol/diesel receipts was found. Public Indian fuel-receipt material consists of bill GENERATORS (simulated receipts). Generic receipt datasets (SROIE, CORD, others) contain non-Indian shop/restaurant receipts and were not downloaded.",
+  "sources": [
+    {
+      "url": "https://fuelbill.in/fuel-bill-format",
+      "source_type": "unknown (named in the brief as a bill-format page; probably a template/generator site - NOT verified)",
+      "brand_family": "unknown",
+      "status": "UNREACHABLE: HTTP 530 on two attempts on 2026-10-20",
+      "license": "unknown",
+      "three_field_labels_verified": false,
+      "can_store_modify_evaluate_redistribute": "not applicable - nothing was retrieved",
+      "used": "no"
+    },
+    {
+      "url": "https://onlinebiller.in/fuel-bill-generator/",
+      "source_type": "synthetic/template generator (simulated receipts). The page itself does not call the output simulated but states generated documents are 'for record-keeping and personal use', previews use sample data and it says a logo does not verify a purchase.",
+      "brand_family": "BPCL (2 templates), HPCL (2), Nayara Energy, generic fuel receipt, Paytm, EV charging, Jio-bp Pulse; logos offered for Bharat Petroleum, Indian Oil, HP Oil, Essar Oil, Jio, Nayara",
+      "layout_observed_from_page_text": "logo, company name, dealer name directly below it, ORIGINAL label, date as '15 Jan 2025 09:00:00', then INVOICE NO / VEHICLE NO / NOZZLE NO / PRODUCT / DENSITY / RATE / VOLUME / AMOUNT ('1925.00 INR'), 'Thank you Visit Again !'; variants Normal / Crumpled; 80 mm thermal paper option",
+      "license": "no licence stated for generated documents, logos or images on the page (terms are linked but were not shown)",
+      "three_field_labels_verified": false,
+      "can_store_modify_evaluate_redistribute": "unknown - treat as NOT permitted; layout was studied from the page text only and nothing was copied",
+      "used": "layout analysis only (invented synthetic receipts were written from the described structure; no template or image was reproduced)"
+    },
+    {
+      "url": "https://www.billcopy.in/fuel-bill-template",
+      "source_type": "synthetic/template generator ('printable templates for lawful use'; 'a printable template generator')",
+      "brand_family": "Bharat Petroleum, Indian Oil, HP Oil, Essar Oil, Jio-bp, Nayara logos",
+      "layout_observed_from_page_text": "dealer name under the logo then address; date shown like '30-JUN-202618:42:00' (day-MON-year glued to the time); amounts like '100.00 INR'; ORIGINAL; TXN NO / INVOICE NO / VEHICLE NO / NOZZLE NO / PRODUCT / DENSITY / RATE / VOLUME / AMOUNT; 'Thank You! Visit Again.'",
+      "license": "no licence stated for generated documents",
+      "three_field_labels_verified": false,
+      "can_store_modify_evaluate_redistribute": "unknown - treat as NOT permitted",
+      "used": "layout analysis only (the glued date+time format and 'AMOUNT ... INR' suffix were reproduced as invented synthetic text)"
+    },
+    {
+      "url": "https://huggingface.co/datasets/jsdnrs/ICDAR2019-SROIE",
+      "source_type": "generic receipt dataset (a Hugging Face copy of ICDAR 2019 SROIE)",
+      "brand_family": "not Indian: the visible samples are Malaysian (RM amounts, Johor Bahru / Selangor addresses); one visible sample is a Malaysian Shell/Petron-type fuel receipt",
+      "size": "987 rows (626 train / 361 test) on the viewer",
+      "annotated_fields": "company, date, address, total",
+      "license": "page states 'cc-by-4.0' (field on the mirror). The ORIGINAL ICDAR SROIE terms were searched for and not found, so the licence of the underlying data is NOT verified; do not assume the mirror's tag is authoritative.",
+      "contains_indian_petrol_receipts": "not verified, and none seen; page content was truncated",
+      "three_field_labels_verified": "company/date/total exist as dataset labels (company is the shop, not necessarily a pump); not independently verified by us",
+      "can_store_modify_evaluate_redistribute": "unknown pending licence check; attribution would be required if CC BY 4.0 holds",
+      "used": "no - not downloaded"
+    },
+    {
+      "url": "https://github.com/clovaai/cord",
+      "source_type": "generic receipt dataset (CORD)",
+      "brand_family": "Indonesian shop and restaurant receipts; no fuel receipts mentioned",
+      "size": "page claims 11,000+ receipts but the download table lists 1,000 per version (800/100/100)",
+      "annotated_fields": "word boxes + a 5-superclass / 42-subclass parse hierarchy (menu, price, total, tax, payment ...)",
+      "license": "page states Creative Commons Attribution 4.0 International",
+      "contains_indian_petrol_receipts": "no",
+      "three_field_labels_verified": false,
+      "can_store_modify_evaluate_redistribute": "CC BY 4.0 as stated on the page (attribution required); not Indian, not fuel",
+      "used": "no - not downloaded"
+    },
+    {
+      "url": "https://github.com/ForceGT/india-fuel-pumps",
+      "source_type": "outlet/price dataset (NOT receipts)",
+      "brand_family": "HPCL ~23,980, IOCL ~39,611, BPCL ~27,961, Jio-bp ~2,296, Nayara ~9,065, Shell ~332 outlets",
+      "license": "MIT (page text)",
+      "contains_receipts": "no; the page does not say whether outlet records carry a dealer/station name field (data dictionary not read)",
+      "three_field_labels_verified": false,
+      "can_store_modify_evaluate_redistribute": "MIT permits it (keep the notice); irrelevant as receipt data",
+      "used": "no. Possible FUTURE supporting evidence (a vocabulary of real outlet/dealer names to check a read pump name against) - it was deliberately not used here so the extractor stays a pure reader of the receipt."
+    },
+    {
+      "url": "https://universe.roboflow.com/receiptsegmentation/receipt-ocr-cvfxx-uopc5",
+      "source_type": "generic receipt computer-vision dataset",
+      "status": "page returned HTTP 403; the licence (CC BY 4.0) was seen only in a search snippet",
+      "contains_indian_petrol_receipts": "no evidence",
+      "used": "no"
+    },
+    {
+      "url": "https://huggingface.co/datasets/Timokerr/CORU (ReceiptSense, arXiv 2406.04493)",
+      "source_type": "generic receipt dataset, Arabic-English",
+      "license": "MIT per a search snippet (not verified on the page)",
+      "contains_indian_petrol_receipts": "no",
+      "used": "no"
+    },
+    {
+      "url": "https://arxiv.org/html/2309.09800v3 (AMuRD)",
+      "source_type": "generic receipt dataset, Arabic-English",
+      "license": "not found",
+      "contains_indian_petrol_receipts": "no",
+      "used": "no"
+    },
+    {
+      "url": "https://data.mendeley.com/datasets/5n3jwggcjk/1",
+      "source_type": "Indonesian OCR-invoice dataset: noisy OCR TEXT + JSON truth (no images)",
+      "license": "not read",
+      "used": "no"
+    },
+    {
+      "url": "https://www.altnews.in/fact-check-bill-of-petrol-written-dont-vote-for-modi-at-mumbai-petrol-pump-is-fake/",
+      "source_type": "news fact-check, not a dataset",
+      "note": "Reports that a viral fake petrol bill was edited from a sample bill made for handheld billing-machine vendors and that font differences exposed it - background only, supports treating generator/sample bills as simulated.",
+      "used": "no"
+    },
+    {
+      "url": "https://developers.mindee.com/docs/python-fr-petrol-receipts-ocr",
+      "source_type": "commercial hosted petrol-receipt OCR API (French receipts)",
+      "note": "Not used: it would require uploading receipt images to an external service, which the brief forbids.",
+      "used": "no"
+    },
+    {
+      "url": "local: the project's approved test Expense Reports (ER-39832, ER-40223, ER-40706, ER-40782, ER-40513, ER-41115, ER-41220)",
+      "source_type": "AUTHENTIC issued receipts (photographed / scanned thermal receipts embedded in real employee expense reports)",
+      "brand_family": "BPCL (12), HP (6), IndianOil (4) - see corpus/annotations.json; no Nayara, Jio-bp or Shell",
+      "license": "the company's own confidential working documents; contain employee, vehicle and payment details",
+      "three_field_labels_verified": "assistant-verified by reading each rendered page image; NOT independently confirmed by a human (a human spot-check is recommended)",
+      "can_store_modify_evaluate_redistribute": "local evaluation only (already stored in this repository's experiments folder for earlier work); NOT redistributable; page renders are stored under corpus/authentic/images for evaluation",
+      "used": "yes - 22 receipts + 1 suspected-template page"
+    }
+  ],
+  "phase2_search": {
+    "date": "2026-10-20 / 2026-10-22",
+    "purpose": "Find AUTHORIZED sources of authentic Nayara, Jio-bp, Shell and independent-station receipts.",
+    "local": "All 8 distinct company Expense Report PDFs in the project (ER-39832, ER-40223, ER-40706, ER-40782, ER-40513, ER-41115, ER-41220, ER-38784) were already used; the remaining PDFs are trip reports or synthetic test files, and backups/uat copies are byte-identical duplicates (same SHA-256). No additional authentic receipts exist locally.",
+    "public_result": "NONE FOUND. Searches of Wikimedia Commons (search page: 50 of 139 results, none a fuel receipt), Hugging Face, Kaggle, Roboflow and GitHub returned no dataset of authentic Indian (or any) fuel-station receipts under a usable licence.",
+    "not_used": [
+      {
+        "url": "https://humansintheloop.org/resources/datasets/free-receipt-ocr-dataset/",
+        "note": "192 generic receipt images with 3,839 boxes, CC0 1.0 per the page, built on the 'Express Expense' sample receipts; country and receipt types are not stated (no mention of fuel or India) and access is behind a form. Not requested or downloaded."
+      },
+      {
+        "url": "https://www.scribd.com/document/641698804/Untitled",
+        "note": "A Scribd upload of an Indian fuel receipt; Scribd marks such uploads all rights reserved. Not used."
+      },
+      {
+        "url": "https://huggingface.co/datasets/TrainingDataPro/ocr-receipts-text-detection",
+        "note": "Commercial vendor sample of generic receipts; fuel/India content and licence not established. Not used."
+      },
+      {
+        "url": "https://zenodo.org/records/13688441 (MaVILab fiscal receipts)",
+        "note": "200 restaurant receipt photos; licence not read; not fuel, not Indian. Not used."
+      }
+    ],
+    "consequence": "New authentic coverage added in this phase: 0 receipts. An intake workflow with enforced provenance exists (intake/INTAKE.md) so an authorized person can supply them; until then Nayara, Jio-bp, Shell and unfamiliar independent stations are exercised only by SYNTHETIC receipts."
+  }
+}

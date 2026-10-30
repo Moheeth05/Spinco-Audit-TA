@@ -1,0 +1,10 @@
+{
+  "assistant_read_labels": "provisional_included",
+  "ai_review_of_company_receipts_permitted": "unknown - must be confirmed by an authorized company person",
+  "authorized_reviewers": [],
+  "notes": [
+    "assistant_read_labels = 'provisional_included': the 22 authentic labels read by the assistant are scored but every report labels them PROVISIONAL and not human-verified.",
+    "Set to 'excluded' (node scripts/set_label_policy.mjs --assistant-labels exclude) if company policy forbids AI review of the receipts: every assistant-read label is then withheld from scoring (its predictions still run, but nothing is scored) until an authorized human has relabelled it.",
+    "A label becomes human-verified only through scripts/apply_verification.mjs from a reviewer export with a reviewer id and authorization_confirmed = true. Nothing else may set it."
+  ]
+}

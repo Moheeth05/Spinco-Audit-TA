@@ -1,0 +1,292 @@
+{
+ "generated": "2026-10-22T05:20:25.627Z",
+ "caveat": "n is small, all receipts come from three reports (ER-39832, ER-40706, ER-40513) and a few printers; the labels used in check (b) are provisional. This is evidence that the convention holds in THESE examples, not proof that it holds generally.",
+ "authentic_receipts": 22,
+ "signature_read_by_ocr": 4,
+ "ocr_only_check": {
+  "checkable": 2,
+  "agree": 2,
+  "disagree": []
+ },
+ "label_check_provisional": {
+  "checkable": 4,
+  "agree": 4,
+  "disagree": []
+ },
+ "rule_used_by_extractor": [
+  "auth_ER-39832_p04",
+  "auth_ER-40513_p06"
+ ],
+ "family_receipts_without_signature_read": [
+  "auth_ER-40223_p21",
+  "auth_ER-40706_p17",
+  "auth_ER-40706_p18",
+  "auth_ER-40513_p22"
+ ],
+ "rows": [
+  {
+   "id": "auth_ER-39832_p03",
+   "family": "bpcl_pos_txn",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-06-01",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": true,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-39832_p05",
+   "family": "bpcl_pos_txn",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-06-08",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": true,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-39832_p11",
+   "family": "bpcl_pos_txn",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-06-22",
+   "ocr_unambiguous_month": 6,
+   "label_date_provisional": "2026-06-22",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-39832_p12",
+   "family": "bpcl_pos_txn",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-06-23",
+   "ocr_unambiguous_month": 6,
+   "label_date_provisional": "2026-06-23",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-39832_p04",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": "Jun-553819-ORGNL",
+   "token_month": 6,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-06-04",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": true,
+   "rule_used_by_extractor": true
+  },
+  {
+   "id": "auth_ER-39832_p08",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": "Jun-562111-ORGNL",
+   "token_month": 6,
+   "ocr_unambiguous_date": "2026-06-16",
+   "ocr_unambiguous_month": 6,
+   "label_date_provisional": "2026-06-16",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-39832_p13",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": "Jun-570529-ORGNL",
+   "token_month": 6,
+   "ocr_unambiguous_date": "2026-06-26",
+   "ocr_unambiguous_month": 6,
+   "label_date_provisional": "2026-06-26",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40223_p21",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-07-31",
+   "ocr_unambiguous_month": 7,
+   "label_date_provisional": "2026-07-31",
+   "label_month": 7,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40706_p17",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-07-20",
+   "ocr_unambiguous_month": 7,
+   "label_date_provisional": "2026-07-20",
+   "label_month": 7,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40706_p18",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-07-24",
+   "ocr_unambiguous_month": 7,
+   "label_date_provisional": "2026-07-24",
+   "label_month": 7,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40513_p06",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": "Sep-894177-ORGNL",
+   "token_month": 9,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-09-02",
+   "label_month": 9,
+   "date_ambiguous_on_receipt_alone": true,
+   "rule_used_by_extractor": true
+  },
+  {
+   "id": "auth_ER-40513_p22",
+   "family": "orgnl_physical_receipt",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-09-18",
+   "ocr_unambiguous_month": 9,
+   "label_date_provisional": "2026-09-18",
+   "label_month": 9,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-39832_p07",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-06-12",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": true,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-39832_p14",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-06-29",
+   "ocr_unambiguous_month": 6,
+   "label_date_provisional": "2026-06-29",
+   "label_month": 6,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40706_p16",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-07-14",
+   "ocr_unambiguous_month": 7,
+   "label_date_provisional": "2026-07-14",
+   "label_month": 7,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40782_p04",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-07-07",
+   "ocr_unambiguous_month": 7,
+   "label_date_provisional": "2026-07-07",
+   "label_month": 7,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40782_p08",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-07-13",
+   "ocr_unambiguous_month": 7,
+   "label_date_provisional": "2026-07-13",
+   "label_month": 7,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40513_p24",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-09-24",
+   "label_month": 9,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-41115_p06",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-08-09",
+   "label_month": 8,
+   "date_ambiguous_on_receipt_alone": true,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-41115_p49",
+   "family": "welcomes_you_pinelabs",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-08-25",
+   "ocr_unambiguous_month": 8,
+   "label_date_provisional": "2026-08-25",
+   "label_month": 8,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-40706_p19",
+   "family": "handwritten_dealer_invoice",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": null,
+   "ocr_unambiguous_month": null,
+   "label_date_provisional": "2026-07-29",
+   "label_month": 7,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  },
+  {
+   "id": "auth_ER-41220_p06",
+   "family": "hp_original_star",
+   "signature_read_by_ocr": null,
+   "token_month": null,
+   "ocr_unambiguous_date": "2026-09-16",
+   "ocr_unambiguous_month": 9,
+   "label_date_provisional": "2026-09-16",
+   "label_month": 9,
+   "date_ambiguous_on_receipt_alone": false,
+   "rule_used_by_extractor": false
+  }
+ ]
+}

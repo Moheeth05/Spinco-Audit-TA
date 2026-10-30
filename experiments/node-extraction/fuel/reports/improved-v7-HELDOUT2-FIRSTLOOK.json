@@ -1,0 +1,303 @@
+{
+ "label": "improved-v7-HELDOUT2-FIRSTLOOK",
+ "impl": "improved",
+ "ocr_mode": "retry",
+ "ocr_stats": {
+  "hits": 0,
+  "misses": 48,
+  "ocrMs": 37733,
+  "retriedImages": 10
+ },
+ "generated": "2026-10-20T10:57:19.017Z",
+ "hardware": {
+  "node": "v24.21.0",
+  "cpu": "Intel(R) Core(TM) i3-1005G1 CPU @ 1.20GHz",
+  "cores": 4,
+  "ramGB": 8,
+  "platform": "win32"
+ },
+ "groups": {
+  "synthetic_heldout2": {
+   "receipts": 48,
+   "pump_name": {
+    "labelled": 41,
+    "coverage": {
+     "n": 40,
+     "d": 41,
+     "rate": 0.975609756097561
+    },
+    "exact_rate": {
+     "n": 32,
+     "d": 41,
+     "rate": 0.7804878048780488
+    },
+    "precision_when_returned": {
+     "n": 32,
+     "d": 40,
+     "rate": 0.8
+    },
+    "auto_usable": {
+     "n": 31,
+     "d": 48,
+     "rate": 0.6458333333333334
+    },
+    "false_confident_per_auto_usable": {
+     "n": 5,
+     "d": 31,
+     "rate": 0.16129032258064516
+    },
+    "false_confident_per_receipt": {
+     "n": 5,
+     "d": 48,
+     "rate": 0.10416666666666667
+    },
+    "brand_only_when_dealer_printed": {
+     "n": 0,
+     "d": 41,
+     "rate": 0
+    }
+   },
+   "transaction_date": {
+    "labelled": 48,
+    "coverage": {
+     "n": 42,
+     "d": 48,
+     "rate": 0.875
+    },
+    "exact_rate": {
+     "n": 42,
+     "d": 48,
+     "rate": 0.875
+    },
+    "precision_when_returned": {
+     "n": 42,
+     "d": 42,
+     "rate": 1
+    },
+    "auto_usable": {
+     "n": 37,
+     "d": 48,
+     "rate": 0.7708333333333334
+    },
+    "false_confident_per_auto_usable": {
+     "n": 0,
+     "d": 37,
+     "rate": 0
+    },
+    "false_confident_per_receipt": {
+     "n": 0,
+     "d": 48,
+     "rate": 0
+    },
+    "resolvable_on_receipt_alone": {
+     "receipts": 48,
+     "exact": 42,
+     "rate": 0.875
+    },
+    "ambiguous_on_receipt_alone": {
+     "receipts": 0,
+     "returned_a_date": 0,
+     "held_for_review": 0,
+     "wrong_and_confident": 0
+    }
+   },
+   "total_amount": {
+    "labelled": 48,
+    "coverage": {
+     "n": 40,
+     "d": 48,
+     "rate": 0.8333333333333334
+    },
+    "exact_rate": {
+     "n": 37,
+     "d": 48,
+     "rate": 0.7708333333333334
+    },
+    "precision_when_returned": {
+     "n": 37,
+     "d": 40,
+     "rate": 0.925
+    },
+    "auto_usable": {
+     "n": 25,
+     "d": 48,
+     "rate": 0.5208333333333334
+    },
+    "false_confident_per_auto_usable": {
+     "n": 0,
+     "d": 25,
+     "rate": 0
+    },
+    "false_confident_per_receipt": {
+     "n": 0,
+     "d": 48,
+     "rate": 0
+    }
+   },
+   "overall": {
+    "review_required_rate": {
+     "n": 33,
+     "d": 48,
+     "rate": 0.6875
+    },
+    "review_justified": {
+     "n": 21,
+     "d": 33,
+     "rate": 0.6363636363636364
+    },
+    "true_accept": {
+     "n": 10,
+     "d": 48,
+     "rate": 0.20833333333333334
+    },
+    "false_accept_rate": {
+     "n": 5,
+     "d": 48,
+     "rate": 0.10416666666666667
+    },
+    "all_three_exact": {
+     "n": 27,
+     "d": 48,
+     "rate": 0.5625
+    }
+   },
+   "timing": {
+    "extract_ms_mean": 1.0808916666669195,
+    "ocr_ms_mean_first_run_only": null,
+    "ocr_note": "OCR cost is cached; the mean covers only receipts OCR'd in this corpus build"
+   }
+  }
+ },
+ "by_family": {
+  "synthetic_heldout2:iocl_xtrareward": {
+   "receipts": 6,
+   "pump_name": "5/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "5/6 exact",
+   "review_required": "2/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout2:bpcl_fleet_netpayable": {
+   "receipts": 6,
+   "pump_name": "5/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "4/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout2:hp_column_table": {
+   "receipts": 6,
+   "pump_name": "6/6 exact",
+   "transaction_date": "6/6 exact",
+   "total_amount": "0/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout2:nayara_dealer_label": {
+   "receipts": 6,
+   "pump_name": "0/6 exact",
+   "transaction_date": "6/6 exact",
+   "total_amount": "6/6 exact",
+   "review_required": "1/6",
+   "false_accept": "5/6"
+  },
+  "synthetic_heldout2:jiobp_upi": {
+   "receipts": 6,
+   "pump_name": "5/5 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "6/6 exact",
+   "review_required": "2/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout2:shell_card_slip": {
+   "receipts": 6,
+   "pump_name": "5/6 exact",
+   "transaction_date": "6/6 exact",
+   "total_amount": "6/6 exact",
+   "review_required": "4/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout2:independent_no_header": {
+   "receipts": 6,
+   "pump_name": "0/0 exact",
+   "transaction_date": "4/6 exact",
+   "total_amount": "5/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  },
+  "synthetic_heldout2:reprint_proves_order": {
+   "receipts": 6,
+   "pump_name": "6/6 exact",
+   "transaction_date": "5/6 exact",
+   "total_amount": "5/6 exact",
+   "review_required": "6/6",
+   "false_accept": "0/6"
+  }
+ },
+ "by_difficulty": {
+  "synthetic_heldout2:clean": {
+   "receipts": 16,
+   "pump_name": "11/14 exact",
+   "transaction_date": "16/16 exact",
+   "total_amount": "14/16 exact",
+   "review_required": "9/16",
+   "false_accept": "2/16"
+  },
+  "synthetic_heldout2:blur": {
+   "receipts": 7,
+   "pump_name": "5/6 exact",
+   "transaction_date": "6/7 exact",
+   "total_amount": "6/7 exact",
+   "review_required": "6/7",
+   "false_accept": "0/7"
+  },
+  "synthetic_heldout2:skew": {
+   "receipts": 7,
+   "pump_name": "6/7 exact",
+   "transaction_date": "6/7 exact",
+   "total_amount": "5/7 exact",
+   "review_required": "5/7",
+   "false_accept": "1/7"
+  },
+  "synthetic_heldout2:lowres": {
+   "receipts": 1,
+   "pump_name": "0/1 exact",
+   "transaction_date": "0/1 exact",
+   "total_amount": "0/1 exact",
+   "review_required": "1/1",
+   "false_accept": "0/1"
+  },
+  "synthetic_heldout2:rotated90": {
+   "receipts": 5,
+   "pump_name": "4/4 exact",
+   "transaction_date": "3/5 exact",
+   "total_amount": "2/5 exact",
+   "review_required": "4/5",
+   "false_accept": "0/5"
+  },
+  "synthetic_heldout2:faint": {
+   "receipts": 8,
+   "pump_name": "5/7 exact",
+   "transaction_date": "8/8 exact",
+   "total_amount": "7/8 exact",
+   "review_required": "4/8",
+   "false_accept": "2/8"
+  },
+  "synthetic_heldout2:noise": {
+   "receipts": 3,
+   "pump_name": "1/2 exact",
+   "transaction_date": "2/3 exact",
+   "total_amount": "2/3 exact",
+   "review_required": "3/3",
+   "false_accept": "0/3"
+  },
+  "synthetic_heldout2:cropped_top": {
+   "receipts": 1,
+   "pump_name": "0/0 exact",
+   "transaction_date": "1/1 exact",
+   "total_amount": "1/1 exact",
+   "review_required": "1/1",
+   "false_accept": "0/1"
+  }
+ }
+}

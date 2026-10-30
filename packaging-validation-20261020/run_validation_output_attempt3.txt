@@ -1,0 +1,52 @@
+﻿launched wrapper pid 4176 at 2026-10-20T15:32:01
+devtools port up: True
+  PASS  electron window loaded the backend-served app  http://127.0.0.1:58732/login
+  PASS  app data lives in the disposable user-data folder  D:\Bills\packaging-validation-20261020\userdata
+  PASS  real %APPDATA%\Spinco TA Audit untouched (before uploads)  baseline=135 now=135 changed=0 added=0
+  PASS  backend health check  200
+  PASS  login works through the real UI  
+powershell.exe : python.exe : Traceback (most recent call last):
+At line:5 char:1
++ powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'D:\Bills\pac ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (python.exe : Tr...ent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+At D:\Bills\packaging-validation-20261020\run_validation.ps1:46 char:5
++     & $py "$root\drive_packaged.py" 9333 $evid $user "$root\real_data ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "D:\Bills\packaging-validation-20261020\drive_packaged.py", line 119, in <module>
+    results = up.json()["results"]
+              ^^^^^^^^^
+  File "D:\Bills\backend\.venv\Lib\site-packages\playwright\sync_api\_generated.py", line 22298, in json
+    return mapping.from_maybe_impl(self._sync(self._impl_obj.json()))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Bills\backend\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 111, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "D:\Bills\backend\.venv\Lib\site-packages\playwright\_impl\_network.py", line 933, in json
+    return json.loads(await self.text())
+                      ^^^^^^^^^^^^^^^^^
+  File "D:\Bills\backend\.venv\Lib\site-packages\playwright\_impl\_network.py", line 929, in text
+    content = await self.body()
+              ^^^^^^^^^^^^^^^^^
+  File "D:\Bills\backend\.venv\Lib\site-packages\playwright\_impl\_network.py", line 922, in body
+    binary = await self._channel.send(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Bills\backend\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 78, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Bills\backend\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 636, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Response.json: Protocol error (Network.getResponseBody): Request content was evicted 
+from inspector cache
+Response body is not available for a response that was navigated away from. Read response.body() before triggering any 
+navigation.
+driver exit code: 1
+mock provider hits: 0
+non-loopback connection samples: 0
+sampler heartbeats: 12
+finished 2026-10-20T15:32:49

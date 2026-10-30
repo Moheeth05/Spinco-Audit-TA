@@ -1,0 +1,498 @@
+{
+  "summary": {
+    "total": 13,
+    "nodeAmountCorrect": 4,
+    "pythonAmountCorrect": 3,
+    "ocrInvokedNode": 12,
+    "ocrInvokedPython": 10
+  },
+  "results": [
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 6,
+      "groundTruth": {
+        "vendor": "HP Auto Care Centre (Bodakdev, Ahmedabad)",
+        "totalAmount": 2500,
+        "invoiceNumber": "535084",
+        "quality": "clean printed thermal receipt, photographed",
+        "confidence": "high",
+        "note": "Two distinct numeric IDs on one receipt - 'TXN NO: 6091614189' and 'INVOICE NO: 535084' - printed as separate lines, TXN NO first. Correct extraction must pick INVOICE NO as the invoice number, not conflate the two."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "native",
+        "ocrConfidence": null,
+        "ocrMs": 1766.369342803955,
+        "textLength": 1,
+        "vendor": null,
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.65,
+        "ocrMs": 3816,
+        "textLength": 366,
+        "vendor": "BODAKDEV",
+        "billNumber": "535084",
+        "billDate": null,
+        "amount": 2500,
+        "gstin": null
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 7,
+      "groundTruth": {
+        "vendor": "Dishant Petroleum Service",
+        "totalAmount": 300,
+        "invoiceNumber": "648591",
+        "quality": "handwritten cash memo, bilingual (Gujarati+English), partially illegible",
+        "confidence": "low - amount and date are hand-filled into a printed grid; genuinely hard to read even by eye",
+        "note": "Deliberately included as a low-confidence case, not a confident one - flags the honest limit of what any OCR engine can recover here."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.2868421052631579,
+        "ocrMs": 2058.861494064331,
+        "textLength": 59,
+        "vendor": "= 48591 ahr | a",
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.38,
+        "ocrMs": 2726,
+        "textLength": 217,
+        "vendor": "af Ni ary",
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 9,
+      "groundTruth": {
+        "vendor": "ADYAR ANANDA BHAVAN SWEETS (A2B)",
+        "totalAmount": 685,
+        "invoiceNumber": "CR26349/129981",
+        "quality": "clean printed thermal receipt, photographed",
+        "confidence": "high"
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "native",
+        "ocrConfidence": null,
+        "ocrMs": 1482.529640197754,
+        "textLength": 1,
+        "vendor": null,
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.41,
+        "ocrMs": 3138,
+        "textLength": 428,
+        "vendor": "\\ fEmiars |",
+        "billNumber": null,
+        "billDate": null,
+        "amount": 652.67,
+        "gstin": null
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 15,
+      "groundTruth": {
+        "vendor": "Airport Cab Service",
+        "totalAmount": 1150,
+        "invoiceNumber": "INVOICE600028",
+        "quality": "clean digital invoice",
+        "confidence": "high",
+        "note": "Digitally-generated invoice (Zoho Invoice), not a photo - likely has native PDF text rather than requiring OCR."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.8667894736842104,
+        "ocrMs": 2085.515022277832,
+        "textLength": 1233,
+        "vendor": "——==CAB SERVICE=>—",
+        "billNumber": "DueonReceipt",
+        "billDate": "2026-09-21",
+        "amount": 1150,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.81,
+        "ocrMs": 3982,
+        "textLength": 1266,
+        "vendor": "—~—==CAB SERVICE=",
+        "billNumber": "DueonReceipt",
+        "billDate": "2026-09-21",
+        "amount": 1150,
+        "gstin": null
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": true
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 25,
+      "groundTruth": {
+        "vendor": "PANKAJ BALDEVBHAI PARMAR (UPI payee)",
+        "totalAmount": 500,
+        "invoiceNumber": null,
+        "quality": "clean app screenshot",
+        "confidence": "high",
+        "note": "No invoice exists on this page at all - it's a payment confirmation screenshot, not a bill. 'PhonePe Transaction ID' is correctly a transaction reference, never an invoice number. Ground truth for invoiceNumber is explicitly null, not a guess."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.8047619047619048,
+        "ocrMs": 1582.0727348327637,
+        "textLength": 289,
+        "vendor": "Paid to",
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.79,
+        "ocrMs": 2901,
+        "textLength": 289,
+        "vendor": "Paid to",
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 6,
+      "groundTruth": {
+        "vendor": "Taxi Operator's Union (Regd.), Pinjore Road Baddi",
+        "totalAmount": 3000,
+        "quality": "handwritten voucher",
+        "confidence": "medium",
+        "note": "Fully handwritten voucher. Amount field is handwritten '3000/-'; this is an advance/fare receipt, not a tax invoice."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.7822,
+        "ocrMs": 1205.0504684448242,
+        "textLength": 315,
+        "vendor": "Tv Transaction Successful",
+        "billNumber": null,
+        "billDate": "2026-07-10",
+        "amount": null,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.76,
+        "ocrMs": 2129,
+        "textLength": 312,
+        "vendor": "q Transaction Successful",
+        "billNumber": null,
+        "billDate": "2026-07-10",
+        "amount": null,
+        "gstin": null
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 10,
+      "groundTruth": {
+        "vendor": "Home Town Resort",
+        "totalAmount": 34999.9,
+        "quality": "clean digital tax invoice, photographed",
+        "confidence": "high",
+        "note": "Hotel ledger invoice (page 1 of 2, continues to page 11) - Net Amount 34999.90 (= 33333.30 taxable + 833.30 CGST + 833.30 SGST). A SEPARATE card-swipe receipt on page 12 shows AMT INR 35000.00 (rounded card charge) - these are two different, correctly-distinct figures for the SAME stay, not a contradiction to be resolved to one number."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.8557541899441341,
+        "ocrMs": 3499.3879795074463,
+        "textLength": 2221,
+        "vendor": "Party's GSTIN : 33AAFCS9992P1ZC Place of Service: HIMACHAL PRADESH",
+        "billNumber": "MB01406Folio1357",
+        "billDate": "2026-07-10",
+        "amount": 27999.92,
+        "gstin": "33AAFCS9992P1ZC"
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.84,
+        "ocrMs": 6308,
+        "textLength": 2249,
+        "vendor": "! Party's GSTIN : 33AAFCS9992P1ZC Place of Service: HIMACHAL PRADESH",
+        "billNumber": null,
+        "billDate": "2026-07-10",
+        "amount": 27999.92,
+        "gstin": "33AAFCS9992P1ZC"
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 12,
+      "groundTruth": {
+        "vendor": "Central Bank of India (card payment slip, Home Town Resort)",
+        "totalAmount": 35000,
+        "quality": "clean printed card receipt, photographed",
+        "confidence": "high",
+        "note": "Card-swipe confirmation slip, a DIFFERENT document from page 10-11's hotel invoice even though both relate to the same stay. Ground truth total is this slip's own AMT (35000.00), not the invoice's 34999.90 - the two must not be conflated into one 'correct' value."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.6235632183908045,
+        "ocrMs": 1896.8544006347656,
+        "textLength": 574,
+        "vendor": "1 AM SALISFIED WITH GOUL/SERVICE RECEDVER Abe",
+        "billNumber": null,
+        "billDate": null,
+        "amount": 35000,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.56,
+        "ocrMs": 3410,
+        "textLength": 635,
+        "vendor": "I Af SAILSHIED WITH GCCO/SERVICE RECEIVED Ang",
+        "billNumber": null,
+        "billDate": null,
+        "amount": 35000,
+        "gstin": null
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": true
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 20,
+      "groundTruth": {
+        "vendor": "ICICI Bank (Amazon Pay Credit Card statement)",
+        "totalAmount": null,
+        "quality": "clean digital statement, photographed",
+        "confidence": "high (on what NOT to extract)",
+        "note": "Confirmed hard case: this is a multi-transaction CREDIT CARD STATEMENT (same document already found problematic for bill-grouping in the Expense Report stage), listing a dozen+ distinct unrelated transactions. 'Total Amount due Rs.1,13,824.75' is the card's outstanding BALANCE, not a reimbursable expense total - ground truth totalAmount is deliberately null here: no single figure on this page is 'the bill total' for any one expense claim. A naive label-priority match on 'total'/'amount' risks confidently extracting Rs.1,13,824.75 as if it were one."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.8597230320699708,
+        "ocrMs": 6897.274017333984,
+        "textLength": 4520,
+        "vendor": "HSN Code: 997113 Credit Granting Services including",
+        "billNumber": "1574050800475981",
+        "billDate": "2026-08-05",
+        "amount": 113824.75,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.77,
+        "ocrMs": 13851,
+        "textLength": 4559,
+        "vendor": "Erg U5; Scan the OR Code, to know about the Credit Card services,",
+        "billNumber": null,
+        "billDate": "2026-08-05",
+        "amount": null,
+        "gstin": null
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 22,
+      "groundTruth": {
+        "vendor": "KFC (via food-delivery order summary)",
+        "totalAmount": 630,
+        "quality": "photographed on yellow-tinted paper, visibly blurred/skewed",
+        "confidence": "medium - genuine OCR difficulty from the tint/blur, not just a clean-receipt case",
+        "note": "Explicit Subtotal/CGST/SGST/Total breakdown - ground truth total is 630.0 (Total), not 600.0 (Subtotal)."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.8487780548628429,
+        "ocrMs": 5926.377058029175,
+        "textLength": 3187,
+        "vendor": ")) Fastag E-Statement",
+        "billNumber": null,
+        "billDate": "2026-09-04",
+        "amount": 31,
+        "gstin": "27AAACI1195H3ZK"
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.79,
+        "ocrMs": 11616,
+        "textLength": 3293,
+        "vendor": "IV FASTag E-Statement icici Bank",
+        "billNumber": null,
+        "billDate": "2026-09-04",
+        "amount": null,
+        "gstin": "27AAACI1195H3ZK"
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 3,
+      "groundTruth": {
+        "vendor": "Theneth Auto Fuels (Bharat Petroleum)",
+        "totalAmount": 2000,
+        "quality": "clean printed thermal receipt, photographed",
+        "confidence": "high",
+        "note": "'Txn Id' is a transaction reference, not a labeled invoice number - no invoice-number label appears on this receipt at all."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.43117647058823527,
+        "ocrMs": 1442.6839351654053,
+        "textLength": 359,
+        "vendor": "THONE TH AUTO FUELS",
+        "billNumber": null,
+        "billDate": null,
+        "amount": 2000,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.39,
+        "ocrMs": 2431,
+        "textLength": 356,
+        "vendor": "THEN ThE AU ELS",
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": true
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 6,
+      "groundTruth": {
+        "vendor": "RATHNA ELECTRICALS & HARDWARES",
+        "totalAmount": 220,
+        "invoiceNumber": "664",
+        "quality": "handwritten on printed template",
+        "confidence": "medium (amount/invoice-no legible; date is not)",
+        "note": "Handwritten cash invoice - printed template, hand-filled amounts/date. Date is illegible in the rendered image (no confident ground truth value), left null rather than guessed."
+      },
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.48690721649484536,
+        "ocrMs": 2123.0075359344482,
+        "textLength": 668,
+        "vendor": "ELECTRICALS & HARDWARES b Load",
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": "32ARWPK8203C1ZW"
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "ocrConfidence": 0.38,
+        "ocrMs": 3657,
+        "textLength": 435,
+        "vendor": "SEs —— H o (9)",
+        "billNumber": null,
+        "billDate": null,
+        "amount": null,
+        "gstin": null
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40782.pdf",
+      "page": 3,
+      "groundTruth": {
+        "vendor": "CNG Mother Station (Paytm payment)",
+        "totalAmount": 4051,
+        "invoiceNumber": null,
+        "quality": "clean app screenshot",
+        "confidence": "high",
+        "note": "Payment confirmation screenshot, not a bill - 'Txn ID'/'Order ID' are transaction references, no invoice number exists. Auth-Code 896336 is a card-authorization code, also not an invoice number."
+      },
+      "python": {
+        "nativeHasSelectableText": true,
+        "finalSource": "native",
+        "ocrConfidence": null,
+        "ocrMs": null,
+        "textLength": 569,
+        "vendor": "Name",
+        "billNumber": null,
+        "billDate": "2026-07-01",
+        "amount": null,
+        "gstin": null
+      },
+      "node": {
+        "nativeHasSelectableText": true,
+        "finalSource": "native",
+        "ocrConfidence": null,
+        "ocrMs": null,
+        "textLength": 527,
+        "vendor": "Name",
+        "billNumber": null,
+        "billDate": "2026-07-01",
+        "amount": null,
+        "gstin": null
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    }
+  ]
+}

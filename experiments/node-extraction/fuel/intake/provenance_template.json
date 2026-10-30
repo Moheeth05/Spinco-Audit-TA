@@ -1,0 +1,14 @@
+{
+  "source_description": "Where exactly this receipt came from (e.g. 'employee X's expense report ER-12345, page 7, supplied by Finance on 2026-11-02')",
+  "source_type": "authentic_issued_receipt",
+  "owner": "Who owns / controls the receipt (company, employee, public-domain holder)",
+  "permission_basis": "Why it may be used here: company-authorised internal evaluation | CC0 | CC-BY (attribution given) | licence agreement | written permission from the holder",
+  "authorized_by": "Name and role of the person who authorised its use for this evaluation",
+  "retrieval_date": "YYYY-MM-DD",
+  "licence_or_terms_reference": "URL or document reference, if any",
+  "brand_family": "Nayara | Jio-bp | Shell | IndianOil | BPCL | HPCL | independent | other",
+  "receipt_family": "A short layout id fixed NOW, e.g. nayara_pos_thermal_A (all receipts printed by the same template share it)",
+  "personal_data_handling": "What personal / payment data the image contains and what was redacted (card numbers, names, vehicle numbers) or 'none present'",
+  "contains_confidential_company_data": false,
+  "permitted_usage": { "store": true, "modify": false, "evaluate": true, "redistribute": false }
+}

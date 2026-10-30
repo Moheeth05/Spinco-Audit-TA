@@ -1,0 +1,12 @@
+FUEL RECEIPT LABEL REVIEW - instructions for the authorized reviewer
+
+Who: only a person the company has authorized to view these receipts. Tick the authorization box only if that is true.
+What: for each receipt record three things as PRINTED on that image: the pump/station name, the transaction date, and the total amount paid for the fuel.
+Do not use any other document, the Expense Report, or a claim. If a field is unreadable choose 'illegible' - never guess.
+Date: record the transaction date (not 'Printed on'). If day and month are both 12 or less and nothing ON THE RECEIPT proves the order, untick 'provable from this receipt alone' and say how you decided.
+Amount: the printed total of the fuel purchase - not rate per litre, litres, totaliser, preset value, points or balance.
+Mode: BLIND - provisional labels are hidden.
+
+Open review.html in a browser (works offline). Your answers are kept in the browser only; click 'Export JSON' and send the file to the experiment owner.
+Prefer a spreadsheet? Fill review_sheet.csv instead (same fields).
+Two independent reviewers per receipt is recommended; where they disagree the receipt goes to adjudication and is NOT marked verified.

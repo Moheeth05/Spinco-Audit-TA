@@ -1,0 +1,31 @@
+{
+  "schema": "fuel-review-export/v1",
+  "pack_id": "review-pack",
+  "reviewer_id": "SMOKE-TEST",
+  "authorization_confirmed": true,
+  "exported_at": "2026-10-22T06:16:15.199Z",
+  "blind": true,
+  "records": {
+    "SYNTH-AUTH-001": {
+      "pump_name": {
+        "status": "read",
+        "value": "TEST DEALER",
+        "printed_text": "PRINTED HEADER",
+        "other_acceptable_forms": []
+      },
+      "transaction_date": {
+        "status": "read",
+        "printed_text": "24/09/26",
+        "iso_date": "2026-09-24",
+        "order_provable_from_receipt": true,
+        "order_evidence": "component_gt_12"
+      },
+      "total_amount": {
+        "status": "read",
+        "printed_text": "1234.50",
+        "value": 1234.5
+      },
+      "notes": null
+    }
+  }
+}

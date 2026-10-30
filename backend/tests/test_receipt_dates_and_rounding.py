@@ -118,45 +118,25 @@ def test_matching_never_overwrites_the_claimed_or_extracted_amounts():
 # ====================== the real cause: month-first receipt dates ======================
 
 
-def test_stored_dates_of_the_real_receipts_before_the_fix_are_day_first_misreadings():
-    """Characterises the defect: parse_bill_text alone still reads 7/6/26 as 7 June."""
-    assert parse_bill_text(UBER_P17).bill_date == D(2026, 6, 7)
-    assert parse_bill_text(UBER_P25).bill_date == D(2026, 9, 7)
-    assert parse_bill_text(UBER_P40).bill_date == D(2026, 7, 17)  # only month-first is possible
+def test_the_real_receipts_parse_on_their_own_as_unresolved_where_the_order_is_ambiguous():
+    """Standing alone, '7/6/26' could be 6 July or 7 June: no date is chosen. '7/17/26' and '7/21/26'
+    can only be month-first, so they are resolved."""
+    for text, candidates in ((UBER_P17, {"2026-07-06", "2026-06-07"}), (UBER_P25, {"2026-07-09", "2026-09-07"})):
+        bill = parse_bill_text(text)
+        assert bill.bill_date is None and bill.date_reading.ambiguous
+        assert {c.isoformat() for c in bill.date_reading.candidates} == candidates
+    assert parse_bill_text(UBER_P40).bill_date == D(2026, 7, 17)
     assert parse_bill_text(UBER_P43).bill_date == D(2026, 7, 21)
 
 
-def test_convention_is_proven_only_by_a_receipt_that_cannot_be_read_the_other_way():
-    assert dates.us_timestamp_convention([UBER_P17, UBER_P25, UBER_P40, UBER_P43]) == "MDY"
-    assert dates.us_timestamp_convention([UBER_P17, UBER_P25]) is None  # ambiguous receipts prove nothing
-    assert dates.us_timestamp_convention([UBER_P40]) == "MDY"
-    day_first_proof = "Paid 13/7/26 10:22 AM"
-    assert dates.us_timestamp_convention([UBER_P40, day_first_proof]) is None  # the report contradicts itself
-    assert dates.us_timestamp_convention([day_first_proof]) == "DMY"
-    assert dates.us_timestamp_convention([None, ""]) is None
-
-
-def test_ambiguous_receipts_are_read_month_first_once_the_format_is_proven():
-    convention = dates.us_timestamp_convention([UBER_P17, UBER_P25, UBER_P40, UBER_P43])
-    assert dates.month_first_reading(UBER_P17, D(2026, 6, 7), convention) == D(2026, 7, 6)
-    assert dates.month_first_reading(UBER_P25, D(2026, 9, 7), convention) == D(2026, 7, 9)
-
-
-@pytest.mark.parametrize(
-    "text,parsed,convention",
-    [
-        (UBER_P17, D(2026, 6, 7), None),  # no proof of month-first
-        (UBER_P17, D(2026, 6, 7), "DMY"),
-        (UBER_P40, D(2026, 7, 17), "MDY"),  # already unambiguous: nothing to correct
-        ("Uber\nCash 7/7/26 10:22 AM", D(2026, 7, 7), "MDY"),  # symmetric
-        ("Date: August 7, 2026\nCash 7/6/26 10:22 AM", D(2026, 8, 7), "MDY"),  # another date on the page
-        ("Indian Oil\nDate : 07/06/26\n10:22", D(2026, 6, 7), "MDY"),  # not the US timestamp shape
-        (UBER_P17, None, "MDY"),
-        (UBER_P17, D(2026, 3, 3), "MDY"),  # stored date is not the day-first misreading
-    ],
-)
-def test_no_reinterpretation_without_proof_or_when_the_date_is_not_a_lone_ambiguous_timestamp(text, parsed, convention):
-    assert dates.month_first_reading(text, parsed, convention) is None
+def test_the_real_receipts_resolve_month_first_through_same_template_proof():
+    """Receipts 40 and 43 prove this Uber template prints month-first, so receipts 17 and 25 -
+    ambiguous alone - are 6 July and 9 July. Proof comes from the receipts, never from a claim."""
+    texts = [UBER_P17, UBER_P25, UBER_P40, UBER_P43]
+    grouped = dates.apply_group_evidence(texts, [dates.read_dates(t) for t in texts])
+    assert grouped[0][0].value == D(2026, 7, 6) and grouped[0][0].method == "report_group"
+    assert grouped[1][0].value == D(2026, 7, 9)
+    assert grouped[0][0].raw == "7/6/26"
 
 
 # ====================== matching with the corrected dates ======================
@@ -282,7 +262,6 @@ def test_a_near_amount_never_overrides_a_genuinely_different_date():
 def test_an_unambiguous_month_name_date_is_never_reinterpreted():
     text = UBER_P17.replace("7/6/26 10:22 AM", "Jun 7, 2026 10:22 AM")
     assert parse_bill_text(text).bill_date == D(2026, 6, 7)
-    assert dates.month_first_reading(text, D(2026, 6, 7), "MDY") is None
     result = checks.check_bill_date(expense_date=D(2026, 7, 6), bill=_CheckBill(_bill(46, 17, text)))
     assert result.exception_type == "DATE MISMATCH"
 
@@ -355,7 +334,15 @@ def test_pipeline_reads_month_first_receipts_and_matches_each_claim_to_its_own_r
 
 
 def test_pipeline_leaves_an_ambiguous_date_alone_when_nothing_proves_the_format(client):
+    """One claim dated 6 July and ONE receipt that could be 6 July or 7 June, nothing else in the report to
+    settle it. The claim date is not evidence: the receipt's date stays unresolved with both candidates,
+    earns no date credit, and the claim goes to review instead of being verified by coincidence."""
     expenses, bills = _upload_and_read(client, _er_with_receipts(_rows()[:6], [UBER_P17]))
     (page,) = bills
-    assert bills[page]["bill_date"] == "2026-06-07"  # not guessed from the claim date
-    assert "month-first" not in (bills[page]["extraction_notes"] or "")
+    receipt = bills[page]
+    assert receipt["bill_date"] is None
+    assert receipt["bill_date_raw"] == "7/6/26"
+    assert set(receipt["bill_date_candidates"].split("|")) == {"2026-07-06", "2026-06-07"}
+    assert receipt["bill_date_method"] == "unresolved"
+    assert "month-first" not in (receipt["extraction_notes"] or "")
+    assert expenses[1]["validation_status"] == "REVIEW_REQUIRED"  # not PASS, and not a DATE MISMATCH exception

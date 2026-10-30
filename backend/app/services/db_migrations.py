@@ -66,9 +66,34 @@ _BILL_COLUMNS = [
     # extraction/bill_grouping.py) - new nullable column on the pre-existing
     # `bills` table for a pre-existing database that predates this feature.
     ("bills", "page_number_end", "INTEGER"),
+    # Date provenance (see models/bill.py): the date exactly as printed, every
+    # valid reading, and how its day/month order was established - so an
+    # unresolved date keeps both candidates for review and a resolved one keeps
+    # its audit trail.
+    ("bills", "bill_date_raw", "VARCHAR(40)"),
+    ("bills", "bill_date_candidates", "VARCHAR(60)"),
+    ("bills", "bill_date_method", "VARCHAR(20)"),
+    ("bills", "bill_date_confidence", "VARCHAR(10)"),
+    # Payment-screenshot evidence (see extraction/payment_evidence.py).
+    ("bills", "payment_status", "VARCHAR(12)"),
+    ("bills", "transaction_time", "VARCHAR(5)"),
+    # Catering / lodging room-service-food evidence read from the FULL bill text
+    # (raw_text is capped at 2,000 characters) - see models/bill.py. Nullable with
+    # no default: an old row stays NULL and consumers fall back to raw_text.
+    ("bills", "catering_mentioned", "BOOLEAN"),
+    ("bills", "room_service_food_amount", "NUMERIC(12, 2)"),
+    ("bills", "room_service_food_mentioned", "BOOLEAN"),
 ]
 
-_ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS + _EXCEPTION_COLUMNS + _BILL_COLUMNS
+# Evidence signature of a manual verification (see models/validation.py's
+# ExceptionVerification.evidence_signature) - a nullable column on the pre-existing
+# `exception_verifications` table. Old rows stay NULL ("unsigned"): the exception engine
+# applies such a row only while its original_reason still equals the current reason.
+_VERIFICATION_COLUMNS = [
+    ("exception_verifications", "evidence_signature", "VARCHAR(64)"),
+]
+
+_ALL_COLUMNS = _USER_COLUMNS + _EXPENSE_COLUMNS + _EXCEPTION_COLUMNS + _BILL_COLUMNS + _VERIFICATION_COLUMNS
 
 
 def run_light_migrations(engine: Engine) -> None:

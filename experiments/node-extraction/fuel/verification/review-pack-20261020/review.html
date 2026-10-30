@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Fuel receipt label review (offline)</title>
+<style>
+body{font:14px system-ui,Segoe UI,Arial,sans-serif;margin:0;background:#f3f4f6;color:#111}
+header{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:5}
+header input[type=text]{padding:4px;width:170px}
+main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(360px,1fr);gap:12px;padding:12px}
+#imgwrap{background:#fff;border:1px solid #cbd5e1;overflow:auto;height:calc(100vh - 90px)}
+#imgwrap img{transform-origin:top left;max-width:none}
+form{background:#fff;border:1px solid #cbd5e1;padding:12px;overflow:auto;height:calc(100vh - 90px)}
+fieldset{margin:0 0 12px;border:1px solid #cbd5e1}legend{font-weight:600}
+label{display:block;margin:4px 0}input[type=text],input[type=number],input[type=date],select,textarea{width:100%;box-sizing:border-box;padding:4px}
+.warn{background:#fef3c7;border:1px solid #f59e0b;padding:6px;margin-bottom:8px}button{padding:6px 10px}
+.small{color:#475569;font-size:12px}
+</style></head><body>
+<header>
+ <b>Fuel receipt label review</b>
+ <label>Reviewer ID <input type="text" id="rid" placeholder="employee id / name"></label>
+ <label><input type="checkbox" id="auth"> I am authorized by the company to view these receipts</label>
+ <span id="progress"></span>
+ <button id="prev" type="button">&larr; Prev</button><button id="next" type="button">Next &rarr;</button>
+ <button id="zoomIn" type="button">Zoom +</button><button id="zoomOut" type="button">Zoom -</button>
+ <button id="export" type="button">Export JSON</button>
+</header>
+<main>
+ <div id="imgwrap"><img id="img" alt="receipt"></div>
+ <form id="f" autocomplete="off">
+  <div class="warn">Read ONLY what is printed on this receipt image. Do not use any other document, the Expense Report, or a claim to decide a value. If you cannot read a field, mark it <b>illegible</b> - do not guess. Everything stays in this browser until you click Export; nothing is sent anywhere.</div>
+  <div class="small" id="meta"></div>
+  <fieldset><legend>1. Pump / station name</legend>
+   <label><input type="radio" name="p_status" value="read"> printed name (dealer / station) is legible</label>
+   <label><input type="radio" name="p_status" value="logo_only"> only the oil-company logo/wordmark identifies it (no dealer name printed)</label>
+   <label><input type="radio" name="p_status" value="not_printed"> no pump / brand name at all on the receipt</label>
+   <label><input type="radio" name="p_status" value="illegible"> illegible</label>
+   <label>Name as you would record it (dealer/station name preferred over the brand)<input type="text" id="p_value"></label>
+   <label>Exactly as printed (all header lines)<input type="text" id="p_printed"></label>
+   <label>Other acceptable forms (comma separated, e.g. brand + dealer)<input type="text" id="p_other"></label>
+  </fieldset>
+  <fieldset><legend>2. Transaction date (not the print date)</legend>
+   <label><input type="radio" name="d_status" value="read"> date is legible</label>
+   <label><input type="radio" name="d_status" value="illegible"> illegible / missing</label>
+   <label>Date exactly as printed<input type="text" id="d_printed"></label>
+   <label>Date as YYYY-MM-DD<input type="date" id="d_iso"></label>
+   <label><input type="checkbox" id="d_provable"> the day/month order is provable <b>from this receipt alone</b> (a component &gt; 12, a month name, ISO, an explicit format cue, ...)</label>
+   <label>How did you establish the order?
+    <select id="d_evidence"><option value="">-</option><option value="component_gt_12">a component is greater than 12</option><option value="month_name_or_iso">month name / ISO format</option><option value="format_cue_on_receipt">format cue printed on the receipt</option><option value="equal_components">day equals month</option><option value="month_in_bill_number">month printed in the bill number</option><option value="other_documents">other receipts / documents (NOT receipt-intrinsic)</option><option value="none">cannot establish</option></select></label>
+  </fieldset>
+  <fieldset><legend>3. Total amount paid for the fuel</legend>
+   <label><input type="radio" name="a_status" value="read"> amount is legible</label>
+   <label><input type="radio" name="a_status" value="illegible"> illegible</label>
+   <label>Amount exactly as printed<input type="text" id="a_printed"></label>
+   <label>Amount (number)<input type="number" id="a_value" step="0.01"></label>
+   <div class="small">The printed total of the fuel purchase. Not the rate per litre, litres, totaliser, preset value, points or balance.</div>
+  </fieldset>
+  <label>Notes (optional)<textarea id="notes" rows="2"></textarea></label>
+ </form>
+</main>
+<script src="manifest.js"></script>
+<script>
+(function(){
+ var M=window.REVIEW_MANIFEST, KEY='fuel-review-state-v1-'+M.pack_id, i=0, zoom=1;
+ var S={}; try{S=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+ var $=function(id){return document.getElementById(id)};
+ function val(n){var e=document.querySelector('input[name='+n+']:checked');return e?e.value:null}
+ function setRadio(n,v){document.querySelectorAll('input[name='+n+']').forEach(function(e){e.checked=(e.value===v)})}
+ function read(){return {
+  pump_name:{status:val('p_status'),value:$('p_value').value.trim()||null,printed_text:$('p_printed').value.trim()||null,other_acceptable_forms:$('p_other').value.split(',').map(function(x){return x.trim()}).filter(Boolean)},
+  transaction_date:{status:val('d_status'),printed_text:$('d_printed').value.trim()||null,iso_date:$('d_iso').value||null,order_provable_from_receipt:$('d_provable').checked,order_evidence:$('d_evidence').value||null},
+  total_amount:{status:val('a_status'),printed_text:$('a_printed').value.trim()||null,value:$('a_value').value===''?null:Number($('a_value').value)},
+  notes:$('notes').value.trim()||null}}
+ function write(r){r=r||{};var p=r.pump_name||{},d=r.transaction_date||{},a=r.total_amount||{};
+  setRadio('p_status',p.status||null);$('p_value').value=p.value||'';$('p_printed').value=p.printed_text||'';$('p_other').value=(p.other_acceptable_forms||[]).join(', ');
+  setRadio('d_status',d.status||null);$('d_printed').value=d.printed_text||'';$('d_iso').value=d.iso_date||'';$('d_provable').checked=!!d.order_provable_from_receipt;$('d_evidence').value=d.order_evidence||'';
+  setRadio('a_status',a.status||null);$('a_printed').value=a.printed_text||'';$('a_value').value=(a.value==null?'':a.value);$('notes').value=r.notes||''}
+ function save(){S[M.items[i].id]=read();localStorage.setItem(KEY,JSON.stringify(S));progress()}
+ function progress(){var done=M.items.filter(function(it){var r=S[it.id];return r&&r.pump_name.status&&r.transaction_date.status&&r.total_amount.status}).length;$('progress').textContent=(i+1)+' / '+M.items.length+'  (complete: '+done+')'}
+ function show(){var it=M.items[i];$('img').src=it.image;$('img').style.transform='scale('+zoom+')';write(S[it.id]);progress();
+  $('meta').textContent='Receipt '+it.id+(M.blind?'  (blind: provisional labels hidden)':'  PROVISIONAL labels shown: '+JSON.stringify(it.provisional))}
+ document.getElementById('f').addEventListener('input',save);document.getElementById('f').addEventListener('change',save);
+ $('prev').onclick=function(){save();if(i>0){i--;show()}};$('next').onclick=function(){save();if(i<M.items.length-1){i++;show()}};
+ $('zoomIn').onclick=function(){zoom=Math.min(4,zoom+0.25);show()};$('zoomOut').onclick=function(){zoom=Math.max(0.25,zoom-0.25);show()};
+ $('export').onclick=function(){save();
+  var rid=$('rid').value.trim(),auth=$('auth').checked,missing=M.items.filter(function(it){var r=S[it.id];return !(r&&r.pump_name.status&&r.transaction_date.status&&r.total_amount.status)}).map(function(it){return it.id});
+  if(!rid||!auth){alert('Enter your reviewer ID and tick the authorization box before exporting.');return}
+  if(missing.length&&!confirm(missing.length+' receipt(s) are incomplete and will be exported WITHOUT verification:\n'+missing.slice(0,10).join('\n')+'\nExport anyway?'))return;
+  var recs={};M.items.forEach(function(it){var r=S[it.id];if(r&&r.pump_name.status&&r.transaction_date.status&&r.total_amount.status)recs[it.id]=r});
+  var blob=new Blob([JSON.stringify({schema:'fuel-review-export/v1',pack_id:M.pack_id,reviewer_id:rid,authorization_confirmed:auth,exported_at:new Date().toISOString(),blind:M.blind,records:recs},null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fuel-review-'+M.pack_id+'-'+rid.replace(/[^A-Za-z0-9_-]/g,'_')+'.json';a.click()};
+ show();
+})();
+</script></body></html>

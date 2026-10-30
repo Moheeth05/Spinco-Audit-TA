@@ -1,0 +1,67 @@
+mirror root: D:\Bills\experiments\node-extraction\fuel\_synthetic_review_revalidation_20261022\synthetic-mirror-gVOLGJ
+[guard] mirror contents: 9 path(s) verified inside the mirror
+[guard] generate pack (script, cwd, annotations, src, output): 7 path(s) verified inside the mirror
+PASS  generator ran from the mirror  -- review pack: D:\Bills\experiments\node-extraction\fuel\_synthetic_review_revalidation_20261022\synthetic-mirror-gVOLGJ\review-pack |   receipts: 3 (3 existing authentic, 0 new intake)  blind=true
+PASS  pack is offered only synthetic verifiable receipts (no synthetic/control records)  -- SYNTH-AUTH-001,SYNTH-AUTH-002,SYNTH-TPL-001
+PASS  every image reference resolves to a blank placeholder inside the mirror
+PASS  HTML: validator placeholder replaced and validator embedded
+PASS  HTML: manifest validator_sha256 present
+PASS  HTML: status-change handler present (illegible/not_printed clear values)
+PASS  HTML: export goes through ReviewValidation.buildExportPayload and an invalid export returns before any Blob/download
+PASS  HTML: visible error box
+PASS  HTML: no network references
+PASS  page validator: a valid synthetic review exports  -- incomplete=SYNTH-TPL-001
+PASS  page validator: invalid review cannot be exported - read but empty pump value  -- receipt SYNTH-AUTH-001: pump_name: status 'read' requires a non-empty value
+PASS  page validator: invalid review cannot be exported - stale value left on an illegible pump  -- receipt SYNTH-AUTH-001: pump_name: status 'illegible' contradicts a value being present (clear the value or choose 'read')
+PASS  page validator: invalid review cannot be exported - stale value left on a not_printed pump  -- receipt SYNTH-AUTH-001: pump_name: status 'not_printed' contradicts a value being present (clear the value or choose 'read')
+PASS  page validator: invalid review cannot be exported - stale date left on an illegible date  -- receipt SYNTH-AUTH-001: transaction_date: status 'illegible' contradicts a date being present (clear the date or choose 'read')
+PASS  page validator: invalid review cannot be exported - stale amount left on an illegible amount  -- receipt SYNTH-AUTH-001: total_amount: status 'illegible' contradicts a value being present (clear the value or choose 'read')
+PASS  page validator: invalid review cannot be exported - impossible date 2026-02-30  -- receipt SYNTH-AUTH-001: transaction_date: iso_date must be a real calendar date written YYYY-MM-DD (years 1990-2100)
+PASS  page validator: invalid review cannot be exported - non-numeric amount  -- receipt SYNTH-AUTH-001: total_amount: status 'read' requires a numeric value
+PASS  page validator: invalid review cannot be exported - unsupported status  -- receipt SYNTH-AUTH-001: pump_name: unsupported status (allowed: read, logo_only, not_printed, illegible)
+PASS  page validator: the CLEARED form of illegible / not_printed fields exports
+[guard] apply (valid review): 6 path(s) verified inside the mirror
+PASS  apply: the valid synthetic review is accepted
+PASS  loader: the two eligible reviewed records are human_verified
+[guard] apply (SYNTH-FUEL-001 must be refused): 6 path(s) verified inside the mirror
+PASS  apply: a review naming SYNTH-FUEL-001 (synthetic) is rejected  --   reval-2.json: receipt SYNTH-FUEL-001: source type 'synthetic' is not eligible for human verification
+[guard] apply (SYNTH-CTRL-001 must be refused): 6 path(s) verified inside the mirror
+PASS  apply: a review naming SYNTH-CTRL-001 (control) is rejected  --   reval-3.json: receipt SYNTH-CTRL-001: source type 'generic_control' is not eligible for human verification
+PASS  apply: verified_labels.json unchanged by the rejected reviews
+[guard] loader on forged overlay (alt synthetic tree): 3 path(s) verified inside the mirror
+PASS  loader: a forged overlay for synthetic and control records is ignored (construction truth kept)
+[guard] browser smoke (script copy, pack html, TEMP/TMP): 3 path(s) verified inside the mirror
+PASS  browser smoke target is the pack generated in this run
+PASS read -> illegible clears the pump value
+PASS printed-text box is kept when a field becomes illegible
+PASS saved state matches the screen (pump value cleared in storage)
+PASS read -> not_printed clears the pump value
+PASS switching back to read starts from an empty value
+PASS a new valid value can be entered after switching back
+PASS read -> illegible clears the date, provability tick and evidence
+PASS read -> illegible clears the amount
+PASS export blocked: status read with an empty pump value
+PASS export blocked: status read with no calendar date
+PASS export blocked: a value typed onto an illegible field
+PASS export blocked: malformed reviewer id
+PASS export blocked: authorization not ticked
+PASS error box is hidden after a valid export
+PASS image loads
+PASS blind: provisional labels hidden
+PASS export schema
+PASS only complete receipts exported
+PASS values round-trip
+PASS NO network request
+non-file requests seen: []
+PASS  browser smoke: ran (not skipped), exit 0, 20 PASS, 0 FAIL  -- PASS=20 FAIL=0
+PASS  browser: read -> illegible clears the pump value
+PASS  browser: read -> not_printed clears the pump value
+PASS  browser: read -> illegible clears the date, provability tick and evidence
+PASS  browser: read -> illegible clears the amount
+PASS  browser: export blocked: status read with an empty pump value
+PASS  browser: export blocked: a value typed onto an illegible field
+PASS  browser: values round-trip
+PASS  browser: NO network request
+PASS  browser smoke wrote its export inside the mirror's tmp/
+PASS  every file in the output tree is inside the mirror  -- 26 files
+PASS  assertIsolated still holds after the run

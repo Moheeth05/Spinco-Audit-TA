@@ -1,0 +1,37 @@
+[
+  {
+    "dpi": 96,
+    "pixelDims": "794x1123",
+    "textLength": 0,
+    "confidence": 0,
+    "text": ""
+  },
+  {
+    "dpi": 150,
+    "pixelDims": "1241x1754",
+    "textLength": 0,
+    "confidence": 0,
+    "text": ""
+  },
+  {
+    "dpi": 200,
+    "pixelDims": "1654x2339",
+    "textLength": 0,
+    "confidence": 0,
+    "text": ""
+  },
+  {
+    "dpi": 300,
+    "pixelDims": "2481x3508",
+    "textLength": 311,
+    "confidence": 0.7172131147540983,
+    "text": "WL\nAUTO CARE CENTRE\nBODAKDEV\nAHMEDABAD |\n079 26872557\nTIN NO:24073¢€\n102025\na ae 2026 10:15:48\nN NO: 6091614189\nINVOICE NO: 535084\nVEHICLE NO: NOT ENTERED\nNOZZLE NO : 4\nPRODUCT: PETROL\nDENSITY: 749.8 kg/m3\nRATE > £01.77 INR/Ltr\nVOLUME: 24.57 Ltr\nAMOUNT: 2500.00 INR\nME A IK IK DK MK OK DIK Dk KK KO D"
+  },
+  {
+    "dpi": 400,
+    "pixelDims": "3308x4677",
+    "textLength": 316,
+    "confidence": 0.7345901639344262,
+    "text": "WL\nAUTO CARE CENTRE\nBODAKDEV\nAHMEDABAD\n079 26872557\nTIN NO:240736\n02025\na -SEP -2026 10:15:48\nXN NO: 6091614189\nINVOICE NO: 535084\nVEHICLE NO: NOT ENTERED\nNOZZLE NO : 4\nPRODUCT: PETROL\nDENSITY: 749.8 kg/m3\nRATE - 101.77 INR/Ltr\nVOLUME: 24.57 Ltr\nAMOUNT: 2500.00 INR\nME PAK DIK KK MK OK OK DIK De i DK"
+  }
+]

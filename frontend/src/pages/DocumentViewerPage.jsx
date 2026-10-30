@@ -953,13 +953,11 @@ export default function DocumentViewerPage() {
     setTab('pdf')
   }
 
-  // Keep the typed page-number box in sync when the page changes via the
-  // prev/next buttons, a thumbnail click, or a Source link jump from
-  // another tab - only the box itself (via its own onChange) should ever
-  // diverge from pageNumber, and only while the user is actively typing.
-  useEffect(() => {
-    setPageInput(String(pageNumber))
-  }, [pageNumber])
+  // The typed page-number box is kept in sync with pageNumber by goToPage(),
+  // which every page change (prev/next buttons, a thumbnail click, a Source
+  // link jump from another tab, keyboard navigation) goes through - only the
+  // box itself (via its own onChange) should ever diverge from pageNumber,
+  // and only while the user is actively typing.
 
   // Keyboard navigation (Part 27): only while the PDF tab is active and
   // focus isn't in a text input/textarea (so this never hijacks typing in
@@ -1122,7 +1120,7 @@ export default function DocumentViewerPage() {
                 <div className="viewer-thumbnails">
                   {numPages &&
                     Array.from({ length: numPages }, (_, i) => i + 1).map((n) => (
-                      <div key={n} className={`viewer-thumb${n === pageNumber ? ' active' : ''}`} onClick={() => setPageNumber(n)}>
+                      <div key={n} className={`viewer-thumb${n === pageNumber ? ' active' : ''}`} onClick={() => goToPage(n)}>
                         <Page pageNumber={n} width={110} renderTextLayer={false} renderAnnotationLayer={false} />
                         <span className="viewer-thumb-number">{n}</span>
                       </div>

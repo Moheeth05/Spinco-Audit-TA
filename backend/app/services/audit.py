@@ -67,6 +67,10 @@ BILL_REMATCHED = "BILL_REMATCHED"
 TRIP_REMATCHED = "TRIP_REMATCHED"
 
 EXCEPTION_VERIFIED = "EXCEPTION_VERIFIED"
+# System events written by a full reprocess (extraction/verification_carryover.py): a manual
+# verification followed its claim to the recreated Expense row, or was left where it is.
+VERIFICATION_CARRIED_OVER = "VERIFICATION_CARRIED_OVER"
+VERIFICATION_NOT_CARRIED_OVER = "VERIFICATION_NOT_CARRIED_OVER"
 
 EXCEL_GENERATED = "EXCEL_GENERATED"
 EXCEL_DOWNLOADED = "EXCEL_DOWNLOADED"

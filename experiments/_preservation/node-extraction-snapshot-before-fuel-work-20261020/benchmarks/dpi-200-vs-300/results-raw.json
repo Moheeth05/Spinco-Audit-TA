@@ -1,0 +1,741 @@
+{
+  "generatedAt": "2026-10-13T09:01:30Z",
+  "dpiValues": [
+    200,
+    300
+  ],
+  "pageCount": 12,
+  "results": [
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 6,
+      "documentType": "RECEIPT",
+      "quality": "clean printed thermal receipt, photographed",
+      "groundTruth": {
+        "vendor": "HP Auto Care Centre (Bodakdev, Ahmedabad)",
+        "amount": 2500.0,
+        "amountCorrectionNote": null,
+        "invoiceNumber": "535084",
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 553.9,
+          "ocrMs": 2401.07,
+          "textLength": 0,
+          "ocrConfidence": 0.0,
+          "text": "",
+          "parsed": {
+            "vendor": null,
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined.",
+              "Vendor could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 409.39,
+          "ocrMs": 1774.77,
+          "textLength": 311,
+          "ocrConfidence": 0.7172131147540983,
+          "text": "WL\nAUTO CARE CENTRE\nBODAKDEV\nAHMEDABAD |\n079 26872557\nTIN NO:24073\u00a2\u20ac\n102025\na ae 2026 10:15:48\nN NO: 6091614189\nINVOICE NO: 535084\nVEHICLE NO: NOT ENTERED\nNOZZLE NO : 4\nPRODUCT: PETROL\nDENSITY: 749.8 kg/m3\nRATE > \u00a301.77 INR/Ltr\nVOLUME: 24.57 Ltr\nAMOUNT: 2500.00 INR\nME A IK IK DK MK OK DIK Dk KK KO DK A AS i ag",
+          "parsed": {
+            "vendor": "AUTO CARE CENTRE",
+            "billNumber": "535084",
+            "billDate": null,
+            "amount": 2500.0,
+            "gstin": null,
+            "categoryGuess": "Fuel",
+            "confidence": "MEDIUM",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Bill date could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 7,
+      "documentType": "RECEIPT",
+      "quality": "handwritten cash memo, bilingual (Gujarati+English), partially illegible",
+      "groundTruth": {
+        "vendor": "Dishant Petroleum Service",
+        "amount": 300,
+        "amountCorrectionNote": null,
+        "invoiceNumber": "648591",
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 346.7,
+          "ocrMs": 1205.71,
+          "textLength": 59,
+          "ocrConfidence": 0.2868421052631579,
+          "text": "= 48591 ahr | a\nran \\\nelas | V9 \\_ of\nas Rae. | 3\neer ee\n=]",
+          "parsed": {
+            "vendor": "= 48591 ahr | a",
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 539.6,
+          "ocrMs": 2178.28,
+          "textLength": 93,
+          "ocrConfidence": 0.2706060606060606,
+          "text": "tat oe es\nEa ae ae aX\no ves\nVe\nTs\n\u00a2\nee,\n# _ ee\nwr, FL\nSw\n\u00bb\nas\noet 3\nary\naf\n4\ny\nUj\n\u2122\n4\n| oe ee",
+          "parsed": {
+            "vendor": "tat oe es",
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 9,
+      "documentType": "RECEIPT",
+      "quality": "clean printed thermal receipt, photographed",
+      "groundTruth": {
+        "vendor": "ADYAR ANANDA BHAVAN SWEETS (A2B)",
+        "amount": 685.0,
+        "amountCorrectionNote": null,
+        "invoiceNumber": "CR26349/129981",
+        "gstin": "33AAICA3787F1ZN"
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 326.65,
+          "ocrMs": 965.97,
+          "textLength": 0,
+          "ocrConfidence": 0.0,
+          "text": "",
+          "parsed": {
+            "vendor": null,
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined.",
+              "Vendor could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 371.09,
+          "ocrMs": 1284.09,
+          "textLength": 40,
+          "ocrConfidence": 0.4708333333333334,
+          "text": "GHEE POT D posa\nGHEE ROAST\nee\nih \u2018 i 7\n}",
+          "parsed": {
+            "vendor": "GHEE POT D posa",
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 15,
+      "documentType": "INVOICE",
+      "quality": "clean digital invoice",
+      "groundTruth": {
+        "vendor": "Airport Cab Service",
+        "amount": 1150.0,
+        "amountCorrectionNote": null,
+        "invoiceNumber": "INVOICE600028",
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 240.55,
+          "ocrMs": 1425.6,
+          "textLength": 1233,
+          "ocrConfidence": 0.8667894736842104,
+          "text": "TAX INVOICE\n# INVOICE600028\nBalance Due\n20.00\n\u2014\u2014==CAB SERVICE=>\u2014\nSMOOTH DEPARTURE \u00b0 STRESS FREE ARRIVAL\nAIRPORT CAB SERVICE\nJAGADAMBA HOMES, CT ROAD GODREJ GARDEN, NIRMA\nUNIVERSITY VAISHNODEVI CIRCLE AHMEDABAD 382470\nGUJARAT INDIA\nInvoice Date : 21/09/2026\nTerms : Due on Receipt\nDue Date: 21/09/2026\nExperience Smooth\nTransfer: Departures and Stress-\nMrs. VIBHUTI SHARMA Free Arrivals.\nDescription\n1 Premium Sedan Airport Transfer Service 1.00 1,150.00 1,150.00\nRoute: 04:30 AM , Swati Crystenia Shela Ahmedabad Ahmedabad Airport 1\nDrop 05:20 AM\nSub Total 1,150.00\nTotal 1,150.00\nPayment Made () 1,150.00\nBalance Due 0.00\nTotal in Words: Indian Rupee One Thousand\nOne Hundred Fifty Only\nFor Reservations & Enquiries: 70-43-43-0313\nWishing you safe travels and a pleasant journey ahead. We look Forward to serving you again soon! ?\n9904041 144@KOTAKBANK\n+\"O beautiful-faced one (Parvati), | delight in chanting 'Rama, Rama, Rama,\u2019 The name of Rama is equal in merit and power to the recitation of\na thousand names (of Lord Vishnu).\"\n* Toll, Parking and State Tax extra if applicable.\n* Subject to Ahmedabad Jurisdiction.\nZoho\nCrafted with ease using fe] Invoice 15\nVisit zoho.com/invoice to create truly professional invoices >\u201d \u2014~\nF",
+          "parsed": {
+            "vendor": "\u2014\u2014==CAB SERVICE=>\u2014",
+            "billNumber": "DueonReceipt",
+            "billDate": "2026-09-21",
+            "amount": 1150.0,
+            "gstin": null,
+            "categoryGuess": "Cab/Taxi",
+            "confidence": "HIGH",
+            "status": "EXTRACTED",
+            "warnings": []
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 243.96,
+          "ocrMs": 1831.86,
+          "textLength": 1232,
+          "ocrConfidence": 0.8665053763440861,
+          "text": "PF TAX INVOICE\n# INVOICE600028\nBalance Due\n70.00\n== CAB SERVICE=\u2014\nSMOOTH peranrun\u2019s STHESS FREE ARRIVAL\nAIRPORT CAB SERVICE\nJAGADAMBA HOMES, CT ROAD GODREJ GARDEN, NIRMA\nUNIVERSITY VAISHNODEVI CIRCLE AHMEDABAD 382470\nGUJARAT INDIA\nInvoice Date : 21/09/2026\nTerms: Due on Receipt\nDue Date: 21/09/2026\nExperience Smooth\nTransfer: Departures and Stress-\nMrs. VIBHUTI SHARMA Free Arrivals.\nDescription Amount\n1 Premium Sedan Airport Transfer Service 1.00 1,150.00 1,150.00\nRoute: 04:30 AM, Swati Crystenia Shela Ahmedabad Ahmedabad Airpart i\nDrop 05:20 AM\nSub Total 1,150.00\nTotal \u00a51,150.00\nPayment Made (-} 1,150.00\nBalance Due 70.00\nTotalIn Words: Indian Rupee One Thousand\nOne Hundred Fifty Only\nFor Reservations & Enquiries: 70-43-43-0313\nWishing you safe travels and a pleasant journey ahead. We look Forward to serving you again soon! ?\n9904041 144@KOTAKBANK\n*\"O beautiful-faced one (Parvati), | delight in chanting \u2018Rama, Rama, Rama,\u2019 The name of Rama is equal in merit and power to the recitation of\na thousand names (of Lard Vishnu).\"\n+ Toll, Parking and State Tax extra iF applicable.\n* Subject to Ahmedabad jurisdiction.\nZoho\nCrafted with ease using {=| Invoice 15\nVisit zoho.com/invoice to create truly professional invoices",
+          "parsed": {
+            "vendor": "== CAB SERVICE=\u2014",
+            "billNumber": "DueonReceipt",
+            "billDate": "2026-09-21",
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": "Cab/Taxi",
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Multiple differing amounts found at the same label priority: [1.0, 1150.0].",
+              "Bill amount could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 25,
+      "documentType": "TRANSACTION_SCREENSHOT",
+      "quality": "clean app screenshot",
+      "groundTruth": {
+        "vendor": "PANKAJ BALDEVBHAI PARMAR (UPI payee)",
+        "amount": 500,
+        "amountCorrectionNote": null,
+        "invoiceNumber": null,
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 238.22,
+          "ocrMs": 1167.99,
+          "textLength": 289,
+          "ocrConfidence": 0.8047619047619048,
+          "text": "Paid to\nPANKAJ BALDEVBHAI ~500\nPARMAR\npaparmar9393@okaxis\nBanking Name : Pankaj Baldevbhai Parmar @\nSent to > G Pay * paparmar9393@okaxis\nTransfer Details \u201cA\nMessage\nCab charges\nPhonePe Transaction ID\nT2609211819064088081730 I}\nDebited from\n=\niit |= XXXXXXXXXX32 7500\nUTR: 624802877524 Ii}",
+          "parsed": {
+            "vendor": "Paid to",
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": "Cab/Taxi",
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 268.26,
+          "ocrMs": 1598.65,
+          "textLength": 294,
+          "ocrConfidence": 0.7382926829268293,
+          "text": "Paid to\nPARMAR\npaparmar9393@okaxis\nPP PANKAJ BALDEVBHAI ~500\nBanking Name : Pankaj Baldevbhai Parmar @\nSent to \u00b0G Pay \u00ae paparmar9393@okaxis\nTransfer Details \u201c~\nMessage\nCab charges\nPhonePe Transaction ID\nT2609211819064088081/730 rs\nDebited from\n<>\nTT XXXXXKXXKXKXXKX32 2000\nUTR: 624802877/524 TS",
+          "parsed": {
+            "vendor": "Paid to",
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": "Cab/Taxi",
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 6,
+      "documentType": "OTHER",
+      "quality": "handwritten voucher",
+      "groundTruth": {
+        "vendor": "Taxi Operator's Union (Regd.), Pinjore Road Baddi",
+        "amount": 3000,
+        "amountCorrectionNote": "mislabeled vendor in source annotation; actual page is a PhonePe payment to RAM MURTI, not Taxi Operator's Union. totalAmount (3000) is coincidentally unaffected.",
+        "invoiceNumber": null,
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 185.28,
+          "ocrMs": 821.49,
+          "textLength": 315,
+          "ocrConfidence": 0.7822,
+          "text": "Tv Transaction Successful\n02:07 PM on 10 Jul 2026\nPaid to\n@ Mr RAM MURTI ~3,000\nram3655murti@oksbi\nBanking Name >: Mr Ram Murti 9\nSent to : G Pay * ram3655murti@oksbi\nTransfer Details \u201cA\nPhonePe Transaction ID\nT2607101407521753972648\nDebited from\nCP XXXXXXXXXX24 =3,000\nUTR: 434302234796\nPowered by\nLUZ) @icici Bank",
+          "parsed": {
+            "vendor": "Tv Transaction Successful",
+            "billNumber": null,
+            "billDate": "2026-07-10",
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 224.3,
+          "ocrMs": 1161.39,
+          "textLength": 310,
+          "ocrConfidence": 0.8123404255319149,
+          "text": "7 Transaction Successful\n02:07 PM on 10 Jul 2026\nPaid to\nMr RAM MURTI ~3,000\nram3655murti@oksbi\nBanking Name > MrRam Murti 9\nSent to > GPay * ram3655murti@oksbi\nTransfer Details \u201c~\nPhonePe Transaction ID\nT2607101407521753972648\nDebited from\nrt XXXXXXXXXK2Z4 73,000\nUTR: 434302234796\nPowered by\nLIP? @icici Bank",
+          "parsed": {
+            "vendor": "7 Transaction Successful",
+            "billNumber": null,
+            "billDate": "2026-07-10",
+            "amount": null,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 10,
+      "documentType": "INVOICE",
+      "quality": "clean digital tax invoice, photographed",
+      "groundTruth": {
+        "vendor": "Home Town Resort",
+        "amount": 34999.9,
+        "amountCorrectionNote": null,
+        "invoiceNumber": null,
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1653x2339",
+          "renderMs": 462.31,
+          "ocrMs": 2230.48,
+          "textLength": 2221,
+          "ocrConfidence": 0.8557541899441341,
+          "text": "TAX INVOICE\n\u2018Home Tewrn\n= _ RESORT ===\nSH16 NALAGARH RAMSHEHAR SHIMLA ROAD VILL.DHAR KOTLA NALAGARH\nPH:-7580008989,7450008989\nGSTIN:O2BLHPP7996P1Z3\nReg. No.: 1358 Invoice Date : 10/07/2026 \\\nArrival Date + 30/06/2026\nInvoice No.: MB01406 Folio: 1357\nRoom No(s): 103\nGuest Name_: Mr.RAJESH KONDAPALLI\nArrival Time + 18:33\nAddress : PLOT NO. 83, 84 PERUNGUDI, Departure Date +: 10/07/2026\n: INDUSTRIAL ESTATE CHENNAI Departure Time + 11:13:15\nCompany : SPINCOTECH PVT.LTD.. No. of Persons : 1+ 0\nAddress PERUNGUDI CHENNAI\nParty's GSTIN : 33AAFCS9992P1ZC Place of Service: HIMACHAL PRADESH\nDate V.No. Room Description HSN/SAC Code Debit Credit Balance\n30/06 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 3333.33\n30/06 * 0103 CGST(R)@ 2.50% #103 83.33 3416.66\n30/06 0103 SGST(R)@ 2.50% #103 83.33 3499.99\n01/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 6833.32\n01/07 0103 CGST(R)@ 2.50% #103 83.33 ; 6916.65\n01/07 0103 SGST(R)@ 2.50% #103 83.33 ~ 6999.98\n02/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 10333.31\n02/07 0103 CGST(R)@ 2.50% #103 83.33 10416.64\n02/07 0103 SGST(R)@ 2.50% #103 83.33 10499.97\n03/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 13833.30\n03/07 0103 CGST(R)@ 2.50% #103 83.33 . 13916.63\n03/07 0103 SGST(R)@ 2.50% #103 83.33 13999.96\n04/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 17333.29\n04/07 0103 CGST(R)@ 2.50% #103 ; 83.33 17416.62\n04/07 0103 SGST(R)@ 2.50% #103 83.33 17499.95\n| 05/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 20833.28\n05/07 0103 CGST(R)@ 2.50% #103 83.33 20916.61\n05/07 0103 SGST(R)@ 2.50% #103 : 83.33 20999.94\n06/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 24333.27\n06/07 0103 CGST(R)@ 2.50% #103 83.33 24416.60\n06/07 0103 SGST(R)@ 2.50% #103 83.33 24499.93\n07/07 0103 ROOM CHARGES #103 onCP -DX 996311 3333.33 27833.26\n07/07 0103 CGST(R)@ 2.50% #103 - 83.33 27916.59\n07/07 0103 SGST(R)@ 2.50% #103 83.33 27999.92\n_\u2014\u2014\nTerms & Conditions\nFor Mis Hom\u00e9 $d\u00a5tH'ROBN RESORT\nAulhiiised Signatory\nSHALINI\nBill verified & recommended for payment. | agree to be held personally liable for payment of this bill regardless of charges & Instructions |\n|\nGuest Copy Guest Signature Pg.1/2 |\nThank vou for beina with us !!!\nCG Scanned with OKEN Scanner",
+          "parsed": {
+            "vendor": "Party's GSTIN : 33AAFCS9992P1ZC Place of Service: HIMACHAL PRADESH",
+            "billNumber": "MB01406Folio1357",
+            "billDate": "2026-07-10",
+            "amount": 27999.92,
+            "gstin": "33AAFCS9992P1ZC",
+            "categoryGuess": "Lodging",
+            "confidence": "HIGH",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Multiple unlabeled amounts found; using the largest (27999.92) as a low-confidence candidate total. Other amounts on the page: [83.33, 3333.33, 3416.66, 3499.99, 6833.32, 6916.65, 6999.98, 10333.31, 10416.64, 10499.97, 13833.3, 13916.63, 13999.96, 17333.29, 17416.62, 17499.95, 20833.28, 20916.61, 20999.94, 24333.27, 24416.6, 24499.93, 27833.26, 27916.59]."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2480x3509",
+          "renderMs": 549.66,
+          "ocrMs": 3253.97,
+          "textLength": 2219,
+          "ocrConfidence": 0.8453351955307262,
+          "text": "TAX INVOICE\naX.)\n\u2018Home Town\nS=|_ RESORT \u2014\nSH16 NALAGARH RAMSHEHAR SHIMLA ROAD VILL.DHAR KOTLA NALAGARH\nPH:-7580008989,7450008989\nGSTIN:O2BLHPP7996P1Z3\nInvoice Date : 10/07/2026\nInvoice No.: MB01406\nRoom No(s): 103\nFolio: 1357 Reg. No. : 1358\nArrival Date + 30/06/2026\nGuest Name: Mr.RAJESH KONDAPALLI Arrival Time + 18:33\nAddress : PLOT NO. 83, 84 PERUNGUDI, Departure Date \u00ab10/07/2026\n: INDUSTRIAL ESTATE CHENNAI Departure Time \u00ab11:13:15\nCompany : SPINCOTECH PVT.LTD.. No. of Persons : 1+ 0\nAddress PERUNGUDI CHENNAI\n| Party's GSTIN : 33AAFCS9992P1ZC Place of Service: HIMACHAL PRADESH __|\nDate V.No. Room Description HSN/SAC Code Debit Credit Balance\n30/06 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 3333.33\n30/06 0103 CGST(R)@ 2.50% #103 83.33 3416.66\n30/06 0103 SGST(R)@ 2.50% #103 83.33 3499.99\n01/07 0 103 ROOM CHARGES #103 on CP -DX 996311 3333.33 6833.32\n01/07 0103 CGST(R)@ 2.50% #103 83.33 6916.65\n01/07 0103 SGST(R)@ 2.50% #103 _ 83.33 \u201c 6999.98\n02/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 10333.31\n02/07 0103 CGST(R)@ 2.50% #103 83.33 10416.64\n02/07 0103 SGST(R)@ 2.50% #103 83.33 10499.97\n03/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 13833.30\n03/07 0103 CGST(R)@ 2.50% #103 83.33 13916.63\n03/07 0103 SGST(R)@ 2.50% #103 83.33 13999.96\n04/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 17333.29\n04/07 0103 CGST(R)@ 2.50% #103 83.33 17416.62\n04/07 0103 SGST(R)@ 2.50% #103 83.33 17499.95\n05/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 20833.28\n05/07 0103 CGST(R)@ 2.50% #103 83.33 20916.61\n05/07 0103 SGST(R)@ 2.50% #103 83.33 20999.94\n06/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 24333.27\n06/07 0103 CGST(R)@ 2.50% #103 83.33 24416.60\n06/07 0103 SGST(R)@ 2.50% #103 83.33 24499.93\n07/07 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 27833.26\n07/07 0103 CGST(R)@ 2.50% #1 03 - 83.33 27916.59\n07/07 0103 SGST(R)@ 2.50% #103 83.33 27999.92\n{ gai =\nTerms & Conditions\nFor Mis Hom\u00e9 {git REGAN F=SO\u2122\nAuthprised Signatery\nSHALINI\nBill verified & recommended for payment. | agree to be held personally liable for payment of this bill regardless of charges & Instructions\nGuest Copy Guest Signature Pg.1/ 2\nThank vou for beina with us I!!!\n(@ 3 Scanned with OKEN\nScanner",
+          "parsed": {
+            "vendor": "| Party's GSTIN : 33AAFCS9992P1ZC Place of Service: HIMACHAL PRADESH __|",
+            "billNumber": "MB01406",
+            "billDate": "2026-07-10",
+            "amount": 27999.92,
+            "gstin": "33AAFCS9992P1ZC",
+            "categoryGuess": "Lodging",
+            "confidence": "HIGH",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Multiple unlabeled amounts found; using the largest (27999.92) as a low-confidence candidate total. Other amounts on the page: [83.33, 3333.33, 3416.66, 3499.99, 6833.32, 6916.65, 6999.98, 10333.31, 10416.64, 10499.97, 13833.3, 13916.63, 13999.96, 17333.29, 17416.62, 17499.95, 20833.28, 20916.61, 20999.94, 24333.27, 24416.6, 24499.93, 27833.26, 27916.59]."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 12,
+      "documentType": "RECEIPT",
+      "quality": "clean printed card receipt, photographed",
+      "groundTruth": {
+        "vendor": "Central Bank of India (card payment slip, Home Town Resort)",
+        "amount": 35000.0,
+        "amountCorrectionNote": null,
+        "invoiceNumber": null,
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1653x2339",
+          "renderMs": 387.72,
+          "ocrMs": 1372.78,
+          "textLength": 574,
+          "ocrConfidence": 0.6235632183908045,
+          "text": "N RESQ\nDKARKOTLA\nSOLAN\nSOLAN-174101\nGSTN:\nDATE: 10/0773 TINE: 11:18:02\nWD: coeozapagoes6s6 T1D:2997852A\nH: 000068 INVOICE: 000084\nBR: 12002717072025\nSALE\nAPP awe : VISA CREDIT\nEKk kkk *kk* SOOO CHIP\nCARD [YPE:VISA DUMESTIC\nAID: A000G0UG031010 TVR: 8080048000\nTC: 18386CSS827CCSE/ ISL: 7800\nAUTK CODE: 631S99 RRA : 619105590002\nAMT INR 35000 .00\nPIN VERIFIED OK a\nSIGNATURE NOT REQUIRED\nKONDAPALLI RACES\n1 AM SALISFIED WITH GOUL/SERVICE RECEDVER Abe\nAGREE TU PAY PER CARD ISSLER AGREEWERT\nTHANKS... VISIT AGAIN\nVERSION: 12.00\nPowered by Worldline\nQE scanned with OKEN Scanner",
+          "parsed": {
+            "vendor": "1 AM SALISFIED WITH GOUL/SERVICE RECEDVER Abe",
+            "billNumber": null,
+            "billDate": null,
+            "amount": 35000.0,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Multiple unlabeled amounts found; using the largest (35000.0) as a low-confidence candidate total. Other amounts on the page: [12.0].",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2480x3509",
+          "renderMs": 455.85,
+          "ocrMs": 2320.06,
+          "textLength": 594,
+          "ocrConfidence": 0.6367391304347826,
+          "text": "iv >>\nHOME TOWN RE \u2014\nSORT\nDHARKOTL AY\nSOLAN\nSOLAN-174101\nGSTN:\nDATE: 10/07 s2926 TIME: 11:18:02\nMID : O0ag42yang03696 TID:2997852A\nBATCH: 00g\u201d INVOICE: 000084\nBR: 12002717072025\nSALE\nAPP nawe : VISA CREDIT\nkkk KKX KKKK 5000 CHIP\nCARD [YPE:V1SA DUMESTIC\nAID: A0OO0CVG031010 IVR: 8080048000\nTC: 18386CSS827CCSE/ [S1: /4U0\nAUTH CODE:631S99 RRA: 619105590002\nAMT INR 35000 .00\nPIN VERIFIED OK\nSIGNATURE NOT REQUIRED\nKONDAPALLIT RALES#\n1 A\u2019 SALISFIED WITR GOUD/SERVICE ecCElve\nAGREE TU PAY PER CARD ISSLER \u00ab\n[vet\nTHANKS... VISIT AGAIN\nVERSION: 12.00\nPowered by Worldline\nCG Scanned with OKEN Scann\u00e9r",
+          "parsed": {
+            "vendor": "1 A\u2019 SALISFIED WITR GOUD/SERVICE ecCElve",
+            "billNumber": null,
+            "billDate": null,
+            "amount": 35000.0,
+            "gstin": null,
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Multiple unlabeled amounts found; using the largest (35000.0) as a low-confidence candidate total. Other amounts on the page: [12.0].",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 20,
+      "documentType": "OTHER",
+      "quality": "clean digital statement, photographed",
+      "groundTruth": {
+        "vendor": "ICICI Bank (Amazon Pay Credit Card statement)",
+        "amount": null,
+        "amountCorrectionNote": null,
+        "invoiceNumber": null,
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "3534x5000",
+          "renderMs": 603.61,
+          "ocrMs": 5550.32,
+          "textLength": 4520,
+          "ocrConfidence": 0.8597230320699708,
+          "text": "CREDIT CARD STATEMENT\n05082026_1\nMR. KRAJESH KRAJESH\nFLAT NO.502,D.NO0.3-72/14,5RI BABAJI NIVEDITHA\nRESIDENCY,SIRIGUDI NAGAR, YENDADA\nVISAKHAPATNAM\nANDHRA PRADESH, VISAKHAPATNAM 530045\nSTATEMENT DATE\nAugust 5, 2026\nPree CerPCer reer rrir irri litt irr irri reir iriririr iii iti citi ities 2\nPAYMENT DUE DATE\nAugust 23, 2026\nTotal Amount due\n%1,13,824.75\nMinimum Amount due\n~5,700.00\nInterest will be charged if your\ntotal amount due is not paid\nSPENDS OVERVIEW\n52%\n= 34%\nBi travel-34% Bi Apparel/Grocery-0%\nWB Fue!-13% i others-52%\nPre-approved HcIct Bank\nLoon and i 7 coral a)\nCard offers wer\nCheck Now\nEARNINGS\n\"Earnings will be in the form of Amazon Pay balanoe and can be\nused for purchasing 10 Crore + products at Amazon.in and at 100+\npartner merchants.\nEarnings on qualifying expenditure on Amazon Pay ICIC] Bank Credit\nCard will be added to your Amazon Pay account within 2 Business\nDays of monthly Credit Card statement generation as per the\nexisting cycle, if your account is not delinquent or cancelled at the\ntime of such credit.\nICICI Bonk Credit Card GST Number: 27 44AC11195H3ZK\nHSN Code: 997113 Credit Granting Services including\nstand-by commitment, guarantees & securities\nStatement period : July 6, 2026 to August 5, 2026\nPloce of supply: Andhra Pradesh\nState Code: 37\nInvoice No: 1574050800475981\nICiCl Bank\nCredit Cards\namazon pay\nDownload the iMobile Pay app to -\n\u00a9 View statement instantly\n\u00ae Block/unblock ATM withdrawal, online transactions &\ninternational transactions in a single click\nSMS iMobile to 5676766 to get the download link or give a missed call on 9222299998\nto assistance on call.\nAce your Digital Banking, with iPlay videos\nScan the OR Code, to know about the Credit Card services,\non ICICI] Bank's iMobile Pay.\nAll communications are being sent to your registered e-mail ID and mobile number\n\u00ae To update email ID and registered mailing address, visit www.icici.bank.in > Login > Customer Service >\nService Requests > Credit Card > Request for address change or visit the nearest ICICI] Bank branch\n\u00ae To update mobile number, visit the nearest branch\n\u00ae Clickhere to access your Credit Card One View Statement Scan to Pay using\nany UPI Application\nSTATEMENT SUMMARY :\nPrevious Balance Purchases / Charges Cash Advances Payments / Credits\n\u00a51,27,551.33 \u20ac1,13,894.75 0.00 71,27,621.33\nCREDIT SUMMARY\nCredit Limit (including cash) Available Credit (inctuding cash) Cash Limit Available Cash\n#5,10,000.00 *3,92,586.06 #51,000.00 %51,000.00\nDate SerNo. Transaction Details Reward Intl.* Amount (in?)\nPoints amount\n43 15XXXXXXXX5000\n09/07/2026 13751853697 UPI Payment Received o 38,212.00 CR\n10/07/2026 13763307848 HOME TOWN RESORT SOLAN IN 350 35,000.00\n13/07/2026 13783979639 Flipkart Bengaluru IN 4 447.00\n13/07/2026 13784202181 LITTLE ANGLES SCHOOL VISHAKAPATNAM i] 13,811.07\nIN\n13/07/2026 13784375121 LITTLE ANGLES SCHOOL VISHAKAPATNAM o 15,677.84\nIN\n14/07/2026 13790560297 SIRI AADHYA RUDRA FUEL Vishakapatnam if] 3,954.15\nIN\n15/07/2026 13792028052 Fuel Surcharges 0 39.11 CR\n20/07/2026 13827626283 IC1C] LOMBARD MUMBAI IN 223 22,382.73\n20/07/2026 13828515996 SRI VENKATESWARA FUELS NELLORE IN 8] 3,993.59\n21/07/2026 13828573194 Fuel Surcharges 0 39.50 CR\n21/07/2026 13833045265 AMAZON PAY IN E COMMERC BANGALORE 7 265.00\nIN\n21/07/2026 13833416070 MS THE 36 INN VISAKHAPATNA IN 36 3,600.00\n23/07/2026 13837892263 BBPS Payment received o 58,500.00 CR\n23/07/2026 13837928418 INFINITY PAYMENT RECEIVED, THANK YOU oO 30,760.72 CR\nFor any query, you may write to us on help.amazonpaycc@icicibank.com or call us at 1800 102 0123.\n| IMPORTANT MESSAGES | MESSAGES\n.\nSafe Banking Tips -\nOur registered office address: ICIC| Bank Tower, Near Chakli Circle, Old Padra Road, Vadodara, 390 007.\nMaking only minimum payment every month can lead to repayment stretching over years with consequent interest payment on\noutstanding balance.\nPlease pay your Credit Card outstanding before the payment due date to avoid penal fees and interest charges.\nFor any clarification or more information, you may contact us through the \u2018Get in Touch\u2019 option at www.icici_bankin\nMark-up fee and corresponding GST levied is included in the transaction amount displayed.\nFor RuPay/American Express/ Visa/Mastercard Credit Cards: Fuel surcharge and corresponding Goods and Services Tax (GST)\nlevied is included in the transaction amount displayed.\nPayment through UPI is subject to the limits set by respective payment service providers.\nCIN No. L65190G)]1994PLC021012 Page 1 of 10\nGE scanned with OKEN Scanfier\n1/1",
+          "parsed": {
+            "vendor": "HSN Code: 997113 Credit Granting Services including",
+            "billNumber": "1574050800475981",
+            "billDate": "2026-08-05",
+            "amount": 113824.75,
+            "gstin": null,
+            "categoryGuess": "Fuel",
+            "confidence": "HIGH",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "5300x7500",
+          "renderMs": 1136.22,
+          "ocrMs": 8123.48,
+          "textLength": 4531,
+          "ocrConfidence": 0.8657619738751814,
+          "text": "CREDIT CARD STATEMENT\n050 6 i\n8202\nMR. KRAJESH KRAJESH\nFLAT NO.502,D.NO.3-72/14,SRI BABAJI NIVEDITHA\nRESIDENCY,SIRIGUDI NAGAR. YENDADA\nVISAKHAPATNAM\nANDHRA PRADESH, VISAKHAPATNAM 530045\nSTATEMENT DATE\nAugust 5, 2026\nSSSR RSPR RAAT RPE ARSR SRR\nPAYMENT DUE DATE\nAugust 23, 2026\nTotal Amount due\n\u00b01,13,824.75 =)\nMinimum Amount due\n~5,700.00\nInterest will be charged if your\ntotal ammount due is not paid\nSPENDS OVERVIEW\n34%\nIB Apparel/Grocery-0%\nB others-52%\nBi travel-34%\nWD Fuel-12%\nPre-approved HP 1CICH Banroh\nLoan and Mm 7 Coral af\nCard offers ayer\nCheck Mow\nEARNINGS\nEarnings transfered to\nAmazon Pay balance*\n\"Earnings will be in the form of Amazon Pay balance and can be\nused for purchasing 10 Crore + products at Amazon.in and at 100+\npartner merchants.\nEarnings on qualifying expenditure on Amazon Pay ICIC] Bank Credit\nCard will be added to your Amazon Pay account within 2 Business\nDays of monthly Credit Card statement generation as per the\nexisting cycle, if your account is not delinquent of cancelled at the\ntime of such credit.\nICICI Bonk Credit Cord GST Number: 27A4A(011195H327K\nHSN Code: 997113 Credit Granting Services including\nstand-by commitment, guarantees & securities\nStatement period : July 6, 2026 to August 5, 2026\nPloce of supply: Andhra Prodesh\nStote Code: 37\nInvoice No: 1574050800475981\nICICI Bank\nCredit Cards\namazon pay\nDownload the iMobile Pay app to -\n\u00ae View statement instantly\n\u00ae Block/unblock ATM withdrawal, online transactions &\ninternational transactions in a single click\nSMS iMobile to 5676766 to get the download link or give a missed call on 9222299998\nto assistance on call.\na App Store\nAce your Digital Banking, with iPlay videos\nScan the OR Code, to know about the Credit Card services,\non ICICI] Bank's iMobile Pay.\nAll communications are being sent to your registered e-mail ID and mobile number\ne To update email ID and registered mailing address, visit www.icici.bank.in > Login > Customer Service >\nService Requests > Credit Card > Request for address change or visit the nearest ICICI] Bank branch\ne To update mobile number, visit the nearest branch\n\u00ae Click here to access your Credit Card One View Statement Scan to Pay using\nany UPI Application\nSTATEMENT SUMMARY\nPayments / Credits\n4152 7;,621233\nPrevious Balance Purchases / Charges Cash Advances\n\u00a31,27,551.33 \u00a31,13,894.75 0.00\nCREDIT SUMMARY\nCredit Limit (including cash) Available Credit (inctuding cosh) Cash Limit Available Cash\n%5,10,000.00 *3,92,586.06 ~51,000.00 ~51,000.00\nDate SerNo. Transaction Details Reward Intl.* Amount (int)\nPoints amount\n43 15XXXXXXXX 5000\n09/07/2026 13751853697 UPI Payment Received 0 38,212.00 CR\n10/07/2026 13763307848 HOME TOWN RESORT SOLAN IN 350 35,000.00\n13/07/2026 13783979639 Flipkart Bengaluru IN 4 447.00\n13/07/2026 1378427027181 LITTLE ANGLES SCHOOL VISHAKAPATNAM 0 13,811.07\nIN\n13/07/2026 13784375121 LITTLE ANGLES SCHOOL VISHAKAPATNAM 0 15,677.84\nIN\n14/07/2026 13790560297 SIRI AADHYA RUDRA FUEL Vishakapatnam 0 3,954.15\nIN\n15/07/2026 13792028052 Fuel Surcharges 0 39.11 CR\n20/07/2026 13827626283 IcCIC] LOMBARD MUMBAI IN 223 22,302.73\n20/07/2026 13828515996 SRI VENKATESWARA FUELS NELLORE IN 0 3,993.59\n21/07/2026 13828573194 Fuel Surcharges 0 39.50 CR\n21/07/2026 13833045265 AMAZON PAY IN E COMMERC BANGALORE 7 265.00\nIN\n21/07/2026 13833416070 MS THE 36 INN VISAKHAPATNA IN 36 3,600.00\n23/07/2026 13837892263 BBPS Payment received 0 58,500.00 CR\n23/07/2026 13837978418 INFINITY PAYMENT RECEIVED, THANK YOU 0 30,760.72 CR\nFor any query, you may write to us on help.amazonpaycc@icicibank.com or call us at 1800 102 0123.\n\u00ae Sofe Bonking Tips -\noutstanding balance.\nlevied is included in the transaction amount displayed.\nCIN No. L65190G)]1994PLC021012\nOur registered office address: ICIC] Bank Tower, Near Chakli Circle, Old Padra Road, Vadodara, 390 007.\nMaking only minimum payment every month can lead to repayment stretching over years with consequent interest payment on\nPlease pay your Credit Card outstanding before the payment due date to avoid penal fees and interest charges.\nFor any clarification or more information, you may contact us through the \u2018Get in Touch\u2019 option at www.icici.bank.in\nMark-up fee and corresponding GST levied is included in the transaction amount displayed.\nFor RuPay/American Express/ Visa/Mastercord Credit Cards: Fuel surcharge and corresponding Goods and Services Tax (GST)\nPayment through UPI is subject to the limits set by respective poyment service providers.\nIMPORTANT MESSAGES _ MESSAGES\nPage 1 of 10\nCG Scanned with OKEN Scanier\n1/1",
+          "parsed": {
+            "vendor": "HSN Code: 997113 Credit Granting Services including",
+            "billNumber": "1574050800475981",
+            "billDate": "2026-08-05",
+            "amount": 113824.75,
+            "gstin": null,
+            "categoryGuess": "Fuel",
+            "confidence": "HIGH",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 22,
+      "documentType": "RECEIPT",
+      "quality": "photographed on yellow-tinted paper, visibly blurred/skewed",
+      "groundTruth": {
+        "vendor": "KFC (via food-delivery order summary)",
+        "amount": null,
+        "amountCorrectionNote": "mislabeled document in source annotation; actual page is an ICICI FASTag E-Statement, not a KFC receipt. Corrected ground-truth amount is null (multi-transaction statement, not a bill total).",
+        "invoiceNumber": null,
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "3537x5000",
+          "renderMs": 702.48,
+          "ocrMs": 4736.04,
+          "textLength": 3187,
+          "ocrConfidence": 0.8487780548628429,
+          "text": ")) Fastag E-Statement\nStatement Reference\nNumber\nName of ICICI Bank\nBranch making the\nsupply:\nBill From Address of\nICICI:\nGSTIN of ICICI:\nPlace of Supply:\n0 ICICI Bank\n11734023 Address:\nRAJESH KONDAPALLI\n040926/201442/73 Customer ID:\nName: RAJESH KONDAPALLI 3-72/4 SIRIGUDI NAGAR,\nyi YENDADA,\nICICI Bank Limited BKC Statement Period: 01-07-2026 to 31-07-2026 VISHAKAPATNAM -\n530045,\nICICI Bank Towers, Statement Date: 04-09-2026 Andhra Pradesh,\nBandra Kurla Complex, INDIA.\nMumbai 4000771 Type of address: Permanent\n27AAACI1195H3ZK GSTIN Number: N/A\nAndhra Pradesh State Code: 37\nVehicle sey\n(Rs)\n22178813 AP31EA7970 323.43 2500.00 - 2450.00 373.43\nTransaction Details\nUnique Transaction ID _| Transaction Description Amount\n31-07-2026 19:45:55\n31-07-2026 10:59:15\n29-07-2026 19:47:14\n29-07-2026 19:36:45\n29-07-2026 10:27:42\n27-07-2026 22:09:45\n27-07-2026 14:06:25\n25-07-2026 14:19:34\n25-07-2026 11:02:50\n24-07-2026 20:38:16\n24-07-2026 20:30:10\n24-07-2026 10:43:34\n23-07-2026 21:10:30\n23-07-2026 10:08:05\n22-07-2026 21:00:08\n22-07-2026 15:35:09\n21-07-2026 22:17:05\n21-07-2026 22:08:11\n21-07-2026 15:47:40\n20-07-2026 13:35:46\n(Rs.)(DR\nTrip (RRN No/ Trip No) = |352022013310726194555 / |Plaza Name:Nathavalasa- Lane ID:LNO13 60.00\n5814612227\nTrip (RRN No/ Trip No) = |352022003310726105915 / |Plaza Name:Nathavalasa- Lane ID:LNO0O3 115.00\n5813256942\nRIBO00000024519814 Received Payment by Retail Internet Banking 500.00] 0.00]\nTrip (RRN No/ Trip No) |352022008290726193645 / |Plaza Name:Nathavalasa- Lane ID:LNO08 60.00\n5809034759\nTrip (RRN No/ Trip No) |352022007290726102742 / |Plaza Name:Nathavalasa- Lane ID:LNOO7 115.00\n5807611179\nTrip (RRN No/ Trip No) |352022012270726220945 / |Plaza Name:Nathavalasa- Lane ID:LNO12 60.00\n5803834393\nTrip (RRN No/ Trip No) |352022003270726140625 / |Plaza Name:Nathavalasa- Lane ID:LNO03 115.00\n5802693837\nTrip (RRN No/ Trip No) |352022014250726141934 / |Plaza Name:Nathavalasa- Lane ID:LNO14 60.00\n5796939438\nTrip (RRN No/ Trip No) |352022002250726110250 / |Plaza Name:Nathavalasa- Lane ID:LNO02 115.00\n5796418735\nRIBO00000024469507 Received Payment by Retail Internet Banking 500.00] 0.00\nTrip (RRN No/ Trip No) = |352022013240726203010/ |Plaza Name:Nathavalasa- Lane ID:LNO13 60.00\n5794989964\nTrip (RRN No/ Trip No) = |352022006240726104334 / |Plaza Name:Nathavalasa- Lane ID:LNO06 115.00\n5793488498\nTrip (RRN No/ Trip No) = |352022009230726211030/ |Plaza Name:Nathavalasa- Lane ID:LNOO9 60.00\n5792302968\nTrip (RRN No/ Trip No) = |352022006230726100805 / |Plaza Name:Nathavalasa- Lane ID:LNO06 115.00\n5790692303\nTrip (RRN No/ Trip No) =|352022012220726210008 / |Plaza Name:Nathavalasa- Lane ID:LNO12 60.00\n5789568399\nTrip (RRN No/ Trip No) = |352022007220726153509 / |Plaza Name:Nathavalasa- Lane ID:LNOO7 115.00\n5788787153\nRIBO00000024445636 Received Payment by Retail Internet Banking 500.00] 0.00\nTrip (RRN No/ Trip No) |352022012210726220811/ |Plaza Name:Nathavalasa- Lane ID:LNO12 60.00\n5786961458\nTrip (RRN No/ Trip No) |352022006210726154740/ |Plaza Name:Nathavalasa- Lane ID:LNO06 115.00\n5786058517\nTrip (RRN No/ Trip No) |352022013200726133546 / |Plaza Name:Nathavalasa- Lane ID:LNO13 60.00\n5783082856\n1 of 3\nGE scanned with OKEN Scanhi\u00e9r",
+          "parsed": {
+            "vendor": ")) Fastag E-Statement",
+            "billNumber": null,
+            "billDate": "2026-09-04",
+            "amount": 31.0,
+            "gstin": "27AAACI1195H3ZK",
+            "categoryGuess": "Toll",
+            "confidence": "HIGH",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "5305x7500",
+          "renderMs": 1110.44,
+          "ocrMs": 7607.67,
+          "textLength": 3094,
+          "ocrConfidence": 0.7632361516034986,
+          "text": "fe FASTag E-Statement 14 ICICI Bank\nStatement Reference Customer ID: 11734023 Address:\nNumber 040926/201442/73 RAJESH KONDAPALLI\nName of ICICI Bank Name: RAJESH KONDAPALLI Aleem NAGAR,\nBranch making the ICICI Bank Limited BKC statement Period: 01-07-2026 to 31-07-2026 VISHAKAPATNAM -\nSuppy: 530045\nBill From Address of |/CIC] Bank Towers, Statement Date: 04-09-2026 Andhra Pradesh,\nICICI: Bandra Kurla Complex, INDIA.\nMumbai 400071 Type of address: Permanent\nGSTIN of ICICI: 27AAACI1195H3ZK GSTIN Number: N/A\nPlace of Supply: Andhra Pradesh State Code: 37\nVehicle ey\n\u2014\u2014\naa)\n22178813 AP31EA7970 323.43, 2500.00 - 2450.00 373.43\nTransaction Details\n| | (Rs.)(CR)_|(Rs.)(DR\n31-07-2026 19:45:55 |Trip(RRNNo/TripNo) |352022013310726194555 / | Plaza Name:Nathavalasa- Lane |ID:LN013 60.00\n5814612227\n31-07-2026 10:59:15 |Trip(RRNNo/Trip No) |352022003310726105915/ |Plaza Name:Nathavalasa- Lane ID:LNO03 | 115.00\n5813256942\n29-07-2026 19:47:14 RIB000000024519814 Received Payment by Retail Internet Banking 500.00} \u2014-0.00\n29-07-2026 19:36:45 |Trip(RRNNo/ Trip No) |352022008290726193645 / |Plaza Name:Nathavalasa- Lane ID:LNO08 60.00\n5809034759\n29-07-2026 10:27:42 |Trip(RRNNo/ Trip No) |352022007290726102742 / |Plaza Name:Nathavalasa- Lane ID:LNO07 115.00\n5807611179\n27-07-2026 22:09:45 |Trip(RRNNo/TripNo) |352022012270726220945 / |Plaza Name:Nathavalasa- Lane ID:LNO12 60.00\n5803834393\n27-07-2026 14:06:25 |Trip(RRNNo/TripNo) |352022003270726140625 / | Plaza Name:Nathavalasa- Lane |D:LNO03 115.00\n5802693837\n25-07-2026 14:19:34 |Trip(RRNNo/TripNo) |352022014250726141934/ |Plaza Name:Nathavalasa- Lane ID:LNO14 60.00\n5796939438\n25-07-2026 11:02:50 |Trip(RRNNo/Trip No) |352022002250726110250/ |Plaza Name:Nathavalasa- Lane ID:LNO02 =, 115.00\n5796418735\n24-07-2026 20:38:16 RIB000000024469507 Received Payment by Retail Internet Banking 500.00} \u2014-0.00\n24-07-2026 20:30:10 |Trip(RRNNo/ Trip No) |352022013240726203010/ |Plaza Name:Nathavalasa- Lane |ID:LN013 60.00\n5794989964\n24-07-2026 10:43:34 |Trip(RRNNo/ Trip No) |352022006240726104334 / | Plaza Name:Nathavalasa- Lane |ID:LNOO6 115.00\n5793488498\n23-07-2026 21:10:30 |Trip(RRNNo/ Trip No) |352022009230726211030/ |Plaza Name:Nathavalasa- Lane |ID:LNOO9 60.00\n5792302968\n23-07-2026 10:08:05 |Trip(RRNNo/ Trip No) |352022006230726100805 / |Plaza Name:Nathavalasa- Lane ID:LNO06 115.00\n5790692303\n22-07-2026 21:00:08 |Trip(RRNNo/ Trip No) |352022012220726210008 / |Plaza Name:Nathavalasa- Lane ID:LNO12 60.00\n5789568399\n22-07-2026 15:35:09 |Trip(RRNNo/Trip No) |352022007220726153509 / |Plaza Name:Nathavalasa- Lane ID:LNO07 | 115.00\n5788787153\n21-07-2026 22:17:05 RIB000000024445636 Received Payment by Retail Internet Banking 500.00] (0.00\n21-07-2026 22:08:11 |Trip(RRNNo/ Trip No) |352022012210726220811/ |Plaza Name:Nathavalasa- Lane ID:LNO12 60.00\n5786961458\n21-07-2026 15:47:40 |Trip (RRNNo/Trip No) |352022006210726154740/ |Plaza Name:Nathavalasa- Lane ID:LNO06 115.00\n5786058517\n20-07-2026 13:35:46 |Trip(RRNNo/Trip No) |352022013200726133546 / |Plaza Name:Nathavalasa- Lane ID:LN013 a. Be:\n5783082856\n1o0f3\nCG Scanned with OKEN Scani\u00e9r",
+          "parsed": {
+            "vendor": "fe FASTag E-Statement 14 ICICI Bank",
+            "billNumber": null,
+            "billDate": "2026-09-04",
+            "amount": 2500.0,
+            "gstin": "27AAACI1195H3ZK",
+            "categoryGuess": "Toll",
+            "confidence": "HIGH",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Multiple unlabeled amounts found; using the largest (2500.0) as a low-confidence candidate total. Other amounts on the page: [60.0, 115.0, 323.43, 373.43, 500.0, 2450.0]."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 3,
+      "documentType": "RECEIPT",
+      "quality": "clean printed thermal receipt, photographed",
+      "groundTruth": {
+        "vendor": "Theneth Auto Fuels (Bharat Petroleum)",
+        "amount": 2000.0,
+        "amountCorrectionNote": null,
+        "invoiceNumber": null,
+        "gstin": null
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 270.05,
+          "ocrMs": 973.74,
+          "textLength": 359,
+          "ocrConfidence": 0.43117647058823527,
+          "text": "THONE TH AUTO FUELS\nPCL WRAL\nTHA AYO) ABAL AMBIS\nHate. UL Ub DUNE\nBaylus 2\nPraduck: DDESEL\nTan Id, b0SU10FS19\nPxob> UI 26 OS iy\nline: 09.25 25\nNozzlefly: 2\nPayMode. Card\nAtiendant:\nah Tats UL WG-26 09 vs 14\nfabe/Ltr 2 102 56 Volume(Ltr.): 19 50\nAmount. (Fis. J: 2000 Gti\nPreset Type\nLica! hicunt Preset Value: Ghai) Gi\nVerbNo: Hobrleno:\nTHANK 10 = VISIT AGAIN",
+          "parsed": {
+            "vendor": "THONE TH AUTO FUELS",
+            "billNumber": null,
+            "billDate": null,
+            "amount": 2000.0,
+            "gstin": null,
+            "categoryGuess": "Fuel",
+            "confidence": "MEDIUM",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 412.88,
+          "ocrMs": 1689.88,
+          "textLength": 383,
+          "ocrConfidence": 0.37777777777777777,
+          "text": "THENE TH AUTU TELS\nPCL HEALER\nTHAI AYO) ARAL AMBIS\nVate. Ul US ZUG\nBayNus 2\nProduct: DIESEL\nTon Id. 600u10%519\nTxt:\nfabe/Ltr.: 102 56\nAmount. (Ris. 2000. Gu\na Sars Ioomao OT 1) War r\neset Type liecal facut\nVeciNo:\nTHANK 1\nTine: 09.29 25,\nNozzlefly: 2\nPayMod\u00e9e. Cari\nAkiendant:\nUI 26 US Bre di Labial: UW UG-26 09 YB 14\nVoluwe(Ltr.): 19 50\nPreset Value: Goan oo)\nMobrleno:\nVISIT AGAIN",
+          "parsed": {
+            "vendor": "THENE TH AUTU TELS",
+            "billNumber": null,
+            "billDate": null,
+            "amount": 2000.0,
+            "gstin": null,
+            "categoryGuess": "Fuel",
+            "confidence": "MEDIUM",
+            "status": "EXTRACTED",
+            "warnings": [
+              "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 6,
+      "documentType": "INVOICE",
+      "quality": "handwritten on printed template",
+      "groundTruth": {
+        "vendor": "RATHNA ELECTRICALS & HARDWARES",
+        "amount": 220,
+        "amountCorrectionNote": null,
+        "invoiceNumber": "664",
+        "gstin": "32ARWPK8203C1ZW"
+      },
+      "runs": [
+        {
+          "dpi": 200,
+          "pixelDims": "1654x2339",
+          "renderMs": 347.5,
+          "ocrMs": 1516.83,
+          "textLength": 668,
+          "ocrConfidence": 0.48690721649484536,
+          "text": "GSTIN : 32ARWPK8203C1ZW\nRATHNA\nELECTRICALS & HARDWARES b Load\nCourt Road, Palakkad - 678 001 Mob : 9496587974\nINVOICENs. 664 CASH INVOICE Date Scene\nNEVIS SRI) Nelo TSS ObPLRVLSINEL? coccosteceonccecnocobeceo eco ce eocacnen pponticc05000260050a 000 TETODTOCOACSCHOICCOOEL CREE cece ser\nBeen O ent eisbre cee eee ac nec eenk Su secs Seu eneereTe tt co ay eBaleasuevnssesissasavaveassasead ContactiNorcsscrestrecccceceterentttus soncecss-s eee ae\nSL. Description of Good\nNo ption of Goods\n\u2014\n\u00a9\nInvoice Value in WOrdS .....sssesresesnnnsunnnnn\nDeclaration : | hereby certified that all the articulegg cheater uses\ntus and correct and that my Registration Uidae GST AN sot",
+          "parsed": {
+            "vendor": "ELECTRICALS & HARDWARES b Load",
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": "32ARWPK8203C1ZW",
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        },
+        {
+          "dpi": 300,
+          "pixelDims": "2481x3508",
+          "renderMs": 564.77,
+          "ocrMs": 2208.97,
+          "textLength": 189,
+          "ocrConfidence": 0.844375,
+          "text": "GSTIN : 32ARWPK8203C1ZW\nRATHNA\nELECTRICALS & HARDWARES b | Awe. f\nCASH INVOICE\nInvoice Value in words\nDeclaration : | hereby certified that all the\ntrus and correct and that my Registration",
+          "parsed": {
+            "vendor": "GSTIN : 32ARWPK8203C1ZW",
+            "billNumber": null,
+            "billDate": null,
+            "amount": null,
+            "gstin": "32ARWPK8203C1ZW",
+            "categoryGuess": null,
+            "confidence": "LOW",
+            "status": "REVIEW_REQUIRED",
+            "warnings": [
+              "Bill amount could not be reliably determined.",
+              "Bill date could not be reliably determined."
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "nativeTextControl": {
+    "filename": "ER-40782.pdf",
+    "page": 3,
+    "note": "Native-selectable-text control page (confirmed via reports/page-census.json: nativeHasSelectableText=true, nativeTextLength=347 >= MIN_NATIVE_TEXT_CHARS=20). Not rendered/OCR'd by this benchmark: text_extraction.py's has_selectable_text gate (split_pages, line 155) is computed solely from doc[i].get_text() and never reads `dpi` - the dpi parameter is only used inside _apply_ocr's OCR-only branch (line 171), which this page never reaches in production at either DPI setting.",
+    "groundTruth": {
+      "vendor": "CNG Mother Station (Paytm payment)",
+      "amount": 4051
+    }
+  }
+}

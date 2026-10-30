@@ -1,0 +1,29 @@
+{
+ "schema": "fuel-review-history/v1",
+ "note": "Append-only audit trail of apply_verification.mjs invocations.",
+ "events": [
+  {
+   "applied_at": "2026-10-22T06:10:39.503Z",
+   "reviewer_identity_assurance": "self_attested",
+   "authorized_reviewers_enforced": false,
+   "exports": [
+    {
+     "file": "export-18.json",
+     "reviewer_id": "REV-001",
+     "exported_at": "2026-10-22T10:00:00Z",
+     "sha256": "dbba7ab2ef069f7cca0e4172404e9761148932ab20bac9c00a5e4e8c8f0aa793",
+     "receipts": 2
+    }
+   ],
+   "verified_new": [
+    "SYNTH-AUTH-001"
+   ],
+   "unchanged_matches_existing": [],
+   "adjudication_needed": [],
+   "conflicts": [],
+   "ignored_unknown_ids": [
+    "SYNTH-NOT-IN-CORPUS"
+   ]
+  }
+ ]
+}

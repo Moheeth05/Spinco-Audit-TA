@@ -31,7 +31,10 @@ REQUIRED. Only when every applicable check is PASS or NOT_APPLICABLE does
 the report become ACCOUNT VERIFIED.
 """
 
+import hashlib
+import json
 from collections import defaultdict
+from decimal import Decimal, InvalidOperation
 
 from sqlalchemy.orm import Session
 
@@ -64,8 +67,10 @@ REVIEW_REQUIRED = "REVIEW REQUIRED"
 _REVIEW_FAMILY_BY_CHECK_TYPE = {
     "Bill Amount Check": "BILL MATCH REVIEW REQUIRED",
     "Bill Date Check": "BILL MATCH REVIEW REQUIRED",
+    "Payment Status Check": "BILL MATCH REVIEW REQUIRED",
     "Category Consistency Check": "BILL MATCH REVIEW REQUIRED",
     "Duplicate Bill Check": "BILL MATCH REVIEW REQUIRED",
+    "Shared Bill Check": "DUPLICATE BILL REVIEW REQUIRED",
     "Required Document Check": "BILL MATCH REVIEW REQUIRED",
     "Batta Trip Match Check": "TRIP MATCH REVIEW REQUIRED",
     "Total Validation Check": "REPORT TOTAL REVIEW REQUIRED",
@@ -75,6 +80,8 @@ _REVIEW_FAMILY_BY_CHECK_TYPE = {
     # problem at all: the bill matched fine, the auditor just needs to see
     # that catering was bundled into the fare.
     "Catering Check": "CATERING INCLUDED",
+    # Lodging's counterpart of the catering family above, same reasoning.
+    "Room Service/Food Check": "ROOM SERVICE / FOOD INCLUDED",
     # Its own family, not folded into "BILL MATCH REVIEW REQUIRED" - a
     # grouped bill can be a confident, uniquely-matched MATCH (no matching
     # ambiguity at all) while still needing a human to confirm the page-
@@ -104,6 +111,7 @@ _EXCEPTION_TYPE_ROOT = {
 }
 _REVIEW_FAMILY_ROOT = {
     "BILL MATCH REVIEW REQUIRED": "BILL",
+    "DUPLICATE BILL REVIEW REQUIRED": "BILL",
     "TRIP MATCH REVIEW REQUIRED": "TRIP",
     "REPORT TOTAL REVIEW REQUIRED": "TOTAL",
     # Same root as the other bill-evidence families - if this expense
@@ -131,6 +139,105 @@ def _reason_text(rows: list[ValidationResult]) -> str:
     # family often carry the identical "no confirmed matching bill" text.
     unique = list(dict.fromkeys(texts))
     return "; ".join(unique) if unique else "Review required - insufficient evidence to confirm this automatically."
+
+
+# ---------------------------------------------------------------------------
+# Evidence signature of an approval.
+#
+# A manual verification is applied to a regenerated exception only while the
+# exception is still built on the SAME material evidence it was approved on.
+# The signature is a SHA-256 over the typed fields of the ValidationResult rows
+# behind the exception - never their wording (a reworded reason must not void an
+# approval) and never a row id (ids change on every reprocess):
+#
+#     check_type, result, claimed_amount, bill_amount, policy_limit,
+#     expense_date, bill_date, source_page
+#
+# Amounts are normalised to two places, dates to ISO, and the rows are sorted, so
+# the value is deterministic. What it CANNOT capture: anything that is not one of
+# those typed fields - e.g. which OTHER claim shares a bill (Shared / Duplicate
+# Bill reviews), the report's own stated total (only the extracted sum is typed),
+# or vendor/payment details that appear only in the remarks text.
+# ---------------------------------------------------------------------------
+
+STALE_APPROVAL_NOTE = "A previous manual verification no longer applies because the evidence changed; re-verify."
+_STALE_SUFFIX = f" [{STALE_APPROVAL_NOTE}]"
+_REASON_MAX = 1000  # ExceptionRecord.reason is String(1000)
+
+
+def _norm_amount(value) -> str:
+    if value is None:
+        return ""
+    try:
+        return str(Decimal(str(value)).quantize(Decimal("0.01")))
+    except (InvalidOperation, ValueError):
+        return str(value)
+
+
+def evidence_signature(rows: list[ValidationResult]) -> str:
+    material = sorted(
+        [
+            r.check_type or "",
+            r.result or "",
+            _norm_amount(r.claimed_amount),
+            _norm_amount(r.bill_amount),
+            _norm_amount(r.policy_limit),
+            r.expense_date.isoformat() if r.expense_date else "",
+            r.bill_date.isoformat() if r.bill_date else "",
+            "" if r.source_page is None else str(r.source_page),
+        ]
+        for r in rows
+    )
+    return hashlib.sha256(json.dumps(material, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def rows_for_record(db: Session, record: ExceptionRecord) -> list[ValidationResult]:
+    """The ValidationResult rows an existing ExceptionRecord was built from - the same rows
+    evaluate_report() groups (a single row for a confirmed EXCEPTION, the whole review family
+    of that expense - or of the report, when expense_id is NULL - for a review)."""
+    if record.severity == EXCEPTION:
+        row = db.get(ValidationResult, record.validation_result_id) if record.validation_result_id else None
+        return [row] if row is not None else []
+    query = db.query(ValidationResult).filter(
+        ValidationResult.expense_report_id == record.expense_report_id, ValidationResult.result == "REVIEW_REQUIRED"
+    )
+    query = (
+        query.filter(ValidationResult.expense_id.is_(None))
+        if record.expense_id is None
+        else query.filter(ValidationResult.expense_id == record.expense_id)
+    )
+    return [r for r in query.all() if _review_family(r) == record.exception_type]
+
+
+def signature_for_record(db: Session, record: ExceptionRecord) -> str:
+    return evidence_signature(rows_for_record(db, record))
+
+
+def strip_stale_note(reason: str | None) -> str | None:
+    """The reason as the checks produced it, without the 'approval no longer applies' note."""
+    if reason and reason.endswith(_STALE_SUFFIX):
+        return reason[: -len(_STALE_SUFFIX)]
+    return reason
+
+
+_MANUAL_MATCH_NOTE = "Manually verified by auditor"  # prefix evaluate_report() puts on the reasons of a manually confirmed match
+# review family -> the (status, reasons) columns of Expense that a manual verification of that family flips
+_MATCH_STATUS_COLUMNS = {
+    "BILL MATCH REVIEW REQUIRED": ("bill_match_status", "bill_match_reasons"),
+    "TRIP MATCH REVIEW REQUIRED": ("trip_match_status", "trip_match_reasons"),
+}
+
+
+def _with_stale_note(reason: str) -> str:
+    base = strip_stale_note(reason) or ""
+    return base[: _REASON_MAX - len(_STALE_SUFFIX)] + _STALE_SUFFIX  # rebuilt from the base every time: never duplicated
+
+
+def _approval_applies(verification: ExceptionVerification, reason: str, current_signature: str) -> bool:
+    if verification.evidence_signature is not None:
+        return verification.evidence_signature == current_signature
+    # Unsigned (verified before signatures existed): the only evidence of what was approved is the reason text.
+    return verification.original_reason == reason
 
 
 def _build_record(
@@ -185,6 +292,7 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
     }
 
     records: list[ExceptionRecord] = []
+    signatures: dict[int, str] = {}  # id(record) -> the evidence signature of the rows it was built from
     for expense_id, rows in by_expense.items():
         expense = expenses_by_id.get(expense_id) if expense_id is not None else None
 
@@ -197,16 +305,16 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
                     exception_type_roots.add(root)
                 # Never rename an existing exception_type - it's already the
                 # precise label the originating check assigned.
-                records.append(
-                    _build_record(
-                        report=report,
-                        expense=expense,
-                        primary=vr,
-                        exception_type=exception_type,
-                        severity=EXCEPTION,
-                        all_rows=[vr],
-                    )
+                record = _build_record(
+                    report=report,
+                    expense=expense,
+                    primary=vr,
+                    exception_type=exception_type,
+                    severity=EXCEPTION,
+                    all_rows=[vr],
                 )
+                signatures[id(record)] = evidence_signature([vr])
+                records.append(record)
 
         review_rows = [r for r in rows if r.result == "REVIEW_REQUIRED"]
         groups: dict[str, list[ValidationResult]] = defaultdict(list)
@@ -219,16 +327,16 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
             # same underlying problem restated by a second check.
             if _REVIEW_FAMILY_ROOT.get(family) in exception_type_roots:
                 continue
-            records.append(
-                _build_record(
-                    report=report,
-                    expense=expense,
-                    primary=group_rows[0],
-                    exception_type=family,
-                    severity=REVIEW_REQUIRED,
-                    all_rows=group_rows,
-                )
+            record = _build_record(
+                report=report,
+                expense=expense,
+                primary=group_rows[0],
+                exception_type=family,
+                severity=REVIEW_REQUIRED,
+                all_rows=group_rows,
             )
+            signatures[id(record)] = evidence_signature(group_rows)
+            records.append(record)
 
     # Re-apply any standing manual verifications (see models/validation.py's
     # ExceptionVerification) onto the freshly-rebuilt records - this table
@@ -247,15 +355,29 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
         (v.expense_id, v.exception_type): v
         for v in db.query(ExceptionVerification).filter(ExceptionVerification.expense_report_id == report.id).all()
     }
+    #
+    # An approval is re-applied only while the regenerated exception rests on the SAME
+    # evidence it was approved on (see evidence_signature above). Otherwise the verification
+    # row is kept untouched as history, the exception stays OPEN - so the expense is not
+    # VERIFIED and the report cannot become ACCOUNT VERIFIED on its account - and a stable
+    # note is appended to the reason (rebuilt from the base reason every evaluation, so it
+    # can never accumulate). No audit event is written here: this runs on every evaluation.
     for rec in records:
         if rec.severity not in (REVIEW_REQUIRED, EXCEPTION):
             continue
         v = verifications.get((rec.expense_id, rec.exception_type))
-        if v is not None:
+        if v is None:
+            continue
+        current_signature = signatures[id(rec)]
+        if _approval_applies(v, rec.reason, current_signature):
+            if v.evidence_signature is None:
+                v.evidence_signature = current_signature  # an unsigned row whose reason is unchanged: stamp it
             rec.status = "RESOLVED"
             rec.verified_by_id = v.verified_by_id
             rec.verified_at = v.verified_at
             rec.verification_note = v.verification_note
+        else:
+            rec.reason = _with_stale_note(rec.reason)
 
     for rec in records:
         db.add(rec)
@@ -300,6 +422,21 @@ def evaluate_report(db: Session, expense_report_id: int) -> None:
     # match that doesn't exist.
     for expense_id, expense in expenses_by_id.items():
         for rec in records_by_expense.get(expense_id, []):
+            # The reverse of the flip below: a BILL / TRIP MATCH approval that no longer applies (its
+            # evidence changed) must not leave the match status MATCHED. Only a status that the
+            # manual-verification flip itself set is reverted - recognised by its reasons prefix, and
+            # only where a verification row exists - so a match the matcher confirmed is untouched.
+            # The pre-approval status (REVIEW_REQUIRED vs MULTIPLE_CANDIDATES) is not stored; it
+            # is restored as REVIEW_REQUIRED, which is still an unconfirmed match.
+            match_columns = _MATCH_STATUS_COLUMNS.get(rec.exception_type)
+            if match_columns and rec.status == "OPEN" and (expense_id, rec.exception_type) in verifications:
+                status_attr, reasons_attr = match_columns
+                reasons = getattr(expense, reasons_attr) or ""
+                if getattr(expense, status_attr) == "MATCHED" and reasons.startswith(_MANUAL_MATCH_NOTE):
+                    rest = reasons[len(_MANUAL_MATCH_NOTE):]
+                    setattr(expense, status_attr, "REVIEW_REQUIRED")
+                    setattr(expense, reasons_attr, rest[3:] if rest.startswith(" - ") else None)
+                continue
             if rec.status != "RESOLVED":
                 continue
             if rec.exception_type == "BILL MATCH REVIEW REQUIRED" and expense.bill_match_status in (

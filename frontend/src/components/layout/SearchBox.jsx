@@ -43,16 +43,12 @@ export function SearchBox() {
     if (open) inputRef.current?.focus()
   }, [open])
 
+  // The search status (results / loading / error) is reset in updateQuery(),
+  // the single place that changes the query, not in this effect: it only
+  // schedules the debounced request.
   useEffect(() => {
     const trimmed = query.trim()
-    if (trimmed.length < 2) {
-      setResults([])
-      setLoading(false)
-      setError(null)
-      return undefined
-    }
-    setLoading(true)
-    setError(null)
+    if (trimmed.length < 2) return undefined
     const timer = setTimeout(() => {
       apiGet('/search', { q: trimmed })
         .then((res) => setResults(res.results || []))
@@ -62,9 +58,21 @@ export function SearchBox() {
     return () => clearTimeout(timer)
   }, [query])
 
+  function updateQuery(next) {
+    setQuery(next)
+    if (next.trim().length < 2) {
+      setResults([])
+      setLoading(false)
+      setError(null)
+    } else {
+      setLoading(true)
+      setError(null)
+    }
+  }
+
   function goTo(item) {
     setOpen(false)
-    setQuery('')
+    updateQuery('')
     if (item.document_id) {
       navigate(`/documents/${item.document_id}`)
     } else if (item.path) {
@@ -91,14 +99,14 @@ export function SearchBox() {
             type="text"
             placeholder="Search reports, employees, categories, merchants..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => updateQuery(e.target.value)}
           />
           <button
             className="search-box-close"
             aria-label="Close search"
             onClick={() => {
               setOpen(false)
-              setQuery('')
+              updateQuery('')
             }}
           >
             <X size={14} />

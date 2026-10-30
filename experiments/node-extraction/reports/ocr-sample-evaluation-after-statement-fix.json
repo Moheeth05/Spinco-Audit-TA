@@ -1,0 +1,256 @@
+{
+  "summary": {
+    "total": 13,
+    "nodeAmountCorrect": 5,
+    "pythonAmountCorrect": 3
+  },
+  "results": [
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 6,
+      "groundTruthAmount": 2500,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "native",
+        "amount": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 2500,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 7,
+      "groundTruthAmount": 300,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 9,
+      "groundTruthAmount": 685,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "native",
+        "amount": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 652.67,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 15,
+      "groundTruthAmount": 1150,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 1150
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 1150,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": true
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 25,
+      "groundTruthAmount": 500,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 6,
+      "groundTruthAmount": 3000,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 10,
+      "groundTruthAmount": 34999.9,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 27999.92
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 27999.92,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 12,
+      "groundTruthAmount": 35000,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 35000
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 35000,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": true
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 20,
+      "groundTruthAmount": null,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 113824.75
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null,
+        "isMultiTransactionStatement": true
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 22,
+      "groundTruthAmount": null,
+      "groundTruthCorrected": true,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 31
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null,
+        "isMultiTransactionStatement": true
+      },
+      "amountCorrectNode": true,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 3,
+      "groundTruthAmount": 2000,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": 2000
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": true
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 6,
+      "groundTruthAmount": 220,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null
+      },
+      "node": {
+        "nativeHasSelectableText": false,
+        "finalSource": "ocr",
+        "amount": null,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    },
+    {
+      "filename": "ER-40782.pdf",
+      "page": 3,
+      "groundTruthAmount": 4051,
+      "groundTruthCorrected": false,
+      "python": {
+        "nativeHasSelectableText": true,
+        "finalSource": "native",
+        "amount": null
+      },
+      "node": {
+        "nativeHasSelectableText": true,
+        "finalSource": "native",
+        "amount": null,
+        "isMultiTransactionStatement": false
+      },
+      "amountCorrectNode": false,
+      "amountCorrectPython": false
+    }
+  ]
+}

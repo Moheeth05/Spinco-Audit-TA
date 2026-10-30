@@ -1,0 +1,391 @@
+{
+ "frozen_at": "2026-10-22T10:53:12",
+ "rule": "Whole layout families go to one side. Authentic: dev = bpcl_pos_txn + orgnl_physical_receipt; heldout = welcomes_you_pinelabs + handwritten_dealer_invoice + hp_original_star. Synthetic: dev vs heldout TEMPLATES (see synthetic generator).",
+ "frozen_before": "any OCR output for the authentic pages was read, and before any extractor code for this task was written",
+ "families": {
+  "dev": {
+   "authentic:bpcl_pos_txn": [
+    "auth_ER-39832_p03",
+    "auth_ER-39832_p05",
+    "auth_ER-39832_p11",
+    "auth_ER-39832_p12"
+   ],
+   "authentic:orgnl_physical_receipt": [
+    "auth_ER-39832_p04",
+    "auth_ER-39832_p08",
+    "auth_ER-39832_p13",
+    "auth_ER-40223_p21",
+    "auth_ER-40706_p17",
+    "auth_ER-40706_p18",
+    "auth_ER-40513_p06",
+    "auth_ER-40513_p22"
+   ],
+   "synthetic:iocl_thermal": [
+    "syn_dev_iocl_thermal_0",
+    "syn_dev_iocl_thermal_1",
+    "syn_dev_iocl_thermal_2",
+    "syn_dev_iocl_thermal_3",
+    "syn_dev_iocl_thermal_4",
+    "syn_dev_iocl_thermal_5"
+   ],
+   "synthetic:hpcl_pos": [
+    "syn_dev_hpcl_pos_0",
+    "syn_dev_hpcl_pos_1",
+    "syn_dev_hpcl_pos_2",
+    "syn_dev_hpcl_pos_3",
+    "syn_dev_hpcl_pos_4",
+    "syn_dev_hpcl_pos_5"
+   ],
+   "synthetic:bpcl_txn": [
+    "syn_dev_bpcl_txn_0",
+    "syn_dev_bpcl_txn_1",
+    "syn_dev_bpcl_txn_2",
+    "syn_dev_bpcl_txn_3",
+    "syn_dev_bpcl_txn_4",
+    "syn_dev_bpcl_txn_5"
+   ],
+   "synthetic:independent_memo": [
+    "syn_dev_independent_memo_0",
+    "syn_dev_independent_memo_1",
+    "syn_dev_independent_memo_2",
+    "syn_dev_independent_memo_3",
+    "syn_dev_independent_memo_4",
+    "syn_dev_independent_memo_5"
+   ],
+   "synthetic:faint_generic": [
+    "syn_dev_faint_generic_0",
+    "syn_dev_faint_generic_1",
+    "syn_dev_faint_generic_2",
+    "syn_dev_faint_generic_3",
+    "syn_dev_faint_generic_4",
+    "syn_dev_faint_generic_5"
+   ]
+  },
+  "heldout": {
+   "authentic:welcomes_you_pinelabs": [
+    "auth_ER-39832_p07",
+    "auth_ER-39832_p14",
+    "auth_ER-40706_p16",
+    "auth_ER-40782_p04",
+    "auth_ER-40782_p08",
+    "auth_ER-40513_p24",
+    "auth_ER-41115_p06",
+    "auth_ER-41115_p49"
+   ],
+   "authentic:handwritten_dealer_invoice": [
+    "auth_ER-40706_p19"
+   ],
+   "authentic:hp_original_star": [
+    "auth_ER-41220_p06"
+   ],
+   "synthetic:nayara": [
+    "syn_heldout_nayara_0",
+    "syn_heldout_nayara_1",
+    "syn_heldout_nayara_2",
+    "syn_heldout_nayara_3",
+    "syn_heldout_nayara_4",
+    "syn_heldout_nayara_5"
+   ],
+   "synthetic:jiobp": [
+    "syn_heldout_jiobp_0",
+    "syn_heldout_jiobp_1",
+    "syn_heldout_jiobp_2",
+    "syn_heldout_jiobp_3",
+    "syn_heldout_jiobp_4",
+    "syn_heldout_jiobp_5"
+   ],
+   "synthetic:shell": [
+    "syn_heldout_shell_0",
+    "syn_heldout_shell_1",
+    "syn_heldout_shell_2",
+    "syn_heldout_shell_3",
+    "syn_heldout_shell_4",
+    "syn_heldout_shell_5"
+   ],
+   "synthetic:generator_style": [
+    "syn_heldout_generator_style_0",
+    "syn_heldout_generator_style_1",
+    "syn_heldout_generator_style_2",
+    "syn_heldout_generator_style_3",
+    "syn_heldout_generator_style_4",
+    "syn_heldout_generator_style_5"
+   ],
+   "synthetic:print_vs_txn": [
+    "syn_heldout_print_vs_txn_0",
+    "syn_heldout_print_vs_txn_1",
+    "syn_heldout_print_vs_txn_2",
+    "syn_heldout_print_vs_txn_3",
+    "syn_heldout_print_vs_txn_4",
+    "syn_heldout_print_vs_txn_5"
+   ],
+   "synthetic:ambiguous_date": [
+    "syn_heldout_ambiguous_date_0",
+    "syn_heldout_ambiguous_date_1",
+    "syn_heldout_ambiguous_date_2",
+    "syn_heldout_ambiguous_date_3",
+    "syn_heldout_ambiguous_date_4",
+    "syn_heldout_ambiguous_date_5"
+   ],
+   "synthetic:label_split": [
+    "syn_heldout_label_split_0",
+    "syn_heldout_label_split_1",
+    "syn_heldout_label_split_2",
+    "syn_heldout_label_split_3",
+    "syn_heldout_label_split_4",
+    "syn_heldout_label_split_5"
+   ],
+   "synthetic:conflicting_annotation": [
+    "syn_heldout_conflicting_annotation_0",
+    "syn_heldout_conflicting_annotation_1",
+    "syn_heldout_conflicting_annotation_2",
+    "syn_heldout_conflicting_annotation_3",
+    "syn_heldout_conflicting_annotation_4",
+    "syn_heldout_conflicting_annotation_5"
+   ],
+   "suspected_template_generated:generator_crumpled_template": [
+    "auth_ER-41115_p50"
+   ]
+  },
+  "control": {
+   "generic_control:restaurant": [
+    "ctl_restaurant_0",
+    "ctl_restaurant_1",
+    "ctl_restaurant_2"
+   ],
+   "generic_control:hp_laptop_service": [
+    "ctl_hp_laptop_service_0",
+    "ctl_hp_laptop_service_1",
+    "ctl_hp_laptop_service_2"
+   ],
+   "generic_control:shell_restaurant": [
+    "ctl_shell_restaurant_0",
+    "ctl_shell_restaurant_1",
+    "ctl_shell_restaurant_2"
+   ],
+   "generic_control:hotel": [
+    "ctl_hotel_0",
+    "ctl_hotel_1",
+    "ctl_hotel_2"
+   ],
+   "generic_control:cab": [
+    "ctl_cab_0",
+    "ctl_cab_1",
+    "ctl_cab_2"
+   ],
+   "generic_control:pharmacy_bp": [
+    "ctl_pharmacy_bp_0",
+    "ctl_pharmacy_bp_1",
+    "ctl_pharmacy_bp_2"
+   ],
+   "generic_control:petrol_adjacent_spares": [
+    "ctl_petrol_adjacent_spares_0",
+    "ctl_petrol_adjacent_spares_1",
+    "ctl_petrol_adjacent_spares_2"
+   ],
+   "generic_control:supermarket": [
+    "ctl_supermarket_0",
+    "ctl_supermarket_1",
+    "ctl_supermarket_2"
+   ]
+  },
+  "heldout2": {
+   "synthetic:iocl_xtrareward": [
+    "syn2_heldout2_iocl_xtrareward_0",
+    "syn2_heldout2_iocl_xtrareward_1",
+    "syn2_heldout2_iocl_xtrareward_2",
+    "syn2_heldout2_iocl_xtrareward_3",
+    "syn2_heldout2_iocl_xtrareward_4",
+    "syn2_heldout2_iocl_xtrareward_5"
+   ],
+   "synthetic:bpcl_fleet_netpayable": [
+    "syn2_heldout2_bpcl_fleet_netpayable_0",
+    "syn2_heldout2_bpcl_fleet_netpayable_1",
+    "syn2_heldout2_bpcl_fleet_netpayable_2",
+    "syn2_heldout2_bpcl_fleet_netpayable_3",
+    "syn2_heldout2_bpcl_fleet_netpayable_4",
+    "syn2_heldout2_bpcl_fleet_netpayable_5"
+   ],
+   "synthetic:hp_column_table": [
+    "syn2_heldout2_hp_column_table_0",
+    "syn2_heldout2_hp_column_table_1",
+    "syn2_heldout2_hp_column_table_2",
+    "syn2_heldout2_hp_column_table_3",
+    "syn2_heldout2_hp_column_table_4",
+    "syn2_heldout2_hp_column_table_5"
+   ],
+   "synthetic:nayara_dealer_label": [
+    "syn2_heldout2_nayara_dealer_label_0",
+    "syn2_heldout2_nayara_dealer_label_1",
+    "syn2_heldout2_nayara_dealer_label_2",
+    "syn2_heldout2_nayara_dealer_label_3",
+    "syn2_heldout2_nayara_dealer_label_4",
+    "syn2_heldout2_nayara_dealer_label_5"
+   ],
+   "synthetic:jiobp_upi": [
+    "syn2_heldout2_jiobp_upi_0",
+    "syn2_heldout2_jiobp_upi_1",
+    "syn2_heldout2_jiobp_upi_2",
+    "syn2_heldout2_jiobp_upi_3",
+    "syn2_heldout2_jiobp_upi_4",
+    "syn2_heldout2_jiobp_upi_5"
+   ],
+   "synthetic:shell_card_slip": [
+    "syn2_heldout2_shell_card_slip_0",
+    "syn2_heldout2_shell_card_slip_1",
+    "syn2_heldout2_shell_card_slip_2",
+    "syn2_heldout2_shell_card_slip_3",
+    "syn2_heldout2_shell_card_slip_4",
+    "syn2_heldout2_shell_card_slip_5"
+   ],
+   "synthetic:independent_no_header": [
+    "syn2_heldout2_independent_no_header_0",
+    "syn2_heldout2_independent_no_header_1",
+    "syn2_heldout2_independent_no_header_2",
+    "syn2_heldout2_independent_no_header_3",
+    "syn2_heldout2_independent_no_header_4",
+    "syn2_heldout2_independent_no_header_5"
+   ],
+   "synthetic:reprint_proves_order": [
+    "syn2_heldout2_reprint_proves_order_0",
+    "syn2_heldout2_reprint_proves_order_1",
+    "syn2_heldout2_reprint_proves_order_2",
+    "syn2_heldout2_reprint_proves_order_3",
+    "syn2_heldout2_reprint_proves_order_4",
+    "syn2_heldout2_reprint_proves_order_5"
+   ]
+  },
+  "heldout3": {
+   "synthetic:nayara_outlet_totalvalue": [
+    "syn3_heldout3_nayara_outlet_totalvalue_0",
+    "syn3_heldout3_nayara_outlet_totalvalue_1",
+    "syn3_heldout3_nayara_outlet_totalvalue_2",
+    "syn3_heldout3_nayara_outlet_totalvalue_3",
+    "syn3_heldout3_nayara_outlet_totalvalue_4",
+    "syn3_heldout3_nayara_outlet_totalvalue_5"
+   ],
+   "synthetic:nayara_card_sale": [
+    "syn3_heldout3_nayara_card_sale_0",
+    "syn3_heldout3_nayara_card_sale_1",
+    "syn3_heldout3_nayara_card_sale_2",
+    "syn3_heldout3_nayara_card_sale_3",
+    "syn3_heldout3_nayara_card_sale_4",
+    "syn3_heldout3_nayara_card_sale_5"
+   ],
+   "synthetic:jiobp_pulse_totalpayable": [
+    "syn3_heldout3_jiobp_pulse_totalpayable_0",
+    "syn3_heldout3_jiobp_pulse_totalpayable_1",
+    "syn3_heldout3_jiobp_pulse_totalpayable_2",
+    "syn3_heldout3_jiobp_pulse_totalpayable_3",
+    "syn3_heldout3_jiobp_pulse_totalpayable_4",
+    "syn3_heldout3_jiobp_pulse_totalpayable_5"
+   ],
+   "synthetic:jiobp_fleet_netamt": [
+    "syn3_heldout3_jiobp_fleet_netamt_0",
+    "syn3_heldout3_jiobp_fleet_netamt_1",
+    "syn3_heldout3_jiobp_fleet_netamt_2",
+    "syn3_heldout3_jiobp_fleet_netamt_3",
+    "syn3_heldout3_jiobp_fleet_netamt_4",
+    "syn3_heldout3_jiobp_fleet_netamt_5"
+   ],
+   "synthetic:shell_retail_fuelsale": [
+    "syn3_heldout3_shell_retail_fuelsale_0",
+    "syn3_heldout3_shell_retail_fuelsale_1",
+    "syn3_heldout3_shell_retail_fuelsale_2",
+    "syn3_heldout3_shell_retail_fuelsale_3",
+    "syn3_heldout3_shell_retail_fuelsale_4",
+    "syn3_heldout3_shell_retail_fuelsale_5"
+   ],
+   "synthetic:shell_loyalty_decoys": [
+    "syn3_heldout3_shell_loyalty_decoys_0",
+    "syn3_heldout3_shell_loyalty_decoys_1",
+    "syn3_heldout3_shell_loyalty_decoys_2",
+    "syn3_heldout3_shell_loyalty_decoys_3",
+    "syn3_heldout3_shell_loyalty_decoys_4",
+    "syn3_heldout3_shell_loyalty_decoys_5"
+   ],
+   "synthetic:independent_cashmemo": [
+    "syn3_heldout3_independent_cashmemo_0",
+    "syn3_heldout3_independent_cashmemo_1",
+    "syn3_heldout3_independent_cashmemo_2",
+    "syn3_heldout3_independent_cashmemo_3",
+    "syn3_heldout3_independent_cashmemo_4",
+    "syn3_heldout3_independent_cashmemo_5"
+   ],
+   "synthetic:independent_dotted_short_year": [
+    "syn3_heldout3_independent_dotted_short_year_0",
+    "syn3_heldout3_independent_dotted_short_year_1",
+    "syn3_heldout3_independent_dotted_short_year_2",
+    "syn3_heldout3_independent_dotted_short_year_3",
+    "syn3_heldout3_independent_dotted_short_year_4",
+    "syn3_heldout3_independent_dotted_short_year_5"
+   ]
+  },
+  "heldout4": {
+   "synthetic:nayara_authorised_dealer": [
+    "syn4_heldout4_nayara_authorised_dealer_0",
+    "syn4_heldout4_nayara_authorised_dealer_1",
+    "syn4_heldout4_nayara_authorised_dealer_2",
+    "syn4_heldout4_nayara_authorised_dealer_3",
+    "syn4_heldout4_nayara_authorised_dealer_4",
+    "syn4_heldout4_nayara_authorised_dealer_5"
+   ],
+   "synthetic:nayara_upi_paid": [
+    "syn4_heldout4_nayara_upi_paid_0",
+    "syn4_heldout4_nayara_upi_paid_1",
+    "syn4_heldout4_nayara_upi_paid_2",
+    "syn4_heldout4_nayara_upi_paid_3",
+    "syn4_heldout4_nayara_upi_paid_4",
+    "syn4_heldout4_nayara_upi_paid_5"
+   ],
+   "synthetic:jiobp_ro_fueltotal": [
+    "syn4_heldout4_jiobp_ro_fueltotal_0",
+    "syn4_heldout4_jiobp_ro_fueltotal_1",
+    "syn4_heldout4_jiobp_ro_fueltotal_2",
+    "syn4_heldout4_jiobp_ro_fueltotal_3",
+    "syn4_heldout4_jiobp_ro_fueltotal_4",
+    "syn4_heldout4_jiobp_ro_fueltotal_5"
+   ],
+   "synthetic:jiobp_mobility_rewards": [
+    "syn4_heldout4_jiobp_mobility_rewards_0",
+    "syn4_heldout4_jiobp_mobility_rewards_1",
+    "syn4_heldout4_jiobp_mobility_rewards_2",
+    "syn4_heldout4_jiobp_mobility_rewards_3",
+    "syn4_heldout4_jiobp_mobility_rewards_4",
+    "syn4_heldout4_jiobp_mobility_rewards_5"
+   ],
+   "synthetic:shell_retail_grade": [
+    "syn4_heldout4_shell_retail_grade_0",
+    "syn4_heldout4_shell_retail_grade_1",
+    "syn4_heldout4_shell_retail_grade_2",
+    "syn4_heldout4_shell_retail_grade_3",
+    "syn4_heldout4_shell_retail_grade_4",
+    "syn4_heldout4_shell_retail_grade_5"
+   ],
+   "synthetic:shell_select_loyalty": [
+    "syn4_heldout4_shell_select_loyalty_0",
+    "syn4_heldout4_shell_select_loyalty_1",
+    "syn4_heldout4_shell_select_loyalty_2",
+    "syn4_heldout4_shell_select_loyalty_3",
+    "syn4_heldout4_shell_select_loyalty_4",
+    "syn4_heldout4_shell_select_loyalty_5"
+   ],
+   "synthetic:independent_petrol_pump": [
+    "syn4_heldout4_independent_petrol_pump_0",
+    "syn4_heldout4_independent_petrol_pump_1",
+    "syn4_heldout4_independent_petrol_pump_2",
+    "syn4_heldout4_independent_petrol_pump_3",
+    "syn4_heldout4_independent_petrol_pump_4",
+    "syn4_heldout4_independent_petrol_pump_5"
+   ],
+   "synthetic:independent_ambiguous_date": [
+    "syn4_heldout4_independent_ambiguous_date_0",
+    "syn4_heldout4_independent_ambiguous_date_1",
+    "syn4_heldout4_independent_ambiguous_date_2",
+    "syn4_heldout4_independent_ambiguous_date_3",
+    "syn4_heldout4_independent_ambiguous_date_4",
+    "syn4_heldout4_independent_ambiguous_date_5"
+   ]
+  }
+ },
+ "sha256_of_annotations": "0acb2e09ce9dc7e2d7b3edcc29c6818fc17def9a83c9cc47bfa0cac7168fc34c"
+}

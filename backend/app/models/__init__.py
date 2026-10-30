@@ -5,7 +5,7 @@ from app.models.policy import PolicyMaster
 from app.models.expense_report import ExpenseReport, Expense
 from app.models.bill import Bill
 from app.models.trip import TripReport, Trip
-from app.models.validation import ValidationResult, ExceptionRecord, ExceptionVerification
+from app.models.validation import ValidationResult, ExceptionRecord, ExceptionVerification, ExceptionVerificationHistory
 from app.models.excel import ExcelReport
 from app.models.logs import ProcessingLog, AuditLog
 from app.models.evidence import SourceEvidence

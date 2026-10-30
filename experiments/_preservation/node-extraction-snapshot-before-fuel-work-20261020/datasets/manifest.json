@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-10-13T06:50:39.244Z",
+  "reportsCovered": [
+    {
+      "filename": "ER-39832.pdf",
+      "sha256": "3f9c8373634d05596546bf94dcc786457216e06a6377827cc95da8669486d86c",
+      "pageCount": 14,
+      "bytes": 2181810,
+      "role": "dev"
+    },
+    {
+      "filename": "ER-40223.pdf",
+      "sha256": "473aeef2254238d51fd8282040e2cfb8d79b8e9f44d9d3610687e15446c19bd3",
+      "pageCount": 21,
+      "bytes": 2113220,
+      "role": "heldout"
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "sha256": "1ad983690a97c6f8cb24f9c6121fe1ea8149e350f711e505227c7003cfcecfbd",
+      "pageCount": 26,
+      "bytes": 5452630,
+      "role": "dev"
+    },
+    {
+      "filename": "ER-40782.pdf",
+      "sha256": "96a787af4805a1645979f750653365bcc60d3f38381fa30e26ce376638c4cbfb",
+      "pageCount": 10,
+      "bytes": 1305576,
+      "role": "heldout"
+    },
+    {
+      "filename": "reahul-report-ER40513.pdf",
+      "sha256": "506d7dbf93834d40830ed92f9b4d087bda0d99d89a49a3d07697e34093625518",
+      "pageCount": 38,
+      "bytes": 8105932,
+      "role": "dev"
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "sha256": "f92b5b21cd721752892499ee39ae8d67869c748b993ab6b4c05a92bf08f3a36e",
+      "pageCount": 59,
+      "bytes": 6157493,
+      "role": "heldout"
+    }
+  ],
+  "knownButUnavailable": [
+    {
+      "name": "dipak report.pdf",
+      "note": "Named in the task's reference-PDF list but not found anywhere on disk (root, uat-data-test, or any other project directory) - genuinely unavailable, not substituted or fabricated."
+    }
+  ]
+}

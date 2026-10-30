@@ -1,0 +1,12 @@
+﻿{
+    "files":  {
+                  "src/labels.mjs":  "FD6D6206BE773E33CF0F7A50D167FCCE7AA0A0C4BD0F2DDCBC773F833C5FEA83",
+                  "src/scoring.mjs":  "CB59E25E1FC5C35BBDEDF771F3B6C9EA87C4504A64FB6F7FE6C3B5C73D528414",
+                  "src/ocr.mjs":  "7F306186298E3113D4FD1D7DCA472CC48935EDFFD3630E1106878774F600A2EA",
+                  "scripts/make_synthetic_fuel_heldout4.py":  "23B54605CCD657FC7375D4B8C95A119E726B61EC1044CB89918E59587AA84B47",
+                  "src/fuelExtractor.mjs":  "4B3B12262EADFAB295F09C6FB688D933AF66EAE4418232D2E4B2396849F18024",
+                  "src/png.mjs":  "5650618DAAC8CB4E39FE4271686FB68E3AE753212B99344E52879E7403348268"
+              },
+    "frozen_at":  "2026-10-22T10:43:45",
+    "statement":  "heldout4 images and labels existed, and the extractor/OCR/scoring code hashes below were recorded, BEFORE the final code was run on any heldout4 image. The set is touched exactly once (its first look). Anything changed in response to it makes it development data."
+}

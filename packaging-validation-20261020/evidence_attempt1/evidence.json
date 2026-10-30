@@ -1,0 +1,10 @@
+{
+  "steps": [],
+  "checks": {
+    "electron window loaded the backend-served app": {
+      "ok": false,
+      "detail": "no window reached 127.0.0.1"
+    }
+  },
+  "fixtures": {}
+}

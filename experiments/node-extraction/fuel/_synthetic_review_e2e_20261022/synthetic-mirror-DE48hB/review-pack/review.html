@@ -1,0 +1,260 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Fuel receipt label review (offline)</title>
+<style>
+body{font:14px system-ui,Segoe UI,Arial,sans-serif;margin:0;background:#f3f4f6;color:#111}
+header{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:5}
+header input[type=text]{padding:4px;width:170px}
+main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(360px,1fr);gap:12px;padding:12px}
+#imgwrap{background:#fff;border:1px solid #cbd5e1;overflow:auto;height:calc(100vh - 90px)}
+#imgwrap img{transform-origin:top left;max-width:none}
+form{background:#fff;border:1px solid #cbd5e1;padding:12px;overflow:auto;height:calc(100vh - 90px)}
+fieldset{margin:0 0 12px;border:1px solid #cbd5e1}legend{font-weight:600}
+label{display:block;margin:4px 0}input[type=text],input[type=number],input[type=date],select,textarea{width:100%;box-sizing:border-box;padding:4px}
+.warn{background:#fef3c7;border:1px solid #f59e0b;padding:6px;margin-bottom:8px}button{padding:6px 10px}
+.small{color:#475569;font-size:12px}
+.err{background:#fee2e2;border:1px solid #dc2626;color:#7f1d1d;padding:8px 12px;margin:8px 12px 0;white-space:pre-wrap}
+</style></head><body>
+<header>
+ <b>Fuel receipt label review</b>
+ <label>Reviewer ID <input type="text" id="rid" placeholder="employee id / name"></label>
+ <label><input type="checkbox" id="auth"> I am authorized by the company to view these receipts</label>
+ <span id="progress"></span>
+ <button id="prev" type="button">&larr; Prev</button><button id="next" type="button">Next &rarr;</button>
+ <button id="zoomIn" type="button">Zoom +</button><button id="zoomOut" type="button">Zoom -</button>
+ <button id="export" type="button">Export JSON</button>
+</header>
+<div id="errors" class="err" role="alert" hidden></div>
+<main>
+ <div id="imgwrap"><img id="img" alt="receipt"></div>
+ <form id="f" autocomplete="off">
+  <div class="warn">Read ONLY what is printed on this receipt image. Do not use any other document, the Expense Report, or a claim to decide a value. If you cannot read a field, mark it <b>illegible</b> - do not guess. Everything stays in this browser until you click Export; nothing is sent anywhere.</div>
+  <div class="small" id="meta"></div>
+  <fieldset><legend>1. Pump / station name</legend>
+   <label><input type="radio" name="p_status" value="read"> printed name (dealer / station) is legible</label>
+   <label><input type="radio" name="p_status" value="logo_only"> only the oil-company logo/wordmark identifies it (no dealer name printed)</label>
+   <label><input type="radio" name="p_status" value="not_printed"> no pump / brand name at all on the receipt</label>
+   <label><input type="radio" name="p_status" value="illegible"> illegible</label>
+   <label>Name as you would record it (dealer/station name preferred over the brand)<input type="text" id="p_value"></label>
+   <label>Exactly as printed (all header lines)<input type="text" id="p_printed"></label>
+   <label>Other acceptable forms (comma separated, e.g. brand + dealer)<input type="text" id="p_other"></label>
+  </fieldset>
+  <fieldset><legend>2. Transaction date (not the print date)</legend>
+   <label><input type="radio" name="d_status" value="read"> date is legible</label>
+   <label><input type="radio" name="d_status" value="illegible"> illegible / missing</label>
+   <label>Date exactly as printed<input type="text" id="d_printed"></label>
+   <label>Date as YYYY-MM-DD<input type="date" id="d_iso"></label>
+   <label><input type="checkbox" id="d_provable"> the day/month order is provable <b>from this receipt alone</b> (a component &gt; 12, a month name, ISO, an explicit format cue, ...)</label>
+   <label>How did you establish the order?
+    <select id="d_evidence"><option value="">-</option><option value="component_gt_12">a component is greater than 12</option><option value="month_name_or_iso">month name / ISO format</option><option value="format_cue_on_receipt">format cue printed on the receipt</option><option value="equal_components">day equals month</option><option value="month_in_bill_number">month printed in the bill number</option><option value="other_documents">other receipts / documents (NOT receipt-intrinsic)</option><option value="none">cannot establish</option></select></label>
+  </fieldset>
+  <fieldset><legend>3. Total amount paid for the fuel</legend>
+   <label><input type="radio" name="a_status" value="read"> amount is legible</label>
+   <label><input type="radio" name="a_status" value="illegible"> illegible</label>
+   <label>Amount exactly as printed<input type="text" id="a_printed"></label>
+   <label>Amount (number)<input type="number" id="a_value" step="0.01"></label>
+   <div class="small">The printed total of the fuel purchase. Not the rate per litre, litres, totaliser, preset value, points or balance.</div>
+  </fieldset>
+  <label>Notes (optional)<textarea id="notes" rows="2"></textarea></label>
+ </form>
+</main>
+<script id="rv">var ReviewValidation=(function(){
+// Validation of human-review submissions (the export written by the offline review tool, and overlay entries derived from it).
+// Pure functions, no I/O. The status vocabularies below are exactly the ones the review tool (scripts/build_review_pack.mjs -> review.html)
+// can emit; nothing is added. Messages name the receipt / field / rule only and NEVER echo a reviewer-supplied value.
+//
+// Reviewer identity: the reviewer id is SELF-ATTESTED text typed into the review tool. This module only checks that it is well formed and
+// gives a stable identity key so that one person cannot be counted as two reviewers. It does not (and cannot) prove who the person is, and
+// it does not consult label_policy.json `authorized_reviewers` (see verification/README.md, "What is NOT enforced").
+
+const REVIEWER_ID_MIN = 3;
+const REVIEWER_ID_MAX = 64;
+// ASCII only (no look-alike characters); starts and ends with a letter/digit; interior may contain space . _ @ - ; "+" is reserved as the separator
+// used when several reviewers are recorded on one label.
+const REVIEWER_ID_RE = /^[A-Za-z0-9][A-Za-z0-9 ._@-]*[A-Za-z0-9]$/;
+
+const PUMP_STATUSES = ["read", "logo_only", "not_printed", "illegible"];
+const DATE_STATUSES = ["read", "illegible"];
+const AMOUNT_STATUSES = ["read", "illegible"];
+// "order evidence" values offered by the review tool. Receipt-intrinsic evidence can support "order provable from this receipt alone".
+const INTRINSIC_ORDER_EVIDENCE = ["component_gt_12", "month_name_or_iso", "format_cue_on_receipt", "equal_components", "month_in_bill_number"];
+const NON_INTRINSIC_ORDER_EVIDENCE = ["other_documents", "none"];
+const DATE_YEAR_MIN = 1990, DATE_YEAR_MAX = 2100; // sanity bound only (catches e.g. "0026-09-24" typed into a date box); not derived from any clock
+const AMOUNT_MAX = 10_000_000;
+// Source types (corpus/annotations.json `source_type`) that may receive human-verified labels: the receipts the review pack offers
+// (build_review_pack.mjs) and that REPORT_PHASE2.md section 6 counts as awaiting verification (22 authentic + 1 suspected-template page);
+// intake receipts are `authentic` by their enforced provenance. `synthetic` and `generic_control` records carry construction truth and can never
+// be human-verified; any other or missing source type is NOT eligible (fail closed).
+const HUMAN_VERIFIABLE_SOURCE_TYPES = ["authentic", "suspected_template_generated"];
+const isHumanVerifiableSourceType = (t) => typeof t === "string" && HUMAN_VERIFIABLE_SOURCE_TYPES.includes(t);
+
+/** Trim and collapse internal whitespace. Returns the normalised id, or null if the input is not a well-formed reviewer id. */
+function normalizeReviewerId(raw) {
+  if (typeof raw !== "string") return null;
+  const id = raw.trim().replace(/\s+/g, " ");
+  if (id.length < REVIEWER_ID_MIN || id.length > REVIEWER_ID_MAX) return null;
+  return REVIEWER_ID_RE.test(id) ? id : null;
+}
+/** Identity key for "is this the same reviewer": case-insensitive on the normalised id. Distinct spellings stay distinct people. */
+const reviewerKey = (normalizedId) => normalizedId.toLowerCase();
+
+function validateReviewerId(raw) {
+  const id = normalizeReviewerId(raw);
+  if (id) return { ok: true, id, key: reviewerKey(id) };
+  return { ok: false, error: `reviewer_id must be ${REVIEWER_ID_MIN}-${REVIEWER_ID_MAX} characters of letters, digits, space . _ @ - (starting and ending with a letter or digit); it is self-attested text` };
+}
+/** Validate a stored (possibly composite "A+B") reviewer id, as written on a verified label. */
+function validateStoredReviewerId(raw) {
+  if (typeof raw !== "string") return false;
+  const parts = raw.split("+");
+  return parts.every((p) => normalizeReviewerId(p) === p) && new Set(parts.map(reviewerKey)).size === parts.length;
+}
+
+/** Strict real-calendar-date check for YYYY-MM-DD (leap years included). No other format is accepted. */
+function isRealIsoDate(s) {
+  if (typeof s !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const y = Number(s.slice(0, 4)), m = Number(s.slice(5, 7)), d = Number(s.slice(8, 10));
+  if (y < DATE_YEAR_MIN || y > DATE_YEAR_MAX || m < 1 || m > 12 || d < 1) return false;
+  const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  const dim = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+  return d <= dim;
+}
+
+const nonEmptyString = (v) => typeof v === "string" && v.trim().length > 0;
+const absent = (v) => v === null || v === undefined || (typeof v === "string" && v.trim() === "");
+const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
+
+/**
+ * Validate the three field objects of one reviewer entry (status vocabulary, value presence, value validity, status/value and
+ * provability/evidence consistency). Returns an array of problems ("pump_name: ..."); empty = valid.
+ */
+function validateReviewFields(e) {
+  const errs = [];
+  if (!isObj(e)) return ["entry is not an object"];
+  if (e.notes != null && typeof e.notes !== "string") errs.push("notes must be text");
+  // ---- pump_name
+  const p = e.pump_name;
+  if (!isObj(p)) errs.push("pump_name: missing");
+  else if (!PUMP_STATUSES.includes(p.status)) errs.push(`pump_name: unsupported status (allowed: ${PUMP_STATUSES.join(", ")})`);
+  else if (p.status === "read" || p.status === "logo_only") {
+    if (!nonEmptyString(p.value)) errs.push(`pump_name: status '${p.status}' requires a non-empty value`);
+    else if (p.value.length > 200) errs.push("pump_name: value is unreasonably long");
+    if (p.other_acceptable_forms !== undefined && !(Array.isArray(p.other_acceptable_forms) && p.other_acceptable_forms.every((x) => typeof x === "string" && x.length <= 200))) errs.push("pump_name: other_acceptable_forms must be a list of short strings");
+  } else if (!absent(p.value)) errs.push(`pump_name: status '${p.status}' contradicts a value being present (clear the value or choose 'read')`);
+  if (isObj(p) && p.printed_text != null && typeof p.printed_text !== "string") errs.push("pump_name: printed_text must be text");
+  // ---- transaction_date
+  const d = e.transaction_date;
+  if (!isObj(d)) errs.push("transaction_date: missing");
+  else if (!DATE_STATUSES.includes(d.status)) errs.push(`transaction_date: unsupported status (allowed: ${DATE_STATUSES.join(", ")})`);
+  else if (d.status === "read") {
+    if (!isRealIsoDate(d.iso_date)) errs.push(`transaction_date: iso_date must be a real calendar date written YYYY-MM-DD (years ${DATE_YEAR_MIN}-${DATE_YEAR_MAX})`);
+    if (typeof d.order_provable_from_receipt !== "boolean") errs.push("transaction_date: order_provable_from_receipt must be true or false");
+    const ev = d.order_evidence;
+    const known = [...INTRINSIC_ORDER_EVIDENCE, ...NON_INTRINSIC_ORDER_EVIDENCE];
+    if (!absent(ev) && !known.includes(ev)) errs.push("transaction_date: unsupported order_evidence");
+    else if (typeof d.order_provable_from_receipt === "boolean") {
+      if (d.order_provable_from_receipt === true && NON_INTRINSIC_ORDER_EVIDENCE.includes(ev)) errs.push(`transaction_date: order marked provable from the receipt but evidence is '${ev}'`);
+      if (d.order_provable_from_receipt === false && INTRINSIC_ORDER_EVIDENCE.includes(ev)) errs.push(`transaction_date: order marked NOT provable but receipt-intrinsic evidence '${ev}' is given`);
+    }
+    if (isRealIsoDate(d.iso_date)) {
+      const day = Number(d.iso_date.slice(8, 10)), month = Number(d.iso_date.slice(5, 7));
+      if (d.order_evidence === "component_gt_12" && !(day > 12)) errs.push("transaction_date: evidence 'component_gt_12' but the day is not greater than 12");
+      if (d.order_evidence === "equal_components" && day !== month) errs.push("transaction_date: evidence 'equal_components' but day and month differ");
+    }
+  } else if (!absent(d.iso_date)) errs.push("transaction_date: status 'illegible' contradicts a date being present (clear the date or choose 'read')");
+  if (isObj(d) && d.printed_text != null && typeof d.printed_text !== "string") errs.push("transaction_date: printed_text must be text");
+  // ---- total_amount
+  const a = e.total_amount;
+  if (!isObj(a)) errs.push("total_amount: missing");
+  else if (!AMOUNT_STATUSES.includes(a.status)) errs.push(`total_amount: unsupported status (allowed: ${AMOUNT_STATUSES.join(", ")})`);
+  else if (a.status === "read") {
+    const v = a.value;
+    if (typeof v !== "number" || !Number.isFinite(v)) errs.push("total_amount: status 'read' requires a numeric value");
+    else if (v <= 0 || v > AMOUNT_MAX) errs.push(`total_amount: value must be greater than 0 and at most ${AMOUNT_MAX}`);
+    else if (Math.abs(v * 100 - Math.round(v * 100)) > 1e-6) errs.push("total_amount: value has more than two decimal places");
+  } else if (!absent(a.value)) errs.push("total_amount: status 'illegible' contradicts a value being present (clear the value or choose 'read')");
+  if (isObj(a) && a.printed_text != null && typeof a.printed_text !== "string") errs.push("total_amount: printed_text must be text");
+  return errs;
+}
+
+/**
+ * The comparison key used to decide whether two reviewers AGREE. It covers every required field's status AND value, and the date's
+ * provability claim, so agreement on a subset of fields can never hide disagreement on another. Assumes validateReviewFields passed.
+ */
+function agreementKey(e) {
+  const fold = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return {
+    pump_name: { status: e.pump_name.status, value: fold(e.pump_name.value) },
+    transaction_date: { status: e.transaction_date.status, value: e.transaction_date.iso_date ?? null, order_provable_from_receipt: e.transaction_date.status === "read" ? e.transaction_date.order_provable_from_receipt : null },
+    total_amount: { status: e.total_amount.status, value: e.total_amount.value ?? null },
+  };
+}
+/**
+ * Everything the review tool does at "Export JSON", as a pure function (the page embeds this module's source, so the UI and
+ * apply_verification.mjs enforce literally the same rules). A receipt whose three statuses are not all chosen is "incomplete" (left out of the
+ * export, as before); a complete receipt that fails validation BLOCKS the whole export. Messages never contain receipt values.
+ * Returns { ok:false, errors, incomplete } or { ok:true, payload, incomplete }.
+ */
+function buildExportPayload({ items, state, reviewerId, authorizationConfirmed, packId, blind, exportedAt }) {
+  const errors = [], incomplete = [], records = {};
+  const rid = validateReviewerId(reviewerId);
+  if (!rid.ok) errors.push(rid.error);
+  if (authorizationConfirmed !== true) errors.push("tick the authorization box (only if you are authorized by the company to view these receipts)");
+  for (const it of items) {
+    const r = state && state[it.id];
+    const complete = r && r.pump_name && r.pump_name.status && r.transaction_date && r.transaction_date.status && r.total_amount && r.total_amount.status;
+    if (!complete) { incomplete.push(it.id); continue; }
+    const problems = validateReviewFields(r);
+    if (problems.length) for (const p of problems) errors.push(`receipt ${it.id}: ${p}`);
+    else records[it.id] = r;
+  }
+  if (!errors.length && !Object.keys(records).length) errors.push("no complete receipt to export (choose a status for all three fields of at least one receipt)");
+  if (errors.length) return { ok: false, errors, incomplete };
+  return { ok: true, incomplete, payload: { schema: "fuel-review-export/v1", pack_id: packId, reviewer_id: rid.id, authorization_confirmed: true, exported_at: exportedAt, blind, records } };
+}
+const fieldsInDisagreement =(x, y) => ["pump_name", "transaction_date", "total_amount"].filter((f) => JSON.stringify(agreementKey(x)[f]) !== JSON.stringify(agreementKey(y)[f]));
+
+return {REVIEWER_ID_MIN,REVIEWER_ID_MAX,PUMP_STATUSES,DATE_STATUSES,AMOUNT_STATUSES,INTRINSIC_ORDER_EVIDENCE,NON_INTRINSIC_ORDER_EVIDENCE,DATE_YEAR_MIN,AMOUNT_MAX,HUMAN_VERIFIABLE_SOURCE_TYPES,isHumanVerifiableSourceType,normalizeReviewerId,reviewerKey,validateReviewerId,validateStoredReviewerId,isRealIsoDate,validateReviewFields,agreementKey,buildExportPayload,fieldsInDisagreement};
+})();</script>
+<script src="manifest.js"></script>
+<script>
+(function(){
+ var M=window.REVIEW_MANIFEST, KEY='fuel-review-state-v1-'+M.pack_id, i=0, zoom=1;
+ var S={}; try{S=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+ var $=function(id){return document.getElementById(id)};
+ function val(n){var e=document.querySelector('input[name='+n+']:checked');return e?e.value:null}
+ function setRadio(n,v){document.querySelectorAll('input[name='+n+']').forEach(function(e){e.checked=(e.value===v)})}
+ function read(){return {
+  pump_name:{status:val('p_status'),value:$('p_value').value.trim()||null,printed_text:$('p_printed').value.trim()||null,other_acceptable_forms:$('p_other').value.split(',').map(function(x){return x.trim()}).filter(Boolean)},
+  transaction_date:{status:val('d_status'),printed_text:$('d_printed').value.trim()||null,iso_date:$('d_iso').value||null,order_provable_from_receipt:$('d_provable').checked,order_evidence:$('d_evidence').value||null},
+  total_amount:{status:val('a_status'),printed_text:$('a_printed').value.trim()||null,value:$('a_value').value===''?null:Number($('a_value').value)},
+  notes:$('notes').value.trim()||null}}
+ function write(r){r=r||{};var p=r.pump_name||{},d=r.transaction_date||{},a=r.total_amount||{};
+  setRadio('p_status',p.status||null);$('p_value').value=p.value||'';$('p_printed').value=p.printed_text||'';$('p_other').value=(p.other_acceptable_forms||[]).join(', ');
+  setRadio('d_status',d.status||null);$('d_printed').value=d.printed_text||'';$('d_iso').value=d.iso_date||'';$('d_provable').checked=!!d.order_provable_from_receipt;$('d_evidence').value=d.order_evidence||'';
+  setRadio('a_status',a.status||null);$('a_printed').value=a.printed_text||'';$('a_value').value=(a.value==null?'':a.value);$('notes').value=r.notes||''}
+ function save(){S[M.items[i].id]=read();localStorage.setItem(KEY,JSON.stringify(S));progress()}
+ function progress(){var done=M.items.filter(function(it){var r=S[it.id];return r&&r.pump_name.status&&r.transaction_date.status&&r.total_amount.status}).length;$('progress').textContent=(i+1)+' / '+M.items.length+'  (complete: '+done+')'}
+ function show(){var it=M.items[i];$('img').src=it.image;$('img').style.transform='scale('+zoom+')';write(S[it.id]);progress();
+  $('meta').textContent='Receipt '+it.id+(M.blind?'  (blind: provisional labels hidden)':'  PROVISIONAL labels shown: '+JSON.stringify(it.provisional))}
+ // Choosing "illegible" / "not printed" clears that field's value immediately (a status and a value must never contradict each other);
+ // the printed-text box is kept. Then the state is saved, so what is on screen is exactly what is stored and exported.
+ var CLEARS={p_status:['illegible','not_printed'],d_status:['illegible'],a_status:['illegible']};
+ function clearValues(name){
+  if(name==='p_status'){$('p_value').value='';$('p_other').value=''}
+  if(name==='d_status'){$('d_iso').value='';$('d_provable').checked=false;$('d_evidence').value=''}
+  if(name==='a_status'){$('a_value').value=''}}
+ function onEdit(ev){var t=ev.target;
+  if(t&&t.type==='radio'&&t.checked&&CLEARS[t.name]&&CLEARS[t.name].indexOf(t.value)>=0)clearValues(t.name);
+  save()}
+ document.getElementById('f').addEventListener('input',onEdit);document.getElementById('f').addEventListener('change',onEdit);
+ $('prev').onclick=function(){save();if(i>0){i--;show()}};$('next').onclick=function(){save();if(i<M.items.length-1){i++;show()}};
+ $('zoomIn').onclick=function(){zoom=Math.min(4,zoom+0.25);show()};$('zoomOut').onclick=function(){zoom=Math.max(0.25,zoom-0.25);show()};
+ // Export is validated with the same rules apply_verification.mjs enforces (embedded copy of src/reviewValidation.mjs). An invalid export is never downloaded.
+ $('export').onclick=function(){save();var box=$('errors');box.hidden=true;box.textContent='';
+  var res=ReviewValidation.buildExportPayload({items:M.items,state:S,reviewerId:$('rid').value,authorizationConfirmed:$('auth').checked,packId:M.pack_id,blind:M.blind,exportedAt:new Date().toISOString()});
+  if(!res.ok){box.textContent='Export blocked - fix these first:\n'+res.errors.slice(0,15).join('\n')+(res.errors.length>15?'\n... and '+(res.errors.length-15)+' more':'');box.hidden=false;return}
+  if(res.incomplete.length&&!confirm(res.incomplete.length+' receipt(s) are incomplete and will be exported WITHOUT verification:\n'+res.incomplete.slice(0,10).join('\n')+'\nExport anyway?'))return;
+  var blob=new Blob([JSON.stringify(res.payload,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fuel-review-'+M.pack_id+'-'+res.payload.reviewer_id.replace(/[^A-Za-z0-9_-]/g,'_')+'.json';a.click()};
+ show();
+})();
+</script></body></html>

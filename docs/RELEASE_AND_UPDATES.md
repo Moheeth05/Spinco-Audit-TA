@@ -178,6 +178,403 @@ build's start) together make that class of mistake structurally impossible:
 there is no artifact left over to accidentally ship, and if one somehow were,
 the build itself would refuse to report success.
 
+## Pre-release check: stale catering / room-service-food evidence
+
+Extraction stores catering and lodging room-service/food evidence on each
+`bills` row when the bill is extracted, from the bill's FULL text:
+`catering_amount`, `catering_mentioned`, `room_service_food_amount`,
+`room_service_food_mentioned` (`models/bill.py`, `category_map.resolve_*`).
+The detectors that write those values changed several times during
+development (first-row-only room-service reading, tax rows read as the food
+charge, an unrelated amount on the same or the next line read as catering,
+`₹ 357.00` on its own line not read, and others). A stored value is trusted
+over a fresh read of the capped `raw_text` for room-service/food whenever the
+row carries the mention flag (a stored `NULL` amount is final) and for catering
+when `raw_text` is at its 2,000-character cap or the current detector finds no
+amount. **A report extracted by an older detector can therefore keep a stale
+stored amount**, which can cause a wrong exclusion from the amount comparison,
+a false AMOUNT MISMATCH, or a wrong amount in a review item.
+
+### Status: exposure is UNKNOWN
+
+- **No affected real database has been confirmed, and no real database has
+  been checked for this issue. Exposure remains unknown: do not treat any
+  database as safe, or as affected, on this page's word.** Nothing the
+  repository's own files show points to an affected database, but that is not
+  proof: other machines, copies, and installed builds' per-user data folders
+  have not been checked.
+- This is not a reason to run anything automatically (see "No automatic
+  recovery"). It is a reason for each database owner to check their own data
+  with the procedure below before a release, with the owner's authorization.
+
+### 1. Is a database a candidate at all?
+
+Everything in this step is read-only and must be done on a **verified backup
+copy** (section 4), never on the live database.
+
+1. Look at the `bills` table's columns (`PRAGMA table_info(bills);`).
+2. **If neither `catering_mentioned` nor `room_service_food_mentioned` exists**,
+   the database has not been migrated by code that stores this evidence. There
+   is nothing of this kind to recover. Stop here.
+3. **If both exist**, list the candidate reports:
+
+   ```sql
+   SELECT DISTINCT expense_report_id
+   FROM bills
+   WHERE catering_mentioned IS NOT NULL OR room_service_food_mentioned IS NOT NULL;
+   ```
+
+   Rows where both flags are `NULL` are legacy rows (extracted before the
+   columns existed): the current detector runs on their `raw_text`, so they are
+   not affected. A stored `0` / `False` is not `NULL` and still counts.
+4. If only one of the two flag columns exists, the migration was incomplete:
+   query only the column that exists, and escalate to the database owner.
+
+This identifies **candidate records, not proven wrong amounts**: a candidate's
+stored values may well be correct. It only says the evidence was written by code
+that has these columns. It cannot tell an old detector's output from the current
+detector's. (`document_id` values in the API look like `expense:<id>`.)
+
+### 2. Recovery route and why it is not yet authorized
+
+The intended recovery route is, one report at a time,
+`POST /api/documents/{document_id}/rematch-bills`. It needs an authenticated
+Auditor or Admin session and a CSRF token; **there is no button for it in the
+UI**. It must not be run against any real database until the database owner
+authorizes it and the failure modes below are understood.
+
+- **The UI's "Reprocess" button is NOT the same operation.** It calls the full
+  `POST /api/documents/{document_id}/reprocess`, which re-extracts the whole
+  report and deletes and recreates its expense rows (new expense ids). **Do not
+  use full reprocess as an alternative for this purpose.**
+- **Full reprocess and manual verifications.** Manual verifications are keyed by
+  `expense_id`, and a full reprocess gives the report's claims new expense ids.
+  Before this was fixed, a disposable-database test (a second report loaded so
+  SQLite could not reuse the freed ids) showed the verification staying on the OLD
+  id and the regenerated exception coming back unresolved. A full reprocess now
+  carries a verification forward (`extraction/verification_carryover.py`) only
+  when the same claim is confidently matched: the same `s_no`, and an equal date,
+  normalized category and claimed amount, on both the old and the new row, in the
+  same report. The verification row itself is kept (same id, verifier, time, note,
+  original severity and reason); only its expense id is updated, and a
+  `VERIFICATION_CARRIED_OVER` audit event records old and new ids. In every other
+  case (a changed or missing fact, no row with that `s_no`, an ambiguous match)
+  the verification is left exactly as it was, the regenerated claim comes back
+  open for an auditor, and a `VERIFICATION_NOT_CARRIED_OVER` audit event gives the
+  reason and the old claim's facts. **Limits:** verifications already stranded by
+  an earlier reprocess, before this fix, are not repaired (the old claim's facts
+  no longer exist to match against), and real-database exposure remains unknown.
+  This is a code fix, not a reason to use full reprocess for this purpose: it
+  re-extracts the whole report, and `rematch-bills` stays the intended route.
+  A carried-over verification is then re-applied only while the evidence behind
+  the exception is unchanged (see "Manual verifications after an upgrade").
+- **`rematch-bills` keeps the expense rows** (so verifications keep their expense
+  ids) and, in the same disposable test, replaced the stale evidence and the
+  wrong exceptions without touching a second report. Known failure modes:
+  1. **The old bills are deleted and committed before re-extraction begins.** A
+     crash, kill or error afterwards leaves the report with no bills and its
+     claims pointing at bills that no longer exist. (A separate disposable-database
+     test, `test_backup_simulated_failure_after_the_deletion_commit_and_restore`,
+     simulates this failure by calling the extraction pipeline function directly,
+     not through the API route.) The only recovery is the verified backup. Never
+     interrupt a running request.
+  2. **Validation, exception evaluation and workbook errors are swallowed** by
+     the route. A successful HTTP response is NOT proof the recovery worked.
+  3. It re-reads the stored PDF (re-running OCR on scanned pages), so it can be
+     slow; a missing PDF returns 404 before anything is deleted.
+
+### 3. Who must authorize, and when to stop
+
+- The owner of the database (not the person running the release) must authorize
+  the backup, the candidate query and each reprocessing request.
+- Work on one report at a time. After each one, run the checks in section 5
+  before starting the next.
+- **If anything fails or looks wrong, stop.** Do not repeat the request, do not
+  try the other reprocessing route, and do not edit the database by hand.
+  Restore from the backup (section 4) and escalate.
+
+### 4. Backup, verification and restore
+
+Locations (from the source; do not guess others):
+
+| | Dev (running from the repository) | Packaged app |
+|---|---|---|
+| Database | `backend\spinco_ta.db`, unless `SPINCO_DB_PATH` is set | `<userData>\database\spinco_ta.db` |
+| Documents | `storage\` at the repository root, unless `SPINCO_STORAGE_ROOT` is set: `expense_reports\`, `trip_reports\`, `excel\` | `<userData>\documents\`: `expense_reports\`, `trip_reports\`, `excel\` |
+| Workbook | `<documents>\excel\Spinco_TA_Audit_Consolidated.xlsx` | same, under `<userData>\documents\excel\` |
+| Backend log | **unverified:** the source does not say where a dev backend's output goes; use wherever that process writes it | `<userData>\logs\backend.log` |
+
+`<userData>` is Electron's per-user data folder on that machine, or the folder
+passed with `--user-data-dir` (as `uat-launch.bat` does). This page does not
+name it; confirm it on the machine itself.
+
+Before any recovery:
+
+1. **Get the database owner's authorization.**
+2. **Stop the application and its backend completely.** SQLite uses its default
+   rollback journal here (no WAL is configured in `database.py`), so a file copy
+   is only consistent when nothing is writing. If a `spinco_ta.db-journal` file
+   sits next to the database after everything is stopped, an earlier write was
+   interrupted: do not proceed, escalate.
+3. **Copy, to a folder outside the repository and outside `<userData>`:** the
+   database file, the whole documents folder (`expense_reports`, `trip_reports`
+   and the `excel` workbook, which the route regenerates and overwrites).
+4. **Record the size and SHA-256 of every copied file next to the source's, and
+   verify they are identical** (this repository's convention: a full file copy,
+   hash-verified, outside the source directory; see
+   `CENTRALIZED_ARCHITECTURE.md` section 22 and `ORPHAN_RECORD_INVESTIGATION.md`):
+
+   ```powershell
+   Get-FileHash -Algorithm SHA256 "<live db>", "<backup db>"
+   (Get-Item "<live db>").Length, (Get-Item "<backup db>").Length
+   ```
+5. **Run the integrity check on the backup copy** and require `ok`:
+
+   ```powershell
+   python -c "import sqlite3,sys; print(sqlite3.connect(sys.argv[1]).execute('PRAGMA integrity_check').fetchone()[0])" "<backup db>"
+   ```
+6. Write down, from the backup copy, per candidate report: the number of bills
+   and expenses, each bill's `amount` and four evidence columns, each expense id,
+   and the rows of `exception_verifications`. This is the "before" record for
+   section 5. Do not start until the backup is verified.
+
+Restore (if a recovery step fails or the checks in section 5 do not pass):
+
+1. Stop the application and backend again.
+2. **Keep the damaged files**: move them aside to a separate folder for
+   investigation. Do not delete them.
+3. Copy the backed-up database back to the live location, and the backed-up
+   documents folder (including `excel`) back to the live documents location.
+4. Verify the restored database's SHA-256 and size equal the recorded values and
+   that `PRAGMA integrity_check` returns `ok`.
+5. Start the application and repeat the "before" record from section 4 step 6:
+   every count, amount, evidence column, expense id and verification must equal
+   the recorded values.
+6. **Escalate** with the kept damaged files. Do not retry recovery until the
+   cause is understood.
+
+### 5. After each recovery step, verify
+
+An audit-log entry proves only that the request was received. **It does not
+prove the recovery succeeded.** Check all of the following against the "before"
+record, on the live data only after authorization:
+
+- **Records:** the report has the expected bills (their ids are expected to be
+  new) and the SAME expense ids as before.
+- **Evidence:** each bill's `amount`, `catering_amount`, `catering_mentioned`,
+  `room_service_food_amount` and `room_service_food_mentioned` are what the
+  folio or ticket actually shows. A mention flag that was set should still be
+  set when an amount cannot be read (amount `NULL`, flag `1`).
+- **Exceptions:** the report's exceptions and review items are the expected ones
+  (for example no AMOUNT MISMATCH that was only caused by a stale amount, and any
+  catering or room-service/food review item shows the correct amount).
+- **Manual verifications:** every row of `exception_verifications` for the report
+  still points at an expense that exists, and the verified items are still
+  resolved:
+
+  ```sql
+  SELECT v.id, v.expense_id FROM exception_verifications v
+  LEFT JOIN expenses e ON e.id = v.expense_id
+  WHERE v.expense_report_id = <id> AND v.expense_id IS NOT NULL AND e.id IS NULL;
+  ```
+
+  must return no rows.
+- **Orphans:** must return `0`:
+
+  ```sql
+  SELECT COUNT(*) FROM bill_match_candidates
+  WHERE bill_id NOT IN (SELECT id FROM bills) OR expense_id NOT IN (SELECT id FROM expenses);
+  ```
+- **Workbook:** the consolidated workbook was regenerated (its modified time
+  moved) and its rows for the report agree with the application. The route
+  ignores workbook errors, so look at the file.
+- **Errors and audit:** read the backend log for errors during the request, and
+  confirm a `BILL_REMATCHED` entry exists for the document in `audit_logs`.
+  Neither of these replaces the checks above.
+
+### 6. No automatic recovery
+
+Nothing in the application reprocesses, migrates or repairs these rows by
+itself, and none is planned here. No schema, resolver or endpoint change is made
+for this check. It does not apply to a clean database or to disposable test
+databases.
+
+The rehearsal tests in `backend/tests/test_stale_evidence_recovery.py` exercise
+this procedure on synthetic documents and throw-away databases only (stale
+evidence repaired by `rematch-bills`, the full-reprocess behaviour above, a
+backup / simulated mid-run failure / restore cycle, and the candidate query on
+migrated, legacy and partially migrated schemas). They are evidence about the
+code, not about any real database.
+
+## Manual verifications after an upgrade
+
+A manual verification ("Verify" on an exception or review item) is stored in
+`exception_verifications`. Since the evidence-signature change, an approval is
+re-applied (the exception shows RESOLVED, the expense VERIFIED) only while the
+evidence it was given on is unchanged.
+
+### What the signature compares
+
+`exception_verifications.evidence_signature` is a SHA-256 hex digest of the typed
+fields of the validation rows behind the exception: `check_type`, `result`,
+`claimed_amount`, `bill_amount`, `policy_limit`, `expense_date`, `bill_date` and
+`source_page`. Amounts are normalized to two decimals and dates to ISO, the rows
+are sorted, and neither the wording (`remarks`) nor row ids are included. For a
+review family such as BILL MATCH REVIEW REQUIRED the signature covers every row of
+that family for the expense (for example Bill Amount, Bill Date and Category
+Consistency together), and nothing from other families or from passing rows.
+
+### What happens when the evidence changed
+
+The verification row is kept exactly as it was (it is history, not deleted). The
+exception comes back OPEN, so the expense is not VERIFIED and the report cannot
+become ACCOUNT VERIFIED on its account, and this text is appended to its reason:
+
+`[A previous manual verification no longer applies because the evidence changed; re-verify.]`
+
+The suffix is rebuilt on every evaluation (it never repeats) and the reason is
+capped at 1000 characters. For a BILL MATCH or TRIP MATCH REVIEW REQUIRED item the
+expense's `bill_match_status` / `trip_match_status` is also taken back from MATCHED
+to REVIEW_REQUIRED and the "Manually verified by auditor" prefix is removed from the
+matching `..._match_reasons`, but only when that status was set by the manual
+verification itself. A match the matcher confirmed is never changed. **Limit:** the
+status before the approval is not stored, so a former MULTIPLE_CANDIDATES comes back
+as REVIEW_REQUIRED (still unconfirmed; analytics and the workbook count it under
+REVIEW_REQUIRED until matching is next re-run). Re-verifying updates the same row
+(same id) with the current evidence and signature, and replaces the stored note only
+if a new one is given; the replaced state is first kept in
+`exception_verification_history` (below).
+
+**Limit (MULTIPLE_CANDIDATES bill matches):** for such a claim the approval's flip to
+MATCHED changes the Required Document Check from REVIEW_REQUIRED to PASS, so the next
+real revalidation produces a BILL MATCH family with one row fewer. Its signature then
+differs and the approval is (safely) not applied: the item shows OPEN with the note
+above and the status is restored as REVIEW_REQUIRED. It does not flap, and a second
+approval, given on rows that no longer depend on the flip, stays applied. Auditors
+approving a MULTIPLE_CANDIDATES bill match should expect to confirm it once more
+after the next revalidation. A REVIEW_REQUIRED bill match and a trip match (either
+status) are stable across revalidation.
+
+**A manual BILL MATCH approval never switches off a Shared Bill review.** The approval
+flips `bill_match_status` to MATCHED but never sets the confirmed bill (`bill_id`);
+validation treats "MATCHED without a confirmed bill" as unconfirmed when deciding
+whether the separate Shared Bill review (`DUPLICATE BILL REVIEW REQUIRED`) applies, so
+that review stays OPEN until it is verified on its own. A match the matcher confirmed
+is unchanged: it is judged by the Duplicate Bill Check, as before.
+
+### Upgrading an existing database
+
+Startup adds the nullable `evidence_signature` column additively and changes no
+row. Every approval made before this change is therefore **unsigned**. An unsigned
+approval is applied only if its stored `original_reason` equals the exception's
+current reason; when it is applied it is stamped with the current signature. If
+the reason differs it is not applied and stays unsigned (and OPEN with the note
+above) until an auditor verifies it again. Unsigned rows compare wording only.
+
+Checks (read-only, run on a verified backup or with the owner's authorization):
+
+```sql
+SELECT COUNT(*) FROM exception_verifications WHERE evidence_signature IS NULL;
+
+SELECT id, expense_report_id, expense_id, exception_type FROM exceptions
+WHERE reason LIKE '%A previous manual verification no longer applies because the evidence changed; re-verify.%';
+```
+
+Before a release, compare the remark wording of the existing approvals in
+`exception_verifications.original_reason` with the current reasons of the same
+items. Wording that changed between versions makes an unsigned approval come back
+open once. That is intended and safe, but the auditors should expect it.
+
+### Limits of what the signature can see
+
+- Shared Bill, Duplicate Bill and Payment Status reviews carry only `source_page`
+  as typed evidence, so a change in the underlying bill is not detected by the
+  signature for those types.
+- Total Mismatch types only the extracted sum.
+- Evidence that exists only in the remark text (not in a typed field) is not
+  compared for signed approvals.
+- Unsigned approvals compare the reason text only (above).
+
+### Audit trail and notes
+
+New `EXCEPTION_VERIFIED` audit events record the exception type, expense and
+report ids, and `; note recorded` when a note was supplied. **They do not contain
+the note text.** The note is kept on `exception_verifications.verification_note`
+and is returned by the exceptions API (`verification_note`). Audit rows written
+before this change are not migrated, rewritten or deleted, so **historical audit
+rows still contain the notes they were written with.** Treat the audit log
+accordingly.
+
+### Verification history
+
+When an auditor explicitly re-verifies an item that already has a verification, the
+route first writes the superseded state to `exception_verification_history`, in the
+same transaction as the update (a failed re-verification leaves no history row and an
+unchanged verification). The live `exception_verifications` row keeps its id. A history
+row holds: `verification_id` (the live row), the report / expense / exception type,
+the superseded `original_severity`, `original_reason`, `evidence_signature`,
+`verified_by_id`, `verified_at` and `verification_note`, plus `superseded_at` and
+`superseded_by_id`. A re-verification with a blank note keeps the live note (as before)
+and still writes a history row, because the other metadata is replaced. The first
+verification writes none.
+
+- **Access:** the table is append-only and written only by the verify route (which
+  needs the manual-correction permission) and by report deletion (below). **No API
+  endpoint reads it**; it is read with a database query by the database owner. It is not
+  part of any API response, and existing rows are never rewritten by evaluation,
+  reprocess or startup.
+- **Migration:** nothing to run. Startup's `create_all()` creates the table on a
+  database that lacks it, and leaves an existing table and its rows alone.
+- **Deleting a report.** A live verification is keyed by (report id, expense id,
+  exception type) and SQLite reuses freed ids, so a live verification left behind by
+  a deleted report could be applied to a later report that receives the same ids. When
+  a report is deleted its live verifications (expense-level and report-level) are
+  therefore removed, and each one's last state is first written to the history table,
+  in the same transaction as the deletion (a failed deletion changes nothing, and a
+  retry retires each verification once). The `DOCUMENT_DELETED` audit event lists
+  `retired_verification_ids=[...]` and never a note. Nothing relies on id uniqueness.
+  Existing history rows are never changed. **Limits:** verifications orphaned by a
+  report deleted BEFORE this change are not repaired; the history columns
+  `verification_id` and `expense_report_id` are plain copies (not foreign keys, because
+  the live row may be gone) and, with ids reused, identify a live row only at the time
+  of `superseded_at` - compare timestamps, not ids, across a deletion. A deleted
+  report's derived rows (`exceptions`, `validation_results`, `processing_logs`,
+  `source_evidence`) are still not removed (as before). Validation and evaluation
+  replace a report's `validation_results` and `exceptions` wholesale, so a report that
+  reuses the id stops showing them at its first validation and evaluation; until then
+  the exceptions API can show the old report's rows, including any RESOLVED one with
+  its note. They are display copies: no approval is applied from them.
+- **Check:**
+
+  ```sql
+  SELECT verification_id, verified_at, superseded_at, verification_note
+  FROM exception_verification_history ORDER BY verification_id, id;
+
+  -- live verifications left behind by a report deleted BEFORE this change (should be 0):
+  SELECT v.id, v.expense_report_id, v.expense_id, v.exception_type
+  FROM exception_verifications v
+  LEFT JOIN expense_reports r ON r.id = v.expense_report_id
+  WHERE r.id IS NULL;
+
+  -- the case the query above cannot see: the deleted report's id was REUSED by a newer
+  -- report, so the row now joins to it. An approval cannot predate the report it was
+  -- made on, so an approval older than its report's upload was inherited (should be 0):
+  SELECT v.id, v.expense_report_id, v.expense_id, v.exception_type, v.verified_at, r.uploaded_at
+  FROM exception_verifications v
+  JOIN expense_reports r ON r.id = v.expense_report_id
+  WHERE v.verified_at < r.uploaded_at;
+  ```
+
+  Both are read-only `SELECT`s. The first finds only verifications whose report row is
+  gone; it does not find one that has since been attached to a reused id (the second
+  query), nor one whose expense is gone while its report exists (the "Manual
+  verifications" query in section 5 above). Neither repairs anything. Remediation of
+  any rows they return is a separate step that needs the database owner's
+  authorization and a verified backup.
+
+- **Limit:** verifications replaced before this table existed have no history; their
+  earlier notes remain only in the historical audit rows.
+
 ## Release traceability
 
 Every build's `electron/generated/build-info.json` (packaged as

@@ -1,0 +1,53 @@
+﻿launched wrapper pid 12384 at 2026-10-20T15:33:16
+devtools port up: True
+  PASS  electron window loaded the backend-served app  http://127.0.0.1:58732/
+  PASS  app data lives in the disposable user-data folder  D:\Bills\packaging-validation-20261020\userdata
+  PASS  real %APPDATA%\Spinco TA Audit untouched (before uploads)  baseline=135 now=135 changed=0 added=0
+  PASS  backend health check  200
+  PASS  login works through the real UI  
+  PASS  upload request returns promptly (background processing)  16.0s, HTTP 200, 10 files
+  PASS  every uploaded file became an Expense Report record  ['ER-39832', 'pf_ambiguous_date', 'pf_duplicate_screenshot', 'pf_flight_vs_lodging', 'pf_ocr_pages', 'pf_repeated_amounts', 'pf_same_day_times', 'pf_shared_bill', 'pf_unreadable_amount', 'pf_upi_status']
+  PASS  background processing reached a terminal state for every document  {'ER-39832': 'EXTRACTED', 'pf_same_day_times': 'EXTRACTED', 'pf_ocr_pages': 'EXTRACTED', 'pf_upi_status': 'EXTRACTED', 'pf_flight_vs_lodging': 'EXTRACTED', 'pf_duplicate_screenshot': 'EXTRACTED', 'pf_repeated_amounts': 'EXTRACTED', 'pf_shared_bill': 'EXTRACTED', 'pf_unreadable_amount': 'EXTRACTED', 'pf_ambiguous_date': 'EXTRACTED'} after 45s
+  PASS  ambiguous date: kept unresolved with both candidates and the raw string  [('02/07/2026', '2026-07-02|2026-02-07', None)]
+  PASS  ambiguous date: claim goes to review, not verified, no false DATE MISMATCH  {'match': 'MATCHED', 'valid': 'REVIEW_REQUIRED', 'claimed': 275.0, 'date': '2026-07-02', 'exc': ['BILL MATCH REVIEW REQUIRED[REV]'], 'reasons': "The bill's date '02/07/2026' is ambiguous (2026-07-02 or 2026-02-07) and nothing in this report establishes its day/month order. One reading equals the claimed date 2026-07-02, but that coincidence is not evidence of the order, so the date is not treated as matching."}
+  PASS  ambiguous date: review text says the coincidence is not evidence  The bill's date '02/07/2026' is ambiguous (2026-07-02 or 2026-02-07) and nothing in this report establishes its day/month order. One reading equals the claimed 
+  PASS  unreadable amount: candidate only - not MATCHED, not verified  REVIEW_REQUIRED/REVIEW_REQUIRED
+  PASS  unreadable amount: raises a visible review item naming the amount  The matched bill's amount could not be reliably extracted.
+  PASS  unreadable amount: a readable bill in the same report still verifies (control)  MATCHED/PASS
+  PASS  shared bill: no competing claim is verified  [(1, 'REVIEW_REQUIRED'), (2, 'REVIEW_REQUIRED'), (3, 'REVIEW_REQUIRED')]
+  PASS  shared bill: reuse stays visible on every claim  [(1, ['DUPLICATE BILL REVIEW REQUIRED[REV]']), (2, ['DUPLICATE BILL REVIEW REQUIRED[REV]']), (3, ['DUPLICATE BILL REVIEW REQUIRED[REV]'])]
+  PASS  repeated amounts on different dates: each claim verified by its own bill, none flagged duplicate  [(1, 'MATCHED', 'PASS', []), (2, 'MATCHED', 'PASS', []), (3, 'MATCHED', 'PASS', [])]
+  PASS  reused screenshot: first claim verified once  MATCHED/PASS
+  PASS  reused screenshot: second claim flagged as duplicate and not verified  {'match': 'MATCHED', 'valid': 'EXCEPTION', 'claimed': 67.0, 'date': '2026-07-24', 'exc': ['DUPLICATE BILL[EXC]'], 'reasons': "This bill (page 2) is already matched to S.No 1 (claimed Rs.67.00, date 24/07/2026), which is treated as the original claim; this expense's claim on the same bill is the duplicate."}
+  PASS  flight claimed as lodging: CATEGORY MISMATCH, claim category unchanged  {'match': 'MATCHED', 'valid': 'EXCEPTION', 'claimed': 4797.0, 'date': '2026-07-19', 'exc': ['CATEGORY MISMATCH[EXC]'], 'reasons': 'Supporting bill does not appear consistent with the claimed expense category: claimed LODGING (expects Lodging evidence), but the bill on page 2 reads as Flight evidence.'}
+  PASS  flight claimed as lodging: expense category not rewritten  
+  PASS  UPI: completed payment verifies; pending and failed never do  [(1, 'PASS'), (2, 'REVIEW_REQUIRED'), (3, 'REVIEW_REQUIRED')]
+  PASS  UPI: status, time and reference were read  [(2, 180.0, 'COMPLETED', '10:05', '198126703388'), (4, 260.0, 'PENDING', '11:15', '542933198378'), (6, 340.0, 'FAILED', '09:50', '905224284857')]
+  PASS  same amount and day, different times: two separate payments, both verified, no duplicate  [(1, 'MATCHED', 'PASS', []), (2, 'MATCHED', 'PASS', [])]
+  PASS  packaged OCR: picture-only receipts are read and verify both claims  [(1, 'MATCHED', 'PASS'), (2, 'MATCHED', 'PASS')]; bills=[(2, 245.0, '2026-07-14'), (4, 390.0, '2026-07-16')]
+  PASS  approved ER-39832: OCR produced bills with readable amounts  12 bills / 9 with amount
+  PASS  approved ER-39832: no DUPLICATE BILL false positive  
+  PASS  approved ER-39832: S.No 9 owns its exact-date bill; S.No 5 is not given it  S9=MATCHED S5=REVIEW_REQUIRED
+  PASS  UI shared-bill report: Exceptions tab count equals canonical  tab=0 canonical=0
+  PASS  UI shared-bill report: Review Required tab count equals canonical  tab=3 canonical=3
+  PASS  UI shared-bill report: Exception tab lists only exception records  0 rows vs 0 api
+  FAIL  UI shared-bill report: Exception scroll container present  no table (empty tab)
+  PASS  UI shared-bill report: Review Required tab lists only review required records  3 rows vs 3 api
+  PASS  UI shared-bill report: Review Required table scrolls horizontally to the last column  scrollWidth=1419 clientWidth=898
+  PASS  UI shows the duplicate/reuse review item  Review Required (3) Uncertain cases needing human judgment - ambiguous bill matching, insufficient evidence, or unresolv
+  PASS  UI ER-39832: Exceptions tab count equals canonical  tab=4 canonical=4
+  PASS  UI ER-39832: Review Required tab count equals canonical  tab=3 canonical=3
+  PASS  UI ER-39832: Exception tab lists only exception records  4 rows vs 4 api
+  PASS  UI ER-39832: Exception table scrolls horizontally to the last column  scrollWidth=1445 clientWidth=898
+  PASS  UI ER-39832: Review Required tab lists only review required records  4 rows vs 4 api
+  PASS  UI ER-39832: Review Required table scrolls horizontally to the last column  scrollWidth=1417 clientWidth=898
+  PASS  page itself has no horizontal overflow  
+  PASS  renderer made no request to any non-loopback host  hosts={'127.0.0.1': 49}
+  PASS  real %APPDATA%\Spinco TA Audit untouched (after all uploads)  baseline=135 now=135 changed=0 added=0
+
+43/44 checks passed; FAILED: ['UI shared-bill report: Exception scroll container present']
+driver exit code: 1
+mock provider hits: 0
+non-loopback connection samples: 0
+sampler heartbeats: 24
+finished 2026-10-20T15:34:51

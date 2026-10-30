@@ -1,0 +1,198 @@
+{
+ "root": "D:\\Bills\\experiments\\node-extraction\\fuel\\_synthetic_review_revalidation_20261022\\synthetic-mirror-gVOLGJ",
+ "generated_at": "2026-10-22T06:16:15.890Z",
+ "pass": 38,
+ "fail": 0,
+ "checks": [
+  {
+   "name": "generator ran from the mirror",
+   "pass": true,
+   "detail": "review pack: D:\\Bills\\experiments\\node-extraction\\fuel\\_synthetic_review_revalidation_20261022\\synthetic-mirror-gVOLGJ\\review-pack |   receipts: 3 (3 existing authentic, 0 new intake)  blind=true"
+  },
+  {
+   "name": "pack is offered only synthetic verifiable receipts (no synthetic/control records)",
+   "pass": true,
+   "detail": "SYNTH-AUTH-001,SYNTH-AUTH-002,SYNTH-TPL-001"
+  },
+  {
+   "name": "every image reference resolves to a blank placeholder inside the mirror",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "HTML: validator placeholder replaced and validator embedded",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "HTML: manifest validator_sha256 present",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "HTML: status-change handler present (illegible/not_printed clear values)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "HTML: export goes through ReviewValidation.buildExportPayload and an invalid export returns before any Blob/download",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "HTML: visible error box",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "HTML: no network references",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "page validator: a valid synthetic review exports",
+   "pass": true,
+   "detail": "incomplete=SYNTH-TPL-001"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - read but empty pump value",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: pump_name: status 'read' requires a non-empty value"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - stale value left on an illegible pump",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: pump_name: status 'illegible' contradicts a value being present (clear the value or choose 'read')"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - stale value left on a not_printed pump",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: pump_name: status 'not_printed' contradicts a value being present (clear the value or choose 'read')"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - stale date left on an illegible date",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: transaction_date: status 'illegible' contradicts a date being present (clear the date or choose 'read')"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - stale amount left on an illegible amount",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: total_amount: status 'illegible' contradicts a value being present (clear the value or choose 'read')"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - impossible date 2026-02-30",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: transaction_date: iso_date must be a real calendar date written YYYY-MM-DD (years 1990-2100)"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - non-numeric amount",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: total_amount: status 'read' requires a numeric value"
+  },
+  {
+   "name": "page validator: invalid review cannot be exported - unsupported status",
+   "pass": true,
+   "detail": "receipt SYNTH-AUTH-001: pump_name: unsupported status (allowed: read, logo_only, not_printed, illegible)"
+  },
+  {
+   "name": "page validator: the CLEARED form of illegible / not_printed fields exports",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "apply: the valid synthetic review is accepted",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "loader: the two eligible reviewed records are human_verified",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "apply: a review naming SYNTH-FUEL-001 (synthetic) is rejected",
+   "pass": true,
+   "detail": "  reval-2.json: receipt SYNTH-FUEL-001: source type 'synthetic' is not eligible for human verification"
+  },
+  {
+   "name": "apply: a review naming SYNTH-CTRL-001 (control) is rejected",
+   "pass": true,
+   "detail": "  reval-3.json: receipt SYNTH-CTRL-001: source type 'generic_control' is not eligible for human verification"
+  },
+  {
+   "name": "apply: verified_labels.json unchanged by the rejected reviews",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "loader: a forged overlay for synthetic and control records is ignored (construction truth kept)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser smoke target is the pack generated in this run",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser smoke: ran (not skipped), exit 0, 20 PASS, 0 FAIL",
+   "pass": true,
+   "detail": "PASS=20 FAIL=0"
+  },
+  {
+   "name": "browser: read -> illegible clears the pump value",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser: read -> not_printed clears the pump value",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser: read -> illegible clears the date, provability tick and evidence",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser: read -> illegible clears the amount",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser: export blocked: status read with an empty pump value",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser: export blocked: a value typed onto an illegible field",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser: values round-trip",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser: NO network request",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browser smoke wrote its export inside the mirror's tmp/",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "every file in the output tree is inside the mirror",
+   "pass": true,
+   "detail": "26 files"
+  },
+  {
+   "name": "assertIsolated still holds after the run",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

@@ -287,7 +287,125 @@ def extract_expense_lines(pages: list[dict[str, Any]]) -> tuple[list[dict[str, A
         i += 1
 
     if not rows:
+        # The one-value-per-line layout found nothing: try rows printed as a single line
+        # (columns side by side), possibly wrapped and with repeated headers.
+        rows, row_warnings = extract_single_line_rows(flat)
+        warnings.extend(row_warnings)
+    if not rows:
         warnings.append("No expense line items could be found in the EXPENSE SUMMARY section.")
+    return rows, warnings
+
+
+# ---- single-line / columnar row layout (fallback) ----------------------------------------------
+_SERIAL_START = re.compile(r"^\s*(\d{1,3})\s*[.)\]]?\s+(?=\S)")
+_DATE_TEXT = re.compile(
+    r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}(?:st|nd|rd|th)?[\s-]+[A-Za-z]{3,9}\.?,?[\s-]+\d{4}|[A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4}"
+)
+_ROW_AMOUNT = re.compile(r"(?:₹|Rs\.?|INR)\s*([\d,]+(?:\.\d+)?)", re.IGNORECASE)
+_SERIAL_LABEL = re.compile(r"(?:#|\b(?:S\.?\s*No|Sl|Sr|No)\.?\s*[:#-]?)\s*(\d{1,3})\b", re.IGNORECASE)
+_SUMMARY_HEADING = re.compile(r"^\s*EXPENSE\s+SUMMARY\b", re.IGNORECASE)
+_HEADER_LINE = re.compile(r"\b(S\.?\s*No|Sr\.?|Serial)\b.*\b(Date|Category|Amount)\b", re.IGNORECASE)
+
+
+def _category_pattern() -> "re.Pattern[str]":
+    from app.services.category_map import CATEGORY_ALIASES, POLICY_MASTER_CATEGORIES
+
+    names = sorted(set(POLICY_MASTER_CATEGORIES) | set(CATEGORY_ALIASES), key=len, reverse=True)
+    return re.compile(r"(?<![A-Za-z])(" + "|".join(re.escape(n).replace(r"\ ", r"\s+") for n in names) + r")(?![A-Za-z])", re.IGNORECASE)
+
+
+_CATEGORY_RE = _category_pattern()
+
+
+def extract_single_line_rows(flat: list[tuple[int, str]]) -> tuple[list[dict[str, Any]], list[str]]:
+    """Rows where serial, date, category, description and amount share ONE line (any column
+    order, any separators - spaces, pipes), a long description may wrap onto following
+    lines, and the column header repeats on each page. Every field is located by what it IS
+    (a date, a Policy Master category, a currency amount), never by position, and a row
+    missing one of them is kept as REVIEW_REQUIRED instead of being dropped or guessed."""
+    rows: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    in_table = False
+    current: dict[str, Any] | None = None
+
+    def close() -> None:
+        nonlocal current
+        if current is None:
+            return
+        d = current
+        d["expense_details"] = " ".join(" ".join(d.pop("_details")).replace("|", " ").split()) or None
+        complete = d["expense_date"] is not None and d["category"] is not None and d["claimed_amount"] is not None
+        d["status"] = "EXTRACTED" if complete else "REVIEW_REQUIRED"
+        if not complete:
+            missing = [n for n, v in (("date", d["expense_date"]), ("category", d["category"]), ("amount", d["claimed_amount"])) if v is None]
+            warnings.append(f"Row {d['s_no']}: could not read {', '.join(missing)}.")
+        rows.append(d)
+        current = None
+
+    for page_number, raw in flat:
+        line = raw.strip()
+        if not line:
+            continue
+        if _SUMMARY_HEADING.match(line):
+            in_table = True
+            continue
+        if in_table and line.upper().startswith("REPORT SUMMARY"):
+            close()
+            break
+        if not in_table or _HEADER_LINE.search(line):
+            continue
+        start = _SERIAL_START.match(line)
+        has_date = _DATE_TEXT.search(line) is not None
+        # A row is a line that CONTAINS a date plus an amount or a Policy Master category; its serial is a
+        # leading number, a "#3" / "No. 3" label anywhere on the line, or - only when none is printed - its order.
+        looks_like_row = has_date and (start is not None or _ROW_AMOUNT.search(line) is not None or _CATEGORY_RE.search(line) is not None)
+        if looks_like_row:
+            close()
+            body = line[start.end():] if start else line
+            labelled = None if start else _SERIAL_LABEL.search(body)
+            if labelled:
+                body = body[: labelled.start()] + " " + body[labelled.end():]
+            date_match = _DATE_TEXT.search(body)
+            category_match = _CATEGORY_RE.search(body)
+            amount_match = None
+            for amount_match in _ROW_AMOUNT.finditer(body):  # the last currency figure on the row
+                pass
+            remainder = body
+            for m in sorted([x for x in (date_match, category_match, amount_match) if x], key=lambda x: -x.start()):
+                remainder = remainder[: m.start()] + " " + remainder[m.end():]
+            if start:
+                serial = int(start.group(1))
+            elif labelled:
+                serial = int(labelled.group(1))
+            else:
+                serial = len(rows) + 1
+                warnings.append(f"Row {serial}: no serial number is printed on this row; numbered by its order in the table.")
+            current = {
+                "s_no": serial,
+                "expense_date": parse_date(date_match.group(0)) if date_match else None,
+                "category": category_match.group(1).upper() if category_match else None,
+                "merchant": None,
+                "reference_id": None,
+                "_details": [remainder],
+                "claimed_amount": parse_amount(amount_match.group(0)) if amount_match else None,
+                "source_page": page_number,
+                "amount_source_page": page_number,
+            }
+        elif current is not None:  # wrapped continuation of the previous row
+            amount_match = None
+            for amount_match in _ROW_AMOUNT.finditer(line):
+                pass
+            text = line
+            if amount_match and current["claimed_amount"] is None:
+                current["claimed_amount"] = parse_amount(amount_match.group(0))
+                current["amount_source_page"] = page_number
+                text = line[: amount_match.start()] + " " + line[amount_match.end():]
+            category_match = _CATEGORY_RE.search(text) if current["category"] is None else None
+            if category_match:
+                current["category"] = category_match.group(1).upper()
+                text = text[: category_match.start()] + " " + text[category_match.end():]
+            current["_details"].append(text)
+    close()
     return rows, warnings
 
 

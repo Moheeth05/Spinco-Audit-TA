@@ -1,0 +1,4 @@
+receipt_id,image,reviewer_id,authorization_confirmed(true/false),pump_status(read|logo_only|not_printed|illegible),pump_name,pump_printed_text,pump_other_forms(;),date_status(read|illegible),date_printed_text,date_iso(YYYY-MM-DD),order_provable_from_receipt(true/false),order_evidence,amount_status(read|illegible),amount_printed_text,amount_value,notes
+SYNTH-AUTH-001,../corpus/authentic/images/SYNTH-AUTH-001.png,,,,,,,,,,,,,,,
+SYNTH-AUTH-002,../corpus/authentic/images/SYNTH-AUTH-002.png,,,,,,,,,,,,,,,
+SYNTH-TPL-001,../corpus/authentic/images/SYNTH-TPL-001.png,,,,,,,,,,,,,,,

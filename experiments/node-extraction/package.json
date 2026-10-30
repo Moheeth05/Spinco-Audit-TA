@@ -1,0 +1,16 @@
+{
+  "name": "node-extraction-experiment",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Experimental, full-pipeline Node.js port of the Python extraction stack (dates/money/category vocabulary, bill parsing, Expense Report parsing, PDF text extraction + OCR), validated against the real Python modules and real reference PDFs. NOT wired into the production backend or Electron app - see README.md for the honest parity results.",
+  "scripts": {
+    "test-corpus": "node run-against-corpus.mjs",
+    "test:parity": "node parity-test.mjs && node parity-test-billparser.mjs && node parity-test-expensereport.mjs && node parity-test-textextraction.mjs",
+    "test:real-doc": "node real-doc-test-textextraction.mjs && node real-doc-test-reconstruct-always.mjs"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^4.0.0",
+    "tesseract.js": "^7.0.0"
+  }
+}

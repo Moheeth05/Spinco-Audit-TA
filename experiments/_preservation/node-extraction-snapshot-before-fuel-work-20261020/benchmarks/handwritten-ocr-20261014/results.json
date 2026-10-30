@@ -1,0 +1,110 @@
+[
+  {
+    "name": "RATHNA ELECTRICALS (rotated page)",
+    "rotation_applied": 270,
+    "before_text_length": 668,
+    "after_text_length": 702,
+    "before_confidence": 0.48690721649484536,
+    "after_confidence": 0.5500862068965517,
+    "before_ms": 1806.3,
+    "after_ms": 4224.1,
+    "fields": [
+      {
+        "field": "vendor",
+        "ground_truth": "RATHNA",
+        "before": "ELECTRICALS & HARDWARES b Load",
+        "before_correct": false,
+        "after": "ELECTRICALS & HARDWARES | be Laas",
+        "after_correct": false
+      },
+      {
+        "field": "invoice_number",
+        "ground_truth": "664",
+        "before": null,
+        "before_correct": false,
+        "after": null,
+        "after_correct": false
+      },
+      {
+        "field": "gstin",
+        "ground_truth": "32ARWPK8203C1ZW",
+        "before": "32ARWPK8203C1ZW",
+        "before_correct": true,
+        "after": "32ARWPK8203C1ZW",
+        "after_correct": true
+      },
+      {
+        "field": "amount",
+        "ground_truth": 220.0,
+        "before": null,
+        "before_correct": false,
+        "after": null,
+        "after_correct": false
+      },
+      {
+        "field": "date",
+        "ground_truth": "9/6/2026",
+        "before_parsed_date": null,
+        "before_digits_in_raw_text": false,
+        "after_parsed_date": null,
+        "after_digits_in_raw_text": false
+      }
+    ],
+    "before_status": "REVIEW_REQUIRED",
+    "after_status": "REVIEW_REQUIRED"
+  },
+  {
+    "name": "DISHANT PETROLEUM SERVICE",
+    "rotation_applied": 0,
+    "before_text_length": 59,
+    "after_text_length": 59,
+    "before_confidence": 0.2868421052631579,
+    "after_confidence": 0.2868421052631579,
+    "before_ms": 1220.4,
+    "after_ms": 2505.3,
+    "fields": [
+      {
+        "field": "vendor",
+        "ground_truth": "DISHANT",
+        "before": "= 48591 ahr | a",
+        "before_correct": false,
+        "after": "= 48591 ahr | a",
+        "after_correct": false
+      },
+      {
+        "field": "invoice_number",
+        "ground_truth": "648591",
+        "before": null,
+        "before_correct": false,
+        "after": null,
+        "after_correct": false
+      },
+      {
+        "field": "gstin",
+        "ground_truth": "24AKHPP8768M1ZA",
+        "before": null,
+        "before_correct": false,
+        "after": null,
+        "after_correct": false
+      },
+      {
+        "field": "amount",
+        "ground_truth": 300.0,
+        "before": null,
+        "before_correct": false,
+        "after": null,
+        "after_correct": false
+      },
+      {
+        "field": "date",
+        "ground_truth": "17/9/26",
+        "before_parsed_date": null,
+        "before_digits_in_raw_text": false,
+        "after_parsed_date": null,
+        "after_digits_in_raw_text": false
+      }
+    ],
+    "before_status": "REVIEW_REQUIRED",
+    "after_status": "REVIEW_REQUIRED"
+  }
+]

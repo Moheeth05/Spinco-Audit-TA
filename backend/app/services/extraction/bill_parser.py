@@ -11,8 +11,14 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from app.services.extraction import deepseek_fallback, nvidia_fallback
-from app.services.extraction.dates import find_all_dates
+from app.services.category_map import (
+    BILL_RAW_TEXT_CAP,
+    analyze_room_service_food,
+    detect_catering_amount,
+    mentions_catering,
+)
+from app.services.extraction import deepseek_fallback, nvidia_fallback, payment_evidence
+from app.services.extraction.dates import DateReading, has_adjacent_clock, read_dates
 from app.services.extraction.money import parse_amount, parse_amount_in_words
 
 GSTIN_RE = re.compile(r"\b\d{2}[A-Z]{5}\d{4}[A-Z][A-Z\d]Z[A-Z\d]\b")
@@ -107,7 +113,11 @@ CATEGORY_KEYWORDS = [
     (
         re.compile(
             r"\b(AIR INDIA(?:\s+EXPRESS)?|INDIGO|SPICEJET|VISTARA|AKASA(?:\s+AIR)?|GO\s*FIRST|GOAIR|ALLIANCE AIR|"
-            r"BOARDING PASS|BAGGAGE|CABIN BAGGAGE|BOARDING TIME|DEPARTURE GATE)\b",
+            r"BOARDING PASS|BAGGAGE|CABIN BAGGAGE|BOARDING TIME|DEPARTURE GATE|"
+            # Carrier-independent evidence, so an airline this list has never heard of is still a
+            # flight: the words airline/airways, or a printed flight designator ("Flight SK 123",
+            # "IX - 1248" after a Flight label).
+            r"AIRLINES?|AIRWAYS|FLIGHT\s*(?:NO\.?|NUMBER)?\s*:?\s*[A-Z0-9]{2}\s*-?\s*\d{2,4})\b",
             re.IGNORECASE,
         ),
         "Flight",
@@ -175,8 +185,10 @@ CATEGORY_KEYWORDS = [
         "Marketing Collateral",
     ),
     (re.compile(r"\b(PRINTING|STATIONERY|STATIONARY)\b", re.IGNORECASE), "Printing & Stationery"),
-    (re.compile(r"\b(TRAIN|RAILWAY|IRCTC|PNR)\b", re.IGNORECASE), "Train"),
-    (re.compile(r"\bBUS\b", re.IGNORECASE), "Bus"),
+    # PNR is deliberately NOT a train keyword: airlines print a PNR too, and a bare "PNR" on a page
+    # with no other evidence is not enough to call it a railway ticket.
+    (re.compile(r"\b(TRAIN|RAILWAY|IRCTC)\b", re.IGNORECASE), "Train"),
+    (re.compile(r"\bBUS\b(?!\s*-?\s*(?:BARS?|DUCTS?)\b)", re.IGNORECASE), "Bus"),  # weak: see _BUS_WORD_TRAVEL_CONTEXT_RE
     # Checked before the bare "HARDWARE" pattern below - "Hardware Repair"
     # contains the literal word "Hardware", which must not be claimed by the
     # pre-existing generic Hardware/Electrical label.
@@ -347,10 +359,29 @@ class ParsedBill:
     gstin: str | None = None
     description: str | None = None
     category_guess: str | None = None
-    raw_text: str = ""
+    raw_text: str = ""  # capped at 2,000 characters
+    # Catering / lodging room-service-food evidence read from the FULL bill text
+    # (not the capped raw_text), persisted so a charge printed beyond the cap is
+    # still found - see category_map.resolve_*. An unreadable amount stays None
+    # while the "mentioned" flag still records that the charge is on the bill.
+    catering_amount: float | None = None
+    catering_mentioned: bool = False
+    room_service_food_amount: float | None = None
+    room_service_food_mentioned: bool = False
     confidence: str = "LOW"  # HIGH | MEDIUM | LOW
     status: str = "REVIEW_REQUIRED"  # EXTRACTED | REVIEW_REQUIRED
     warnings: list[str] = field(default_factory=list)
+    # The date exactly as printed, every valid reading, and how (if at all) the
+    # day/month order was established. bill_date is None whenever the order is
+    # unresolved - the candidates stay available here for review.
+    date_reading: "DateReading | None" = None
+    # Payment-screenshot evidence (see payment_evidence.py); all None when the
+    # page is not a transaction screenshot.
+    is_payment: bool = False
+    recipient: str | None = None  # payee named by the screenshot ("Paid to X"); preferred over a guessed vendor line
+    payment_status: str | None = None  # COMPLETED | PENDING | FAILED
+    transaction_time: str | None = None  # HH:MM, 24 h
+    transaction_reference: str | None = None
 
 
 def has_bill_evidence(text: str) -> bool:
@@ -594,9 +625,23 @@ def _find_printed_amount(text: str) -> tuple[float | None, str, list[str]]:
     return None, "LOW", warnings
 
 
-def _find_date(text: str):
+def _find_date_reading(text: str, readings: "list[DateReading] | None" = None) -> "tuple[DateReading | None, str, list[str]]":
+    """The bill's own date as a DateReading (raw string, candidates, method,
+    confidence). `value` is None when the printed day/month order cannot be
+    established from evidence (see dates.read_dates) - the candidates stay on
+    the reading so they can be shown for review; a guess is never substituted."""
+    readings = read_dates(text) if readings is None else readings
     lines = text.split("\n")
-    best = None  # (priority, date) - highest priority wins
+    starts, offset = [], 0
+    for line in lines:
+        starts.append(offset)
+        offset += len(line) + 1
+
+    def in_line(i: int) -> "list[DateReading]":
+        end = starts[i] + len(lines[i])
+        return [r for r in readings if starts[i] <= r.start <= end]
+
+    best = None  # (priority, reading) - highest priority wins
     for i, line in enumerate(lines):
         lower = line.lower()
         if any(excluded in lower for excluded in DATE_EXCLUDE_LABELS):
@@ -604,22 +649,86 @@ def _find_date(text: str):
         priority = max((p for p, label in DATE_LABELS if label in lower), default=None)
         if priority is None:
             continue
-        dates = find_all_dates(line)
-        if not dates and i + 1 < len(lines):
-            dates = find_all_dates(lines[i + 1])
-        if dates and (best is None or priority > best[0]):
-            best = (priority, dates[0])
+        found = [r for r in in_line(i) if r.method != "invalid"]
+        if not found and i + 1 < len(lines):
+            found = [r for r in in_line(i + 1) if r.method != "invalid"]
+        if found and (best is None or priority > best[0]):
+            best = (priority, found[0])
     if best is not None:
-        return best[1], "HIGH", []
+        reading = best[1]
+        if reading.value is None:
+            return reading, "LOW", [_ambiguous_date_warning(reading)]
+        return reading, ("HIGH" if reading.confidence == "HIGH" else "MEDIUM"), _ocr_date_warnings(reading)
 
-    all_dates = find_all_dates(text)
-    distinct = sorted(set(all_dates))
-    if len(distinct) == 1:
-        return distinct[0], "MEDIUM", []
-    if len(distinct) > 1:
-        return None, "LOW", [f"Multiple differing dates found with no clear bill-date label: {distinct}."]
+    usable = [r for r in readings if r.method != "invalid"]
+    resolved = {r.value for r in usable if r.value is not None}
+    unresolved = [r for r in usable if r.value is None]
+    if len(resolved) == 1 and not unresolved:
+        reading = next(r for r in usable if r.value is not None)
+        return reading, "MEDIUM", _ocr_date_warnings(reading)
+    if not resolved and unresolved and len({r.candidates for r in unresolved}) == 1:
+        return unresolved[0], "LOW", [_ambiguous_date_warning(unresolved[0])]
+    # Several different dates and no "Date" label (a fuel slip prints a transaction timestamp plus, say, a
+    # calibration or print date): when exactly ONE distinct date sits beside a clock time it is the transaction
+    # date. Two different timestamped dates (a hotel's arrival/departure) or none still go to review, and an
+    # unresolved day/month order is never settled this way.
+    if len(resolved) > 1 and not unresolved:
+        stamped = [r for r in usable if r.value is not None and has_adjacent_clock(text, r)]
+        if stamped and len({r.value for r in stamped}) == 1:
+            return stamped[0], "MEDIUM", []
+    if resolved or unresolved:
+        shown = sorted(resolved) + [f"{r.raw} ({' or '.join(c.isoformat() for c in r.candidates)})" for r in unresolved]
+        return None, "LOW", [f"Multiple differing dates found with no clear bill-date label: {shown}."]
     return None, "LOW", []
 
+
+_HERO_AMOUNT_LINE = re.compile(r"^[^\w\s]{0,3}\s*(\d{1,7}(?:\.\d{1,2})?|\d{1,3}(?:,\d{2,3})+(?:\.\d{1,2})?)\s*$")
+_STATUS_BANNER = re.compile(r"^(?:payment\s+|transaction\s+)?(?:completed|successful(?:ly)?|success|paid(?:\s+successfully)?|pending|failed|processing)\b", re.IGNORECASE)
+
+
+def _find_payment_hero_amount(text: str) -> float | None:
+    """Payment apps (e.g. Google Pay) show the amount ALONE on a line directly above (or
+    below) the status banner, with no "Amount"/"Total" label, and OCR often drops the
+    rupee glyph. Accepted only for a transaction screenshot, only when that line
+    is immediately adjacent to a status banner, and only when exactly one such figure
+    exists - never from an arbitrary number on the page."""
+    lines = [ln.strip() for ln in text.splitlines()]
+    found: set[float] = set()
+    for i, line in enumerate(lines):
+        m = _HERO_AMOUNT_LINE.match(line)
+        if not m:
+            continue
+        before = next((ln for ln in reversed(lines[:i]) if ln), "")
+        after = next((ln for ln in lines[i + 1 :] if ln), "")
+        if _STATUS_BANNER.match(after) or _STATUS_BANNER.match(before):
+            value = parse_amount(m.group(1))
+            if value is not None and value > 0:
+                found.add(value)
+    return found.pop() if len(found) == 1 else None
+
+
+def _ocr_date_warnings(reading: "DateReading") -> list[str]:
+    """An OCR-repaired date (dates.py, method month_name_ocr) is recorded with exactly what was printed, so an
+    auditor can compare it with the document."""
+    if reading.method != "month_name_ocr":
+        return []
+    return [
+        f"Date printed as '{reading.raw}' was read as {reading.value.isoformat()} after correcting a likely OCR error; "
+        "verify it against the document."
+    ]
+
+
+def _ambiguous_date_warning(reading: "DateReading") -> str:
+    options = " or ".join(c.isoformat() for c in reading.candidates)
+    return (
+        f"Date '{reading.raw}' is ambiguous ({options}) and nothing in this report establishes its day/month order; "
+        "left unresolved for review."
+    )
+
+
+def _find_date(text: str):
+    reading, confidence, warnings = _find_date_reading(text)
+    return (reading.value if reading else None), confidence, warnings
 
 def _find_bill_number(text: str) -> str | None:
     lines = text.split("\n")
@@ -716,24 +825,136 @@ def _find_vendor(text: str) -> tuple[str | None, bool]:
     return None, False
 
 
+# An intercity bus ticket is recognised from SEVERAL independent indicators, never from the bare word
+# "bus" (which CATEGORY_KEYWORDS below still reads only as a last-resort signal). The ticket's own
+# boarding/dropping address often names a landmark ("Near HP Petrol Pump", "Opp. Indian Oil"), and its
+# "Boarding time" line and baggage note match the Flight and Fuel keywords, which sit earlier in
+# CATEGORY_KEYWORDS - a first-match-wins read of such a ticket called it Fuel (confirmed real defect:
+# a genuine Ahmedabad-Bhopal AC sleeper ticket was reported as "Fuel evidence" for a TRAIN / BUS FARE claim).
+# Every label below uses HORIZONTAL whitespace only ([ \t]): a label never runs across a line break, so "Bus" at
+# the end of one line and "Service Charges" on the next is not the label "Bus Service".
+_BUS_OPERATOR_RE = re.compile(
+    r"\bBUS[ \t]*(?:OPERAT[O0]R|SERVICE|OPERATED[ \t]+BY|COMPANY|NO\.?|NUMBER)\b|\bCOACH[ \t]*(?:TYPE|NO\.?|NUMBER)\b|"
+    r"\b(?:RED[ \t]*BUS|ABHI[ \t]*BUS|GSRTC|MSRTC|KSRTC|APSRTC|TSRTC|RSRTC|UPSRTC|HRTC|TNSTC)\b",
+    re.IGNORECASE,
+)
+_BUS_TYPE_RE = re.compile(
+    r"\b(?:NON[ \t-]*)?(?:A[ \t]*/[ \t]*C|AC)[ \t-]*(?:SEMI[ \t-]*)?(?:SLEEPER|SEATER)\b|\bSEMI[ \t-]*SLEEPER\b|\bMULTI[ \t-]*AXLE\b|"
+    r"\bSLEEPER[ \t]*\([ \t]*\d[ \t]*\+[ \t]*\d[ \t]*\)",
+    re.IGNORECASE,
+)
+_BUS_POINTS_RE = re.compile(
+    # POIN[TLI1]: OCR routinely reads the final "t" of "Point" as l / I / 1 (kept to this one label on purpose)
+    r"\b(?:BOARDING|PICK[ \t-]*UP)[ \t]*POIN[TLI1]\b|\b(?:DROPPING|DROP(?:[ \t-]*OFF)?)[ \t]*POIN[TLI1]\b", re.IGNORECASE
+)
+_BUS_SEAT_RE = re.compile(r"\bSEATS?[ \t]*(?:NO\.?|NOS\.?|NUMBERS?)?[ \t]*[:\-]?[ \t]*[A-Z]{0,2}\d{1,2}[A-Z]?\b", re.IGNORECASE)
+_BUS_TICKET_ID_RE = re.compile(
+    r"\b(?:TICKET|BOOKING|RESERVATION)[ \t]*(?:NO\.?|NUMBER|ID|REF(?:ERENCE)?)\b|\bPNR\b", re.IGNORECASE
+)
+_BUS_PASSENGER_RE = re.compile(r"\bPASSENGERS?\b", re.IGNORECASE)
+# Fuel-DISPENSER transaction evidence (a pump receipt's own fields). When present it is never overruled
+# by ticket-like wording, so a genuine fuel receipt stays Fuel.
+_FUEL_TRANSACTION_RE = re.compile(
+    r"\b(?:NOZZLE|NOZL|DENSITY)\b|\bRATE\s*(?:/|PER)\s*(?:LTR|LITRE|L)\b|\bVOLUME\s*\(?\s*(?:LTRS?|LITRES?|L)\b", re.IGNORECASE
+)
+
+
+# Train / flight documents that can share seat, ticket-id and passenger wording with a bus ticket.
+# _RAIL_AIR_IDENTITY_RE is the explicit identity a train or flight document prints about ITSELF ("IRCTC",
+# "Train No 12345", "Flight No / Flight: IX 1234"); a page carrying it is never re-labelled Bus, in either tier.
+# _NON_BUS_TRANSPORT_RE is the broader wording (any "flight"/"airline"), consulted only by the sparse tier,
+# because a full bus ticket may legitimately name a "Railway Station" or an airline office as a landmark.
+_RAIL_AIR_IDENTITY_RE = re.compile(r"\bIRCTC\b|\bTRAIN[ \t]*(?:NO|NAME|NUMBER)\b|\bFLIGHT[ \t]*(?:NO|NUMBER)\b|\bFLIGHT[ \t]*:", re.IGNORECASE)
+_NON_BUS_TRANSPORT_RE = re.compile(r"\bIRCTC\b|\bTRAIN[ \t]*(?:NO|NAME|NUMBER)\b|\bFLIGHT\b|\bAIRLINES?\b|\bAIRWAYS\b", re.IGNORECASE)
+
+
+def _bus_ticket_evidence(text: str) -> str | None:
+    """Evidence snippet when `text` is an intercity bus ticket, else None.
+
+    Strong tier: at least TWO bus-specific indicators (a bus operator/service label, a bus-type descriptor such
+    as "AC Sleeper", boarding/dropping point labels) AND at least THREE distinct indicator groups overall (the
+    other groups being a seat number, a ticket/booking id, and passenger details).
+
+    Sparse tier (an OCR-poor or abbreviated ticket): a bus operator/service label OR a bus-type descriptor,
+    plus at least one more distinct group, on a page that is not a train or flight document. A flight, train
+    or cab document can share seat/ticket/passenger/pick-up wording but has no bus operator or bus type, a
+    lone "AC Sleeper" or "Bus Operator" is a single indicator, and a page that merely contains the word "bus"
+    has none of these - none of those qualifies."""
+    operator = _BUS_OPERATOR_RE.search(text)
+    bus_type = _BUS_TYPE_RE.search(text)
+    points = _BUS_POINTS_RE.search(text)
+    bus_specific = sum(m is not None for m in (operator, bus_type, points))
+    others = sum(rx.search(text) is not None for rx in (_BUS_SEAT_RE, _BUS_TICKET_ID_RE, _BUS_PASSENGER_RE))
+    strong = bus_specific >= 2 and bus_specific + others >= 3
+    sparse = (operator or bus_type) is not None and bus_specific + others >= 2 and not _NON_BUS_TRANSPORT_RE.search(text)
+    if not (strong or sparse):
+        return None
+    if _FUEL_TRANSACTION_RE.search(text) or _RAIL_AIR_IDENTITY_RE.search(text):
+        return None
+    return (operator or bus_type or points).group(0)
+
+
+# The bare word "bus" is only a WEAK signal. Left unguarded it classified an unrelated "Service Charges"
+# invoice that mentions a bus route, and a bus-stand parking receipt, as Bus evidence - which then raised a
+# false CATEGORY MISMATCH against the claimed category. It now counts only when the same page also carries
+# travel-ticket wording, and never as part of "bus bar" / "bus duct" (electrical terms).
+_BUS_WORD_TRAVEL_CONTEXT_RE = re.compile(
+    r"\b(?:TICKETS?|FARE|PASSENGERS?|SEATS?|BOARDING|TRAVELS|TOURS|ROUTE|JOURNEY|COACH|DEPARTURE|DROPPING|OPERATOR|PNR)\b",
+    re.IGNORECASE,
+)
+
+
 def _find_category(text: str) -> tuple[str | None, str | None]:
+    bus_snippet = _bus_ticket_evidence(text)
+    if bus_snippet is not None:
+        return "Bus", bus_snippet
     for pattern, label in CATEGORY_KEYWORDS:
         m = pattern.search(text)
         if m:
+            if label == "Bus" and not _BUS_WORD_TRAVEL_CONTEXT_RE.search(text):
+                continue  # the bare word "bus" alone is not evidence of a bus ticket
             return label, m.group(0)
     return _find_category_fuzzy(text)
 
 
 def parse_bill_text(text: str) -> ParsedBill:
-    bill = ParsedBill(raw_text=text[:2000])
+    bill = ParsedBill(raw_text=text[:BILL_RAW_TEXT_CAP])
+    # Full text, before the cap: the charge may be printed after character 2,000.
+    bill.catering_amount = detect_catering_amount(text)
+    bill.catering_mentioned = mentions_catering(text)
+    room_food = analyze_room_service_food(text)  # one row per line, reconciled; amount None when unresolved
+    bill.room_service_food_amount = room_food.amount
+    bill.room_service_food_mentioned = room_food.mentioned
+    if room_food.note:  # several charges, or an unresolved result - an audit note only (never affects status)
+        bill.warnings.append(room_food.note)
 
     amount, amount_confidence, amount_warnings = _find_amount(text)
     bill.amount = amount
     bill.warnings.extend(amount_warnings)
 
-    bill_date, date_confidence, date_warnings = _find_date(text)
-    bill.bill_date = bill_date
+    date_reading, date_confidence, date_warnings = _find_date_reading(text)
+    bill.date_reading = date_reading
+    bill.bill_date = date_reading.value if date_reading else None
     bill.warnings.extend(date_warnings)
+
+    payment = payment_evidence.extract(text)
+    if bill.amount is None and payment.is_payment:
+        hero = _find_payment_hero_amount(text)
+        if hero is not None:
+            bill.amount = hero
+            amount_confidence = "MEDIUM"
+            bill.warnings.append(
+                "Amount read from the standalone figure next to the payment status (no amount label or currency symbol was readable)."
+            )
+    bill.is_payment = payment.is_payment
+    bill.payment_status = payment.status
+    bill.recipient = payment.recipient
+    bill.transaction_time = payment.time
+    bill.transaction_reference = payment.reference
+    if payment.status in ("PENDING", "FAILED"):
+        bill.warnings.append(
+            f"Payment screenshot shows the transaction as {payment.status}; it is not proof of a completed payment."
+        )
 
     gstin_match = GSTIN_RE.search(text.upper())
     bill.gstin = gstin_match.group(0) if gstin_match else None
@@ -741,6 +962,10 @@ def parse_bill_text(text: str) -> ParsedBill:
     bill.bill_number = _find_bill_number(text)
 
     vendor, vendor_strong = _find_vendor(text)
+    if payment.recipient:
+        # On a transaction screenshot the payee is the merchant evidence; an explicit "Paid to X" outranks the
+        # generic first-line heuristic (which would pick a status banner or an amount line).
+        vendor, vendor_strong = payment.recipient, True
     bill.vendor = vendor
 
     category_guess, snippet = _find_category(text)
@@ -789,7 +1014,7 @@ def parse_bill_text(text: str) -> ParsedBill:
 
     if bill.amount is None:
         bill.warnings.append("Bill amount could not be reliably determined.")
-    if bill.bill_date is None:
+    if bill.bill_date is None and not (bill.date_reading and bill.date_reading.ambiguous):
         bill.warnings.append("Bill date could not be reliably determined.")
     if bill.vendor is None:
         bill.warnings.append("Vendor could not be reliably determined.")

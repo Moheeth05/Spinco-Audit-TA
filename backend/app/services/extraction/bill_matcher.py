@@ -121,7 +121,7 @@ def score_pair(
         # difference alone doesn't look like a real amount mismatch and
         # doesn't block an otherwise-correct match (Part 17: catering must
         # not break bill matching).
-        catering = category_map.detect_catering_amount(bill.get("raw_text"))
+        catering = _bill_catering_amount(bill)
         bill_excl_catering = bill_amount - catering if catering else None
 
         # amounts_match() accepts an exact match OR either whole-rupee
@@ -131,11 +131,22 @@ def score_pair(
         # looser percentage-based tolerance.
         direct_match = amounts_match(claimed, bill_amount)
         excl_match = bill_excl_catering is not None and amounts_match(claimed, bill_excl_catering)
-        if direct_match or excl_match:
+        # LODGING only: a hotel folio's room-service / food charge is excluded
+        # the same way (see checks.py's Room Service/Food Check).
+        room_food = _lodging_room_service_food(expense, bill)
+        bill_excl_room_food = bill_amount - room_food if room_food else None
+        room_food_match = bill_excl_room_food is not None and amounts_match(claimed, bill_excl_room_food)
+        if direct_match or excl_match or room_food_match:
             score += 40
             if direct_match:
                 reasons.append(
                     "Amount: exact match" if claimed == bill_amount else "Amount: matches bill total rounded to the nearest rupee"
+                )
+            elif room_food_match and not excl_match:
+                reasons.append(
+                    "Amount: exact match once room service / food is excluded"
+                    if claimed == bill_excl_room_food
+                    else "Amount: matches bill total (room service / food excluded) rounded to the nearest rupee"
                 )
             else:
                 reasons.append(
@@ -171,6 +182,12 @@ def score_pair(
         elif delta <= 1:
             score += 12
             reasons.append("Date: within 1 day")
+    elif exp_date and bill.get("date_candidates"):
+        # The bill's day/month order is unresolved: no date credit of any kind,
+        # even if one reading equals the claimed date - that coincidence is not
+        # evidence of the order.
+        options = " or ".join(c.isoformat() for c in bill["date_candidates"])
+        reasons.append(f"Date: ambiguous ({options}) - no date credit")
 
     sim = _text_similarity(expense.get("expense_details") or "", f"{bill.get('vendor') or ''} {bill.get('description') or ''}")
     if sim >= 0.5:
@@ -330,6 +347,30 @@ def match_expense(
     # to the final PASS/EXCEPTION/REVIEW_REQUIRED decision.
     scored.sort(key=lambda c: (-c.score, c.bill_id))
 
+    # A payment screenshot that shows the transaction PENDING or FAILED is not
+    # proof of a completed payment: it can never be the confirmed bill, never
+    # creates ambiguity with a completed one, and is only surfaced (for review)
+    # when nothing else plausibly supports the claim.
+    not_completed = {b["id"] for b in candidates_pool if b.get("payment_status") in ("PENDING", "FAILED")}
+    if not_completed:
+        usable = [c for c in scored if c.bill_id not in not_completed]
+        blocked = [c for c in scored if c.bill_id in not_completed]
+        if blocked and blocked[0].score >= MIN_THRESHOLD and (not usable or usable[0].score < MIN_THRESHOLD):
+            blocked_bill = bills_by_id[blocked[0].bill_id]
+            return MatchOutcome(
+                status="REVIEW_REQUIRED",
+                matched_bill_id=None,
+                score=blocked[0].score,
+                confidence=None,
+                reasons=[
+                    f"The only plausible support is a {blocked_bill['payment_status']} payment screenshot "
+                    f"({_describe_bill(blocked_bill)}); a {blocked_bill['payment_status'].lower()} transaction is not proof of a completed payment."
+                ],
+                candidates=scored[:3],
+                candidate_bill_id=blocked[0].bill_id,
+            )
+        scored = usable or blocked
+
     best = scored[0]
     second = scored[1] if len(scored) > 1 else None
     # Only NO_MATCH (best below the plausibility floor) leaves this None -
@@ -436,6 +477,24 @@ def match_expense(
             candidate_bill_id=candidate_bill_id,
         )
 
+    best_bill = bills_by_id.get(best.bill_id)
+    if best_bill is not None and best_bill.get("amount") is None:
+        # A bill whose amount could not be read stays a visible CANDIDATE (its date, vendor and
+        # position can still point at it) but is never, by itself, confirmation of the claim:
+        # nothing about the money has been established.
+        return MatchOutcome(
+            status="REVIEW_REQUIRED",
+            matched_bill_id=None,
+            score=best.score,
+            confidence=None,
+            reasons=[
+                f"Candidate {_describe_bill(best_bill)} (score {best.score}) fits on other evidence, but its amount "
+                f"could not be read, so it cannot confirm the claimed amount: {'; '.join(best.reasons)}."
+            ],
+            candidates=scored[:3],
+            candidate_bill_id=candidate_bill_id,
+        )
+
     return MatchOutcome(
         status="MATCHED",
         matched_bill_id=best.bill_id,
@@ -456,8 +515,30 @@ def _amount_supported(expense: dict[str, Any], bill: dict[str, Any]) -> bool:
         return False
     if amounts_match(claimed, amount):
         return True
-    catering = category_map.detect_catering_amount(bill.get("raw_text"))
-    return bool(catering) and amounts_match(claimed, amount - catering)
+    catering = _bill_catering_amount(bill)
+    if catering and amounts_match(claimed, amount - catering):
+        return True
+    room_food = _lodging_room_service_food(expense, bill)
+    return bool(room_food) and amounts_match(claimed, amount - room_food)
+
+
+def _bill_catering_amount(bill: dict[str, Any]) -> float | None:
+    """The catering charge on a bill: the full-text reading stored at extraction
+    time when there is one (raw_text is capped at 2,000 characters), else the
+    raw_text detector - see category_map.resolve_catering_amount. A bill dict
+    without the stored keys behaves exactly as it always did."""
+    return category_map.resolve_catering_amount(bill.get("raw_text"), bill.get("catering_amount"))
+
+
+def _lodging_room_service_food(expense: dict[str, Any], bill: dict[str, Any]) -> float | None:
+    """The room-service / food charge on a bill, only when the expense being
+    matched is LODGING (food on any other category's bill is the claim itself,
+    never something to subtract)."""
+    if category_map.normalize_category(expense.get("category")) != "LODGING":
+        return None
+    return category_map.resolve_room_service_food_amount(
+        bill.get("raw_text"), bill.get("room_service_food_amount"), bill.get("room_service_food_mentioned")
+    )
 
 
 def _date_delta(expense: dict[str, Any], bill: dict[str, Any]) -> int | None:
@@ -775,6 +856,23 @@ def assign_by_exclusion(
     return outcomes
 
 
+def _provably_distinct(first: dict[str, Any], second: dict[str, Any]) -> bool:
+    """Two equal-amount, same-day bills are separate documents/transactions only
+    if the evidence says so. For payment screenshots that is: different
+    transaction references, or different readable transaction times. A missing
+    time or reference proves nothing (unreadable is not 'different'). Non-payment
+    bills (invoices, receipts) are distinct documents unless they carry the same
+    identifying number - strong duplicates were already collapsed upstream."""
+    is_payment = any(b.get("transaction_reference") or b.get("transaction_time") or b.get("payment_status") for b in (first, second))
+    if not is_payment:
+        return True
+    ref1, ref2 = first.get("transaction_reference"), second.get("transaction_reference")
+    if ref1 and ref2 and ref1 != ref2:
+        return True
+    time1, time2 = first.get("transaction_time"), second.get("transaction_time")
+    return bool(time1 and time2 and time1 != time2)
+
+
 def assign_interchangeable_claims(
     expenses: list[dict[str, Any] | None],
     bills: list[dict[str, Any]],
@@ -827,10 +925,11 @@ def assign_interchangeable_claims(
         strong = strong_by_claim[i]
         if len(strong) < 2:
             continue
+        # 'Interchangeable' means every NON-POSITIONAL signal is identical: the page-order
+        # credit is only a weak tiebreaker (bills may legitimately be out of order), so
+        # it must not make two otherwise-identical bills look distinguishable.
         scores = {
-            b["id"]: score_pair(
-                expenses[i], b, amount_is_unique=amount_counts.get(b["amount"], 0) == 1, first_bill_page=first_bill_page
-            )[0]
+            b["id"]: score_pair(expenses[i], b, amount_is_unique=amount_counts.get(b["amount"], 0) == 1, first_bill_page=None)[0]
             for b in strong
         }
         if len(set(scores.values())) != 1:
@@ -849,6 +948,11 @@ def assign_interchangeable_claims(
         ordered_bills = sorted(
             (b for b in bills if b["id"] in bill_ids), key=lambda b: (b.get("page_number") or 0, b["id"])
         )
+        # The bills must be PROVABLY separate documents/transactions. Equal amount and
+        # date, with unreadable times and no differing references, could just as well
+        # be one payment shown twice: that is a review question, not a pairing.
+        if not all(_provably_distinct(a, b) for n, a in enumerate(ordered_bills) for b in ordered_bills[n + 1 :]):
+            continue
         score = score_pair(
             expenses[ordered_claims[0]],
             ordered_bills[0],
@@ -857,7 +961,8 @@ def assign_interchangeable_claims(
         )[0]
         if score < MEDIUM_THRESHOLD:
             continue
-        confidence = "HIGH" if score >= HIGH_THRESHOLD else "MEDIUM"
+        # Never HIGH: which bill belongs to which claim is a coin-flip by construction.
+        confidence = "MEDIUM"
         labels = ", ".join(_claim_label(expenses[i], i) for i in ordered_claims)
         pages = ", ".join(str(b.get("page_number")) for b in ordered_bills)
         for i, bill in zip(ordered_claims, ordered_bills):
@@ -868,10 +973,10 @@ def assign_interchangeable_claims(
                 first_bill_page=first_bill_page,
             )
             note = (
-                f"{labels} are separate claims with the same amount, date and category, and the document holds exactly "
-                f"{len(ordered_bills)} equally fitting bills (pages {pages}); each claim is supported by its own bill. "
-                f"The evidence cannot tell which bill belongs to which claim, so they were paired in document order "
-                f"- the pairing does not affect the result."
+                f"AMBIGUOUS PAIRING: {labels} are separate claims with the same amount, date and category, and the "
+                f"document holds exactly {len(ordered_bills)} provably separate, equally fitting bills (pages {pages}); "
+                f"each claim has its own bill. The evidence cannot tell which bill belongs to which claim, so they were "
+                f"paired in document order (confidence capped at MEDIUM) - the pairing does not affect the result."
             )
             outcomes[i] = replace(
                 outcomes[i],

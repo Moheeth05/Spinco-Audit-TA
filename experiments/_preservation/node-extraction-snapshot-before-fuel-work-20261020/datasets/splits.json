@@ -1,0 +1,7 @@
+{
+  "splitBy": "report",
+  "rationale": "Splitting by PDF/report rather than by individual row prevents leakage between structurally-similar rows of the SAME document (e.g. ER-40706's many near-identical LOCAL CONVEYANCE/BATTA rows) from inflating a per-row accuracy number. The reconstruction fix (hasEOL + Y-jump + wide-space signals, see src/textExtraction.mjs) was diagnosed and tuned using only the dev set; the held-out set was read only for the single final evaluation pass in scripts/evaluate-parity.mjs, after the approach was frozen - no threshold was adjusted in response to a held-out result.",
+  "dev": ["reahul-report-ER40513.pdf", "ER-40706.pdf", "ER-39832.pdf"],
+  "heldout": ["ER-40223.pdf", "ER-40782.pdf", "vivek-bhai-report-ER41220.pdf"],
+  "excludedFromDevTuning": "vivek-bhai-report-ER41220.pdf's page-3 cosmetic double-space mismatch and ER-40782's embedded-receipt-page mismatches were INSPECTED after freezing the approach, to classify the failure (confirmed same harmless class already found in dev, or confirmed out-of-scope receipt-page content) - not used to adjust LINE_Y_TOLERANCE, WIDE_SPACE_THRESHOLD, or any other constant."
+}

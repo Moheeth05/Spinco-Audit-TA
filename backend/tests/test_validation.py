@@ -419,9 +419,14 @@ def test_28_revalidate_does_not_duplicate_rows(client):
     # 9 per-expense checks (Phase 6 added Batta Trip Match Check, which
     # correctly returns NOT_APPLICABLE here since this expense isn't BATTA;
     # the multi-page bill grouping follow-up added Bill Grouping Review
-    # Check, NOT_APPLICABLE here since there's no candidate bill at all)
-    # + 1 report-level total check = 10, not 20.
-    assert len(validations) == 10
+    # Check, NOT_APPLICABLE here since there's no candidate bill at all; the
+    # payment-screenshot work added Payment Status Check, NOT_APPLICABLE here
+    # for the same reason; the shared-bill review added Shared Bill Check, also
+    # NOT_APPLICABLE here; the lodging room-service/food review added Room
+    # Service/Food Check, NOT_APPLICABLE here since this expense isn't LODGING)
+    # = 12 per-expense checks
+    # + 1 report-level total check = 13, not 26.
+    assert len(validations) == 13
 
 
 # ---------- 29: mandatory ER-39832 reference case (real PDF) ----------

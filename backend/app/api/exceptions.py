@@ -6,6 +6,8 @@ separate, durable table rather than a field written directly onto the
 (wholesale-replaced) ExceptionRecord row.
 """
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -16,9 +18,9 @@ from app.models.expense_report import Expense
 from app.models.user import User
 from app.models.validation import ExceptionRecord, ExceptionVerification, ValidationResult
 from app.schemas.exceptions import ExceptionRecordOut, VerifyExceptionIn
-from app.services import audit
+from app.services import audit, verification_history
 from app.services.excel_generator import generate_workbook
-from app.services.exception_engine import evaluate_report
+from app.services.exception_engine import evaluate_report, signature_for_record, strip_stale_note
 from app.services.permissions import MANUAL_CORRECTION, require_permission
 
 router = APIRouter(prefix="/api/exceptions", tags=["exceptions"])
@@ -61,11 +63,25 @@ def verify_exception(
         .scalars()
         .first()
     )
+    # What the auditor is approving: the reason as the checks produced it (without the
+    # "previous verification no longer applies" note a stale approval adds to the display) and
+    # a signature of the typed evidence behind it - evaluate_report() re-applies this
+    # approval only while that evidence is unchanged.
+    approved_reason = strip_stale_note(record.reason)
+    signature = signature_for_record(db, record)
     if existing is not None:
+        # The state being replaced is first preserved in the history table, in this same
+        # transaction (the note text is deliberately not in the audit event, so this is where
+        # it survives). The live row is then updated in place: its id is preserved, and a
+        # note is replaced only when a new one is given.
+        db.add(verification_history.snapshot(existing, user.id))
         existing.original_severity = record.severity
-        existing.original_reason = record.reason
+        existing.original_reason = approved_reason
+        existing.evidence_signature = signature
         existing.verified_by_id = user.id
-        existing.verification_note = payload.note
+        existing.verified_at = datetime.now(timezone.utc)
+        if payload.note and payload.note.strip():
+            existing.verification_note = payload.note
     else:
         db.add(
             ExceptionVerification(
@@ -73,7 +89,8 @@ def verify_exception(
                 expense_id=record.expense_id,
                 exception_type=record.exception_type,
                 original_severity=record.severity,
-                original_reason=record.reason,
+                original_reason=approved_reason,
+                evidence_signature=signature,
                 verified_by_id=user.id,
                 verification_note=payload.note,
             )
@@ -89,8 +106,10 @@ def verify_exception(
         action=audit.EXCEPTION_VERIFIED,
         entity_type="ExceptionRecord",
         entity_id=str(exception_id),
+        # The free-text note is stored on the verification record (and returned by the exceptions
+        # API); it is deliberately NOT copied into the audit details.
         details=f"{record.exception_type} on expense_id={record.expense_id} (report {record.expense_report_id})"
-        + (f"; note: {payload.note}" if payload.note else ""),
+        + ("; note recorded" if payload.note and payload.note.strip() else ""),
     )
     db.commit()
 

@@ -1,0 +1,150 @@
+{
+  "note": "Ground truth read directly from the rendered PDF page content shown earlier in this conversation (the actual document images/text), not derived from either extraction pipeline's output. Deliberately samples the hard cases the task called out: invoice number vs. transaction reference on the same receipt, subtotal vs. tax vs. total, a multi-transaction credit-card statement that must not be read as 'the bill total', and a mix of document quality (clean thermal print, handwritten, digitally-generated, photographed-on-tinted-paper).",
+  "samples": [
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf", "page": 6,
+      "documentType": "RECEIPT",
+      "vendor": "HP Auto Care Centre (Bodakdev, Ahmedabad)",
+      "date": "2026-09-16",
+      "totalAmount": 2500.00,
+      "invoiceNumber": "535084",
+      "transactionReference": "6091614189",
+      "note": "Two distinct numeric IDs on one receipt - 'TXN NO: 6091614189' and 'INVOICE NO: 535084' - printed as separate lines, TXN NO first. Correct extraction must pick INVOICE NO as the invoice number, not conflate the two.",
+      "quality": "clean printed thermal receipt, photographed",
+      "confidence": "high"
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf", "page": 7,
+      "documentType": "RECEIPT",
+      "vendor": "Dishant Petroleum Service",
+      "date": "2026-09-17",
+      "totalAmount": 300,
+      "invoiceNumber": "648591",
+      "quality": "handwritten cash memo, bilingual (Gujarati+English), partially illegible",
+      "confidence": "low - amount and date are hand-filled into a printed grid; genuinely hard to read even by eye",
+      "note": "Deliberately included as a low-confidence case, not a confident one - flags the honest limit of what any OCR engine can recover here."
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf", "page": 9,
+      "documentType": "RECEIPT",
+      "vendor": "ADYAR ANANDA BHAVAN SWEETS (A2B)",
+      "date": "2026-09-21",
+      "totalAmount": 685.00,
+      "invoiceNumber": "CR26349/129981",
+      "gstin": "33AAICA3787F1ZN",
+      "quality": "clean printed thermal receipt, photographed",
+      "confidence": "high"
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf", "page": 15,
+      "documentType": "INVOICE",
+      "vendor": "Airport Cab Service",
+      "date": "2026-09-21",
+      "totalAmount": 1150.00,
+      "invoiceNumber": "INVOICE600028",
+      "note": "Digitally-generated invoice (Zoho Invoice), not a photo - likely has native PDF text rather than requiring OCR.",
+      "quality": "clean digital invoice",
+      "confidence": "high"
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf", "page": 25,
+      "documentType": "TRANSACTION_SCREENSHOT",
+      "vendor": "PANKAJ BALDEVBHAI PARMAR (UPI payee)",
+      "date": "2026-09-21",
+      "totalAmount": 500,
+      "invoiceNumber": null,
+      "transactionReference": "T2609211819064088081730",
+      "note": "No invoice exists on this page at all - it's a payment confirmation screenshot, not a bill. 'PhonePe Transaction ID' is correctly a transaction reference, never an invoice number. Ground truth for invoiceNumber is explicitly null, not a guess.",
+      "quality": "clean app screenshot",
+      "confidence": "high"
+    },
+    {
+      "filename": "ER-40706.pdf", "page": 6,
+      "documentType": "OTHER",
+      "vendor": "Taxi Operator's Union (Regd.), Pinjore Road Baddi",
+      "date": "2026-07-10",
+      "totalAmount": 3000,
+      "note": "Fully handwritten voucher. Amount field is handwritten '3000/-'; this is an advance/fare receipt, not a tax invoice.",
+      "quality": "handwritten voucher",
+      "confidence": "medium"
+    },
+    {
+      "filename": "ER-40706.pdf", "page": 10,
+      "documentType": "INVOICE",
+      "vendor": "Home Town Resort",
+      "date": "2026-07-10",
+      "totalAmount": 34999.90,
+      "note": "Hotel ledger invoice (page 1 of 2, continues to page 11) - Net Amount 34999.90 (= 33333.30 taxable + 833.30 CGST + 833.30 SGST). A SEPARATE card-swipe receipt on page 12 shows AMT INR 35000.00 (rounded card charge) - these are two different, correctly-distinct figures for the SAME stay, not a contradiction to be resolved to one number.",
+      "quality": "clean digital tax invoice, photographed",
+      "confidence": "high"
+    },
+    {
+      "filename": "ER-40706.pdf", "page": 12,
+      "documentType": "RECEIPT",
+      "vendor": "Central Bank of India (card payment slip, Home Town Resort)",
+      "date": "2026-07-10",
+      "totalAmount": 35000.00,
+      "note": "Card-swipe confirmation slip, a DIFFERENT document from page 10-11's hotel invoice even though both relate to the same stay. Ground truth total is this slip's own AMT (35000.00), not the invoice's 34999.90 - the two must not be conflated into one 'correct' value.",
+      "quality": "clean printed card receipt, photographed",
+      "confidence": "high"
+    },
+    {
+      "filename": "ER-40706.pdf", "page": 20,
+      "documentType": "OTHER",
+      "vendor": "ICICI Bank (Amazon Pay Credit Card statement)",
+      "date": "2026-08-05",
+      "totalAmount": null,
+      "note": "Confirmed hard case: this is a multi-transaction CREDIT CARD STATEMENT (same document already found problematic for bill-grouping in the Expense Report stage), listing a dozen+ distinct unrelated transactions. 'Total Amount due Rs.1,13,824.75' is the card's outstanding BALANCE, not a reimbursable expense total - ground truth totalAmount is deliberately null here: no single figure on this page is 'the bill total' for any one expense claim. A naive label-priority match on 'total'/'amount' risks confidently extracting Rs.1,13,824.75 as if it were one.",
+      "quality": "clean digital statement, photographed",
+      "confidence": "high (on what NOT to extract)"
+    },
+    {
+      "filename": "ER-40706.pdf", "page": 22,
+      "documentType": "RECEIPT",
+      "vendor": "KFC (via food-delivery order summary)",
+      "date": "2026-09-21",
+      "subtotal": 600.0,
+      "cgst": 15.0,
+      "sgst": 15.0,
+      "totalAmount": 630.0,
+      "note": "Explicit Subtotal/CGST/SGST/Total breakdown - ground truth total is 630.0 (Total), not 600.0 (Subtotal).",
+      "quality": "photographed on yellow-tinted paper, visibly blurred/skewed",
+      "confidence": "medium - genuine OCR difficulty from the tint/blur, not just a clean-receipt case"
+    },
+    {
+      "filename": "ER-39832.pdf", "page": 3,
+      "documentType": "RECEIPT",
+      "vendor": "Theneth Auto Fuels (Bharat Petroleum)",
+      "date": "2026-06-01",
+      "totalAmount": 2000.00,
+      "transactionReference": "6060107319",
+      "note": "'Txn Id' is a transaction reference, not a labeled invoice number - no invoice-number label appears on this receipt at all.",
+      "quality": "clean printed thermal receipt, photographed",
+      "confidence": "high"
+    },
+    {
+      "filename": "ER-39832.pdf", "page": 6,
+      "documentType": "INVOICE",
+      "vendor": "RATHNA ELECTRICALS & HARDWARES",
+      "date": null,
+      "totalAmount": 220,
+      "invoiceNumber": "664",
+      "gstin": "32ARWPK8203C1ZW",
+      "note": "Handwritten cash invoice - printed template, hand-filled amounts/date. Date is illegible in the rendered image (no confident ground truth value), left null rather than guessed.",
+      "quality": "handwritten on printed template",
+      "confidence": "medium (amount/invoice-no legible; date is not)"
+    },
+    {
+      "filename": "ER-40782.pdf", "page": 3,
+      "documentType": "TRANSACTION_SCREENSHOT",
+      "vendor": "CNG Mother Station (Paytm payment)",
+      "date": "2026-07-01",
+      "totalAmount": 4051,
+      "invoiceNumber": null,
+      "transactionReference": "202607010109000002790183",
+      "note": "Payment confirmation screenshot, not a bill - 'Txn ID'/'Order ID' are transaction references, no invoice number exists. Auth-Code 896336 is a card-authorization code, also not an invoice number.",
+      "quality": "clean app screenshot",
+      "confidence": "high"
+    }
+  ]
+}

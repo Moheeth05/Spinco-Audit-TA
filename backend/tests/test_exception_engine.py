@@ -854,7 +854,9 @@ def test_32_verification_is_audit_logged(client):
         events = db.query(AuditLog).filter(AuditLog.action == "EXCEPTION_VERIFIED").all()
         assert len(events) == 1
         assert events[0].entity_id == str(review_required["id"])
-        assert "audit trail check" in (events[0].details or "")
+        # The note text is stored on the verification record, never in the audit details.
+        assert "note recorded" in (events[0].details or "")
+        assert "audit trail check" not in (events[0].details or "")
     finally:
         db.close()
 

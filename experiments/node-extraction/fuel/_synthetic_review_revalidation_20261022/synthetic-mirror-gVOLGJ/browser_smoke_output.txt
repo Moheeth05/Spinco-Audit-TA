@@ -1,0 +1,21 @@
+PASS read -> illegible clears the pump value
+PASS printed-text box is kept when a field becomes illegible
+PASS saved state matches the screen (pump value cleared in storage)
+PASS read -> not_printed clears the pump value
+PASS switching back to read starts from an empty value
+PASS a new valid value can be entered after switching back
+PASS read -> illegible clears the date, provability tick and evidence
+PASS read -> illegible clears the amount
+PASS export blocked: status read with an empty pump value
+PASS export blocked: status read with no calendar date
+PASS export blocked: a value typed onto an illegible field
+PASS export blocked: malformed reviewer id
+PASS export blocked: authorization not ticked
+PASS error box is hidden after a valid export
+PASS image loads
+PASS blind: provisional labels hidden
+PASS export schema
+PASS only complete receipts exported
+PASS values round-trip
+PASS NO network request
+non-file requests seen: []

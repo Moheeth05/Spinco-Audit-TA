@@ -129,6 +129,25 @@ def _text_has_labelled_values(text: str) -> bool:
     return False
 
 
+_SPACE_LIKE = dict.fromkeys(
+    [0x00A0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x202F, 0x205F, 0x3000], " "
+)
+_INVISIBLE = dict.fromkeys([0x200B, 0x200C, 0x200D, 0x2060, 0xFEFF], None)
+_DASH_LIKE = dict.fromkeys([0x00AD, 0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015, 0x2212], "-")
+_NORMALIZE_TABLE = {**_SPACE_LIKE, **_INVISIBLE, **_DASH_LIKE}
+
+
+def normalize_text(text: str) -> str:
+    """Unicode hygiene at the text boundary, so every downstream parser sees
+    the characters it was written for. PDFs with embedded subset fonts commonly
+    extract every space as a NON-BREAKING space (U+00A0) and a hyphen as a SOFT
+    HYPHEN (U+00AD), which silently defeats exact-match anchors such as the
+    "EXPENSE SUMMARY" heading, "ER-12345" ids and "dd-mm-yyyy" dates. Pure
+    character substitution: no text is added, removed (other than zero-width
+    characters) or reordered."""
+    return text.translate(_NORMALIZE_TABLE) if text else text
+
+
 def _reconstruct_native_text(page: "fitz.Page") -> str:
     """Position-aware text reconstruction via PyMuPDF's structured
     get_text("dict") mode: groups text spans into visual rows by Y-coordinate
@@ -169,7 +188,7 @@ def _reconstruct_native_text(page: "fitz.Page") -> str:
             row_y = s["y0"]
 
     lines = [" ".join(s["text"] for s in sorted(row, key=lambda s: s["x0"])) for row in rows]
-    return "\n".join(lines)
+    return normalize_text("\n".join(lines))
 
 
 class PyMuPDFTextExtractor(PDFProcessor):
@@ -181,7 +200,7 @@ class PyMuPDFTextExtractor(PDFProcessor):
         try:
             pages = []
             for i in range(doc.page_count):
-                text = doc[i].get_text()
+                text = normalize_text(doc[i].get_text())
                 pages.append(
                     {
                         "page_number": i + 1,
@@ -260,7 +279,7 @@ class PyMuPDFTextExtractor(PDFProcessor):
                 image_bytes, result = retried
 
         if result["text"].strip():
-            page["text"] = result["text"]
+            page["text"] = normalize_text(result["text"])
             page["source"] = "ocr"
             page["ocr_confidence"] = result["confidence"]
             page["has_selectable_text"] = True

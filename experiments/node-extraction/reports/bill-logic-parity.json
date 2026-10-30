@@ -1,0 +1,12 @@
+{
+  "total": 143,
+  "fieldMatches": {
+    "vendor": 143,
+    "billNumber": 143,
+    "billDate": 143,
+    "amount": 143,
+    "gstin": 143,
+    "categoryGuess": 143
+  },
+  "mismatches": []
+}

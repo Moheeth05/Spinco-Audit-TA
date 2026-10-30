@@ -1,0 +1,5121 @@
+{
+ "label": "heldout4_oneshot",
+ "seeds": [
+  1,
+  2,
+  3
+ ],
+ "provider_calls": 0,
+ "families": {
+  "heldout4": {
+   "aggregate": {
+    "truth_rows": 111,
+    "pred_rows": 60,
+    "exact_rows": 60,
+    "row_date_ok": 60,
+    "row_amount_ok": 60,
+    "row_category_ok": 60,
+    "receipts": 111,
+    "receipt_found": 111,
+    "amount_ok": 78,
+    "merchant_ok": 59,
+    "date_resolvable": 111,
+    "date_exact": 95,
+    "claims": 111,
+    "expect_SUPPORTED": 78,
+    "alloc_correct": 44,
+    "fully_verified": 39,
+    "verifiable": 51,
+    "wrong_bill": 0,
+    "false_confident": 0,
+    "in_review": 2,
+    "review_justified": 0,
+    "false_duplicate": 0,
+    "date_unresolved": 16,
+    "expect_AMBIGUOUS": 15,
+    "expect_UNSUPPORTED": 18,
+    "exc_expected": 9,
+    "exc_found": 9
+   },
+   "seconds": 22.2,
+   "cases": [
+    {
+     "name": "heldout4:same_amount_diff_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r3",
+       "template": "ola_like",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-22",
+       "pred_amount": 230.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "ola_like",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15",
+       "pred_amount": 230.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r1",
+       "template": "ola_like",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-03",
+       "pred_amount": 230.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 3,
+      "exact_rows": 3,
+      "date_ok": 3,
+      "amount_ok": 3,
+      "category_ok": 3
+     }
+    },
+    {
+     "name": "heldout4:same_amount_diff_dates_unproven",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_slash_iso",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 230.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      },
+      {
+       "rid": "r2",
+       "template": "ride_slash_iso",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 230.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      },
+      {
+       "rid": "r3",
+       "template": "ride_slash_iso",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 230.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_day_distinct_times",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.67.00, date 2026-07-24). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-24 (score 13/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.67.00, date 2026-07-24). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-24 (score 8/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [67.0]."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [67.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:duplicate_screenshot_reused",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 240.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "552211003344",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 240.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "552211003344",
+       "date_method": "iso",
+       "notes": "Duplicate of the bill on page 2: the same transaction reference. Matching uses only the first copy."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_time_different_txn",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "AMBIGUOUS PAIRING: S.No 1, S.No 2 are separate claims with the same amount, date and category, and the document holds exactly 2 provably separate, equally fitting bills (pages 2, 4); each claim has its own bill. The evidence cannot tell which bill belongs to which claim, so they were paired in document order (confidence capped at MEDIUM) - the pairing does not affect the result.; Amount: exact mat",
+       "confidence": "MEDIUM",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "AMBIGUOUS PAIRING: S.No 1, S.No 2 are separate claims with the same amount, date and category, and the document holds exactly 2 provably separate, equally fitting bills (pages 2, 4); each claim has its own bill. The evidence cannot tell which bill belongs to which claim, so they were paired in document order (confidence capped at MEDIUM) - the pairing does not affect the result.; Amount: exact mat",
+       "confidence": "MEDIUM",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 240.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "100000000001",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 240.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "100000000002",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:pending_failed",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [180.0]."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [260.0]."
+      },
+      {
+       "rid": "r3",
+       "template": "bank_sms",
+       "page": 6,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-17",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [340.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:missing_bill",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "REVIEW_REQUIRED",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Vendor/description: partial text match; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.410.00, date 2026-07-21). Closest candidate: page 2, amount Rs.220.00 (score -15/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "MISSING BILL",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_slash_iso",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 220.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:ambiguous_date_no_evidence",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-02",
+       "pred_amount": 275.0,
+       "pred_time": "14:05",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T247041141560646603",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:labeled_dmy_february_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "DATE MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "DATE MISMATCH",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "hotel_cue_after",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-02-07",
+       "pred_amount": 190.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "cue",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:labeled_mdy_july_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "hotel_cue_after",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-02",
+       "pred_amount": 190.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "cue",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:mixed_formats_in_one_pdf",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 4,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r4"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r4",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-04",
+       "pred_amount": 210.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Date '7/4/26' is ambiguous (2026-04-07 or 2026-07-04) and nothing in this report establishes its day/month order; left unresolved for review.; Date '7/4/26' read as 2026-07-04 (month-first): other receipts of the same template in this report print dates in the same format and prove the order."
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-21",
+       "pred_amount": 95.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-06",
+       "pred_amount": 840.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Date '06/07/2026' is ambiguous (2026-07-06 or 2026-06-07) and nothing in this report establishes its day/month order; left unresolved for review.; Date '06/07/2026' read as 2026-07-06 (day-first): other receipts of the same template in this report print dates in the same format and prove the order."
+      },
+      {
+       "rid": "r4",
+       "template": "gst_invoice",
+       "page": 8,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-18",
+       "pred_amount": 1260.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 4,
+      "predicted_rows": 4,
+      "exact_rows": 4,
+      "date_ok": 4,
+      "amount_ok": 4,
+      "category_ok": 4
+     }
+    },
+    {
+     "name": "heldout4:category_conflict_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-11",
+       "pred_amount": 480.0,
+       "pred_time": "13:00",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T742653879042960002",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:flight_claimed_as_lodging",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "CATEGORY MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "CATEGORY MISMATCH",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 4797.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:flight_claimed_as_airfare",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 4797.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:leading_digit_ocr_confusion",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "restaurant_words",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 500.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.; Printed amount read as Rs.4,500 but the bill's amount in words is Rs.500; the currency symbol was most likely read as a leading digit, so the amount in words was used."
+      },
+      {
+       "rid": "r2",
+       "template": "restaurant_words",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20",
+       "pred_amount": 500.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.; Printed amount read as Rs.4,500 but the bill's amount in words is Rs.500; the currency symbol was most likely read as a leading digit, so the amount in words was used."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:decoys_same_amount_other_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-08",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0].; Date '08-07-26' is ambiguous (2026-07-08 or 2026-08-07) and nothing in this report establishes its day/month order; left unresolved for review.; Date '08-07-26' re"
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-23",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0]."
+      },
+      {
+       "rid": "r3",
+       "template": "bank_sms",
+       "page": 6,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-27",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:ocr_only_pages",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.245.00, date 2026-07-14). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-14 (score 13/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.390.00, date 2026-07-16). Closest candidate: page 4, amount Rs.18,450.12, date 2026-07-16 (score 8/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [245.0]."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [390.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:split_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [600.0].; Date '12-07-26' is ambiguous (2026-07-12 or 2026-12-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [400.0].; Date '12-07-26' is ambiguous (2026-07-12 or 2026-12-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:fuel_receipt_for_fuel_claim",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15",
+       "pred_amount": 1800.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:train_ticket_for_train_claim",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "train_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16",
+       "pred_amount": 1245.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_amount_diff_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r3",
+       "template": "ola_like",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-22",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r1",
+       "template": "ola_like",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-03",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "ola_like",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 3,
+      "exact_rows": 3,
+      "date_ok": 3,
+      "amount_ok": 3,
+      "category_ok": 3
+     }
+    },
+    {
+     "name": "heldout4:same_amount_diff_dates_unproven",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_slash_iso",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      },
+      {
+       "rid": "r2",
+       "template": "ride_slash_iso",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      },
+      {
+       "rid": "r3",
+       "template": "ride_slash_iso",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_day_distinct_times",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.240.00, date 2026-07-24). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-24 (score 13/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.240.00, date 2026-07-24). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-24 (score 8/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [240.0]."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [240.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:duplicate_screenshot_reused",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 67.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "552211003344",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 67.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "552211003344",
+       "date_method": "iso",
+       "notes": "Duplicate of the bill on page 2: the same transaction reference. Matching uses only the first copy."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_time_different_txn",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.240.00, date 2026-07-24). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-24 (score 13/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.240.00, date 2026-07-24). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-24 (score 8/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [240.0]."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-24",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [240.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:pending_failed",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [180.0]."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [260.0]."
+      },
+      {
+       "rid": "r3",
+       "template": "bank_sms",
+       "page": 6,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-17",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [340.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:missing_bill",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "REVIEW_REQUIRED",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Vendor/description: partial text match; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "BILL MATCH REVIEW REQUIRED"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": true,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.410.00, date 2026-07-21). Closest candidate: page 2, amount Rs.220.00 (score -15/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "MISSING BILL",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_slash_iso",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "unresolved",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 220.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": null,
+       "notes": "Bill date could not be reliably determined."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:ambiguous_date_no_evidence",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-02",
+       "pred_amount": 275.0,
+       "pred_time": "14:05",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T433289865242647490",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:labeled_dmy_february_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "DATE MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "DATE MISMATCH",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "hotel_cue_after",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-02-07",
+       "pred_amount": 190.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "cue",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:labeled_mdy_july_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "hotel_cue_after",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-02",
+       "pred_amount": 190.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "cue",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:mixed_formats_in_one_pdf",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 4,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r4"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r4",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-04",
+       "pred_amount": 210.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Date '7/4/26' is ambiguous (2026-04-07 or 2026-07-04) and nothing in this report establishes its day/month order; left unresolved for review.; Date '7/4/26' read as 2026-07-04 (month-first): other receipts of the same template in this report print dates in the same format and prove the order."
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-21",
+       "pred_amount": 95.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-06",
+       "pred_amount": 840.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Date '06/07/2026' is ambiguous (2026-07-06 or 2026-06-07) and nothing in this report establishes its day/month order; left unresolved for review.; Date '06/07/2026' read as 2026-07-06 (day-first): other receipts of the same template in this report print dates in the same format and prove the order."
+      },
+      {
+       "rid": "r4",
+       "template": "gst_invoice",
+       "page": 8,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-18",
+       "pred_amount": 1260.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 4,
+      "predicted_rows": 4,
+      "exact_rows": 4,
+      "date_ok": 4,
+      "amount_ok": 4,
+      "category_ok": 4
+     }
+    },
+    {
+     "name": "heldout4:category_conflict_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-11",
+       "pred_amount": 480.0,
+       "pred_time": "13:00",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T409571592343929482",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:flight_claimed_as_lodging",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "CATEGORY MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "CATEGORY MISMATCH",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 4797.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:flight_claimed_as_airfare",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 4797.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:leading_digit_ocr_confusion",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "restaurant_words",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 500.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.; Printed amount read as Rs.4,500 but the bill's amount in words is Rs.500; the currency symbol was most likely read as a leading digit, so the amount in words was used."
+      },
+      {
+       "rid": "r2",
+       "template": "restaurant_words",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20",
+       "pred_amount": 500.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.; Printed amount read as Rs.4,500 but the bill's amount in words is Rs.500; the currency symbol was most likely read as a leading digit, so the amount in words was used."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:decoys_same_amount_other_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-08",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0].; Date '08-07-26' is ambiguous (2026-07-08 or 2026-08-07) and nothing in this report establishes its day/month order; left unresolved for review.; Date '08-07-26' re"
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-23",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0]."
+      },
+      {
+       "rid": "r3",
+       "template": "bank_sms",
+       "page": 6,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-27",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:ocr_only_pages",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.245.00, date 2026-07-14). Closest candidate: page 2, amount Rs.18,450.12, date 2026-07-14 (score 13/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.390.00, date 2026-07-16). Closest candidate: page 4, amount Rs.18,450.12, date 2026-07-16 (score 8/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [245.0]."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [390.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:split_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [600.0].; Date '12-07-26' is ambiguous (2026-07-12 or 2026-12-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [400.0].; Date '12-07-26' is ambiguous (2026-07-12 or 2026-12-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:fuel_receipt_for_fuel_claim",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15",
+       "pred_amount": 1800.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:train_ticket_for_train_claim",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "train_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16",
+       "pred_amount": 1245.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_amount_diff_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ola_like",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-03",
+       "pred_amount": 150.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "ola_like",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15",
+       "pred_amount": 150.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r3",
+       "template": "ola_like",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-22",
+       "pred_amount": 150.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 3,
+      "exact_rows": 3,
+      "date_ok": 3,
+      "amount_ok": 3,
+      "category_ok": 3
+     }
+    },
+    {
+     "name": "heldout4:same_amount_diff_dates_unproven",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ola_like",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-03",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "ola_like",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-05",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      },
+      {
+       "rid": "r3",
+       "template": "ola_like",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-09",
+       "pred_amount": 310.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_day_distinct_times",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "AMBIGUOUS PAIRING: S.No 1, S.No 2 are separate claims with the same amount, date and category, and the document holds exactly 2 provably separate, equally fitting bills (pages 2, 4); each claim has its own bill. The evidence cannot tell which bill belongs to which claim, so they were paired in document order (confidence capped at MEDIUM) - the pairing does not affect the result.; Amount: exact mat",
+       "confidence": "MEDIUM",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "AMBIGUOUS PAIRING: S.No 1, S.No 2 are separate claims with the same amount, date and category, and the document holds exactly 2 provably separate, equally fitting bills (pages 2, 4); each claim has its own bill. The evidence cannot tell which bill belongs to which claim, so they were paired in document order (confidence capped at MEDIUM) - the pairing does not affect the result.; Amount: exact mat",
+       "confidence": "MEDIUM",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 67.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T043725703524085271",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 67.0,
+       "pred_time": "18:40",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T827341940882918336",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:duplicate_screenshot_reused",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 67.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "552211003344",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 67.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "552211003344",
+       "date_method": "iso",
+       "notes": "Duplicate of the bill on page 2: the same transaction reference. Matching uses only the first copy."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:same_time_different_txn",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "AMBIGUOUS PAIRING: S.No 1, S.No 2 are separate claims with the same amount, date and category, and the document holds exactly 2 provably separate, equally fitting bills (pages 2, 4); each claim has its own bill. The evidence cannot tell which bill belongs to which claim, so they were paired in document order (confidence capped at MEDIUM) - the pairing does not affect the result.; Amount: exact mat",
+       "confidence": "MEDIUM",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "AMBIGUOUS PAIRING: S.No 1, S.No 2 are separate claims with the same amount, date and category, and the document holds exactly 2 provably separate, equally fitting bills (pages 2, 4); each claim has its own bill. The evidence cannot tell which bill belongs to which claim, so they were paired in document order (confidence capped at MEDIUM) - the pairing does not affect the result.; Amount: exact mat",
+       "confidence": "MEDIUM",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 120.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "100000000001",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-24",
+       "pred_amount": 120.0,
+       "pred_time": "12:22",
+       "pred_status": "COMPLETED",
+       "pred_ref": "100000000002",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:pending_failed",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-14",
+       "pred_amount": 180.0,
+       "pred_time": "10:05",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T035304471849263369",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-16",
+       "pred_amount": 260.0,
+       "pred_time": "11:15",
+       "pred_status": "PENDING",
+       "pred_ref": "T808671380705378264",
+       "date_method": "iso",
+       "notes": "Payment screenshot shows the transaction as PENDING; it is not proof of a completed payment."
+      },
+      {
+       "rid": "r3",
+       "template": "paytm_ymd",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-17",
+       "pred_amount": 340.0,
+       "pred_time": "09:50",
+       "pred_status": "FAILED",
+       "pred_ref": "T221891708991758500",
+       "date_method": "iso",
+       "notes": "Payment screenshot shows the transaction as FAILED; it is not proof of a completed payment."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:missing_bill",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": true,
+       "match_status": "NO_MATCH",
+       "matched_rid": null,
+       "validation": "EXCEPTION",
+       "reasons": "No candidate bill scored highly enough to plausibly support this expense (claimed Rs.410.00, date 2026-07-21). Closest candidate: page 2, amount Rs.220.00, date 2026-07-20 (score 7/25 needed).",
+       "confidence": null,
+       "exceptions": [
+        "MISSING BILL"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "MISSING BILL",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ola_like",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20",
+       "pred_amount": 220.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:ambiguous_date_no_evidence",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [275.0].; Date '02-07-26' is ambiguous (2026-07-02 or 2026-02-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:labeled_dmy_february_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "DATE MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": false,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "DATE MISMATCH",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "hotel_cue_after",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-02-07",
+       "pred_amount": 190.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "cue",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:labeled_mdy_july_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "hotel_cue_after",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-02",
+       "pred_amount": 190.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "cue",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:mixed_formats_in_one_pdf",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r3",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 4,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r4"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r4",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-04",
+       "pred_amount": 210.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Date '7/4/26' is ambiguous (2026-04-07 or 2026-07-04) and nothing in this report establishes its day/month order; left unresolved for review.; Date '7/4/26' read as 2026-07-04 (month-first): other receipts of the same template in this report print dates in the same format and prove the order."
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-21",
+       "pred_amount": 95.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 6,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-06",
+       "pred_amount": 840.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Date '06/07/2026' is ambiguous (2026-07-06 or 2026-06-07) and nothing in this report establishes its day/month order; left unresolved for review.; Date '06/07/2026' read as 2026-07-06 (day-first): other receipts of the same template in this report print dates in the same format and prove the order."
+      },
+      {
+       "rid": "r4",
+       "template": "gst_invoice",
+       "page": 8,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-18",
+       "pred_amount": 1260.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 4,
+      "predicted_rows": 4,
+      "exact_rows": 4,
+      "date_ok": 4,
+      "amount_ok": 4,
+      "category_ok": 4
+     }
+    },
+    {
+     "name": "heldout4:category_conflict_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [480.0].; Date '11-07-26' is ambiguous (2026-07-11 or 2026-11-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:flight_claimed_as_lodging",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "EXCEPTION",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [
+        "CATEGORY MISMATCH"
+       ],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": false,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": "CATEGORY MISMATCH",
+       "exception_found": true,
+       "verifiable": false,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 4797.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:flight_claimed_as_airfare",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 4797.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:leading_digit_ocr_confusion",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "restaurant_words",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-19",
+       "pred_amount": 500.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.; Printed amount read as Rs.4,500 but the bill's amount in words is Rs.500; the currency symbol was most likely read as a leading digit, so the amount in words was used."
+      },
+      {
+       "rid": "r2",
+       "template": "restaurant_words",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-20",
+       "pred_amount": 500.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": "Amount read via a loose fallback pattern - OCR likely obscured the currency/decimal marker.; Printed amount read as Rs.4,500 but the bill's amount in words is Rs.500; the currency symbol was most likely read as a leading digit, so the amount in words was used."
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:decoys_same_amount_other_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-08",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "report_group",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0].; Date '08-07-26' is ambiguous (2026-07-08 or 2026-08-07) and nothing in this report establishes its day/month order; left unresolved for review.; Date '08-07-26' re"
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-23",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0]."
+      },
+      {
+       "rid": "r3",
+       "template": "bank_sms",
+       "page": 6,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-27",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [135.0]."
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:ocr_only_pages",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r2",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page is close to the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_ymd",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-14",
+       "pred_amount": 245.0,
+       "pred_time": "11:30",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T690363857639912666",
+       "date_method": "iso",
+       "notes": ""
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_ymd",
+       "page": 4,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": false,
+       "txn_ok": true,
+       "time_ok": true,
+       "status_ok": true,
+       "pred_date": "2026-07-16",
+       "pred_amount": 390.0,
+       "pred_time": "17:45",
+       "pred_status": "COMPLETED",
+       "pred_ref": "T289015123762888083",
+       "date_method": "iso",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 2,
+      "exact_rows": 2,
+      "date_ok": 2,
+      "amount_ok": 2,
+      "category_ok": 2
+     }
+    },
+    {
+     "name": "heldout4:split_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "bank_sms",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [600.0].; Date '12-07-26' is ambiguous (2026-07-12 or 2026-12-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      },
+      {
+       "rid": "r2",
+       "template": "bank_sms",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "unresolved",
+       "merchant_ok": false,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "None",
+       "pred_amount": 18450.12,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "unresolved",
+       "notes": "Multiple unlabeled amounts found; using the largest (18450.12) as a low-confidence candidate total. Other amounts on the page: [400.0].; Date '12-07-26' is ambiguous (2026-07-12 or 2026-12-07) and nothing in this report establishes its day/month order; left unresolved for review."
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout4:fuel_receipt_for_fuel_claim",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": true,
+       "match_status": "MATCHED",
+       "matched_rid": "r1",
+       "validation": "PASS",
+       "reasons": "Amount: exact match; Amount: unique exact match - no other bill on this document shares it; Date: exact match; Vendor/description: partial text match; Category: compatible; Source position: bill page matches the expense's order in the table",
+       "confidence": "HIGH",
+       "exceptions": [],
+       "bill_shared": false,
+       "allocation_correct": true,
+       "fully_verified": true,
+       "wrong_bill": false,
+       "false_confident": false,
+       "in_review": false,
+       "review_justified": false,
+       "exception_expected": null,
+       "exception_found": false,
+       "verifiable": true,
+       "false_duplicate": false,
+       "duplicate_expected": false,
+       "duplicate_not_verified": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-15",
+       "pred_amount": 1800.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "numeric",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 1,
+      "exact_rows": 1,
+      "date_ok": 1,
+      "amount_ok": 1,
+      "category_ok": 1
+     }
+    },
+    {
+     "name": "heldout4:train_ticket_for_train_claim",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "train_ticket",
+       "page": 2,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16",
+       "pred_amount": 1245.0,
+       "pred_time": null,
+       "pred_status": null,
+       "pred_ref": null,
+       "date_method": "month_name",
+       "notes": ""
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    }
+   ]
+  }
+ }
+}

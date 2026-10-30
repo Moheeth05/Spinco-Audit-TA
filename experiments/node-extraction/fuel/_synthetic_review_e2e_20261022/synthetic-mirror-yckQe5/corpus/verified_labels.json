@@ -1,0 +1,55 @@
+{
+ "generated": "2026-10-22T06:10:38.479Z",
+ "note": "Written by apply_verification.mjs from reviewer exports ONLY. Reviewer ids are self-attested.",
+ "records": {
+  "SYNTH-AUTH-001": {
+   "reviewer_id": "REV-001",
+   "authorization_confirmed": true,
+   "identity_assurance": "self_attested",
+   "reviewer_count": 1,
+   "verified_at": "2026-10-22T10:00:00Z",
+   "pump_name": {
+    "status": "read",
+    "value": "SYNTHETIC DEALER ONE",
+    "printed_text": "SYNTHETIC DEALER ONE"
+   },
+   "transaction_date": {
+    "status": "read",
+    "printed_text": "24/09/26",
+    "iso_date": "2026-09-24",
+    "order_provable_from_receipt": true,
+    "order_evidence": "component_gt_12"
+   },
+   "total_amount": {
+    "status": "read",
+    "printed_text": "100.00",
+    "value": 100
+   },
+   "notes": null,
+   "second_reviewer_agreed": false
+  },
+  "SYNTH-TPL-001": {
+   "reviewer_id": "REV-001",
+   "authorization_confirmed": true,
+   "identity_assurance": "self_attested",
+   "reviewer_count": 1,
+   "verified_at": "2026-10-22T10:00:00Z",
+   "pump_name": {
+    "status": "read",
+    "value": "SYNTHETIC TEMPLATE DEALER"
+   },
+   "transaction_date": {
+    "status": "read",
+    "iso_date": "2026-07-15",
+    "order_provable_from_receipt": false,
+    "order_evidence": "none"
+   },
+   "total_amount": {
+    "status": "read",
+    "value": 300
+   },
+   "notes": null,
+   "second_reviewer_agreed": false
+  }
+ }
+}

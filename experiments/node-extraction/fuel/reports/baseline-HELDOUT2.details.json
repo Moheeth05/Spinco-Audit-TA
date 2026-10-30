@@ -1,0 +1,3902 @@
+{
+ "synthetic_heldout2": [
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "GURUNANAKFILLINGSTATION",
+    "got": "Indianoil"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-20",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 300.34,
+    "got": 300.34
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 8.09190000000001,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Indianoil",
+     "normalized_value": "Indianoil",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 300.34,
+     "normalized_value": 300.34,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SAGARFUELPOINT",
+    "got": "Indianoil"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-14",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500,
+    "got": 1500
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 1.2218000000000302,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Indianoil",
+     "normalized_value": "Indianoil",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 1500,
+     "normalized_value": 1500,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "Indianoil"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-28",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 500.12,
+    "got": 500.12
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.7407000000000608,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Indianoil",
+     "normalized_value": "Indianoil",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 500.12,
+     "normalized_value": 500.12,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "KAVERISERVICESTATION",
+    "got": "KAVERI SERVICE STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-25",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 4500.12,
+    "got": 4500.12
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3650000000000091,
+   "pred": {
+    "pump_name": {
+     "raw_value": "KAVERI SERVICE STATION",
+     "normalized_value": "KAVERI SERVICE STATION",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 4500.12,
+     "normalized_value": 4500.12,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "AMBAPETROCENTRE",
+    "got": "Inaianoil"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-22",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500,
+    "got": 2500
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "lowres"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 4.279999999999973,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Inaianoil",
+     "normalized_value": "Inaianoil",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 2500,
+     "normalized_value": 2500,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "AMBAPETROCENTRE",
+    "got": "SUEmS -0dX"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-28",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 2500.34,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 4.98030000000017,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SUEmS -0dX",
+     "normalized_value": "SUEmS -0dX",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Bill amount could not be reliably determined.",
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "LAKSHMIFUELSTATION",
+    "got": "BHARAT PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-14",
+    "got": "2026-05-14"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "expected": 2500.34,
+    "got": 50979
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.8854999999998654,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BHARAT PETROLEUM",
+     "normalized_value": "BHARAT PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-05-14",
+     "normalized_value": "2026-05-14",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 50979,
+     "normalized_value": 50979,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Multiple unlabeled amounts found; using the largest (50979) as a low-confidence candidate total. Other amounts on the page: 2500.34."
+    ],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "MAATARASERVICESTATION",
+    "got": "BHARAT PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-20",
+    "got": "2026-08-20"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "expected": 800.66,
+    "got": 77178
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.6617000000005646,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BHARAT PETROLEUM",
+     "normalized_value": "BHARAT PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-20",
+     "normalized_value": "2026-08-20",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 77178,
+     "normalized_value": 77178,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Multiple unlabeled amounts found; using the largest (77178) as a low-confidence candidate total. Other amounts on the page: 800.66."
+    ],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "BHARAT PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-20",
+    "got": "2026-06-20"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "expected": 3500.34,
+    "got": 66742
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4808999999995649,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BHARAT PETROLEUM",
+     "normalized_value": "BHARAT PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-20",
+     "normalized_value": "2026-06-20",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 66742,
+     "normalized_value": 66742,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Multiple unlabeled amounts found; using the largest (66742) as a low-confidence candidate total. Other amounts on the page: 3500.34."
+    ],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "MAATARASERVICESTATION",
+    "got": "i +. BHARAT PETROLEUM BE"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-25",
+    "got": "2026-05-25"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "expected": 2500.12,
+    "got": 500.12
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "noise"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 2.0583999999998923,
+   "pred": {
+    "pump_name": {
+     "raw_value": "i +. BHARAT PETROLEUM BE",
+     "normalized_value": "i +. BHARAT PETROLEUM BE",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-05-25",
+     "normalized_value": "2026-05-25",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 500.12,
+     "normalized_value": 500.12,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "AMBAPETROCENTRE",
+    "got": "BMARAT PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-23",
+    "got": "2026-08-23"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "expected": 800.66,
+    "got": 10098
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3859999999995125,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BMARAT PETROLEUM",
+     "normalized_value": "BMARAT PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-23",
+     "normalized_value": "2026-08-23",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 10098,
+     "normalized_value": 10098,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Multiple unlabeled amounts found; using the largest (10098) as a low-confidence candidate total. Other amounts on the page: 800.66."
+    ],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "BHARAT PETROL gy"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-17",
+    "got": "3056-05-17"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 3000,
+    "got": 15573.99
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.351900000000569,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BHARAT PETROL gy",
+     "normalized_value": "BHARAT PETROL gy",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": "3056-05-17",
+     "normalized_value": "3056-05-17",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 15573.99,
+     "normalized_value": 15573.99,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Multiple unlabeled amounts found; using the largest (15573.99) as a low-confidence candidate total. Other amounts on the page: 3000."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JAIHINDAUTOFUELS",
+    "got": "JAI HIND AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-24",
+    "got": "2026-09-24"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 500,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.33210000000053697,
+   "pred": {
+    "pump_name": {
+     "raw_value": "JAI HIND AUTO FUELS",
+     "normalized_value": "JAI HIND AUTO FUELS",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-24",
+     "normalized_value": "2026-09-24",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Multiple differing amounts found at the same label priority: 4.97,100.51,500.",
+     "Bill amount could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JAIHINDAUTOFUELS",
+    "got": "JAI HIND AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-25",
+    "got": "2026-09-25"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 500,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3863000000001193,
+   "pred": {
+    "pump_name": {
+     "raw_value": "JAI HIND AUTO FUELS",
+     "normalized_value": "JAI HIND AUTO FUELS",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-25",
+     "normalized_value": "2026-09-25",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Multiple differing amounts found at the same label priority: 5.25,95.25,500.",
+     "Bill amount could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SRIVENKATESHWARAAUTOFUELS",
+    "got": "SRI VENKATESHWARA AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-21",
+    "got": "2026-08-21"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 3500.5,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.42180000000007567,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SRI VENKATESHWARA AUTO FUELS",
+     "normalized_value": "SRI VENKATESHWARA AUTO FUELS",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-21",
+     "normalized_value": "2026-08-21",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Multiple differing amounts found at the same label priority: 36.23,96.63,3500.5.",
+     "Bill amount could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "LAKSHMIFUELSTATION",
+    "got": "LAKSHMI FUEL STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-17",
+    "got": "2026-05-17"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 4000.66,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.29280000000017026,
+   "pred": {
+    "pump_name": {
+     "raw_value": "LAKSHMI FUEL STATION",
+     "normalized_value": "LAKSHMI FUEL STATION",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": "2026-05-17",
+     "normalized_value": "2026-05-17",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Multiple differing amounts found at the same label priority: 38.73,103.31,4000.66.",
+     "Bill amount could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "RAJDHANI FILLING POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-24",
+    "got": "2026-08-24"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 3500.12,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3894000000000233,
+   "pred": {
+    "pump_name": {
+     "raw_value": "RAJDHANI FILLING POINT",
+     "normalized_value": "RAJDHANI FILLING POINT",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-24",
+     "normalized_value": "2026-08-24",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Multiple differing amounts found at the same label priority: 34.29,102.08,3500.12.",
+     "Bill amount could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "BALAJIPETROLEUMSERVICE",
+    "got": "EN CEE Ie)"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-28",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1000,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.2253999999993539,
+   "pred": {
+    "pump_name": {
+     "raw_value": "EN CEE Ie)",
+     "normalized_value": "EN CEE Ie)",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Bill amount could not be reliably determined.",
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "BALAJIPETROLEUMSERVICE",
+    "got": "Dealer: M/S BALAJI PETROLEUM SERVICE"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-14",
+    "got": "2026-09-14"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500,
+    "got": 1500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.21810000000004948,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer: M/S BALAJI PETROLEUM SERVICE",
+     "normalized_value": "Dealer: M/S BALAJI PETROLEUM SERVICE",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-14",
+     "normalized_value": "2026-09-14",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1500,
+     "normalized_value": 1500,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JAIHINDAUTOFUELS",
+    "got": "NAYARA ENERGY"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-23",
+    "got": "2026-08-23"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1200,
+    "got": 1200
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.23719999999957508,
+   "pred": {
+    "pump_name": {
+     "raw_value": "NAYARA ENERGY",
+     "normalized_value": "NAYARA ENERGY",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-23",
+     "normalized_value": "2026-08-23",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1200,
+     "normalized_value": 1200,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "MAATARASERVICESTATION",
+    "got": "Dealer: M/S MAA TARA SERVICE STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-24",
+    "got": "2026-09-24"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 300.34,
+    "got": 300.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.189699999998993,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer: M/S MAA TARA SERVICE STATION",
+     "normalized_value": "Dealer: M/S MAA TARA SERVICE STATION",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-24",
+     "normalized_value": "2026-09-24",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 300.34,
+     "normalized_value": 300.34,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "ANNAPURNAPETROSERVICES",
+    "got": "Dealer; M/S ANNAPURNA PETRO SERVICES"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-22",
+    "got": "2026-07-22"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 500.5,
+    "got": 500.5
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "noise"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.38689999999951397,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer; M/S ANNAPURNA PETRO SERVICES",
+     "normalized_value": "Dealer; M/S ANNAPURNA PETRO SERVICES",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-07-22",
+     "normalized_value": "2026-07-22",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 500.5,
+     "normalized_value": 500.5,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "ANNAPURNAPETROSERVICES",
+    "got": "Dealer: M/S ANNAPURNA PETRO SERVICES"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-26",
+    "got": "2026-06-26"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500.66,
+    "got": 2500.66
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.2106999999996333,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer: M/S ANNAPURNA PETRO SERVICES",
+     "normalized_value": "Dealer: M/S ANNAPURNA PETRO SERVICES",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-26",
+     "normalized_value": "2026-06-26",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 2500.66,
+     "normalized_value": 2500.66,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "NAVARA ENERGY"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-27",
+    "got": "2026-09-27"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 500,
+    "got": 500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4547999999995227,
+   "pred": {
+    "pump_name": {
+     "raw_value": "NAVARA ENERGY",
+     "normalized_value": "NAVARA ENERGY",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-27",
+     "normalized_value": "2026-09-27",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 500,
+     "normalized_value": 500,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPSRIVENKATESHWARAAUTOFUELS",
+    "got": "jio-bp"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-25",
+    "got": "2026-06-25"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500,
+    "got": 2500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.35599999999976717,
+   "pred": {
+    "pump_name": {
+     "raw_value": "jio-bp",
+     "normalized_value": "jio-bp",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-25",
+     "normalized_value": "2026-06-25",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 2500,
+     "normalized_value": 2500,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPAMBAPETROCENTRE",
+    "got": "jio-bp"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-15",
+    "got": "2026-08-15"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500.34,
+    "got": 2500.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.19180000000051223,
+   "pred": {
+    "pump_name": {
+     "raw_value": "jio-bp",
+     "normalized_value": "jio-bp",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-15",
+     "normalized_value": "2026-08-15",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 2500.34,
+     "normalized_value": 2500.34,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPPATELPETROLEUMPOINT",
+    "got": "PATEL PETROLEUM POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-21",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1200.5,
+    "got": 1200.5
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.21090000000003783,
+   "pred": {
+    "pump_name": {
+     "raw_value": "PATEL PETROLEUM POINT",
+     "normalized_value": "PATEL PETROLEUM POINT",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 1200.5,
+     "normalized_value": 1200.5,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPSHREEGANESHPETROLEUM",
+    "got": "SHREE GANESH PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-19",
+    "got": "2026-05-19"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 3000.66,
+    "got": 3000.66
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.17159999999967113,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SHREE GANESH PETROLEUM",
+     "normalized_value": "SHREE GANESH PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-05-19",
+     "normalized_value": "2026-05-19",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 3000.66,
+     "normalized_value": 3000.66,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPSRIVENKATESHWARAAUTOFUELS",
+    "got": "jio-bp"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-22",
+    "got": "2026-07-22"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 300,
+    "got": 300
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3900999999987107,
+   "pred": {
+    "pump_name": {
+     "raw_value": "jio-bp",
+     "normalized_value": "jio-bp",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-07-22",
+     "normalized_value": "2026-07-22",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 300,
+     "normalized_value": 300,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_5",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": null,
+    "got": "15 AUG 2026"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-15",
+    "got": "2026-08-15"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500.5,
+    "got": 1500.5
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "cropped_top"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.6807000000007974,
+   "pred": {
+    "pump_name": {
+     "raw_value": "15 AUG 2026",
+     "normalized_value": "15 AUG 2026",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-15",
+     "normalized_value": "2026-08-15",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1500.5,
+     "normalized_value": 1500.5,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLJAIHINDAUTOFUELS",
+    "got": "SHELL"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-21",
+    "got": "2026-09-21"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 800,
+    "got": 800
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4978999999984808,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SHELL",
+     "normalized_value": "SHELL",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-21",
+     "normalized_value": "2026-09-21",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 800,
+     "normalized_value": 800,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLLAKSHMIFUELSTATION",
+    "got": "SHELL"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-26",
+    "got": "2026-09-26"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500,
+    "got": 1500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3606999999992695,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SHELL",
+     "normalized_value": "SHELL",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-26",
+     "normalized_value": "2026-09-26",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1500,
+     "normalized_value": 1500,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLGURUNANAKFILLINGSTATION",
+    "got": "SHELL"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-21",
+    "got": "2026-06-21"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 3000.12,
+    "got": 3000.12
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3806000000004133,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SHELL",
+     "normalized_value": "SHELL",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-21",
+     "normalized_value": "2026-06-21",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 3000.12,
+     "normalized_value": 3000.12,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLANNAPURNAPETROSERVICES",
+    "got": "ANNAPURNA PETRO SERVICES"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-14",
+    "got": "2026-06-14"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2000,
+    "got": 2000
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.301499999999578,
+   "pred": {
+    "pump_name": {
+     "raw_value": "ANNAPURNA PETRO SERVICES",
+     "normalized_value": "ANNAPURNA PETRO SERVICES",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-14",
+     "normalized_value": "2026-06-14",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 2000,
+     "normalized_value": 2000,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLJAIHINDAUTOFUELS",
+    "got": "SHELL"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-28",
+    "got": "2026-09-28"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 3000,
+    "got": 3000
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3176999999996042,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SHELL",
+     "normalized_value": "SHELL",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-28",
+     "normalized_value": "2026-09-28",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 3000,
+     "normalized_value": 3000,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLLAKSHMIFUELSTATION",
+    "got": "FREE wm :"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-24",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 300.34,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 3.1217999999989843,
+   "pred": {
+    "pump_name": {
+     "raw_value": "FREE wm :",
+     "normalized_value": "FREE wm :",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Bill amount could not be reliably determined.",
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_0",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": null,
+    "got": "SALE RECEIPT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-27",
+    "got": "2026-08-27"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 4000.34,
+    "got": 4000.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "independent_no_header",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.39500000000043656,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SALE RECEIPT",
+     "normalized_value": "SALE RECEIPT",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-27",
+     "normalized_value": "2026-08-27",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 4000.34,
+     "normalized_value": 4000.34,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_1",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": null,
+    "got": "SALE RECEIPT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-17",
+    "got": "2026-06-17"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1800.12,
+    "got": 1800.12
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "independent_no_header",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.24020000000018626,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SALE RECEIPT",
+     "normalized_value": "SALE RECEIPT",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-17",
+     "normalized_value": "2026-06-17",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1800.12,
+     "normalized_value": 1800.12,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_2",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": null,
+    "got": "SALE RECEIPT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-18",
+    "got": "2026-05-18"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500.12,
+    "got": 2500.12
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "independent_no_header",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.33810000000084983,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SALE RECEIPT",
+     "normalized_value": "SALE RECEIPT",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-05-18",
+     "normalized_value": "2026-05-18",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 2500.12,
+     "normalized_value": 2500.12,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_3",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": null,
+    "got": ": SALE RECEIPT, IRS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-14",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 4500,
+    "got": 4500
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "noise"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.22189999999864085,
+   "pred": {
+    "pump_name": {
+     "raw_value": ": SALE RECEIPT, IRS",
+     "normalized_value": ": SALE RECEIPT, IRS",
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": 4500,
+     "normalized_value": 4500,
+     "confidence": "MEDIUM",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_4",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": null,
+    "got": "SALE RECEIPT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-20",
+    "got": "2026-06-20"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500,
+    "got": 2500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "independent_no_header",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.1466999999993277,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SALE RECEIPT",
+     "normalized_value": "SALE RECEIPT",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-20",
+     "normalized_value": "2026-06-20",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 2500,
+     "normalized_value": 2500,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_5",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": "nwo wd"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-19",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1500.12,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 2.703700000000026,
+   "pred": {
+    "pump_name": {
+     "raw_value": "nwo wd",
+     "normalized_value": "nwo wd",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Bill amount could not be reliably determined.",
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "HINDUSTAN PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-02",
+    "got": "2026-06-02"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500.66,
+    "got": 1500.66
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4421999999995023,
+   "pred": {
+    "pump_name": {
+     "raw_value": "HINDUSTAN PETROLEUM",
+     "normalized_value": "HINDUSTAN PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-02",
+     "normalized_value": "2026-06-02",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1500.66,
+     "normalized_value": 1500.66,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHREEGANESHPETROLEUM",
+    "got": "HINDUSTAN PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-06",
+    "got": "2026-06-06"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2000.66,
+    "got": 2000.66
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.33889999999883,
+   "pred": {
+    "pump_name": {
+     "raw_value": "HINDUSTAN PETROLEUM",
+     "normalized_value": "HINDUSTAN PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-06",
+     "normalized_value": "2026-06-06",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 2000.66,
+     "normalized_value": 2000.66,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "BALAJIPETROLEUMSERVICE",
+    "got": "HINDUSTAN PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-05",
+    "got": "2026-06-05"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1200,
+    "got": 1200
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.17410000000018044,
+   "pred": {
+    "pump_name": {
+     "raw_value": "HINDUSTAN PETROLEUM",
+     "normalized_value": "HINDUSTAN PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-05",
+     "normalized_value": "2026-06-05",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1200,
+     "normalized_value": 1200,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "PATELPETROLEUMPOINT",
+    "got": "HINDUSTAN PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-05",
+    "got": "2026-08-05"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1800.34,
+    "got": 1800.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.1668999999983498,
+   "pred": {
+    "pump_name": {
+     "raw_value": "HINDUSTAN PETROLEUM",
+     "normalized_value": "HINDUSTAN PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-05",
+     "normalized_value": "2026-08-05",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1800.34,
+     "normalized_value": 1800.34,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "LAKSHMIFUELSTATION",
+    "got": "HINDUSTAN PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-08",
+    "got": "2026-08-08"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500.66,
+    "got": 1500.66
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3312000000005355,
+   "pred": {
+    "pump_name": {
+     "raw_value": "HINDUSTAN PETROLEUM",
+     "normalized_value": "HINDUSTAN PETROLEUM",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-08",
+     "normalized_value": "2026-08-08",
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findDate (day-first default for numeric dates)"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "total_amount": {
+     "raw_value": 1500.66,
+     "normalized_value": 1500.66,
+     "confidence": "HIGH",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findAmount"
+     ],
+     "ambiguity": null,
+     "review_required": false
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "PATELPETROLEUMPOINT",
+    "got": "wimg § 8"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-04",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 4000,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.525099999998929,
+   "pred": {
+    "pump_name": {
+     "raw_value": "wimg § 8",
+     "normalized_value": "wimg § 8",
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [
+      "billParser.findVendor"
+     ],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": "LOW",
+     "confidence_type": "baseline_parser_label_not_a_probability",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true
+    },
+    "validation_warnings": [
+     "Bill amount could not be reliably determined.",
+     "Bill date could not be reliably determined."
+    ],
+    "overall_review_required": true,
+    "_implementation": "baseline: experiments/node-extraction/src/billParser.mjs (unchanged)"
+   }
+  }
+ ]
+}

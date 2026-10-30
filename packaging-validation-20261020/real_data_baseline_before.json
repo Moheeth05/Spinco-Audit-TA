@@ -1,0 +1,677 @@
+﻿[
+    {
+        "path":  "\\.updaterId",
+        "bytes":  36,
+        "mtime":  "2026-09-28T04:38:20.5210049Z"
+    },
+    {
+        "path":  "\\DevToolsActivePort",
+        "bytes":  59,
+        "mtime":  "2026-09-24T08:54:51.8935844Z"
+    },
+    {
+        "path":  "\\Local State",
+        "bytes":  434,
+        "mtime":  "2026-09-23T06:52:51.4321851Z"
+    },
+    {
+        "path":  "\\Preferences",
+        "bytes":  86,
+        "mtime":  "2026-10-20T07:18:16.7574847Z"
+    },
+    {
+        "path":  "\\SharedStorage",
+        "bytes":  4096,
+        "mtime":  "2026-09-23T06:54:41.8966563Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\data_0",
+        "bytes":  45056,
+        "mtime":  "2026-10-20T07:18:16.3757746Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\data_1",
+        "bytes":  270336,
+        "mtime":  "2026-10-20T07:20:57.2689335Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\data_2",
+        "bytes":  1056768,
+        "mtime":  "2026-10-20T07:18:16.3757746Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\data_3",
+        "bytes":  4202496,
+        "mtime":  "2026-10-20T04:05:24.9895552Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000003",
+        "bytes":  48256,
+        "mtime":  "2026-09-23T06:52:48.7513485Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_00000f",
+        "bytes":  1385113,
+        "mtime":  "2026-09-23T07:19:27.7327024Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000014",
+        "bytes":  1385768,
+        "mtime":  "2026-09-23T07:23:14.9463702Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_00001b",
+        "bytes":  1385772,
+        "mtime":  "2026-09-23T07:27:28.0455466Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_00001f",
+        "bytes":  26655,
+        "mtime":  "2026-09-23T07:31:16.1968812Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000020",
+        "bytes":  1386041,
+        "mtime":  "2026-09-23T07:31:16.6167517Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000026",
+        "bytes":  36501,
+        "mtime":  "2026-09-23T07:44:56.4145742Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000031",
+        "bytes":  38262,
+        "mtime":  "2026-09-23T08:38:21.7593488Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000041",
+        "bytes":  7140352,
+        "mtime":  "2026-09-23T09:06:18.2899782Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000045",
+        "bytes":  28310,
+        "mtime":  "2026-09-24T04:49:54.2462501Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000046",
+        "bytes":  1388188,
+        "mtime":  "2026-09-24T04:49:54.6606620Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000052",
+        "bytes":  28558,
+        "mtime":  "2026-09-24T08:54:55.9027667Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000053",
+        "bytes":  1392024,
+        "mtime":  "2026-09-24T08:54:56.4344971Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_000099",
+        "bytes":  7140352,
+        "mtime":  "2026-09-30T06:33:03.4166426Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_00009e",
+        "bytes":  66120,
+        "mtime":  "2026-09-30T11:39:12.3895745Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000ca",
+        "bytes":  7140352,
+        "mtime":  "2026-10-14T06:25:17.9332181Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000dd",
+        "bytes":  54894,
+        "mtime":  "2026-10-15T08:57:44.7427742Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000de",
+        "bytes":  9525114,
+        "mtime":  "2026-10-15T08:57:44.7989149Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000df",
+        "bytes":  7140352,
+        "mtime":  "2026-10-16T05:16:17.9499355Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000e1",
+        "bytes":  179512,
+        "mtime":  "2026-10-16T06:57:57.5336390Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000e6",
+        "bytes":  8105932,
+        "mtime":  "2026-10-16T08:04:46.6493316Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000e7",
+        "bytes":  154732,
+        "mtime":  "2026-10-16T08:04:46.6208570Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000eb",
+        "bytes":  9525114,
+        "mtime":  "2026-10-20T04:03:38.2023949Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000ec",
+        "bytes":  431248,
+        "mtime":  "2026-10-20T04:03:38.1954543Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000ed",
+        "bytes":  6157493,
+        "mtime":  "2026-10-20T04:14:51.6217615Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000ef",
+        "bytes":  34159,
+        "mtime":  "2026-10-20T04:15:00.6073147Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000f0",
+        "bytes":  316848,
+        "mtime":  "2026-10-20T04:15:34.3991365Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\f_0000f2",
+        "bytes":  36209,
+        "mtime":  "2026-10-20T04:16:35.0947234Z"
+    },
+    {
+        "path":  "\\Cache\\Cache_Data\\index",
+        "bytes":  524656,
+        "mtime":  "2026-09-23T06:52:47.7592579Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\1a34df8ad1e225af_0",
+        "bytes":  210,
+        "mtime":  "2026-10-15T05:03:39.9965299Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\2231d189b08c77cc_0",
+        "bytes":  250,
+        "mtime":  "2026-09-23T07:19:45.1560637Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\27d077d94897b8b0_0",
+        "bytes":  1083904,
+        "mtime":  "2026-09-23T07:43:33.6472921Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\28acf0b1c362a181_0",
+        "bytes":  1656264,
+        "mtime":  "2026-09-23T07:31:45.6786634Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\29ba9ae7edf3c279_0",
+        "bytes":  250,
+        "mtime":  "2026-09-23T07:27:36.2269644Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\31380adb0c57e005_0",
+        "bytes":  208,
+        "mtime":  "2026-10-20T04:16:25.8579628Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\34863302107d354d_0",
+        "bytes":  1431976,
+        "mtime":  "2026-09-23T07:47:04.3428409Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\3583d6118f6b4789_0",
+        "bytes":  210,
+        "mtime":  "2026-09-29T07:27:02.1563691Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\3ccec20a5655d7c2_0",
+        "bytes":  204,
+        "mtime":  "2026-10-20T04:16:25.8579628Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\3d511f0629416870_0",
+        "bytes":  1504352,
+        "mtime":  "2026-09-23T07:38:44.1400136Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\469f3c3e250074a8_0",
+        "bytes":  250,
+        "mtime":  "2026-09-28T04:38:20.7288810Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\5b24c41e5d8378b5_0",
+        "bytes":  1561152,
+        "mtime":  "2026-09-24T04:53:54.5558897Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\6c21d8d1df9823da_0",
+        "bytes":  1084280,
+        "mtime":  "2026-09-23T07:00:39.6408753Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\7f6de44e628e7549_0",
+        "bytes":  1449352,
+        "mtime":  "2026-09-24T08:58:58.3251208Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\815f5c28f9e04e05_0",
+        "bytes":  1512360,
+        "mtime":  "2026-09-23T07:44:47.4483830Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\837d6f6abd2b444a_0",
+        "bytes":  250,
+        "mtime":  "2026-09-24T08:58:58.3233317Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\873d3d4e0a522198_0",
+        "bytes":  1713312,
+        "mtime":  "2026-09-23T07:32:19.5380088Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\88d6b2788ffe2f04_0",
+        "bytes":  1523640,
+        "mtime":  "2026-09-23T07:37:02.4983892Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\8da6498772217151_0",
+        "bytes":  1449984,
+        "mtime":  "2026-09-23T07:04:45.1196650Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\8db8234969ccb128_0",
+        "bytes":  1451032,
+        "mtime":  "2026-09-23T07:27:36.2290003Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\93c820c86516d6f4_0",
+        "bytes":  1451872,
+        "mtime":  "2026-09-23T07:31:24.9150773Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\948f960f848a2071_0",
+        "bytes":  1473112,
+        "mtime":  "2026-09-23T07:19:45.1575094Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\9a457b20313079d6_0",
+        "bytes":  1083840,
+        "mtime":  "2026-09-23T06:53:03.7779628Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\a02e97d88609baa7_0",
+        "bytes":  939464,
+        "mtime":  "2026-09-29T05:26:34.1002405Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\a0bba3574cb1e139_0",
+        "bytes":  935144,
+        "mtime":  "2026-09-28T04:38:20.7293811Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\b5b0cc3fed0222c7_0",
+        "bytes":  210,
+        "mtime":  "2026-10-14T08:41:41.4325991Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\b8ddde8c71d9a7e8_0",
+        "bytes":  1450744,
+        "mtime":  "2026-09-23T07:23:23.2922851Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\bf282055164abdae_0",
+        "bytes":  935144,
+        "mtime":  "2026-09-24T10:29:39.5297228Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\c4401ead87f01bc5_0",
+        "bytes":  250,
+        "mtime":  "2026-09-23T07:23:36.8390658Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\c75e2c73116e0fad_0",
+        "bytes":  1507568,
+        "mtime":  "2026-09-23T07:07:26.7046978Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\d9e2ee773214adf0_0",
+        "bytes":  1546984,
+        "mtime":  "2026-09-23T07:23:36.8403106Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\dafc305351523ec1_0",
+        "bytes":  210,
+        "mtime":  "2026-10-15T08:34:52.1219046Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\f09782de08bd6f85_0",
+        "bytes":  250,
+        "mtime":  "2026-09-24T04:53:54.5547325Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\f152ea9e8298dc21_0",
+        "bytes":  1680008,
+        "mtime":  "2026-09-23T07:32:50.8664906Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\f52267b6784ba6ca_0",
+        "bytes":  210,
+        "mtime":  "2026-10-20T07:18:16.0103804Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\fbd5430c30cb8143_0",
+        "bytes":  1472032,
+        "mtime":  "2026-09-23T07:16:17.9152693Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\index",
+        "bytes":  24,
+        "mtime":  "2026-09-23T06:52:41.8909192Z"
+    },
+    {
+        "path":  "\\Code Cache\\js\\index-dir\\the-real-index",
+        "bytes":  912,
+        "mtime":  "2026-10-20T07:18:36.0244115Z"
+    },
+    {
+        "path":  "\\Code Cache\\wasm\\index",
+        "bytes":  24,
+        "mtime":  "2026-09-23T06:52:41.8916659Z"
+    },
+    {
+        "path":  "\\Code Cache\\wasm\\index-dir\\the-real-index",
+        "bytes":  48,
+        "mtime":  "2026-09-23T06:52:41.9103800Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db",
+        "bytes":  1089536,
+        "mtime":  "2026-10-20T07:18:16.3441548Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db.dev-cleanup-backup-20260928T063735Z",
+        "bytes":  741376,
+        "mtime":  "2026-09-28T06:19:35.4862390Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db.dev-cleanup-backup-20260928T074837Z",
+        "bytes":  741376,
+        "mtime":  "2026-09-28T07:46:05.6833651Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db.dev-cleanup-backup-20260930T051314Z",
+        "bytes":  741376,
+        "mtime":  "2026-09-30T05:11:32.5714307Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db.dev-cleanup-backup-20260930T062231Z",
+        "bytes":  741376,
+        "mtime":  "2026-09-30T05:13:14.8839632Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db.dev-cleanup-backup-20260930T095621Z",
+        "bytes":  741376,
+        "mtime":  "2026-09-30T09:53:42.6827844Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db.pre-1.2.4-launch-backup-20261009T104114Z",
+        "bytes":  741376,
+        "mtime":  "2026-10-08T07:33:46.4911196Z"
+    },
+    {
+        "path":  "\\database\\spinco_ta.db.pre-1.2.5-launch-backup-20261009T150351Z",
+        "bytes":  741376,
+        "mtime":  "2026-10-09T05:36:20.1145526Z"
+    },
+    {
+        "path":  "\\DawnGraphiteCache\\data_0",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.2600761Z"
+    },
+    {
+        "path":  "\\DawnGraphiteCache\\data_1",
+        "bytes":  270336,
+        "mtime":  "2026-10-20T07:20:57.1812208Z"
+    },
+    {
+        "path":  "\\DawnGraphiteCache\\data_2",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.3292422Z"
+    },
+    {
+        "path":  "\\DawnGraphiteCache\\data_3",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.3669998Z"
+    },
+    {
+        "path":  "\\DawnGraphiteCache\\index",
+        "bytes":  262512,
+        "mtime":  "2026-09-23T06:52:42.2461781Z"
+    },
+    {
+        "path":  "\\DawnWebGPUCache\\data_0",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.0282361Z"
+    },
+    {
+        "path":  "\\DawnWebGPUCache\\data_1",
+        "bytes":  270336,
+        "mtime":  "2026-10-20T07:20:57.1801051Z"
+    },
+    {
+        "path":  "\\DawnWebGPUCache\\data_2",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.1000990Z"
+    },
+    {
+        "path":  "\\DawnWebGPUCache\\data_3",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.2425967Z"
+    },
+    {
+        "path":  "\\DawnWebGPUCache\\index",
+        "bytes":  262512,
+        "mtime":  "2026-09-23T06:52:42.0159331Z"
+    },
+    {
+        "path":  "\\documents\\excel\\Spinco_TA_Audit_Consolidated.xlsx",
+        "bytes":  52570,
+        "mtime":  "2026-10-16T08:12:29.4619177Z"
+    },
+    {
+        "path":  "\\documents\\expense_reports\\506d7dbf9383_reahul report.pdf",
+        "bytes":  8105932,
+        "mtime":  "2026-10-16T08:04:03.3252221Z"
+    },
+    {
+        "path":  "\\documents\\expense_reports\\c967267ef0f4_ER-41115.pdf",
+        "bytes":  7140352,
+        "mtime":  "2026-10-14T10:02:44.5723522Z"
+    },
+    {
+        "path":  "\\documents\\expense_reports\\f92b5b21cd72_vivek bhai report.pdf",
+        "bytes":  6157493,
+        "mtime":  "2026-10-16T08:11:30.2276751Z"
+    },
+    {
+        "path":  "\\documents\\expense_reports\\fee14d27038f_rohit.pdf",
+        "bytes":  9525114,
+        "mtime":  "2026-10-16T06:58:40.5976213Z"
+    },
+    {
+        "path":  "\\documents\\trip_reports\\66609390bdd1_rahul trips.pdf",
+        "bytes":  33385,
+        "mtime":  "2026-10-16T08:04:09.5654091Z"
+    },
+    {
+        "path":  "\\documents\\trip_reports\\a8e7cfd97ec8_vivek trip.pdf",
+        "bytes":  34159,
+        "mtime":  "2026-10-16T08:11:35.7968960Z"
+    },
+    {
+        "path":  "\\documents\\trip_reports\\fb9f9bf77899_TRIP-25630_August_2026.pdf",
+        "bytes":  66120,
+        "mtime":  "2026-10-08T07:13:23.0976141Z"
+    },
+    {
+        "path":  "\\excel\\Spinco_TA_Audit_Consolidated.xlsx",
+        "bytes":  29353,
+        "mtime":  "2026-09-24T09:24:20.5337396Z"
+    },
+    {
+        "path":  "\\GPUCache\\data_0",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.0066003Z"
+    },
+    {
+        "path":  "\\GPUCache\\data_1",
+        "bytes":  270336,
+        "mtime":  "2026-10-20T07:20:57.1801051Z"
+    },
+    {
+        "path":  "\\GPUCache\\data_2",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.0101251Z"
+    },
+    {
+        "path":  "\\GPUCache\\data_3",
+        "bytes":  8192,
+        "mtime":  "2026-09-23T06:52:42.0116255Z"
+    },
+    {
+        "path":  "\\GPUCache\\index",
+        "bytes":  262512,
+        "mtime":  "2026-09-23T06:52:41.9951381Z"
+    },
+    {
+        "path":  "\\Local Storage\\leveldb\\000003.log",
+        "bytes":  0,
+        "mtime":  "2026-09-23T06:52:41.9581853Z"
+    },
+    {
+        "path":  "\\Local Storage\\leveldb\\CURRENT",
+        "bytes":  16,
+        "mtime":  "2026-09-23T06:52:41.9348393Z"
+    },
+    {
+        "path":  "\\Local Storage\\leveldb\\LOCK",
+        "bytes":  0,
+        "mtime":  "2026-09-23T06:52:41.8486949Z"
+    },
+    {
+        "path":  "\\Local Storage\\leveldb\\LOG",
+        "bytes":  302,
+        "mtime":  "2026-10-20T07:18:06.6604535Z"
+    },
+    {
+        "path":  "\\Local Storage\\leveldb\\LOG.old",
+        "bytes":  299,
+        "mtime":  "2026-10-20T04:03:01.3314362Z"
+    },
+    {
+        "path":  "\\Local Storage\\leveldb\\MANIFEST-000001",
+        "bytes":  41,
+        "mtime":  "2026-09-23T06:52:41.9125181Z"
+    },
+    {
+        "path":  "\\logs\\backend.log",
+        "bytes":  312172,
+        "mtime":  "2026-10-20T07:18:16.3707665Z"
+    },
+    {
+        "path":  "\\logs\\updater.log",
+        "bytes":  29538,
+        "mtime":  "2026-10-20T07:18:15.2232052Z"
+    },
+    {
+        "path":  "\\Network\\Cookies",
+        "bytes":  20480,
+        "mtime":  "2026-10-20T07:18:45.2605884Z"
+    },
+    {
+        "path":  "\\Network\\Cookies-journal",
+        "bytes":  0,
+        "mtime":  "2026-10-20T07:18:45.2609524Z"
+    },
+    {
+        "path":  "\\Network\\Network Persistent State",
+        "bytes":  640,
+        "mtime":  "2026-10-14T09:48:41.1611050Z"
+    },
+    {
+        "path":  "\\Network\\NetworkDataMigrated",
+        "bytes":  0,
+        "mtime":  "2026-09-23T06:52:41.8781558Z"
+    },
+    {
+        "path":  "\\Network\\TransportSecurity",
+        "bytes":  189,
+        "mtime":  "2026-10-14T08:41:51.1332067Z"
+    },
+    {
+        "path":  "\\Network\\Trust Tokens",
+        "bytes":  36864,
+        "mtime":  "2026-09-23T07:00:21.7734575Z"
+    },
+    {
+        "path":  "\\Network\\Trust Tokens-journal",
+        "bytes":  0,
+        "mtime":  "2026-09-23T07:00:21.7752880Z"
+    },
+    {
+        "path":  "\\Session Storage\\000003.log",
+        "bytes":  15009,
+        "mtime":  "2026-10-20T07:20:57.1608516Z"
+    },
+    {
+        "path":  "\\Session Storage\\CURRENT",
+        "bytes":  16,
+        "mtime":  "2026-09-23T06:52:47.8259894Z"
+    },
+    {
+        "path":  "\\Session Storage\\LOCK",
+        "bytes":  0,
+        "mtime":  "2026-09-23T06:52:47.8177249Z"
+    },
+    {
+        "path":  "\\Session Storage\\LOG",
+        "bytes":  290,
+        "mtime":  "2026-10-20T07:18:15.4345336Z"
+    },
+    {
+        "path":  "\\Session Storage\\LOG.old",
+        "bytes":  287,
+        "mtime":  "2026-10-20T04:03:05.9675742Z"
+    },
+    {
+        "path":  "\\Session Storage\\MANIFEST-000001",
+        "bytes":  41,
+        "mtime":  "2026-09-23T06:52:47.8201369Z"
+    },
+    {
+        "path":  "\\Shared Dictionary\\db",
+        "bytes":  45056,
+        "mtime":  "2026-09-23T06:52:42.3386467Z"
+    },
+    {
+        "path":  "\\Shared Dictionary\\db-journal",
+        "bytes":  0,
+        "mtime":  "2026-09-23T06:52:42.3410493Z"
+    },
+    {
+        "path":  "\\Shared Dictionary\\cache\\index",
+        "bytes":  24,
+        "mtime":  "2026-09-23T06:52:42.2610128Z"
+    },
+    {
+        "path":  "\\Shared Dictionary\\cache\\index-dir\\the-real-index",
+        "bytes":  48,
+        "mtime":  "2026-09-23T06:52:42.3323175Z"
+    }
+]

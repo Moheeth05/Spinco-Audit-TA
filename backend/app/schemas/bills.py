@@ -12,6 +12,13 @@ class BillOut(BaseModel):
     vendor: str | None
     bill_number: str | None
     bill_date: date | None
+    bill_date_raw: str | None = None
+    bill_date_candidates: str | None = None
+    bill_date_method: str | None = None
+    bill_date_confidence: str | None = None
+    transaction_reference: str | None = None
+    transaction_time: str | None = None
+    payment_status: str | None = None
     amount: float | None
     gstin: str | None
     description: str | None

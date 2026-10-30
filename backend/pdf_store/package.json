@@ -1,0 +1,10 @@
+{
+  "name": "spinco-pdf-store",
+  "version": "1.0.0",
+  "description": "Stores uploaded PDFs sorted and de-duplicated with the Spinco TA Audit upload rules (zero dependencies).",
+  "private": true,
+  "main": "pdf-store.js",
+  "bin": { "spinco-pdf-store": "cli.js" },
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node --test test/*.test.js" }
+}

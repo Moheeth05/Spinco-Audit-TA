@@ -1,0 +1,5 @@
+﻿{
+    "generator_sha256":  "FF2EC4D088C6A5759B8263D391A97BC57058D2DDB876595FA949874EFDB8DEBF",
+    "frozen_at":  "2026-10-20T16:02:27",
+    "statement":  "Held-out template definitions (nayara, jiobp, shell, generator_style, print_vs_txn, ambiguous_date, label_split, conflicting_annotation) and the control templates existed in this exact file BEFORE any extraction code for the fuel task was written or run."
+}

@@ -1,0 +1,123 @@
+{
+  "generatedAt": "2026-10-13",
+  "scope": "Diagnostic baseline only - no extraction logic or business rules were changed in this task. Preceding Expense Report extraction work (154/154 field accuracy) is unmodified and reconfirmed below.",
+  "groundTruthCorrection": {
+    "note": "Two of the 13 originally-authored human-verified samples were found, during cross-checking against their own extracted GSTIN/vendor text, to have incorrect page-number attribution - a transcription error made while manually counting pages in a large multi-page PDF, not a pipeline defect. Documented transparently rather than silently corrected or hidden.",
+    "corrections": [
+      {
+        "filename": "ER-40706.pdf",
+        "claimedPage": 6,
+        "originalGroundTruth": "Taxi Operator's Union (Regd.) handwritten voucher, Rs.3,000",
+        "actualContent": "A PhonePe 'Transaction Successful' screenshot paying Mr RAM MURTI Rs.3,000 (PhonePe Transaction ID T2607101407521753972648) - the real Taxi Operator's Union voucher is at page 5, not 6, and was not separately sampled.",
+        "impactOnScoring": "totalAmount ground truth (3000) is coincidentally unchanged (same figure, different document); vendor/documentType ground truth was wrong and is corrected below. Amount scoring for both pipelines is unaffected (both still extracted null)."
+      },
+      {
+        "filename": "ER-40706.pdf",
+        "claimedPage": 22,
+        "originalGroundTruth": "KFC food-delivery order summary, Total Rs.630.00",
+        "actualContent": "An ICICI Bank FASTag E-Statement - a multi-transaction toll-tag statement, the same document class (and the same GSTIN, 27AAACI1195H3ZK) already confirmed problematic for bill-grouping in the Expense Report stage. The KFC/Domino's/Dhaba yellow-tinted receipt photos are in a different reference PDF, not resampled here.",
+        "impactOnScoring": "totalAmount ground truth corrected from 630.00 to null (a multi-transaction statement has no single 'bill total', same reasoning as the page-20 ICICI credit-card-statement sample). This flips Node's scoring on this sample from incorrect to correct (it returned null); Python's stays incorrect (it returned 31, a garbled non-null value, wrong under either ground truth)."
+      }
+    ],
+    "limitation": "These two were caught because the extracted GSTIN/vendor text was inconsistent with the claimed ground truth, not through exhaustive re-verification of all 13 samples a second time. Manual page-number transcription across large multi-page PDFs is itself error-prone - a real limitation of this diagnostic method, noted for any future round that extends this sample."
+  },
+  "corpusCensus": {
+    "method": "Automated, deterministic signals only (has_selectable_text/source, bill_parser.has_bill_evidence/parsed_has_evidence, GSTIN presence, EXPENSE SUMMARY/REPORT SUMMARY/TRIP SUMMARY markers) via the real Python pipeline, including real local Tesseract OCR where native text was absent. The opt-in NVIDIA page classifier (document_classifier.py) was deliberately NOT invoked - no API key is configured, and invoking it would mean sending page text to an external service, which this task's safety rules forbid.",
+    "boundaryLogicNote": "An early version of the census script determined the bill-region start from content_pages()'s own (sometimes over-extended) last page rather than find_report_summary_page() - which is what the REAL production caller (pipeline.py) actually uses. This produced a false '0 bill-region pages' result for ER-40782.pdf. Caught and corrected before any field-level evaluation ran; the corrected script matches pipeline.py's real boundary logic exactly.",
+    "totals": {
+      "pdfsExamined": 6,
+      "totalPages": 168,
+      "expenseReportContentPages": 16,
+      "billRegionPages": 152,
+      "pagesWithBillEvidence": 143,
+      "pagesRequiringOcr": 112
+    },
+    "perReport": [
+      { "filename": "ER-39832.pdf", "totalPages": 14, "contentPages": "1-2", "billRegionPages": "3-14 (12)", "withEvidence": 11, "neededOcr": 12 },
+      { "filename": "ER-40223.pdf", "totalPages": 21, "contentPages": "1-2", "billRegionPages": "3-21 (19)", "withEvidence": 19, "neededOcr": 8 },
+      { "filename": "ER-40706.pdf", "totalPages": 26, "contentPages": "1-3", "billRegionPages": "4-26 (23)", "withEvidence": 23, "neededOcr": 18 },
+      { "filename": "ER-40782.pdf", "totalPages": 10, "contentPages": "1-1", "billRegionPages": "2-10 (9)", "withEvidence": 9, "neededOcr": 0, "note": "All 9 supporting pages are native-text (payment-app screenshots / digitally-generated invoices), not photographed images - no OCR was needed for this report at all." },
+      { "filename": "reahul-report-ER40513.pdf", "totalPages": 38, "contentPages": "1-3", "billRegionPages": "4-38 (35)", "withEvidence": 33, "neededOcr": 20 },
+      { "filename": "vivek-bhai-report-ER41220.pdf", "totalPages": 59, "contentPages": "1-5", "billRegionPages": "6-59 (54)", "withEvidence": 48, "neededOcr": 54, "note": "Every bill-region page in this report needed OCR - almost entirely photographed paper receipts and handwritten vouchers." }
+    ],
+    "fullDataFile": "reports/page-census.json"
+  },
+  "businessLogicParity": {
+    "description": "Node billParser.mjs vs Python bill_parser.py fed the IDENTICAL already-extracted text (isolates rule correctness from OCR/text-extraction quality). Confirms no regression and extends the earlier 100/100 unit-level parity to the full real corpus.",
+    "pagesEvaluated": 143,
+    "fieldAccuracy": {
+      "vendor": "143/143 (100.0%)",
+      "billNumber": "143/143 (100.0%)",
+      "billDate": "143/143 (100.0%)",
+      "amount": "143/143 (100.0%)",
+      "gstin": "143/143 (100.0%)",
+      "categoryGuess": "143/143 (100.0%)"
+    },
+    "interpretation": "This measures RULE fidelity, not real-world accuracy against document evidence. The 13-sample ground-truth evaluation below shows that 100% rule-parity does NOT translate to high real-world accuracy, because both pipelines share the same rule limitations and the same sensitivity to OCR text quality."
+  },
+  "humanVerifiedSampleEvaluation": {
+    "description": "13 pages, hand-selected to cover: clean thermal receipts, a handwritten voucher, a handwritten bilingual cash memo, a digitally-generated invoice, payment/transaction screenshots, a hotel ledger invoice vs. its separate card-swipe slip, and a multi-transaction bank statement. Ground truth read directly from the rendered PDF page images shown earlier in this conversation, independently of both pipelines' output, with two corrections documented above. Full field-by-field data: reports/ocr-sample-evaluation.json.",
+    "amountAccuracy": {
+      "denominator": 13,
+      "python": { "correct": 3, "incorrect": 2, "missing": 8, "pct": "23.1%" },
+      "node": { "correct": 5, "incorrect": 2, "missing": 6, "pct": "38.5%" },
+      "note": "'Missing' = pipeline returned null where a real amount exists (the conservative, non-fabricating failure mode by design). 'Incorrect' = a confident but wrong non-null value was returned - the more consequential failure mode, since nothing downstream would flag it as uncertain."
+    },
+    "multiTransactionStatementSubset": {
+      "description": "The 2 samples where ground truth is correctly null (a credit-card/FASTag statement balance is not a single bill total - the exact case the task warned against: 'do not assume the largest number is the payable total').",
+      "denominator": 2,
+      "pythonCorrectlyAbstained": 0,
+      "nodeCorrectlyAbstained": 2,
+      "criticalCaveat": "This is NOT evidence that Node's amount-selection logic is more careful - business-logic parity above confirms the RULES are identical (100%, same-text test). Node abstained here only because tesseract.js produced weaker/noisier OCR text for these two specific dense statement pages that didn't surface a clean label match; Python's cleaner OCR DID surface one, and the SHARED rule then confidently (and wrongly) accepted it. The underlying vulnerability - a clearly-OCR'd 'Total Amount due' or similar label on a multi-transaction statement page being accepted as THE bill amount - exists identically in both pipelines and is unfixed. See 'biggest problems' below."
+    },
+    "vendorFieldQuality": {
+      "description": "Not scored as a precise fraction - correctness here is a judgment call (does the extracted text contain a human-recognizable fragment of the true vendor name?), and false precision on a 13-sample judgment-scored field would overstate confidence.",
+      "observation": "Roughly 4-5 of 13 samples had a recognizable fragment of the true vendor name in either pipeline's output. The more common and more concerning failure was not OCR noise garbling the real vendor name, but the extractor confidently picking up ADJACENT text instead of the vendor - a UI label ('Paid to', 'Name'), disclaimer boilerplate ('I AM SATISFIED WITH GOOD/SERVICE RECEIVED...'), or a GSTIN-row caption ('Party's GSTIN : ... Place of Service...') - on 5 of 13 samples. This is a structural weakness in the current vendor-detection heuristic (the first line-end-anchored company-suffix match, falling back to the first plausible short line), not primarily an OCR-quality problem - several of these cases had decent OCR confidence (0.79-0.87) but still picked the wrong line."
+    },
+    "ocrInvocation": {
+      "pythonInvoked": "10/13",
+      "nodeInvoked": "12/13",
+      "note": "On vivek-bhai-report page 6 (HP Auto Care Centre), Python's has_selectable_text check found just enough stray native text (1 character) to skip OCR entirely and return nothing useful; Node's own check correctly triggered OCR and extracted the amount (2500, correct). This is a genuine, confirmed divergence in WHETHER OCR runs at all for the same page, not just in OCR text quality - worth independent investigation."
+    }
+  },
+  "documentTypeClassification": {
+    "method": "Automated signals only (per corpusCensus above) plus the 13 human-verified samples' hand-assigned types.",
+    "typesObserved": ["RECEIPT", "INVOICE", "TRANSACTION_SCREENSHOT", "OTHER (bank/toll statement)"],
+    "note": "Neither pipeline currently emits an explicit document_type field of its own (bill_parser.py/billParser.mjs produce field values, not a type label) - the opt-in NVIDIA classifier is the only component with a document_type concept, and it was not invoked (external service, disabled). Document-type classification is therefore reported from the census's deterministic signals (has_bill_evidence, GSTIN presence) and the human sample only, not from either extraction pipeline's own output."
+  },
+  "currencyAndDescriptionFields": {
+    "currency": "NOT extracted as a discrete field by either pipeline. amount parsing recognizes a currency prefix (₹/Rs./INR) to find the number but never records which one matched - every amount is implicitly assumed INR. Not a bug introduced here; an honest gap in the existing field list (the task's own field list separates 'currency' as its own field, which the current implementation does not have).",
+    "description": "The existing `description` field is NOT a line-item/service description - it is the matched category-EVIDENCE snippet (the keyword text that drove the category_guess). The task's own field list treats 'service/product description' and 'evidence relevant to the claimed expense category' as two distinct concepts; the current implementation conflates them into one field. Reported as a gap, not silently assumed equivalent."
+  },
+  "untestedOrLimited": [
+    "Low-quality/heavily-noisy scans beyond what the real corpus happens to contain - no deliberately-degraded synthetic scan was built this round.",
+    "Photographed payment screenshots at an angle/with glare - the corpus's screenshots are mostly flat, well-lit phone-screen photos; none tests a skewed/glare case specifically.",
+    "The opt-in NVIDIA page classifier and nvidia_fallback.py supplementary extraction - both disabled (no API key configured), both out of scope (external service, forbidden by this task's safety rules).",
+    "Multi-receipt-per-page detection (bill_parser.split_bill_segments, GSTIN-based) - not exercised against any real multi-receipt page in this round; none of the 13 samples happened to be one.",
+    "Exhaustive field-level ground truth (date/merchant/reference-ID) across the full 143-page bill-evidence corpus - only amount was scored at that exhaustive scale (via business-logic parity, which measures rule fidelity, not real-world accuracy); the 13-sample human-verified set is the only real-world-accuracy evidence, and it is a small sample by design (manual verification doesn't scale to 143 pages in one diagnostic round)."
+  ],
+  "biggestConfirmedProblems": [
+    {
+      "rank": 1,
+      "problem": "Multi-transaction statement pages (credit-card, FASTag/toll) can have their running balance or statement total confidently accepted as 'the bill amount', exactly the failure mode the task explicitly warned against. Confirmed real: Python did this on BOTH the ICICI credit-card statement (page 20, extracted Rs.1,13,824.75 - the card's total balance) and the FASTag E-statement (corrected page 22, extracted a garbled 31). This is a shared rule gap (confirmed via 100% business-logic parity) - not something either pipeline currently guards against at the bill-parsing level, even though an equivalent guard (`_looks_like_multi_transaction_statement`, keyed on counting distinct dates on a page) already exists and works for the SEPARATE multi-page-bill-GROUPING concern. The same signal is not yet applied to basic amount extraction.",
+      "evidence": "reports/ocr-sample-evaluation.json, samples ER-40706.pdf pages 20 and 22 (corrected)."
+    },
+    {
+      "rank": 2,
+      "problem": "The vendor-detection heuristic frequently extracts an adjacent UI label, disclaimer, or GSTIN-row caption instead of the actual vendor name - confirmed on 5 of 13 samples, including cases with decent OCR confidence (0.79-0.87), so this is not purely an OCR-quality problem. 'Paid to' and 'Name' (form labels) and boilerplate disclaimer text were returned as if they were vendor names.",
+      "evidence": "reports/ocr-sample-evaluation.json, samples vivek-bhai page 25, ER-40706 pages 10/12/'22', ER-40782 page 3."
+    },
+    {
+      "rank": 3,
+      "problem": "OCR invocation itself can diverge between the two pipelines for the identical page - Python's has_selectable_text check accepted 1 character of stray native text as 'enough' and skipped OCR on vivek-bhai page 6, missing the receipt entirely, while Node correctly triggered OCR and extracted the right amount. This means the TWO pipelines' real-world accuracy differences are partly driven by this has_selectable_text threshold behavior, not only by OCR engine quality - worth isolating and fixing independently of any OCR-quality work.",
+      "evidence": "reports/ocr-sample-evaluation.json, sample vivek-bhai-report-ER41220.pdf page 6."
+    }
+  ],
+  "finalVerification": {
+    "expenseReportExtractionUnchanged": "Reconfirmed: 154/154 field accuracy across all 6 reports, identical to before this task (parity-test.mjs 49/49, parity-test-billparser.mjs 100/100, parity-test-textextraction.mjs 10/10, scripts/evaluate-parity.mjs 154/154 all re-run fresh).",
+    "existingFixturesAndAnnotationsPreserved": true,
+    "productionBackendModified": false,
+    "stagedOrCommitted": false,
+    "versionBumpOrBuildOrPublish": false
+  }
+}

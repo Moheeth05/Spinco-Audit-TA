@@ -23,7 +23,7 @@ from app.services.extraction.shared import text_extractor
 from app.services.storage_backend import storage
 from app.services.validation.pipeline import validate_expense_report
 from app.models.user import User
-from app.services import audit
+from app.services import audit, verification_history
 from app.services.permissions import DELETE_DOCUMENTS, REPROCESS_DOCUMENTS, VIEW_DOCUMENTS, require_permission
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -408,11 +408,16 @@ def delete_document(document_id: str, db: Session = Depends(get_db), user: User 
     # have no relationship() declared anywhere, so cascade can never reach
     # them - without this, every document delete would silently orphan
     # whatever candidates referenced its expenses/bills/trip report.
+    retired_verification_ids: list[int] = []
     if ref.kind == EXPENSE:
         expense_ids = [e.id for e in db.query(Expense.id).filter(Expense.expense_report_id == row.id).all()]
         bill_ids = [b.id for b in db.query(Bill.id).filter(Bill.expense_report_id == row.id).all()]
         candidate_cleanup.delete_candidates_for_expense_ids(db, expense_ids)
         candidate_cleanup.delete_bill_match_candidates_for_bill_ids(db, bill_ids)
+        # Live manual verifications are keyed by (report id, expense id, type) and SQLite reuses freed ids, so
+        # none may outlive its report: each is kept as history and its live row removed, in this transaction
+        # (see verification_history.py). The audit event below lists the ids only - never a note.
+        retired_verification_ids = verification_history.retire_for_report(db, row.id, user.id)
     else:
         candidate_cleanup.delete_trip_match_candidates_for_trip_report_ids(db, [row.id])
 
@@ -420,7 +425,8 @@ def delete_document(document_id: str, db: Session = Depends(get_db), user: User 
     audit.log_action(
         db, user_id=user.id, action=audit.DOCUMENT_DELETED,
         entity_type="ExpenseReport" if ref.kind == EXPENSE else "TripReport", entity_id=document_id,
-        details=f"filename={filename!r}",
+        details=f"filename={filename!r}"
+        + (f"; retired_verification_ids={retired_verification_ids}" if retired_verification_ids else ""),
     )
     db.commit()
 

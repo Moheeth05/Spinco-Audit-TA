@@ -42,6 +42,9 @@ storage/processed/*
 storage/logs/*
 !storage/**/.gitkeep
 
+# Node PDF archive (backend/pdf_store) - archived copies of uploaded company PDFs, never committed
+backend/pdf_archive/
+
 # Env
 .env
 .env.local

@@ -1,0 +1,1593 @@
+{
+ "label": "baseline",
+ "seed": 1,
+ "provider_calls": 0,
+ "families": {
+  "dev": {
+   "aggregate": {
+    "truth_rows": 35,
+    "pred_rows": 0,
+    "exact_rows": 0,
+    "row_date_ok": 0,
+    "row_amount_ok": 0,
+    "row_category_ok": 0,
+    "receipts": 35,
+    "receipt_found": 2,
+    "claims": 35,
+    "expect_SUPPORTED": 24,
+    "expect_AMBIGUOUS": 5,
+    "expect_UNSUPPORTED": 6,
+    "amount_ok": 0,
+    "merchant_ok": 2,
+    "date_resolvable": 2,
+    "date_exact": 2
+   },
+   "seconds": 5.0,
+   "cases": [
+    {
+     "name": "dev:same_amount_diff_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gst_invoice",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "gst_invoice",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 6,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:same_amount_diff_dates_unproven",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "ride_us",
+       "page": 6,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:same_day_distinct_times",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:duplicate_screenshot_reused",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:same_time_different_txn",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:pending_failed",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "phonepe",
+       "page": 6,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:missing_bill",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gst_invoice",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:ambiguous_date_no_evidence",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:labeled_dmy_february_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:labeled_mdy_july_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:mixed_formats_in_one_pdf",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 4,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r4"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 6,
+       "found": false
+      },
+      {
+       "rid": "r4",
+       "template": "gst_invoice",
+       "page": 8,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 4,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:category_conflict_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:flight_claimed_as_lodging",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:flight_claimed_as_airfare",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:leading_digit_ocr_confusion",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:decoys_same_amount_other_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "phonepe",
+       "page": 6,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:ocr_only_pages",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14"
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": true,
+       "amount_ok": false,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "dev:split_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    }
+   ]
+  },
+  "heldout": {
+   "aggregate": {
+    "truth_rows": 35,
+    "pred_rows": 0,
+    "exact_rows": 0,
+    "row_date_ok": 0,
+    "row_amount_ok": 0,
+    "row_category_ok": 0,
+    "receipts": 35,
+    "receipt_found": 2,
+    "claims": 35,
+    "expect_SUPPORTED": 24,
+    "expect_AMBIGUOUS": 5,
+    "expect_UNSUPPORTED": 6,
+    "amount_ok": 2,
+    "merchant_ok": 2,
+    "date_resolvable": 2,
+    "date_exact": 2
+   },
+   "seconds": 5.6,
+   "cases": [
+    {
+     "name": "heldout:same_amount_diff_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r2",
+       "template": "fuel_pos",
+       "page": 3,
+       "found": false
+      },
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 5,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "fuel_pos",
+       "page": 7,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:same_amount_diff_dates_unproven",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "fuel_pos",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "fuel_pos",
+       "page": 6,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:same_day_distinct_times",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 3,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 5,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:duplicate_screenshot_reused",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "gpay",
+       "page": 4,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:same_time_different_txn",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 3,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 5,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:pending_failed",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "phonepe",
+       "page": 6,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:missing_bill",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "fuel_pos",
+       "page": 3,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:ambiguous_date_no_evidence",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:labeled_dmy_february_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "UNSUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:labeled_mdy_july_receipt",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "taxi_slip_labeled",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:mixed_formats_in_one_pdf",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 4,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r4"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "ride_us",
+       "page": 3,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "ride_us",
+       "page": 5,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "gst_invoice",
+       "page": 7,
+       "found": false
+      },
+      {
+       "rid": "r4",
+       "template": "gst_invoice",
+       "page": 9,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 4,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:category_conflict_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "gpay",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:flight_claimed_as_lodging",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:flight_claimed_as_airfare",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "flight_ticket",
+       "page": 2,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:leading_digit_ocr_confusion",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 3,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 5,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:decoys_same_amount_other_dates",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r3"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 3,
+       "expect": "UNSUPPORTED",
+       "acceptable": [],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_like",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_like",
+       "page": 4,
+       "found": false
+      },
+      {
+       "rid": "r3",
+       "template": "paytm_like",
+       "page": 6,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 3,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:ocr_only_pages",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r1"
+       ],
+       "found": false
+      },
+      {
+       "s_no": 2,
+       "expect": "SUPPORTED",
+       "acceptable": [
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "paytm_like",
+       "page": 3,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-14"
+      },
+      {
+       "rid": "r2",
+       "template": "paytm_like",
+       "page": 5,
+       "found": true,
+       "amount_ok": true,
+       "date_state": "exact",
+       "merchant_ok": true,
+       "txn_ok": false,
+       "time_ok": false,
+       "status_ok": false,
+       "pred_date": "2026-07-16"
+      }
+     ],
+     "row": {
+      "truth_rows": 2,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    },
+    {
+     "name": "heldout:split_payment",
+     "claims": [
+      {
+       "s_no": 1,
+       "expect": "AMBIGUOUS",
+       "acceptable": [
+        "r1",
+        "r2"
+       ],
+       "found": false
+      }
+     ],
+     "receipts": [
+      {
+       "rid": "r1",
+       "template": "phonepe",
+       "page": 2,
+       "found": false
+      },
+      {
+       "rid": "r2",
+       "template": "phonepe",
+       "page": 4,
+       "found": false
+      }
+     ],
+     "row": {
+      "truth_rows": 1,
+      "predicted_rows": 0,
+      "exact_rows": 0,
+      "date_ok": 0,
+      "amount_ok": 0,
+      "category_ok": 0
+     }
+    }
+   ]
+  }
+ }
+}

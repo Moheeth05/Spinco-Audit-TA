@@ -1,0 +1,71 @@
+{
+  "total": 143,
+  "fieldMatches": {
+    "vendor": 143,
+    "billNumber": 143,
+    "billDate": 143,
+    "amount": 139,
+    "gstin": 143,
+    "categoryGuess": 143
+  },
+  "mismatches": [
+    {
+      "filename": "ER-40706.pdf",
+      "page": 15,
+      "field": "amount",
+      "python": 14209,
+      "js": null,
+      "nodeDetectedStatement": true
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 20,
+      "field": "amount",
+      "python": 113824.75,
+      "js": null,
+      "nodeDetectedStatement": true
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 22,
+      "field": "amount",
+      "python": 31,
+      "js": null,
+      "nodeDetectedStatement": true
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 23,
+      "field": "amount",
+      "python": 500,
+      "js": null,
+      "nodeDetectedStatement": true
+    }
+  ],
+  "statementPagesDetected": [
+    {
+      "filename": "ER-40706.pdf",
+      "page": 15,
+      "pythonAmount": 14209,
+      "nodeAmount": null
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 20,
+      "pythonAmount": 113824.75,
+      "nodeAmount": null
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 22,
+      "pythonAmount": 31,
+      "nodeAmount": null
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 23,
+      "pythonAmount": 500,
+      "nodeAmount": null
+    }
+  ]
+}

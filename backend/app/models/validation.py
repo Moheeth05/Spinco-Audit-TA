@@ -25,7 +25,7 @@ class ValidationResult(Base):
     remarks: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
     # Set only when result == EXCEPTION - OVER LIMIT | AMOUNT MISMATCH | DATE MISMATCH |
-    # MISSING BILL | CATEGORY MISMATCH | DUPLICATE BILL | CATERING INCLUDED | TOTAL MISMATCH
+    # MISSING BILL | CATEGORY MISMATCH | DUPLICATE BILL | CATERING INCLUDED | ROOM SERVICE / FOOD INCLUDED | TOTAL MISMATCH
     exception_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
     claimed_amount: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
@@ -144,3 +144,49 @@ class ExceptionVerification(Base):
     verified_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     verified_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     verification_note: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+    # SHA-256 (hex) of the TYPED evidence this approval was given on - see
+    # exception_engine.evidence_signature(): check_type, result, claimed / bill /
+    # policy-limit amounts, expense / bill dates and source page of the rows behind the
+    # exception, never their wording and never any row id. evaluate_report re-applies an
+    # approval only while the regenerated exception's signature still equals this one, so a
+    # material change in the evidence (e.g. a room-service charge of Rs.957 becoming Rs.357)
+    # can never silently keep an obsolete approval. NULL on a row verified before this column
+    # existed: such a row is applied only while its original_reason still equals the current
+    # reason, and is then stamped with the signature.
+    evidence_signature: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+
+class ExceptionVerificationHistory(Base):
+    """The superseded state of a manual verification, written by the verify route
+    immediately before an explicit re-verification overwrites the live
+    ExceptionVerification row (whose id is preserved). One row per replaced state, so the
+    note, verifier, time, approved reason and evidence signature of every earlier approval
+    survive - new audit events deliberately never carry the note text (see api/exceptions.py).
+
+    Also written when a report is deleted (api/documents.py): its live verifications are removed
+    and each one's last state is kept here (see services/verification_history.py).
+
+    Append-only; no endpoint exposes it. The identity columns are plain copies - deliberately
+    NOT foreign keys: the live verification a row refers to may since have been retired with its
+    report, and a verification's expense id can move (extraction/verification_carryover.py).
+    Because SQLite reuses freed ids, `verification_id` / `expense_report_id` identify a live row
+    only at the time of `superseded_at`; compare timestamps, not ids, across a report deletion."""
+
+    __tablename__ = "exception_verification_history"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    verification_id: Mapped[int] = mapped_column(index=True)
+    expense_report_id: Mapped[int] = mapped_column(index=True)
+    expense_id: Mapped[int | None] = mapped_column(nullable=True)
+    exception_type: Mapped[str] = mapped_column(String(100))
+
+    original_severity: Mapped[str] = mapped_column(String(20))
+    original_reason: Mapped[str] = mapped_column(String(1000))
+    evidence_signature: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    verified_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    verified_at: Mapped[datetime] = mapped_column(DateTime)
+    verification_note: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+    superseded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    superseded_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)

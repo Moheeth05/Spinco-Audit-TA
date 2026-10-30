@@ -1,0 +1,245 @@
+{
+  "pf_ambiguous_date": {
+    "file": "pf_ambiguous_date.pdf",
+    "er_id": "ER-81003",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-02",
+        "category": "CAB CHARGES",
+        "amount": 275.0,
+        "expect": "AMBIGUOUS",
+        "expect_exception": null
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2
+    }
+  },
+  "pf_unreadable_amount": {
+    "file": "pf_unreadable_amount.pdf",
+    "er_id": "ER-81001",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-21",
+        "category": "CAB CHARGES",
+        "amount": 319.0,
+        "expect": "UNSUPPORTED",
+        "expect_exception": "BILL MATCH REVIEW REQUIRED"
+      },
+      {
+        "s_no": 2,
+        "date": "2026-07-22",
+        "category": "CAB CHARGES",
+        "amount": 120.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2,
+      "r2": 4
+    }
+  },
+  "pf_shared_bill": {
+    "file": "pf_shared_bill.pdf",
+    "er_id": "ER-81002",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-21",
+        "category": "CAB CHARGES",
+        "amount": 1150.0,
+        "expect": "AMBIGUOUS",
+        "expect_exception": null
+      },
+      {
+        "s_no": 2,
+        "date": "2026-07-21",
+        "category": "CAB CHARGES",
+        "amount": 1150.0,
+        "expect": "AMBIGUOUS",
+        "expect_exception": null
+      },
+      {
+        "s_no": 3,
+        "date": "2026-07-21",
+        "category": "CAB CHARGES",
+        "amount": 1150.0,
+        "expect": "AMBIGUOUS",
+        "expect_exception": null
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2,
+      "r2": 4,
+      "r3": 6
+    }
+  },
+  "pf_repeated_amounts": {
+    "file": "pf_repeated_amounts.pdf",
+    "er_id": "ER-81004",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-03",
+        "category": "CAB CHARGES",
+        "amount": 310.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      },
+      {
+        "s_no": 2,
+        "date": "2026-07-15",
+        "category": "CAB CHARGES",
+        "amount": 310.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      },
+      {
+        "s_no": 3,
+        "date": "2026-07-22",
+        "category": "CAB CHARGES",
+        "amount": 310.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2,
+      "r2": 4,
+      "r3": 6
+    }
+  },
+  "pf_duplicate_screenshot": {
+    "file": "pf_duplicate_screenshot.pdf",
+    "er_id": "ER-81005",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-24",
+        "category": "CAB CHARGES",
+        "amount": 67.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      },
+      {
+        "s_no": 2,
+        "date": "2026-07-24",
+        "category": "CAB CHARGES",
+        "amount": 67.0,
+        "expect": "UNSUPPORTED",
+        "expect_exception": "DUPLICATE BILL"
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2,
+      "r2": 4
+    }
+  },
+  "pf_flight_vs_lodging": {
+    "file": "pf_flight_vs_lodging.pdf",
+    "er_id": "ER-81006",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-19",
+        "category": "LODGING",
+        "amount": 4797.0,
+        "expect": "SUPPORTED",
+        "expect_exception": "CATEGORY MISMATCH"
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2
+    }
+  },
+  "pf_upi_status": {
+    "file": "pf_upi_status.pdf",
+    "er_id": "ER-81007",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-14",
+        "category": "CAB CHARGES",
+        "amount": 180.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      },
+      {
+        "s_no": 2,
+        "date": "2026-07-16",
+        "category": "CAB CHARGES",
+        "amount": 260.0,
+        "expect": "UNSUPPORTED",
+        "expect_exception": null
+      },
+      {
+        "s_no": 3,
+        "date": "2026-07-17",
+        "category": "CAB CHARGES",
+        "amount": 340.0,
+        "expect": "UNSUPPORTED",
+        "expect_exception": null
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2,
+      "r2": 4,
+      "r3": 6
+    }
+  },
+  "pf_ocr_pages": {
+    "file": "pf_ocr_pages.pdf",
+    "er_id": "ER-81008",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-14",
+        "category": "CAB CHARGES",
+        "amount": 245.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      },
+      {
+        "s_no": 2,
+        "date": "2026-07-16",
+        "category": "CAB CHARGES",
+        "amount": 390.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2,
+      "r2": 4
+    }
+  },
+  "pf_same_day_times": {
+    "file": "pf_same_day_times.pdf",
+    "er_id": "ER-81009",
+    "claims": [
+      {
+        "s_no": 1,
+        "date": "2026-07-24",
+        "category": "CAB CHARGES",
+        "amount": 67.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      },
+      {
+        "s_no": 2,
+        "date": "2026-07-24",
+        "category": "CAB CHARGES",
+        "amount": 67.0,
+        "expect": "SUPPORTED",
+        "expect_exception": null
+      }
+    ],
+    "receipt_pages": {
+      "r1": 2,
+      "r2": 4
+    }
+  }
+}

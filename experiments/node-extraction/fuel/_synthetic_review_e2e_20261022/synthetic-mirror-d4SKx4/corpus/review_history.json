@@ -1,0 +1,48 @@
+{
+ "schema": "fuel-review-history/v1",
+ "note": "Append-only audit trail of apply_verification.mjs invocations.",
+ "events": [
+  {
+   "applied_at": "2026-10-22T06:10:38.889Z",
+   "reviewer_identity_assurance": "self_attested",
+   "authorized_reviewers_enforced": false,
+   "exports": [
+    {
+     "file": "export-12.json",
+     "reviewer_id": "REV-R1",
+     "exported_at": "2026-10-22T10:00:00Z",
+     "sha256": "2f3806f034f5ba1ae622ba5a95af33a549dd5aaccafa602459ae78eb089178ff",
+     "receipts": 1
+    }
+   ],
+   "verified_new": [
+    "SYNTH-AUTH-001"
+   ],
+   "unchanged_matches_existing": [],
+   "adjudication_needed": [],
+   "conflicts": [],
+   "ignored_unknown_ids": []
+  },
+  {
+   "applied_at": "2026-10-22T06:10:39.000Z",
+   "reviewer_identity_assurance": "self_attested",
+   "authorized_reviewers_enforced": false,
+   "exports": [
+    {
+     "file": "export-13.json",
+     "reviewer_id": "REV-R2",
+     "exported_at": "2026-10-22T10:00:00Z",
+     "sha256": "be30a78f8c0bcc43054916f5507317cb90c72cf386fabf4fc392cb8d6813afda",
+     "receipts": 1
+    }
+   ],
+   "verified_new": [],
+   "unchanged_matches_existing": [],
+   "adjudication_needed": [],
+   "conflicts": [
+    "SYNTH-AUTH-001"
+   ],
+   "ignored_unknown_ids": []
+  }
+ ]
+}

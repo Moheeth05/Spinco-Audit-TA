@@ -1,0 +1,34 @@
+{
+ "generated": "2026-10-20T10:59:58.058Z",
+ "hardware": {
+  "node": "v24.21.0",
+  "cpu": "Intel(R) Core(TM) i3-1005G1 CPU @ 1.20GHz",
+  "cores": 4,
+  "ramGB": 8,
+  "platform": "win32"
+ },
+ "modes": {
+  "single": {
+   "images": 173,
+   "total_ocr_s": 110.23147469999982,
+   "mean_ocr_ms": 637.1761543352591,
+   "median_ocr_ms": 332.2746999999945,
+   "p95_ocr_ms": 2368.3827999999994,
+   "worst_ocr_ms": 4553.644500000002,
+   "retried_images": 0,
+   "extract_ms_mean": 1.1961352601162427,
+   "note": "includes the one-off WASM worker start (~1s) in the first image"
+  },
+  "retry": {
+   "images": 173,
+   "total_ocr_s": 314.6401518000002,
+   "mean_ocr_ms": 1818.7292011560703,
+   "median_ocr_ms": 504.1551000000327,
+   "p95_ocr_ms": 6041.236900000018,
+   "worst_ocr_ms": 39776.038100000005,
+   "retried_images": 57,
+   "extract_ms_mean": 1.1298653179191853,
+   "note": "includes the one-off WASM worker start (~1s) in the first image"
+  }
+ }
+}

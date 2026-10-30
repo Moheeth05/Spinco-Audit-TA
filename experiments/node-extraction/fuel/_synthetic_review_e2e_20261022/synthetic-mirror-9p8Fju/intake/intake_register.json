@@ -1,0 +1,36 @@
+{
+ "receipts": [
+  {
+   "receipt_id": "SYNTH-INTAKE-OK",
+   "image_path": "corpus/authentic_intake/pending/SYNTH-INTAKE-OK.png",
+   "split": "development",
+   "receipt_family": "fam_a",
+   "brand_family": "other",
+   "label_status": "pending_human_label",
+   "provenance": {
+    "source_type": "authentic_issued_receipt",
+    "source_description": "synthetic fixture"
+   }
+  },
+  {
+   "receipt_id": "SYNTH-INTAKE-BAD",
+   "image_path": "x.png",
+   "split": "development",
+   "receipt_family": "fam_b",
+   "brand_family": "other",
+   "label_status": "pending_human_label",
+   "provenance": {
+    "source_type": "synthetic_template",
+    "source_description": "synthetic fixture"
+   }
+  },
+  {
+   "receipt_id": "SYNTH-INTAKE-NOPROV",
+   "image_path": "y.png",
+   "split": "development",
+   "receipt_family": "fam_c",
+   "brand_family": "other",
+   "label_status": "pending_human_label"
+  }
+ ]
+}

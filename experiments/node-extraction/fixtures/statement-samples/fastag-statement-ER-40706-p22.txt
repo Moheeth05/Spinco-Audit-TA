@@ -1,0 +1,57 @@
+IV FASTag E-Statement icici Bank
+Statement Reference Customer ID: 11734023 Address:
+Number 040926/201442/73 RAJESH KONDAPALLI
+Name of ICICI Bank Name: RAJESH KONDAPALLI nd ay NAGAR,
+Branch making the |ICICI Bank Limited BKC [iment Period: [01-07-2026 to 31-07-2026 VISHAKAPATNAM -
+SVDIRY: 530045
+Bill From Address of [ICICI Bank Towers, Statement Date: 04-09-2026 Andhra Pradesh,
+ICICI: Bandra Kurla Complex, INDIA.
+Mumbai 400071 Type of address: Permanent
+GSTIN of ICICI: 27AAACI1195H3ZK GSTIN Number: N/A
+Place of Supply: Andhra Pradesh State Code: 37
+Vehicle Summary
+Tag Account No. Licence Plate No. Ce haad Opening Balance (Rs.) Credit (Rs.) Debit (Rs.) Closing Balance
+(Rs.)
+22178813 AP31EA7970 Default ~~ 28 32343 2500.00 - 2450.00 373.43
+Total 28° 32343 2500.00 - 2450.00 373.43
+Transaction Details
+Rs.)(CR) |(Rs.)(DR
+31-07-2026 19:45:55 |Trip (RRN No / Trip No) |352022013310726194555/ |Plaza Name:Nathavalasa- Lane ID:LN013 60.00
+5814612227
+31-07-2026 10:59:15 [Trip (RRN No / Trip No) |352022003310726105915/ |Plaza Name:Nathavalasa- Lane ID:LN003 115.00
+5813256942
+29-07-2026 19:47:14 RIB000000024519814 Received Payment by Retail Internet Banking 500.00) 0.00
+29-07-2026 19:36:45 |Trip (RRN No / Trip No) |352022008290726193645/ |Plaza Name:Nathavalasa- Lane ID:LN0O08 60.00
+5809034759
+29-07-2026 10:27:42 |Trip (RRN No / Trip No) |352022007290726102742/ |Plaza Name:Nathavalasa- Lane |D:LNOQ7 115.00
+5807611179
+27-07-2026 22:09:45 |Trip (RRN No / Trip No) |352022012270726220945/ |Plaza Name:Nathavalasa- Lane ID:LN012 60.00
+5803834393
+27-07-2026 14:06:25 |Trip (RRN No / Trip No) |352022003270726140625/ |Plaza Name:Nathavalasa- Lane ID:LN0O03 115.00
+5802693837
+25-07-2026 14:19:34 (Trip (RRN No / Trip No) |352022014250726141934 / |Plaza Name:Nathavalasa- Lane ID:LN014 60.00
+5796939438
+25-07-2026 11:02:50 |Trip (RRN No / Trip No) |352022002250726110250/ |Plaza Name:Nathavalasa- Lane ID:LN002 115.00
+5796418735
+24-07-2026 20:38:16 RIB000000024469507 Received Payment by Retail Internet Banking 500.00 0.00
+24-07-2026 20:30:10 [Trip (RRN No / Trip No) |352022013240726203010/ |Plaza Name:Nathavalasa- Lane ID:LN013 60.00
+5794989964
+24-07-2026 10:43:34 [Trip (RRN No / Trip No) |352022006240726104334 / |Plaza Name:Nathavalasa- Lane |D:LN0O06 115.00
+5793488498
+23-07-2026 21:10:30 [Trip (RRN No / Trip No) |352022009230726211030/ |Plaza Name:Nathavalasa- Lane ID:LN0O0S 60.00
+5792302968
+23-07-2026 10:08:05 [Trip (RRN No / Trip No) |352022006230726100805/ |Plaza Name:Nathavalasa- Lane ID:LN0O06 115.00
+5790692303
+22-07-2026 21:00:08 [Trip (RRN No / Trip No) |352022012220726210008 / |Plaza Name:Nathavalasa- Lane ID:LN012 60.00
+5789568399
+22-07-2026 15:35:09 [Trip (RRN No / Trip No) |352022007220726153509 / |Plaza Name:Nathavalasa- Lane ID:LN0OOQ7 115.00
+5788787153
+21-07-2026 22:17:05 RIB000000024445636 Received Payment by Retail Internet Banking 500.00) 0.00
+21-07-2026 22:08:11 (Trip (RRN No / Trip No) |352022012210726220811 / |Plaza Name:Nathavalasa- Lane ID:LN012 60.00
+5786961458
+21-07-2026 15:47:40 [Trip (RRN No / Trip No) |352022006210726154740/ |Plaza Name:Nathavalasa- Lane ID:LN0O06 115.00
+5786058517
+20-07-2026 13:35:46 |Trip (RRN No / Trip No) |352022013200726133546/ |Plaza Name:Nathavalasa- Lane ID:LN013 60.00
+5783082856
+10f3
+(3: scanned with OKEN Scanner

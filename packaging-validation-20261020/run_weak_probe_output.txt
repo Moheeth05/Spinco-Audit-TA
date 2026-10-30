@@ -1,0 +1,8 @@
+﻿launched wrapper pid 13572 at 2026-10-20T15:38:09
+devtools port up: True
+weak-OCR document processed through the packaged app: status=EXTRACTED after 19s
+driver exit code: 0
+mock provider hits: 0
+non-loopback connection samples: 0
+sampler heartbeats: 17
+finished 2026-10-20T15:39:14

@@ -438,20 +438,20 @@ def test_no_real_document_confidently_shares_a_bill_between_independent_claims(c
 
 
 def test_unreadable_amount_match_can_never_verify_the_expense(client, sample_pdf_path):
-    """Matching can confirm a bill from date/category/position evidence even
-    when the bill's own amount could not be read (existing behaviour, in real
-    reports too) - but such a claim must never come out verified: the Bill
-    Amount Check cannot pass without a readable bill amount."""
+    """A bill whose own amount could not be read may stay a visible CANDIDATE (date, vendor and
+    position can point at it) but is never confirmation of the claim: the matcher no longer
+    returns MATCHED for it, and the claim must never come out verified either (the Bill
+    Amount Check cannot pass without a readable bill amount). Real report ER-39832, S.No 7."""
     resp = client.post(
         "/api/uploads/expense-reports",
         files=[("files", (sample_pdf_path.name, sample_pdf_path.read_bytes(), "application/pdf"))],
     )
     report_id = resp.json()["results"][0]["document_id"].split(":")[1]
     expenses = client.get(f"/api/expense-reports/{report_id}/expenses").json()
-    unreadable = [e for e in expenses if e["bill_match_status"] == "MATCHED" and e["bill_amount"] is None]
-    assert unreadable, "expected ER-39832 to contain a matched bill with an unreadable amount (S.No 7)"
-    for e in unreadable:
-        assert e["validation_status"] in ("EXCEPTION", "REVIEW REQUIRED", "REVIEW_REQUIRED"), e
+    assert not [e for e in expenses if e["bill_match_status"] == "MATCHED" and e["bill_amount"] is None]
+    seven = next(e for e in expenses if e["s_no"] == 7)
+    assert seven["bill_match_status"] == "REVIEW_REQUIRED", seven
+    assert seven["validation_status"] in ("EXCEPTION", "REVIEW REQUIRED", "REVIEW_REQUIRED"), seven
 
 
 def test_rematch_and_reprocess_never_preserve_an_obsolete_bill_assignment(client, sample_pdf_path):

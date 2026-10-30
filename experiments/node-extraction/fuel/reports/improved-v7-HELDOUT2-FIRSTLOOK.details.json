@@ -1,0 +1,6544 @@
+{
+ "synthetic_heldout2": [
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "GURUNANAKFILLINGSTATION",
+    "got": "GURUNANAK FILLING STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-20",
+    "got": "2026-05-20"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 300.34,
+    "got": 300.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 18.4375,
+   "pred": {
+    "pump_name": {
+     "raw_value": "GURUNANAK FILLING STATION",
+     "normalized_value": "GURUNANAK FILLING STATION",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 2,
+       "text": "GURUNANAK FILLING STATION",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 90,
+        "y0": 90,
+        "x1": 390,
+        "y1": 103
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "Indianoil",
+       "ocr_line_confidence": 0.66,
+       "bbox": {
+        "x0": 188,
+        "y0": 30,
+        "x1": 290,
+        "y1": 45
+       },
+       "brand": "IOCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "20-MAY-26",
+     "normalized_value": "2026-05-20",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date 20-MAY-26 07:08",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 13,
+        "y0": 118,
+        "x1": 276,
+        "y1": 132
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-05-20"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs.300.34",
+     "normalized_value": 300.34,
+     "confidence": 0.9,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "sale Amount : Rs.300.34",
+       "ocr_line_confidence": 0.9,
+       "bbox": {
+        "x0": 14,
+        "y0": 175,
+        "x1": 288,
+        "y1": 190
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      300.34
+     ],
+     "basis": "label:sale amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.92
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SAGARFUELPOINT",
+    "got": "SAGAR FUEL POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-14",
+    "got": "2026-06-14"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500,
+    "got": 1500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 1.6802999999999884,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SAGAR FUEL POINT",
+     "normalized_value": "SAGAR FUEL POINT",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 2,
+       "text": "SAGAR FUEL POINT",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 146,
+        "y0": 90,
+        "x1": 336,
+        "y1": 103
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "Indianoil",
+       "ocr_line_confidence": 0.66,
+       "bbox": {
+        "x0": 188,
+        "y0": 30,
+        "x1": 290,
+        "y1": 45
+       },
+       "brand": "IOCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "14-JUN-26",
+     "normalized_value": "2026-06-14",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date 14-JUN-26 17:56",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 13,
+        "y0": 118,
+        "x1": 276,
+        "y1": 132
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-14"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs.1,500.00",
+     "normalized_value": 1500,
+     "confidence": 0.84,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Sale Amount : Rs.1,500.00",
+       "ocr_line_confidence": 0.84,
+       "bbox": {
+        "x0": 14,
+        "y0": 175,
+        "x1": 312,
+        "y1": 193
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      1500
+     ],
+     "basis": "label:sale amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.91
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "RAJDHANI FILLING POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-28",
+    "got": "2026-09-28"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 500.12,
+    "got": 500.12
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 1.2267000000001644,
+   "pred": {
+    "pump_name": {
+     "raw_value": "RAJDHANI FILLING POINT",
+     "normalized_value": "RAJDHANI FILLING POINT",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 2,
+       "text": "RAJDHANI FILLING POINT",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 130,
+        "y0": 105,
+        "x1": 447,
+        "y1": 122
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "Indianoil",
+       "ocr_line_confidence": 0.88,
+       "bbox": {
+        "x0": 225,
+        "y0": 33,
+        "x1": 350,
+        "y1": 54
+       },
+       "brand": "IOCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "28-SEP-26",
+     "normalized_value": "2026-09-28",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date 28-SEP-26 15:10",
+       "ocr_line_confidence": 0.91,
+       "bbox": {
+        "x0": 12,
+        "y0": 137,
+        "x1": 330,
+        "y1": 156
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-28"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs.500.12",
+     "normalized_value": 500.12,
+     "confidence": 0.88,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "sale Amount : Rs.500.12",
+       "ocr_line_confidence": 0.88,
+       "bbox": {
+        "x0": 13,
+        "y0": 203,
+        "x1": 343,
+        "y1": 224
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      500.12
+     ],
+     "basis": "label:sale amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.91
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "KAVERISERVICESTATION",
+    "got": "KAVERI SERVICE STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-25",
+    "got": "2026-07-25"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 4500.12,
+    "got": 4500.12
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.9582000000000335,
+   "pred": {
+    "pump_name": {
+     "raw_value": "KAVERI SERVICE STATION",
+     "normalized_value": "KAVERI SERVICE STATION",
+     "confidence": 0.92,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 2,
+       "text": "KAVERI SERVICE STATION",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 121,
+        "y0": 106,
+        "x1": 384,
+        "y1": 120
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "Indianoil",
+       "ocr_line_confidence": 0.7,
+       "bbox": {
+        "x0": 200,
+        "y0": 47,
+        "x1": 303,
+        "y1": 62
+       },
+       "brand": "IOCL"
+      }
+     ],
+     "ambiguity": "No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "25-JUL-26",
+     "normalized_value": "2026-07-25",
+     "confidence": 0.84,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date 25-JUL-26 21:36",
+       "ocr_line_confidence": 0.79,
+       "bbox": {
+        "x0": 26,
+        "y0": 134,
+        "x1": 289,
+        "y1": 150
+       }
+      }
+     ],
+     "ambiguity": "No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "candidates": [
+      "2026-07-25"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs.4,500.12",
+     "normalized_value": 4500.12,
+     "confidence": 0.92,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Sale Amount : Rs.4,500.12",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 26,
+        "y0": 192,
+        "x1": 324,
+        "y1": 209
+       }
+      }
+     ],
+     "ambiguity": "No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "candidates": [
+      4500.12
+     ],
+     "basis": "label:sale amount"
+    },
+    "validation_warnings": [
+     "No fuel-receipt evidence (no fuel product / pump-machine labels / oil-company brand with fuel words)."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": false,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.9
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "AMBAPETROCENTRE",
+    "got": null
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-22",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 2500,
+    "got": 35.2
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "lowres"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.8143000000000029,
+   "pred": {
+    "pump_name": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "basis": null
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No date text found. No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "basis": null
+    },
+    "total_amount": {
+     "raw_value": "35.2",
+     "normalized_value": 35.2,
+     "confidence": 0.22,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 1,
+       "text": "Sale amount : 35.2,500.00",
+       "ocr_line_confidence": 0.31,
+       "bbox": {
+        "x0": 6,
+        "y0": 78,
+        "x1": 129,
+        "y1": 86
+       }
+      }
+     ],
+     "ambiguity": "Low OCR confidence (0.31) on the amount line. The amount digits were read with OCR confidence 0.00. No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "candidates": [
+      35.2
+     ],
+     "basis": "label:sale amount"
+    },
+    "validation_warnings": [
+     "No pump / dealer name could be read.",
+     "No date could be read.",
+     "No fuel-receipt evidence (no fuel product / pump-machine labels / oil-company brand with fuel words)."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": false,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.52
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_iocl_xtrareward_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "AMBAPETROCENTRE",
+    "got": "AMBA PETRO CENTRE"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-28",
+    "got": "2026-05-28"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500.34,
+    "got": 2500.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "iocl_xtrareward",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 3.8837000000003172,
+   "pred": {
+    "pump_name": {
+     "raw_value": "AMBA PETRO CENTRE",
+     "normalized_value": "AMBA PETRO CENTRE",
+     "confidence": 0.92,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 2,
+       "text": "AMBA PETRO CENTRE",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 87,
+        "y0": 142,
+        "x1": 290,
+        "y1": 155
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "Indianoil",
+       "ocr_line_confidence": 0.58,
+       "bbox": {
+        "x0": 137,
+        "y0": 82,
+        "x1": 239,
+        "y1": 97
+       },
+       "brand": "IOCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "28-MAY-26",
+     "normalized_value": "2026-05-28",
+     "confidence": 0.89,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 3,
+       "text": "= 28-MAY-26 13:58",
+       "ocr_line_confidence": 0.84,
+       "bbox": {
+        "x0": 0,
+        "y0": 170,
+        "x1": 225,
+        "y1": 184
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-05-28"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs.2,500.34",
+     "normalized_value": 2500.34,
+     "confidence": 0.87,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "e Amount : Rs.2,500.34",
+       "ocr_line_confidence": 0.87,
+       "bbox": {
+        "x0": 0,
+        "y0": 228,
+        "x1": 261,
+        "y1": 245
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      2500.34
+     ],
+     "basis": "label:amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.87
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "LAKSHMIFUELSTATION",
+    "got": "LAKSHMI FUEL STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-14",
+    "got": "2026-05-14"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 2500.34,
+    "got": 2500.34
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 1.3806000000004133,
+   "pred": {
+    "pump_name": {
+     "raw_value": "LAKSHMI FUEL STATION",
+     "normalized_value": "LAKSHMI FUEL STATION",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "LAKSHMI FUEL STATION",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 159,
+        "y0": 71,
+        "x1": 419,
+        "y1": 86
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "BHARAT PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 184,
+        "y0": 37,
+        "x1": 393,
+        "y1": 52
+       },
+       "brand": "BPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "14/05/2026",
+     "normalized_value": "2026-05-14",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date: 14/05/2026",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 137,
+        "x1": 222,
+        "y1": 157
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-05-14"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "Rs. 2,500.34",
+     "normalized_value": 2500.34,
+     "confidence": 0.56,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "unlabelled_currency_amount",
+       "line_index": 5,
+       "text": "Net Payable : Rs. 2,500.34",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 205,
+        "x1": 355,
+        "y1": 227
+       }
+      }
+     ],
+     "ambiguity": "Printed without an amount/total label.",
+     "review_required": true,
+     "basis": "unlabelled_currency_token"
+    },
+    "validation_warnings": [
+     "Amount found without a total/amount label; verify."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "MAATARASERVICESTATION",
+    "got": "MAA TARA SERVICE STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-20",
+    "got": "2026-08-20"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 800.66,
+    "got": 800.66
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.7724999999991269,
+   "pred": {
+    "pump_name": {
+     "raw_value": "MAA TARA SERVICE STATION",
+     "normalized_value": "MAA TARA SERVICE STATION",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "MAA TARA SERVICE STATION",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 115,
+        "y0": 74,
+        "x1": 459,
+        "y1": 88
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "BHARAT PETROLEUM",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 174,
+        "y0": 40,
+        "x1": 403,
+        "y1": 54
+       },
+       "brand": "BPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "20/08/2026",
+     "normalized_value": "2026-08-20",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date: 20/08/2026",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 14,
+        "y0": 140,
+        "x1": 240,
+        "y1": 158
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-20"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "Rs. 800.66",
+     "normalized_value": 800.66,
+     "confidence": 0.56,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "unlabelled_currency_amount",
+       "line_index": 5,
+       "text": "Net Payable : Rs. 800.66",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 209,
+        "x1": 355,
+        "y1": 229
+       }
+      }
+     ],
+     "ambiguity": "Printed without an amount/total label.",
+     "review_required": true,
+     "basis": "unlabelled_currency_token"
+    },
+    "validation_warnings": [
+     "Amount found without a total/amount label; verify."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "RAJDHANI FILLING POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-20",
+    "got": "2026-06-20"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 3500.34,
+    "got": 3500.34
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.6625000000003638,
+   "pred": {
+    "pump_name": {
+     "raw_value": "RAJDHANI FILLING POINT",
+     "normalized_value": "RAJDHANI FILLING POINT",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "RAJDHANI FILLING POINT",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 81,
+        "y0": 53,
+        "x1": 303,
+        "y1": 63
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "BHARAT PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 111,
+        "y0": 29,
+        "x1": 273,
+        "y1": 39
+       },
+       "brand": "BPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "20/06/2026",
+     "normalized_value": "2026-06-20",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date: 20/06/2026",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 99,
+        "x1": 174,
+        "y1": 112
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-20"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "Rs. 3,500.34",
+     "normalized_value": 3500.34,
+     "confidence": 0.57,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "unlabelled_currency_amount",
+       "line_index": 5,
+       "text": "Net Payable : Rs. 3,500.34",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 12,
+        "y0": 148,
+        "x1": 275,
+        "y1": 162
+       }
+      }
+     ],
+     "ambiguity": "Printed without an amount/total label.",
+     "review_required": true,
+     "basis": "unlabelled_currency_token"
+    },
+    "validation_warnings": [
+     "Amount found without a total/amount label; verify."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "MAATARASERVICESTATION",
+    "got": "Bharat Petroleum"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-25",
+    "got": "2026-05-25"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 2500.12,
+    "got": 2
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "noise"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 5.7048999999969965,
+   "pred": {
+    "pump_name": {
+     "raw_value": "i +. BHARAT PETROLEUM BE",
+     "normalized_value": "Bharat Petroleum",
+     "confidence": 0.26,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "unconfirmed_header_line_not_used_as_name",
+       "line_index": 1,
+       "text": "MAK TAR: BERVICE: STATIDN: x",
+       "ocr_line_confidence": 0.57,
+       "bbox": {
+        "x0": 65,
+        "y0": 44,
+        "x1": 360,
+        "y1": 71
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "i +. BHARAT PETROLEUM BE",
+       "ocr_line_confidence": 0.37,
+       "bbox": {
+        "x0": 14,
+        "y0": 20,
+        "x1": 360,
+        "y1": 45
+       },
+       "brand": "BPCL"
+      }
+     ],
+     "ambiguity": "Only the oil-company brand was read; no dealer/station name could be identified.",
+     "review_required": true,
+     "basis": "brand_text_only"
+    },
+    "transaction_date": {
+     "raw_value": "25/05/2026",
+     "normalized_value": "2026-05-25",
+     "confidence": 0.13,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 3,
+       "text": "Bate. 25/05/2026. 1° ’ 0",
+       "ocr_line_confidence": 0.19,
+       "bbox": {
+        "x0": 13,
+        "y0": 99,
+        "x1": 337,
+        "y1": 117
+       }
+      }
+     ],
+     "ambiguity": "Low OCR confidence (0.19) on the date line. The date digits were read with OCR confidence 0.10.",
+     "review_required": true,
+     "candidates": [
+      "2026-05-25"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "RS.2",
+     "normalized_value": 2,
+     "confidence": 0.25,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "unlabelled_currency_amount",
+       "line_index": 5,
+       "text": "Net Payable i RS.2;500.12",
+       "ocr_line_confidence": 0.41,
+       "bbox": {
+        "x0": 12,
+        "y0": 147,
+        "x1": 299,
+        "y1": 165
+       }
+      }
+     ],
+     "ambiguity": "Printed without an amount/total label.",
+     "review_required": true,
+     "basis": "unlabelled_currency_token"
+    },
+    "validation_warnings": [
+     "Header line 'MAK TAR: BERVICE: STATIDN' has no dealer/station cue and may be a place name; not used as the pump name.",
+     "Amount found without a total/amount label; verify."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.3
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "AMBAPETROCENTRE",
+    "got": "BMARAT PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-23",
+    "got": "2026-08-23"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 800.66,
+    "got": 800.66
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.5434000000022934,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BMARAT PETROLEUM",
+     "normalized_value": "BMARAT PETROLEUM",
+     "confidence": 0.55,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 0,
+       "text": "BMARAT PETROLEUM",
+       "ocr_line_confidence": 0.78,
+       "bbox": {
+        "x0": 144,
+        "y0": 31,
+        "x1": 336,
+        "y1": 46
+       }
+      }
+     ],
+     "ambiguity": "The least certain word of the name was read with OCR confidence 0.60.",
+     "review_required": true,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "23/08/2026",
+     "normalized_value": "2026-08-23",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Date: 23/08/2026",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 12,
+        "y0": 117,
+        "x1": 205,
+        "y1": 135
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-23"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "Rs. 800.66",
+     "normalized_value": 800.66,
+     "confidence": 0.55,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "unlabelled_currency_amount",
+       "line_index": 5,
+       "text": "Net Payable : Rs. 800.66",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 12,
+        "y0": 174,
+        "x1": 301,
+        "y1": 195
+       }
+      }
+     ],
+     "ambiguity": "Printed without an amount/total label.",
+     "review_required": true,
+     "basis": "unlabelled_currency_token"
+    },
+    "validation_warnings": [
+     "Amount found without a total/amount label; verify."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.91
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_bpcl_fleet_netpayable_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "Bharat Petroleum"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-17",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 3000,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "bpcl_fleet_netpayable",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.8281999999999243,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BHARAT PETROL gy",
+     "normalized_value": "Bharat Petroleum",
+     "confidence": 0.27,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "unconfirmed_header_line_not_used_as_name",
+       "line_index": 2,
+       "text": "SMARTFLEEY app SALE",
+       "ocr_line_confidence": 0.49,
+       "bbox": {
+        "x0": 109,
+        "y0": 87,
+        "x1": 311,
+        "y1": 118
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "BHARAT PETROL gy",
+       "ocr_line_confidence": 0.39,
+       "bbox": {
+        "x0": 134,
+        "y0": 41,
+        "x1": 296,
+        "y1": 68
+       },
+       "brand": "BPCL"
+      }
+     ],
+     "ambiguity": "Only the oil-company brand was read; no dealer/station name could be identified.",
+     "review_required": true,
+     "basis": "brand_text_only"
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No date text found.",
+     "review_required": true,
+     "basis": null
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "Header line 'app SALE' has no dealer/station cue and may be a place name; not used as the pump name.",
+     "No date could be read.",
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.48
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JAIHINDAUTOFUELS",
+    "got": "JAI HIND AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-24",
+    "got": "2026-09-24"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 500,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.5733000000000175,
+   "pred": {
+    "pump_name": {
+     "raw_value": "JAI HIND AUTO FUELS",
+     "normalized_value": "JAI HIND AUTO FUELS",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "JAI HIND AUTO FUELS",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 128,
+        "y0": 61,
+        "x1": 353,
+        "y1": 74
+       }
+      },
+      {
+       "role": "brand_wordmark_in_logo_or_header",
+       "line_index": 0,
+       "text": "HP",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 229,
+        "y0": 32,
+        "x1": 251,
+        "y1": 45
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "24-09-2026",
+     "normalized_value": "2026-09-24",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date: 24-09-2026",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 13,
+        "y0": 89,
+        "x1": 204,
+        "y1": 103
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-24"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JAIHINDAUTOFUELS",
+    "got": "JAI HIND AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-25",
+    "got": "2026-09-25"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 500,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.6691000000027998,
+   "pred": {
+    "pump_name": {
+     "raw_value": "JAI HIND AUTO FUELS",
+     "normalized_value": "JAI HIND AUTO FUELS",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "JAI HIND AUTO FUELS",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 128,
+        "y0": 61,
+        "x1": 353,
+        "y1": 74
+       }
+      },
+      {
+       "role": "brand_wordmark_in_logo_or_header",
+       "line_index": 0,
+       "text": "HP",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 229,
+        "y0": 32,
+        "x1": 251,
+        "y1": 45
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "25-09-2026",
+     "normalized_value": "2026-09-25",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date: 25-09-2026",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 13,
+        "y0": 89,
+        "x1": 204,
+        "y1": 103
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-25"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SRIVENKATESHWARAAUTOFUELS",
+    "got": "SRI VENKATESHWARA AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-21",
+    "got": "2026-08-21"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 3500.5,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.39580000000205473,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SRI VENKATESHWARA AUTO FUELS",
+     "normalized_value": "SRI VENKATESHWARA AUTO FUELS",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "SRI VENKATESHWARA AUTO FUELS",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 86,
+        "y0": 71,
+        "x1": 490,
+        "y1": 88
+       }
+      },
+      {
+       "role": "brand_wordmark_in_logo_or_header",
+       "line_index": 0,
+       "text": "HP",
+       "ocr_line_confidence": 0.66,
+       "bbox": {
+        "x0": 274,
+        "y0": 37,
+        "x1": 303,
+        "y1": 53
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "21-08-2026",
+     "normalized_value": "2026-08-21",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date: 21-08-2026",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 12,
+        "y0": 103,
+        "x1": 243,
+        "y1": 122
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-21"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.86
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "LAKSHMIFUELSTATION",
+    "got": "LAKSHMI FUEL STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-17",
+    "got": "2026-05-17"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 4000.66,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3820000000014261,
+   "pred": {
+    "pump_name": {
+     "raw_value": "LAKSHMI FUEL STATION",
+     "normalized_value": "LAKSHMI FUEL STATION",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "LAKSHMI FUEL STATION",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 100,
+        "y0": 66,
+        "x1": 303,
+        "y1": 78
+       }
+      },
+      {
+       "role": "brand_wordmark_in_logo_or_header",
+       "line_index": 0,
+       "text": "HP",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 192,
+        "y0": 42,
+        "x1": 210,
+        "y1": 53
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "17-05-2026",
+     "normalized_value": "2026-05-17",
+     "confidence": 0.52,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date: 17-05-2026",
+       "ocr_line_confidence": 0.75,
+       "bbox": {
+        "x0": 22,
+        "y0": 89,
+        "x1": 184,
+        "y1": 102
+       }
+      }
+     ],
+     "ambiguity": "The date digits were read with OCR confidence 0.66.",
+     "review_required": true,
+     "candidates": [
+      "2026-05-17"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.9
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "RAJDHANI FILLING POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-24",
+    "got": "2026-08-24"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 3500.12,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.26859999999942374,
+   "pred": {
+    "pump_name": {
+     "raw_value": "RAJDHANI FILLING POINT",
+     "normalized_value": "RAJDHANI FILLING POINT",
+     "confidence": 0.6,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "RAJDHANI FILLING POINT",
+       "ocr_line_confidence": 0.86,
+       "bbox": {
+        "x0": 121,
+        "y0": 60,
+        "x1": 360,
+        "y1": 73
+       }
+      },
+      {
+       "role": "brand_wordmark_in_logo_or_header",
+       "line_index": 0,
+       "text": "HP",
+       "ocr_line_confidence": 0.9,
+       "bbox": {
+        "x0": 230,
+        "y0": 31,
+        "x1": 250,
+        "y1": 44
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": "The least certain word of the name was read with OCR confidence 0.65.",
+     "review_required": true,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "24-08-2026",
+     "normalized_value": "2026-08-24",
+     "confidence": 0.89,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date: 24-08-2026",
+       "ocr_line_confidence": 0.89,
+       "bbox": {
+        "x0": 13,
+        "y0": 89,
+        "x1": 187,
+        "y1": 102
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-24"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.91
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_hp_column_table_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "BALAJIPETROLEUMSERVICE",
+    "got": "BALAJI PETROLEUM SERVICE"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-28",
+    "got": "2026-05-28"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1000,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "hp_column_table",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.47629999999844586,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BALAJI PETROLEUM SERVICE",
+     "normalized_value": "BALAJI PETROLEUM SERVICE",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "BALAJI PETROLEUM SERVICE",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 16,
+        "y0": 175,
+        "x1": 359,
+        "y1": 189
+       }
+      },
+      {
+       "role": "brand_wordmark_in_logo_or_header",
+       "line_index": 0,
+       "text": "HP",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 175,
+        "y0": 141,
+        "x1": 201,
+        "y1": 155
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "28-05-2026",
+     "normalized_value": "2026-05-28",
+     "confidence": 0.92,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 2,
+       "text": "28-05-2026",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 0,
+        "y0": 208,
+        "x1": 140,
+        "y1": 223
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-05-28"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "BALAJIPETROLEUMSERVICE",
+    "got": "Dealer: M/S BALAJI PETROLEUM SERVICE"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-14",
+    "got": "2026-09-14"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500,
+    "got": 1500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.33980000000155997,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer: M/S BALAJI PETROLEUM SERVICE",
+     "normalized_value": "Dealer: M/S BALAJI PETROLEUM SERVICE",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "Dealer: M/S BALAJI PETROLEUM SERVICE",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 59,
+        "x1": 445,
+        "y1": 77
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "NAYARA ENERGY",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 163,
+        "y0": 32,
+        "x1": 318,
+        "y1": 45
+       },
+       "brand": "NAYARA"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-14",
+     "normalized_value": "2026-09-14",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date & Time : 2026-09-14 07:11",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 88,
+        "x1": 373,
+        "y1": 103
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-14"
+     ],
+     "basis": "iso"
+    },
+    "total_amount": {
+     "raw_value": "1500.00",
+     "normalized_value": 1500,
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : 1500.00",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 12,
+        "y0": 146,
+        "x1": 276,
+        "y1": 161
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      1500
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.93
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "JAIHINDAUTOFUELS",
+    "got": "Dealer: M/S JAI HIND AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-23",
+    "got": "2026-08-23"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1200,
+    "got": 1200
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.2802000000010594,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer: M/S JAI HIND AUTO FUELS",
+     "normalized_value": "Dealer: M/S JAI HIND AUTO FUELS",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "Dealer: M/S JAI HIND AUTO FUELS",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 59,
+        "x1": 384,
+        "y1": 77
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "NAYARA ENERGY",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 163,
+        "y0": 32,
+        "x1": 318,
+        "y1": 45
+       },
+       "brand": "NAYARA"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-23",
+     "normalized_value": "2026-08-23",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date & Time : 2026-08-23 06:33",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 88,
+        "x1": 371,
+        "y1": 103
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-23"
+     ],
+     "basis": "iso"
+    },
+    "total_amount": {
+     "raw_value": "1200.00",
+     "normalized_value": 1200,
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : 1200.00",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 146,
+        "x1": 276,
+        "y1": 161
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      1200
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "MAATARASERVICESTATION",
+    "got": "Dealer: M/S MAA TARA SERVICE STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-24",
+    "got": "2026-09-24"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 300.34,
+    "got": 300.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.45830000000205473,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer: M/S MAA TARA SERVICE STATION",
+     "normalized_value": "Dealer: M/S MAA TARA SERVICE STATION",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "Dealer: M/S MAA TARA SERVICE STATION",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 13,
+        "y0": 49,
+        "x1": 380,
+        "y1": 64
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "NAYARA ENERGY",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 126,
+        "y0": 27,
+        "x1": 258,
+        "y1": 38
+       },
+       "brand": "NAYARA"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-24",
+     "normalized_value": "2026-09-24",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date & Time : 2026-09-24 17:28",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 73,
+        "x1": 318,
+        "y1": 86
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-24"
+     ],
+     "basis": "iso"
+    },
+    "total_amount": {
+     "raw_value": "300.34",
+     "normalized_value": 300.34,
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : 300.34",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 121,
+        "x1": 226,
+        "y1": 134
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      300.34
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.93
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "ANNAPURNAPETROSERVICES",
+    "got": "Dealer; M/S ANNAPURNA PETRO SERVICES"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-22",
+    "got": "2026-07-22"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 500.5,
+    "got": 500.5
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "noise"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3614999999990687,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer; M/S ANNAPURNA PETRO SERVICES",
+     "normalized_value": "Dealer; M/S ANNAPURNA PETRO SERVICES",
+     "confidence": 0.55,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "Dealer; M/S ANNAPURNA PETRO SERVICES",
+       "ocr_line_confidence": 0.79,
+       "bbox": {
+        "x0": 13,
+        "y0": 64,
+        "x1": 536,
+        "y1": 94
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "be © NAYARA ENERGY ~. Tr",
+       "ocr_line_confidence": 0.19,
+       "bbox": {
+        "x0": 28,
+        "y0": 26,
+        "x1": 557,
+        "y1": 62
+       },
+       "brand": "NAYARA"
+      }
+     ],
+     "ambiguity": "The least certain word of the name was read with OCR confidence 0.63.",
+     "review_required": true,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "2026-07-22",
+     "normalized_value": "2026-07-22",
+     "confidence": 0.69,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date & Time 1 2026-07-22 15:59. :",
+       "ocr_line_confidence": 0.64,
+       "bbox": {
+        "x0": 13,
+        "y0": 95,
+        "x1": 564,
+        "y1": 125
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-07-22"
+     ],
+     "basis": "iso"
+    },
+    "total_amount": {
+     "raw_value": "500.50",
+     "normalized_value": 500.5,
+     "confidence": 0.32,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount -. 500.50: Ea",
+       "ocr_line_confidence": 0.45,
+       "bbox": {
+        "x0": 12,
+        "y0": 167,
+        "x1": 541,
+        "y1": 198
+       }
+      }
+     ],
+     "ambiguity": "Low OCR confidence (0.45) on the amount line. The amount digits were read with OCR confidence 0.04.",
+     "review_required": true,
+     "candidates": [
+      500.5
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.51
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "ANNAPURNAPETROSERVICES",
+    "got": "Dealer: M/S ANNAPURNA PETRO SERVICES"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-26",
+    "got": "2026-06-26"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500.66,
+    "got": 2500.66
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.29019999999945867,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Dealer: M/S ANNAPURNA PETRO SERVICES",
+     "normalized_value": "Dealer: M/S ANNAPURNA PETRO SERVICES",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "Dealer: M/S ANNAPURNA PETRO SERVICES",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 49,
+        "x1": 347,
+        "y1": 63
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "NAYARA ENERGY",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 132,
+        "y0": 26,
+        "x1": 252,
+        "y1": 37
+       },
+       "brand": "NAYARA"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-26",
+     "normalized_value": "2026-06-26",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date & Time : 2026-06-26 09:41",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 73,
+        "x1": 291,
+        "y1": 85
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-26"
+     ],
+     "basis": "iso"
+    },
+    "total_amount": {
+     "raw_value": "2500.66",
+     "normalized_value": 2500.66,
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : 2500.66",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 121,
+        "x1": 217,
+        "y1": 133
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      2500.66
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.93
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_nayara_dealer_label_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": true,
+    "falseConfident": true,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "NAVARA ENERGY"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-27",
+    "got": "2026-09-27"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 500,
+    "got": 500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": true,
+   "reviewJustified": null,
+   "trueAccept": false,
+   "family": "nayara_dealer_label",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.35750000000189175,
+   "pred": {
+    "pump_name": {
+     "raw_value": "NAVARA ENERGY",
+     "normalized_value": "NAVARA ENERGY",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 0,
+       "text": "NAVARA ENERGY",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 137,
+        "y0": 46,
+        "x1": 270,
+        "y1": 59
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-27",
+     "normalized_value": "2026-09-27",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 2,
+       "text": "Date & Time : 2026-09-27 08:18",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 24,
+        "y0": 93,
+        "x1": 330,
+        "y1": 107
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-27"
+     ],
+     "basis": "iso"
+    },
+    "total_amount": {
+     "raw_value": "500.00",
+     "normalized_value": 500,
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : 500.00",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 24,
+        "y0": 141,
+        "x1": 239,
+        "y1": 155
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      500
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.89
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPSRIVENKATESHWARAAUTOFUELS",
+    "got": "SRI VENKATESHWARA AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-25",
+    "got": "2026-06-25"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500,
+    "got": 2500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4452999999994063,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SRI VENKATESHWARA AUTO FUELS",
+     "normalized_value": "SRI VENKATESHWARA AUTO FUELS",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "SRI VENKATESHWARA AUTO FUELS",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 50,
+        "y0": 51,
+        "x1": 334,
+        "y1": 62
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "jio-bp",
+       "ocr_line_confidence": 0.66,
+       "bbox": {
+        "x0": 162,
+        "y0": 25,
+        "x1": 222,
+        "y1": 41
+       },
+       "brand": "JIOBP"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "25 JUN 2026",
+     "normalized_value": "2026-06-25",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 2,
+       "text": "25 JUN 2026",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 13,
+        "y0": 74,
+        "x1": 124,
+        "y1": 86
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-25"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs 2500.00",
+     "normalized_value": 2500,
+     "confidence": 0.97,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : Rs 2500.00",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 121,
+        "x1": 267,
+        "y1": 134
+       }
+      },
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Amount Paid : Rs 2500.00",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 145,
+        "x1": 257,
+        "y1": 158
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      2500
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.92
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPAMBAPETROCENTRE",
+    "got": "AMBA PETRO CENTRE"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-15",
+    "got": "2026-08-15"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500.34,
+    "got": 2500.34
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3801000000021304,
+   "pred": {
+    "pump_name": {
+     "raw_value": "AMBA PETRO CENTRE",
+     "normalized_value": "AMBA PETRO CENTRE",
+     "confidence": 0.91,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "AMBA PETRO CENTRE",
+       "ocr_line_confidence": 0.91,
+       "bbox": {
+        "x0": 105,
+        "y0": 53,
+        "x1": 278,
+        "y1": 63
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "jio-bp",
+       "ocr_line_confidence": 0.33,
+       "bbox": {
+        "x0": 162,
+        "y0": 27,
+        "x1": 221,
+        "y1": 42
+       },
+       "brand": "JIOBP"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "15 AUG 2026",
+     "normalized_value": "2026-08-15",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 2,
+       "text": "15 AUG 2026",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 14,
+        "y0": 76,
+        "x1": 123,
+        "y1": 87
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-15"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs 2500.34",
+     "normalized_value": 2500.34,
+     "confidence": 0.97,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : Rs 2500.34",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 124,
+        "x1": 265,
+        "y1": 135
+       }
+      },
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Amount Paid : Rs 2500.34",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 12,
+        "y0": 147,
+        "x1": 255,
+        "y1": 159
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      2500.34
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.91
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPPATELPETROLEUMPOINT",
+    "got": "PATEL PETROLEUM POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-21",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1200.5,
+    "got": 1200.5
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.2934000000022934,
+   "pred": {
+    "pump_name": {
+     "raw_value": "PATEL PETROLEUM POINT",
+     "normalized_value": "PATEL PETROLEUM POINT",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "PATEL PETROLEUM POINT",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 84,
+        "y0": 50,
+        "x1": 299,
+        "y1": 63
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "Jio-bp",
+       "ocr_line_confidence": 0.33,
+       "bbox": {
+        "x0": 163,
+        "y0": 24,
+        "x1": 224,
+        "y1": 42
+       },
+       "brand": "JIOBP"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No date text found.",
+     "review_required": true,
+     "basis": null
+    },
+    "total_amount": {
+     "raw_value": "Rs 1200.50",
+     "normalized_value": 1200.5,
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : Rs 1200.50",
+       "ocr_line_confidence": 0.89,
+       "bbox": {
+        "x0": 13,
+        "y0": 120,
+        "x1": 269,
+        "y1": 135
+       }
+      },
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Amount Paid : Rs 1200.50",
+       "ocr_line_confidence": 0.83,
+       "bbox": {
+        "x0": 12,
+        "y0": 144,
+        "x1": 259,
+        "y1": 159
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      1200.5
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [
+     "No date could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.81
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPSHREEGANESHPETROLEUM",
+    "got": "SHREE GANESH PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-19",
+    "got": "2026-05-19"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 3000.66,
+    "got": 3000.66
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3253000000004249,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SHREE GANESH PETROLEUM",
+     "normalized_value": "SHREE GANESH PETROLEUM",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "SHREE GANESH PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 126,
+        "y0": 87,
+        "x1": 388,
+        "y1": 101
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "jio~bp",
+       "ocr_line_confidence": 0.5,
+       "bbox": {
+        "x0": 221,
+        "y0": 57,
+        "x1": 292,
+        "y1": 75
+       },
+       "brand": "JIOBP"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "19 MAY 2026",
+     "normalized_value": "2026-05-19",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 2,
+       "text": "19 MAY 2026",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 30,
+        "y0": 115,
+        "x1": 159,
+        "y1": 130
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-05-19"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs 3000.66",
+     "normalized_value": 3000.66,
+     "confidence": 0.97,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : Rs 3000.66",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 28,
+        "y0": 173,
+        "x1": 327,
+        "y1": 188
+       }
+      },
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Amount Paid : Rs 3000.66",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 28,
+        "y0": 202,
+        "x1": 315,
+        "y1": 217
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      3000.66
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.92
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "JIOBPSRIVENKATESHWARAAUTOFUELS",
+    "got": "SRI VENKATESHWARA AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-22",
+    "got": "2026-07-22"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 300,
+    "got": 300
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.30789999999979045,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SRI VENKATESHWARA AUTO FUELS",
+     "normalized_value": "SRI VENKATESHWARA AUTO FUELS",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "SRI VENKATESHWARA AUTO FUELS",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 62,
+        "y0": 50,
+        "x1": 321,
+        "y1": 61
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "jio-bp",
+       "ocr_line_confidence": 0.33,
+       "bbox": {
+        "x0": 165,
+        "y0": 25,
+        "x1": 220,
+        "y1": 40
+       },
+       "brand": "JIOBP"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "22 JUL 2026",
+     "normalized_value": "2026-07-22",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 2,
+       "text": "22 JUL 2026",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 74,
+        "x1": 114,
+        "y1": 85
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-07-22"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs 300.00",
+     "normalized_value": 300,
+     "confidence": 0.97,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 4,
+       "text": "Total Amount : Rs 300.00",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 13,
+        "y0": 121,
+        "x1": 236,
+        "y1": 133
+       }
+      },
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Amount Paid : Rs 300.00",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 145,
+        "x1": 227,
+        "y1": 157
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      300
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.9
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_jiobp_upi_5",
+   "pump_name": {
+    "labelled": false,
+    "returned": false,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": null
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-15",
+    "got": "2026-08-15"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500.5,
+    "got": 1500.5
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "jiobp_upi",
+   "difficulty": [
+    "cropped_top"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.8502000000007683,
+   "pred": {
+    "pump_name": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true,
+     "basis": null
+    },
+    "transaction_date": {
+     "raw_value": "15 AUG 2026",
+     "normalized_value": "2026-08-15",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 0,
+       "text": "15 AUG 2026",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 14,
+        "y0": 24,
+        "x1": 156,
+        "y1": 39
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-15"
+     ],
+     "basis": "month_name"
+    },
+    "total_amount": {
+     "raw_value": "Rs 1500.50",
+     "normalized_value": 1500.5,
+     "confidence": 0.97,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 2,
+       "text": "Total Amount : Rs 1500.50",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 90,
+        "x1": 341,
+        "y1": 107
+       }
+      },
+      {
+       "role": "amount_line",
+       "line_index": 3,
+       "text": "Amount Paid : Rs 1500.50",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 124,
+        "x1": 328,
+        "y1": 141
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      1500.5
+     ],
+     "basis": "label:total amount"
+    },
+    "validation_warnings": [
+     "No pump / dealer name could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLJAIHINDAUTOFUELS",
+    "got": "HIND AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-21",
+    "got": "2026-09-21"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 800,
+    "got": 800
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4952999999986787,
+   "pred": {
+    "pump_name": {
+     "raw_value": "HIND AUTO FUELS",
+     "normalized_value": "HIND AUTO FUELS",
+     "confidence": 0.57,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "JAT HIND AUTO FUELS",
+       "ocr_line_confidence": 0.81,
+       "bbox": {
+        "x0": 104,
+        "y0": 50,
+        "x1": 279,
+        "y1": 61
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "SHELL",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 170,
+        "y0": 26,
+        "x1": 214,
+        "y1": 37
+       },
+       "brand": "SHELL"
+      }
+     ],
+     "ambiguity": "Uncertain leading/trailing words were dropped, so the name may be incomplete.",
+     "review_required": true,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "21/09/26",
+     "normalized_value": "2026-09-21",
+     "confidence": 0.92,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "DATE 21/09/26 TIME 07:47",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 13,
+        "y0": 97,
+        "x1": 244,
+        "y1": 111
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-21"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "INR 800.00",
+     "normalized_value": 800,
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 7,
+       "text": "SALE AMT: INR 800.00",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 13,
+        "y0": 194,
+        "x1": 199,
+        "y1": 205
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      800
+     ],
+     "basis": "label:sale amt"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.88
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLLAKSHMIFUELSTATION",
+    "got": "LAKSHMI FUEL STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-26",
+    "got": "2026-09-26"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1500,
+    "got": 1500
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.5606999999981781,
+   "pred": {
+    "pump_name": {
+     "raw_value": "LAKSHMI FUEL STATION",
+     "normalized_value": "LAKSHMI FUEL STATION",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "LAKSHMI FUEL STATION",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 122,
+        "y0": 61,
+        "x1": 359,
+        "y1": 74
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "SHELL",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 212,
+        "y0": 32,
+        "x1": 269,
+        "y1": 45
+       },
+       "brand": "SHELL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "26/09/26",
+     "normalized_value": "2026-09-26",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "DATE 26/09/26 TIME 19:26",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 13,
+        "y0": 117,
+        "x1": 312,
+        "y1": 135
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-26"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "INR 1,500.00",
+     "normalized_value": 1500,
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 7,
+       "text": "SALE AMT: INR 1,500.00",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 14,
+        "y0": 234,
+        "x1": 276,
+        "y1": 251
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      1500
+     ],
+     "basis": "label:sale amt"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.92
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLGURUNANAKFILLINGSTATION",
+    "got": "GURUNANAK FILLING STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-21",
+    "got": "2026-06-21"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 3000.12,
+    "got": 3000.12
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.32929999999760184,
+   "pred": {
+    "pump_name": {
+     "raw_value": "GURUNANAK FILLING STATION",
+     "normalized_value": "GURUNANAK FILLING STATION",
+     "confidence": 0.62,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "GURUNANAK FILLING STATION",
+       "ocr_line_confidence": 0.89,
+       "bbox": {
+        "x0": 102,
+        "y0": 59,
+        "x1": 378,
+        "y1": 74
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "SHELL",
+       "ocr_line_confidence": 0.84,
+       "bbox": {
+        "x0": 213,
+        "y0": 30,
+        "x1": 267,
+        "y1": 45
+       },
+       "brand": "SHELL"
+      }
+     ],
+     "ambiguity": "The least certain word of the name was read with OCR confidence 0.77.",
+     "review_required": true,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "21/06/26",
+     "normalized_value": "2026-06-21",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "DATE 21/06/26 TIME 21:56",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 117,
+        "x1": 287,
+        "y1": 133
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-21"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "INR 3,000.12",
+     "normalized_value": 3000.12,
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 7,
+       "text": "SALE AMT: INR 3,000.12",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 12,
+        "y0": 233,
+        "x1": 253,
+        "y1": 251
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      3000.12
+     ],
+     "basis": "label:sale amt"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.87
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLANNAPURNAPETROSERVICES",
+    "got": "ANNAPURNA PETRO SERVICES"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-14",
+    "got": "2026-06-14"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2000,
+    "got": 2000
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.40459999999802676,
+   "pred": {
+    "pump_name": {
+     "raw_value": "ANNAPURNA PETRO SERVICES",
+     "normalized_value": "ANNAPURNA PETRO SERVICES",
+     "confidence": 0.62,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "ANNAPURNA PETRO SERVICES",
+       "ocr_line_confidence": 0.88,
+       "bbox": {
+        "x0": 80,
+        "y0": 64,
+        "x1": 325,
+        "y1": 77
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "SHELL",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 178,
+        "y0": 40,
+        "x1": 227,
+        "y1": 53
+       },
+       "brand": "SHELL"
+      }
+     ],
+     "ambiguity": "The least certain word of the name was read with OCR confidence 0.78.",
+     "review_required": true,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "14/06/26",
+     "normalized_value": "2026-06-14",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "DATE 14/06/26 TIME 08:27",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 23,
+        "y0": 111,
+        "x1": 278,
+        "y1": 126
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-14"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "INR 2,000.00",
+     "normalized_value": 2000,
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 7,
+       "text": "SALE AMT: INR 2,000.00",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 24,
+        "y0": 208,
+        "x1": 248,
+        "y1": 223
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      2000
+     ],
+     "basis": "label:sale amt"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.89
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLJAIHINDAUTOFUELS",
+    "got": "JAI HIND AUTO FUELS"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-28",
+    "got": "2026-09-28"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 3000,
+    "got": 3000
+   },
+   "overallReviewRequired": false,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": null,
+   "trueAccept": true,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3179999999993015,
+   "pred": {
+    "pump_name": {
+     "raw_value": "JAI HIND AUTO FUELS",
+     "normalized_value": "JAI HIND AUTO FUELS",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "JAI HIND AUTO FUELS",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 153,
+        "y0": 74,
+        "x1": 422,
+        "y1": 88
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "SHELL",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 254,
+        "y0": 40,
+        "x1": 323,
+        "y1": 54
+       },
+       "brand": "SHELL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "28/09/26",
+     "normalized_value": "2026-09-28",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "DATE 28/09/26 TIME 11:15",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 14,
+        "y0": 140,
+        "x1": 370,
+        "y1": 158
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-09-28"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "INR 3,000.00",
+     "normalized_value": 3000,
+     "confidence": 0.96,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 7,
+       "text": "SALE AMT: INR 3,000.00",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 14,
+        "y0": 277,
+        "x1": 327,
+        "y1": 296
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      3000
+     ],
+     "basis": "label:sale amt"
+    },
+    "validation_warnings": [],
+    "overall_review_required": false,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.87
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_shell_card_slip_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHELLLAKSHMIFUELSTATION",
+    "got": "LAKSHMI FUEL STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-24",
+    "got": "2026-07-24"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 300.34,
+    "got": 300.34
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "shell_card_slip",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3647999999993772,
+   "pred": {
+    "pump_name": {
+     "raw_value": "LAKSHMI FUEL STATION",
+     "normalized_value": "LAKSHMI FUEL STATION",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "LAKSHMI FUEL STATION",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 80,
+        "y0": 141,
+        "x1": 365,
+        "y1": 155
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "SHELL",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 188,
+        "y0": 107,
+        "x1": 257,
+        "y1": 121
+       },
+       "brand": "SHELL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "24/07/26",
+     "normalized_value": "2026-07-24",
+     "confidence": 0.55,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 3,
+       "text": "24/07/26 TIME 12:38",
+       "ocr_line_confidence": 0.78,
+       "bbox": {
+        "x0": 0,
+        "y0": 207,
+        "x1": 304,
+        "y1": 225
+       }
+      }
+     ],
+     "ambiguity": "The date digits were read with OCR confidence 0.48.",
+     "review_required": true,
+     "candidates": [
+      "2026-07-24"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "INR 300.34",
+     "normalized_value": 300.34,
+     "confidence": 0.76,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 7,
+       "text": "AMT: INR 300.34",
+       "ocr_line_confidence": 0.76,
+       "bbox": {
+        "x0": 0,
+        "y0": 344,
+        "x1": 231,
+        "y1": 359
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      300.34
+     ],
+     "basis": "label:amt"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.74
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_0",
+   "pump_name": {
+    "labelled": false,
+    "returned": false,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": null
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-27",
+    "got": "2026-08-27"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 4000.34,
+    "got": 4000.34
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4147999999986496,
+   "pred": {
+    "pump_name": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true,
+     "basis": null
+    },
+    "transaction_date": {
+     "raw_value": "27/08/2026",
+     "normalized_value": "2026-08-27",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 1,
+       "text": "Date: 27/08/2026",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 49,
+        "x1": 175,
+        "y1": 64
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-08-27"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "4000.34",
+     "normalized_value": 4000.34,
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 3,
+       "text": "Amount: 4000.34",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 98,
+        "x1": 165,
+        "y1": 110
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      4000.34
+     ],
+     "basis": "label:amount"
+    },
+    "validation_warnings": [
+     "No pump / dealer name could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.93
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_1",
+   "pump_name": {
+    "labelled": false,
+    "returned": false,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": null
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-17",
+    "got": "2026-06-17"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 1800.12,
+    "got": 1800.12
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.30760000000009313,
+   "pred": {
+    "pump_name": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true,
+     "basis": null
+    },
+    "transaction_date": {
+     "raw_value": "17/06/2026",
+     "normalized_value": "2026-06-17",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 1,
+       "text": "Date: 17/06/2026",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 13,
+        "y0": 51,
+        "x1": 174,
+        "y1": 64
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-17"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "1800.12",
+     "normalized_value": 1800.12,
+     "confidence": 0.92,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 3,
+       "text": "Amount: 1800.12",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 12,
+        "y0": 100,
+        "x1": 163,
+        "y1": 111
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      1800.12
+     ],
+     "basis": "label:amount"
+    },
+    "validation_warnings": [
+     "No pump / dealer name could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_2",
+   "pump_name": {
+    "labelled": false,
+    "returned": false,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": null
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-05-18",
+    "got": "2026-05-18"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500.12,
+    "got": 2500.12
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.29290000000037253,
+   "pred": {
+    "pump_name": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true,
+     "basis": null
+    },
+    "transaction_date": {
+     "raw_value": "18/05/2026",
+     "normalized_value": "2026-05-18",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 1,
+       "text": "Date: 18/05/2026",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 13,
+        "y0": 59,
+        "x1": 204,
+        "y1": 77
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-05-18"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "2500.12",
+     "normalized_value": 2500.12,
+     "confidence": 0.96,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 3,
+       "text": "Amount: 2500.12",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 12,
+        "y0": 118,
+        "x1": 191,
+        "y1": 132
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      2500.12
+     ],
+     "basis": "label:amount"
+    },
+    "validation_warnings": [
+     "No pump / dealer name could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.95
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_3",
+   "pump_name": {
+    "labelled": false,
+    "returned": false,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": null
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-09-14",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 4500,
+    "got": 4500
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "noise"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4087999999974272,
+   "pred": {
+    "pump_name": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true,
+     "basis": null
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No date text found.",
+     "review_required": true,
+     "basis": null
+    },
+    "total_amount": {
+     "raw_value": "4500.00",
+     "normalized_value": 4500,
+     "confidence": 0.13,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 3,
+       "text": "Amount: 4500.00. iio hin",
+       "ocr_line_confidence": 0.18,
+       "bbox": {
+        "x0": 2,
+        "y0": 110,
+        "x1": 441,
+        "y1": 138
+       }
+      }
+     ],
+     "ambiguity": "Low OCR confidence (0.18) on the amount line. The amount digits were read with OCR confidence 0.39.",
+     "review_required": true,
+     "candidates": [
+      4500
+     ],
+     "basis": "label:amount"
+    },
+    "validation_warnings": [
+     "No pump / dealer name could be read.",
+     "No date could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.35
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_4",
+   "pump_name": {
+    "labelled": false,
+    "returned": false,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": null
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-20",
+    "got": "2026-06-20"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "expected": 2500,
+    "got": 2500
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3441000000020722,
+   "pred": {
+    "pump_name": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": null,
+     "review_required": true,
+     "basis": null
+    },
+    "transaction_date": {
+     "raw_value": "20/06/2026",
+     "normalized_value": "2026-06-20",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 1,
+       "text": "Date: 20/06/2026",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 13,
+        "y0": 59,
+        "x1": 204,
+        "y1": 77
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      "2026-06-20"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "2500.00",
+     "normalized_value": 2500,
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 3,
+       "text": "Amount: 2500.00",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 11,
+        "y0": 117,
+        "x1": 191,
+        "y1": 134
+       }
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "candidates": [
+      2500
+     ],
+     "basis": "label:amount"
+    },
+    "validation_warnings": [
+     "No pump / dealer name could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.94
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_independent_no_header_5",
+   "pump_name": {
+    "labelled": false,
+    "returned": true,
+    "exact": null,
+    "autoUsable": false,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": null,
+    "got": "Diesel"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-19",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1500.12,
+    "got": 8
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "independent_no_header",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.2753000000011525,
+   "pred": {
+    "pump_name": {
+     "raw_value": "Diesel",
+     "normalized_value": "Diesel",
+     "confidence": 0.67,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 2,
+       "text": "Diesel",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 9,
+        "y0": 237,
+        "x1": 90,
+        "y1": 256
+       }
+      }
+     ],
+     "ambiguity": "No dealer-type word in the chosen header line; it could be a place name. No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "basis": "header_position_only"
+    },
+    "transaction_date": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No date text found. No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "basis": null
+    },
+    "total_amount": {
+     "raw_value": "08",
+     "normalized_value": 8,
+     "confidence": 0.64,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 1,
+       "text": "/08/2026",
+       "ocr_line_confidence": 0.91,
+       "bbox": {
+        "x0": 0,
+        "y0": 203,
+        "x1": 108,
+        "y1": 225
+       }
+      }
+     ],
+     "ambiguity": "No fuel-receipt evidence on this document.",
+     "review_required": true,
+     "candidates": [
+      8
+     ],
+     "basis": "label:sale"
+    },
+    "validation_warnings": [
+     "No date could be read.",
+     "No fuel-receipt evidence (no fuel product / pump-machine labels / oil-company brand with fuel words)."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": false,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.95
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_0",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "RAJDHANIFILLINGPOINT",
+    "got": "RAJDHANI FILLING POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-02",
+    "got": "2026-06-02"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1500.66,
+    "got": 1500.66
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 1.290899999999965,
+   "pred": {
+    "pump_name": {
+     "raw_value": "RAJDHANI FILLING POINT",
+     "normalized_value": "RAJDHANI FILLING POINT",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "RAJDHANI FILLING POINT",
+       "ocr_line_confidence": 0.95,
+       "bbox": {
+        "x0": 131,
+        "y0": 74,
+        "x1": 445,
+        "y1": 88
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "HINDUSTAN PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 152,
+        "y0": 40,
+        "x1": 424,
+        "y1": 54
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "02-06-2026",
+     "normalized_value": "2026-06-02",
+     "confidence": 0.92,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Sale Date : 02-06-2026",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 14,
+        "y0": 141,
+        "x1": 327,
+        "y1": 156
+       }
+      },
+      {
+       "role": "print_date_not_used",
+       "line_index": 4,
+       "text": "Reprinted : 26-06-2026",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 173,
+        "x1": 327,
+        "y1": 195
+       }
+      }
+     ],
+     "ambiguity": "Another date on this receipt in the same printed format is only valid as DMY. A print-date is also printed and was not used.",
+     "review_required": false,
+     "candidates": [
+      "2026-06-02",
+      "2026-02-06"
+     ],
+     "basis": "same_receipt_unambiguous_date_same_format"
+    },
+    "total_amount": {
+     "raw_value": "1500.66",
+     "normalized_value": 1500.66,
+     "confidence": 0.65,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Net Amount : 1500.66",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 209,
+        "x1": 298,
+        "y1": 224
+       }
+      }
+     ],
+     "ambiguity": "A lower-priority label carries a different amount: 2026.",
+     "review_required": true,
+     "candidates": [
+      2026,
+      1500.66
+     ],
+     "basis": "label:net amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.93
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_1",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "SHREEGANESHPETROLEUM",
+    "got": "SHREE GANESH PETROLEUM"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-06",
+    "got": "2026-06-06"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 2000.66,
+    "got": 2000.66
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "clean"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.30200000000331784,
+   "pred": {
+    "pump_name": {
+     "raw_value": "SHREE GANESH PETROLEUM",
+     "normalized_value": "SHREE GANESH PETROLEUM",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "SHREE GANESH PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 110,
+        "y0": 63,
+        "x1": 372,
+        "y1": 75
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "HINDUSTAN PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 127,
+        "y0": 34,
+        "x1": 354,
+        "y1": 46
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "06-06-2026",
+     "normalized_value": "2026-06-06",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Sale Date : 06-06-2026",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 14,
+        "y0": 120,
+        "x1": 274,
+        "y1": 133
+       }
+      },
+      {
+       "role": "print_date_not_used",
+       "line_index": 4,
+       "text": "Reprinted : 24-06-2026",
+       "ocr_line_confidence": 0.91,
+       "bbox": {
+        "x0": 13,
+        "y0": 149,
+        "x1": 274,
+        "y1": 166
+       }
+      }
+     ],
+     "ambiguity": "A print-date is also printed and was not used.",
+     "review_required": false,
+     "candidates": [
+      "2026-06-06"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "2000.66",
+     "normalized_value": 2000.66,
+     "confidence": 0.66,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Net Amount : 2000.66",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 178,
+        "x1": 250,
+        "y1": 191
+       }
+      }
+     ],
+     "ambiguity": "A lower-priority label carries a different amount: 2026.",
+     "review_required": true,
+     "candidates": [
+      2026,
+      2000.66
+     ],
+     "basis": "label:net amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.93
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_2",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "BALAJIPETROLEUMSERVICE",
+    "got": "BALAJI PETROLEUM SERVICE"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-06-05",
+    "got": "2026-06-05"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1200,
+    "got": 1200
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "faint"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.31609999999636784,
+   "pred": {
+    "pump_name": {
+     "raw_value": "BALAJI PETROLEUM SERVICE",
+     "normalized_value": "BALAJI PETROLEUM SERVICE",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "BALAJI PETROLEUM SERVICE",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 132,
+        "y0": 71,
+        "x1": 444,
+        "y1": 86
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "HINDUSTAN PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 164,
+        "y0": 37,
+        "x1": 413,
+        "y1": 52
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "05-06-2026",
+     "normalized_value": "2026-06-05",
+     "confidence": 0.54,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Sale Date : 05-06-2026",
+       "ocr_line_confidence": 0.77,
+       "bbox": {
+        "x0": 13,
+        "y0": 137,
+        "x1": 301,
+        "y1": 154
+       }
+      },
+      {
+       "role": "print_date_not_used",
+       "line_index": 4,
+       "text": "Reprinted : 24-06-2026",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 14,
+        "y0": 171,
+        "x1": 301,
+        "y1": 193
+       }
+      }
+     ],
+     "ambiguity": "The date digits were read with OCR confidence 0.33. Another date on this receipt in the same printed format is only valid as DMY. A print-date is also printed and was not used.",
+     "review_required": true,
+     "candidates": [
+      "2026-06-05",
+      "2026-05-06"
+     ],
+     "basis": "same_receipt_unambiguous_date_same_format"
+    },
+    "total_amount": {
+     "raw_value": "1200.00",
+     "normalized_value": 1200,
+     "confidence": 0.65,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Net Amount : 1200.00",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 206,
+        "x1": 275,
+        "y1": 222
+       }
+      }
+     ],
+     "ambiguity": "A lower-priority label carries a different amount: 2026.",
+     "review_required": true,
+     "candidates": [
+      2026,
+      1200
+     ],
+     "basis": "label:net amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.89
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_3",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "PATELPETROLEUMPOINT",
+    "got": "PATEL PETROLEUM POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-05",
+    "got": "2026-08-05"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1800.34,
+    "got": 1800.34
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "skew"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.4360000000015134,
+   "pred": {
+    "pump_name": {
+     "raw_value": "PATEL PETROLEUM POINT",
+     "normalized_value": "PATEL PETROLEUM POINT",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "PATEL PETROLEUM POINT",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 99,
+        "y0": 72,
+        "x1": 310,
+        "y1": 84
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "HINDUSTAN PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 108,
+        "y0": 48,
+        "x1": 301,
+        "y1": 60
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "05-08-2026",
+     "normalized_value": "2026-08-05",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "sale Date : 05-08-2026",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 25,
+        "y0": 119,
+        "x1": 247,
+        "y1": 132
+       }
+      },
+      {
+       "role": "print_date_not_used",
+       "line_index": 4,
+       "text": "Reprinted : 25-08-2026",
+       "ocr_line_confidence": 0.75,
+       "bbox": {
+        "x0": 24,
+        "y0": 143,
+        "x1": 247,
+        "y1": 159
+       }
+      }
+     ],
+     "ambiguity": "Another date on this receipt in the same printed format is only valid as DMY. A print-date is also printed and was not used.",
+     "review_required": false,
+     "candidates": [
+      "2026-08-05",
+      "2026-05-08"
+     ],
+     "basis": "same_receipt_unambiguous_date_same_format"
+    },
+    "total_amount": {
+     "raw_value": "1800.34",
+     "normalized_value": 1800.34,
+     "confidence": 0.63,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Net amount : 1800.34",
+       "ocr_line_confidence": 0.9,
+       "bbox": {
+        "x0": 24,
+        "y0": 168,
+        "x1": 226,
+        "y1": 180
+       }
+      }
+     ],
+     "ambiguity": "A lower-priority label carries a different amount: 2026.",
+     "review_required": true,
+     "candidates": [
+      2026,
+      1800.34
+     ],
+     "basis": "label:net amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.89
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_4",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "LAKSHMIFUELSTATION",
+    "got": "LAKSHMI FUEL STATION"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-08-08",
+    "got": "2026-08-08"
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 1500.66,
+    "got": 1500.66
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": false,
+   "falseAccept": false,
+   "reviewJustified": false,
+   "trueAccept": false,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "blur"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.3506000000052154,
+   "pred": {
+    "pump_name": {
+     "raw_value": "LAKSHMI FUEL STATION",
+     "normalized_value": "LAKSHMI FUEL STATION",
+     "confidence": 0.94,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "LAKSHMI FUEL STATION",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 145,
+        "y0": 72,
+        "x1": 432,
+        "y1": 90
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "HINDUSTAN PETROLEUM",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 152,
+        "y0": 38,
+        "x1": 425,
+        "y1": 56
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "08-08-2026",
+     "normalized_value": "2026-08-08",
+     "confidence": 0.93,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "transaction_date_line",
+       "line_index": 3,
+       "text": "Sale Date : 08-08-2026",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 140,
+        "x1": 329,
+        "y1": 158
+       }
+      },
+      {
+       "role": "print_date_not_used",
+       "line_index": 4,
+       "text": "Reprinted : 22-08-2026",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 13,
+        "y0": 172,
+        "x1": 329,
+        "y1": 197
+       }
+      }
+     ],
+     "ambiguity": "A print-date is also printed and was not used.",
+     "review_required": false,
+     "candidates": [
+      "2026-08-08"
+     ],
+     "basis": "numeric"
+    },
+    "total_amount": {
+     "raw_value": "1500.66",
+     "normalized_value": 1500.66,
+     "confidence": 0.66,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "amount_line",
+       "line_index": 5,
+       "text": "Net Amount : 1500.66",
+       "ocr_line_confidence": 0.94,
+       "bbox": {
+        "x0": 12,
+        "y0": 207,
+        "x1": 300,
+        "y1": 226
+       }
+      }
+     ],
+     "ambiguity": "A lower-priority label carries a different amount: 2026.",
+     "review_required": true,
+     "candidates": [
+      2026,
+      1500.66
+     ],
+     "basis": "label:net amount"
+    },
+    "validation_warnings": [],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.93
+    }
+   }
+  },
+  {
+   "id": "syn2_heldout2_reprint_proves_order_5",
+   "pump_name": {
+    "labelled": true,
+    "returned": true,
+    "exact": true,
+    "autoUsable": true,
+    "falseConfident": false,
+    "brandOnly": false,
+    "expected": "PATELPETROLEUMPOINT",
+    "got": "PATEL PETROLEUM POINT"
+   },
+   "transaction_date": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "ambiguousAlone": false,
+    "expected": "2026-07-04",
+    "got": null
+   },
+   "total_amount": {
+    "labelled": true,
+    "returned": false,
+    "exact": false,
+    "autoUsable": false,
+    "falseConfident": false,
+    "expected": 4000,
+    "got": null
+   },
+   "overallReviewRequired": true,
+   "anyFieldWrongOrMissing": true,
+   "falseAccept": false,
+   "reviewJustified": true,
+   "trueAccept": false,
+   "family": "reprint_proves_order",
+   "difficulty": [
+    "rotated90"
+   ],
+   "group": "synthetic_heldout2",
+   "extractMs": 0.32340000000112923,
+   "pred": {
+    "pump_name": {
+     "raw_value": "PATEL PETROLEUM POINT",
+     "normalized_value": "PATEL PETROLEUM POINT",
+     "confidence": 0.95,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "dealer_or_station_header_line",
+       "line_index": 1,
+       "text": "PATEL PETROLEUM POINT",
+       "ocr_line_confidence": 0.96,
+       "bbox": {
+        "x0": 22,
+        "y0": 156,
+        "x1": 272,
+        "y1": 169
+       }
+      },
+      {
+       "role": "brand_text",
+       "line_index": 0,
+       "text": "HINDUSTAN PETROLEUM",
+       "ocr_line_confidence": 0.93,
+       "bbox": {
+        "x0": 33,
+        "y0": 127,
+        "x1": 259,
+        "y1": 140
+       },
+       "brand": "HPCL"
+      }
+     ],
+     "ambiguity": null,
+     "review_required": false,
+     "basis": "dealer_cue_word"
+    },
+    "transaction_date": {
+     "raw_value": "04-07-2026 | 27-07-2026",
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [
+      {
+       "role": "date_line",
+       "line_index": 3,
+       "text": "te : 04-07-2026",
+       "ocr_line_confidence": 0.91,
+       "bbox": {
+        "x0": 3,
+        "y0": 213,
+        "x1": 182,
+        "y1": 227
+       }
+      },
+      {
+       "role": "date_line",
+       "line_index": 4,
+       "text": "ed : 27-07-2026",
+       "ocr_line_confidence": 0.92,
+       "bbox": {
+        "x0": 3,
+        "y0": 241,
+        "x1": 182,
+        "y1": 256
+       }
+      }
+     ],
+     "ambiguity": "Conflicting dates on the receipt: 2026-07-04 vs 2026-07-27.",
+     "review_required": true,
+     "candidates": [
+      "2026-07-04",
+      "2026-04-07",
+      "2026-07-27"
+     ],
+     "basis": "unresolved"
+    },
+    "total_amount": {
+     "raw_value": null,
+     "normalized_value": null,
+     "confidence": null,
+     "confidence_type": "heuristic_uncalibrated",
+     "evidence": [],
+     "ambiguity": "No amount text found.",
+     "review_required": true,
+     "basis": null,
+     "candidates": []
+    },
+    "validation_warnings": [
+     "Conflicting dates on the receipt: 2026-07-04 vs 2026-07-27.",
+     "No total amount could be read."
+    ],
+    "overall_review_required": true,
+    "_meta": {
+     "implementation": "fuel-extractor/0.1-experimental",
+     "fuel_evidence": true,
+     "ocr_source": "tesseract.js@7+rotateAuto+retry",
+     "ocr_mean_confidence": 0.92
+    }
+   }
+  }
+ ]
+}

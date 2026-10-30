@@ -1,0 +1,9 @@
+﻿{
+    "files":  {
+                  "src/fuelExtractor.mjs":  "ECD66F36DC2CD375ACF403BE1DA1270538DBCE8D7A384336EC2C169D71F84A25",
+                  "src/scoring.mjs":  "47C4BCEB0C0A7CF8EA05AFEFB7DA96DD7DCCDDF7F9B0817359701392AFA8A6A7",
+                  "corpus/annotations.json":  "38C90B76857F2B2110B29A8FBDD12A8FD93F40F7B1D8759E512232459C80F8F3"
+              },
+    "frozen_at":  "2026-10-20T16:16:44",
+    "statement":  "Extractor frozen BEFORE its first held-out run. After this run, any change made in response to held-out results turns the affected group into a development group and is reported as such."
+}

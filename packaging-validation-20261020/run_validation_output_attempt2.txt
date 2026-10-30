@@ -1,0 +1,8 @@
+﻿launched wrapper pid 7852 at 2026-10-20T15:28:17
+devtools port up: True
+  FAIL  electron window loaded the backend-served app  no window reached 127.0.0.1; contexts=1 pages=['data:text/html,%3Cbody%20style%3D%22background%3A%230a1628%3Bcolor%3A%23fff%3Bfont-family%3Asans-serif%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bjustify-content%3Acenter%3Bheight%3A100vh%3Bmargin%3A0%22%3EStarting%20Spinco%20TA%20Audit...%3C%2Fbody%3E']
+driver exit code: 1
+mock provider hits: 0
+non-loopback connection samples: 0
+sampler heartbeats: 35
+finished 2026-10-20T15:30:22

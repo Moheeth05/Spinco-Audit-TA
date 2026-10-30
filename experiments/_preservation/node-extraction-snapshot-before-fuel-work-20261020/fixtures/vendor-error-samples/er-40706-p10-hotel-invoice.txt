@@ -1,0 +1,18 @@
+i TAX INVOICE
+A A ™
+J ZINN
+J \ Wn NN
+/ 'Home Town
+———— RESORT —=—
+f 2 SH16 NALAGARH RAMSHEHAR SHIMLA ROAD VILL.DHAR KOTLA NALAGARH
+PH:-7580008989,7450008989
+Invoice No.: MB01406 Folio : 1357 Reg. No.: 1358 Invoice Date : 10/07/2026
+Is Room No(s) : 103 Arrival Date © 30/06/2026
+AY Guest Name : Mr.RAJESH KONDAPALLI Arrival Time + 18:33
+Address : PLOT NO. 83, 84 PERUNGUDI, Departure Date : 10/07/2026
+: INDUSTRIAL ESTATE CHENNAI Departure Time : 11:13:15
+Company : SPINCOTECH PVT.LTD.. No. of Persons : 1+ 0
+Address PERUNGUD!I CHENNAI
+! Party's GSTIN : 33AAFCS9992P1ZC Place of Service: HIMACHAL PRADESH
+' Date V.No. Room Description HSN/SAC Code Debit Credit Balance
+30/06 0103 ROOM CHARGES #103 on CP -DX 996311 3333.33 3333.33

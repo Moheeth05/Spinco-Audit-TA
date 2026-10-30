@@ -20,6 +20,7 @@ from app.models.logs import ProcessingLog
 from app.models.trip import TripReport
 from app.models.validation import ValidationResult
 from app.services.category_map import normalize_category
+from app.services.extraction.money import amounts_match
 from app.services.validation import checks
 from app.services.validation.policy_lookup import find_policy, is_document_required
 
@@ -50,6 +51,21 @@ def _persist_check(db: Session, *, report: ExpenseReport, expense: Expense | Non
     # ExceptionRecord rows are derived from these ValidationResult rows by
     # services/exception_engine.py (Phase 7), not written here - see that
     # module's docstring for why it's the sole writer.
+
+
+def _payment_evidence_agrees(expense: Expense, bill: Bill | None) -> bool:
+    """A transaction screenshot (it carries a transaction reference, time or status)
+    that is not pending/failed and whose amount AND resolved date both equal the
+    claim's. Computed from the stored evidence, never from match confidence."""
+    if bill is None or not (bill.transaction_reference or bill.transaction_time or bill.payment_status):
+        return False
+    if bill.payment_status in ("PENDING", "FAILED"):
+        return False
+    return bool(
+        expense.expense_date is not None
+        and bill.bill_date == expense.expense_date
+        and amounts_match(expense.claimed_amount, bill.amount)
+    )
 
 
 def _aggregate_status(results: list[checks.CheckResult]) -> str:
@@ -114,6 +130,16 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
         if expense.bill_id is not None and expense.bill_id not in bill_original_expense:
             bill_original_expense[expense.bill_id] = expense
 
+    # Claims whose amount the same bill supports (as its confirmed bill or best candidate).
+    claims_on_bill: dict[int, list[Expense]] = {}
+    for e in expenses:
+        bill_id = e.bill_id or e.candidate_bill_id
+        shared_bill = bills_by_id.get(bill_id) if bill_id else None
+        if shared_bill is None or shared_bill.amount is None or e.bill_match_status == "NO_MATCH":
+            continue
+        if amounts_match(e.claimed_amount, shared_bill.amount):
+            claims_on_bill.setdefault(shared_bill.id, []).append(e)
+
     try:
         for expense in expenses:
             policy = find_policy(db, expense.category)
@@ -144,6 +170,7 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     bill=candidate_bill,
                     bill_match_reasons=expense.bill_match_reasons,
                     document_required=document_required,
+                    category=expense.category,
                 ),
                 checks.check_bill_date(
                     expense_date=expense.expense_date,
@@ -151,6 +178,7 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     bill_match_reasons=expense.bill_match_reasons,
                     document_required=document_required,
                 ),
+                checks.check_payment_status(bill=candidate_bill, document_required=document_required),
                 checks.check_required_document(
                     bill_match_status=expense.bill_match_status,
                     policy=policy,
@@ -162,6 +190,7 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     bill=candidate_bill,
                     document_required=document_required,
                     bill_match_confidence=expense.bill_match_confidence,
+                    payment_evidence_agrees=_payment_evidence_agrees(expense, candidate_bill),
                 ),
                 checks.check_bill_grouping_review(bill=candidate_bill),
                 checks.check_duplicate_bill(
@@ -175,6 +204,21 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                     original_expense=bill_original_expense.get(expense.bill_id) if expense.bill_id else None,
                     document_required=document_required,
                 ),
+                checks.check_shared_bill_review(
+                    # MATCHED without a confirmed bill (bill_id) was NOT set by the matcher - a manual
+                    # verification flips an unconfirmed match to MATCHED (exception_engine.evaluate_report)
+                    # and never sets bill_id. That flip must not switch off an independent, still
+                    # unresolved shared-bill review, so such a claim is judged as unconfirmed.
+                    bill_match_status=(
+                        "REVIEW_REQUIRED"
+                        if expense.bill_match_status == "MATCHED" and expense.bill_id is None
+                        else expense.bill_match_status
+                    ),
+                    bill=candidate_bill,
+                    sharing_claims=claims_on_bill.get(candidate_bill.id, []) if candidate_bill is not None else [],
+                    expense=expense,
+                    document_required=document_required,
+                ),
                 # Catering must be judged against the same candidate evidence
                 # amount/date/category use, not gated separately behind full
                 # confirmation - otherwise a claim could reach PASS via
@@ -182,6 +226,10 @@ def validate_expense_report(db: Session, expense_report_id: int) -> None:
                 # catering charge never gets reviewed, simply because the
                 # combined ranking score didn't cross the auto-confirm bar.
                 checks.check_catering(category=expense.category, bill=candidate_bill, claimed_amount=expense.claimed_amount),
+                # Lodging's counterpart of catering: room service / food on the
+                # hotel folio is REVIEW REQUIRED, judged on the same candidate
+                # evidence for the same reason.
+                checks.check_room_service_food(category=expense.category, bill=candidate_bill, claimed_amount=expense.claimed_amount),
                 checks.check_batta_trip_match(
                     category=expense.category,
                     expense_date=expense.expense_date,

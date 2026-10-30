@@ -15,13 +15,15 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from app.services.category_map import (
-    detect_catering_amount,
     expected_bill_label,
     is_multi_service_aggregator,
-    mentions_catering,
     normalize_category,
+    resolve_catering_amount,
+    resolve_catering_mentioned,
+    resolve_room_service_food_amount,
+    resolve_room_service_food_mentioned,
 )
-from app.services.extraction.dates import could_represent_date
+from app.services.extraction.dates import read_dates
 from app.services.extraction.money import amounts_match
 
 PASS = "PASS"
@@ -61,6 +63,25 @@ def _fmt(amount) -> str:
 
 def _fmt_date(d: date | None) -> str:
     return d.strftime("%d/%m/%Y") if d else "unknown date"
+
+
+# Catering / room-service-food evidence for a bill: the charge read from the
+# bill's FULL text at extraction time (stored on the Bill row - raw_text itself
+# is capped at 2,000 characters) when there is one, otherwise the detectors on
+# raw_text exactly as before. getattr() defaults keep a bill object / stand-in
+# that has none of the stored columns (an old row, a unit-test stub) on the old
+# path. See category_map.resolve_*.
+
+
+def _catering_evidence(bill) -> tuple[float | None, bool]:
+    amount = resolve_catering_amount(bill.raw_text, getattr(bill, "catering_amount", None))
+    return amount, resolve_catering_mentioned(bill.raw_text, getattr(bill, "catering_mentioned", None), amount)
+
+
+def _room_service_food_evidence(bill) -> tuple[float | None, bool]:
+    flag = getattr(bill, "room_service_food_mentioned", None)
+    amount = resolve_room_service_food_amount(bill.raw_text, getattr(bill, "room_service_food_amount", None), flag)
+    return amount, resolve_room_service_food_mentioned(bill.raw_text, flag, amount)
 
 
 # ---------- 1. Policy limit ----------
@@ -129,7 +150,12 @@ def check_policy_limit(*, claimed_amount, category_label: str, policy) -> CheckR
 
 
 def check_bill_amount(
-    *, claimed_amount, bill, bill_match_reasons: str | None = None, document_required: bool | None = None
+    *,
+    claimed_amount,
+    bill,
+    bill_match_reasons: str | None = None,
+    document_required: bool | None = None,
+    category: str | None = None,
 ) -> CheckResult:
     """`bill` is the best PLAUSIBLE candidate (bill_matcher.py's
     candidate_bill_id), not necessarily a CONFIRMED match - the combined
@@ -200,7 +226,7 @@ def check_bill_amount(
     # claimed (exactly, or by the same whole-rupee-rounding rule above),
     # this is not a real amount mismatch (Part 17: catering must not break
     # bill matching).
-    catering_amount = detect_catering_amount(bill.raw_text)
+    catering_amount, _ = _catering_evidence(bill)
     if catering_amount is not None:
         catering = _to_decimal(catering_amount)
         if catering is not None and amounts_match(claimed, bill_amt - catering):
@@ -219,6 +245,32 @@ def check_bill_amount(
                 bill_amount=float(bill_amt),
                 source_page=bill.page_number,
             )
+
+    # The same rule for a LODGING bill's room-service / food charge (see
+    # check_room_service_food below, which separately flags it for review).
+    # Strictly LODGING-only: food on any other category's bill (e.g. STAFF
+    # WELFARE, MARKETING EXPENSES - FOOD) is the claimed expense itself, never
+    # something to subtract.
+    if normalize_category(category) == "LODGING":
+        room_food_amount, _ = _room_service_food_evidence(bill)
+        if room_food_amount is not None:
+            room_food = _to_decimal(room_food_amount)
+            if room_food is not None and amounts_match(claimed, bill_amt - room_food):
+                excl = bill_amt - room_food
+                remarks = (
+                    "Amount matches once room service / food is excluded"
+                    if claimed == excl
+                    else "Amount matches once room service / food is excluded (claimed is that total rounded to the nearest rupee)"
+                )
+                return CheckResult(
+                    check_type=check_type,
+                    result=PASS,
+                    details=f"Claimed {_fmt(claimed)} vs Bill {_fmt(bill_amt)} (matches once room service / food of {_fmt(room_food)} is excluded)",
+                    remarks=remarks,
+                    claimed_amount=claimed_amount,
+                    bill_amount=float(bill_amt),
+                    source_page=bill.page_number,
+                )
 
     return CheckResult(
         check_type=check_type,
@@ -251,6 +303,29 @@ def check_bill_date(
             expense_date=expense_date,
         )
     if bill.bill_date is None:
+        raw = getattr(bill, "bill_date_raw", None)
+        candidates = [c for c in (getattr(bill, "bill_date_candidates", None) or "").split("|") if c]
+        if len(candidates) > 1:
+            # Ambiguous day/month order that no evidence in the report settles. Both readings are
+            # kept for the auditor; the claimed date is NOT used to pick one - a reading that
+            # happens to equal it is a coincidence, not evidence of the format.
+            note = (
+                f"The bill's date '{raw}' is ambiguous ({' or '.join(candidates)}) and nothing in this report "
+                "establishes its day/month order."
+            )
+            if expense_date is not None and expense_date.isoformat() in candidates:
+                note += (
+                    f" One reading equals the claimed date {expense_date.isoformat()}, but that coincidence is not "
+                    "evidence of the order, so the date is not treated as matching."
+                )
+            return CheckResult(
+                check_type=check_type,
+                result=REVIEW_REQUIRED,
+                details=note,
+                remarks=note,
+                expense_date=expense_date,
+                source_page=bill.page_number,
+            )
         return CheckResult(
             check_type=check_type,
             result=REVIEW_REQUIRED,
@@ -278,29 +353,31 @@ def check_bill_date(
             source_page=bill.page_number,
         )
 
-    # The parsed bill_date doesn't equal the expense date - but the bill's
-    # own raw date text may be genuinely ambiguous (day/month order) and, read
-    # the other way, could represent the SAME calendar date as the expense
-    # (confirmed real case: a US-formatted Uber receipt's bare "7/1/26",
-    # meant as July 1, parsed by this app's DD/MM-first default as January
-    # 7 - see dates.py:could_represent_date). This never widens tolerance for
-    # a genuine mismatch: it only fires when some date-shaped token in the
-    # bill's own text, under its other structurally valid reading, exactly
-    # equals the expense's own already-extracted date.
-    if could_represent_date(getattr(bill, "raw_text", None), expense_date):
-        return CheckResult(
-            check_type=check_type,
-            result=PASS,
-            details=(
-                f"Expense {_fmt_date(expense_date)} vs Bill {_fmt_date(bill.bill_date)} "
-                f"(reconciled: the bill's own date text is ambiguous and also reads as {_fmt_date(expense_date)})"
-            ),
-            remarks="Dates match once the bill's ambiguous date format is reconciled",
-            expense_date=expense_date,
-            bill_date=bill.bill_date,
-            source_page=bill.page_number,
-        )
+    # A multi-date document (a hotel folio: arrival, departure, invoice date; a fuel slip:
+    # print date and transaction times) names one date as THE bill date, but the claimed
+    # date can be legitimately printed elsewhere on it. Only a date the document itself
+    # establishes counts (unambiguous, or order proven by the document) - an ambiguous
+    # token that could be read as the claimed date is never enough, and the claimed date
+    # is never used to choose between readings.
+    for reading in read_dates(getattr(bill, "raw_text", None)):
+        if reading.value == expense_date and reading.method in ("iso", "month_name", "numeric", "cue", "same_document"):
+            return CheckResult(
+                check_type=check_type,
+                result=PASS,
+                details=f"Expense {_fmt_date(expense_date)} vs Bill {_fmt_date(bill.bill_date)}",
+                remarks=(
+                    f"The claimed date {_fmt_date(expense_date)} is printed on the bill ('{reading.raw}'); the bill's "
+                    f"primary date field reads {_fmt_date(bill.bill_date)}."
+                ),
+                expense_date=expense_date,
+                bill_date=bill.bill_date,
+                source_page=bill.page_number,
+            )
 
+    # A bill_date that is present was established from evidence (an unambiguous date,
+    # an explicit cue, or same-document / same-template proof of the format), so a
+    # difference from the claimed date - with that date nowhere else on the bill - is a
+    # real DATE MISMATCH. An unresolved date never reaches here (handled above).
     return CheckResult(
         check_type=check_type,
         result=EXCEPTION,
@@ -310,6 +387,27 @@ def check_bill_date(
         expense_date=expense_date,
         bill_date=bill.bill_date,
         source_page=bill.page_number,
+    )
+
+
+# ---------- 3b. Payment status ----------
+
+
+def check_payment_status(*, bill, document_required: bool | None = None) -> CheckResult:
+    """A UPI/wallet screenshot is proof of a TRANSACTION, and only a COMPLETED
+    one. A screenshot showing the payment PENDING or FAILED can never support a
+    claim, however well its amount and date agree. A page that prints no status
+    is not penalised (many real screenshots simply omit one)."""
+    check_type = "Payment Status Check"
+    status = getattr(bill, "payment_status", None) if bill is not None else None
+    if document_required is False or bill is None or status not in ("PENDING", "FAILED"):
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No pending or failed payment evidence.", remarks="Not applicable")
+    note = (
+        f"The supporting payment screenshot shows the transaction as {status}; a {status.lower()} transaction is "
+        "not proof of a completed payment."
+    )
+    return CheckResult(
+        check_type=check_type, result=REVIEW_REQUIRED, details=note, remarks=note, source_page=bill.page_number
     )
 
 
@@ -372,7 +470,12 @@ def check_required_document(
 
 
 def check_category_consistency(
-    *, category: str | None, bill, document_required: bool | None = None, bill_match_confidence: str | None = None
+    *,
+    category: str | None,
+    bill,
+    document_required: bool | None = None,
+    bill_match_confidence: str | None = None,
+    payment_evidence_agrees: bool = False,
 ) -> CheckResult:
     """`bill` is the best plausible candidate, not necessarily confirmed -
     see check_bill_amount's docstring for why. This check is what prevents
@@ -441,6 +544,19 @@ def check_category_consistency(
                 result=PASS,
                 details="The matched bill's content did not contain a recognizable category keyword, but the match itself (amount, date) is HIGH confidence with no conflicting evidence.",
                 remarks="Category evidence absent, not conflicting - match is otherwise strong",
+                source_page=bill.page_number,
+            )
+        if payment_evidence_agrees:
+            # A completed-payment record is evidence of a transaction, not a merchant invoice: it
+            # naturally carries no category wording. With amount AND date agreeing and nothing
+            # contradicting the claim, the category the employee listed stands (it is never
+            # rewritten from the screenshot). The match may be MEDIUM only because it is an
+            # equal-evidence pairing - already flagged as ambiguous in the match reasons.
+            return CheckResult(
+                check_type=check_type,
+                result=PASS,
+                details="Payment record with agreeing amount and date; it carries no category wording, so the claimed category is accepted as listed.",
+                remarks="Category evidence absent, not conflicting - transaction amount and date agree",
                 source_page=bill.page_number,
             )
         return CheckResult(
@@ -522,6 +638,38 @@ def check_bill_grouping_review(*, bill) -> CheckResult:
     )
 
 
+# ---------- 5c. One bill, several claims, allocation unresolved ----------
+
+
+def check_shared_bill_review(*, bill_match_status: str, bill, sharing_claims: list, expense, document_required: bool | None = None) -> CheckResult:
+    """Several claims whose amount the SAME bill supports, where the matcher could not decide
+    which (if any) owns it - e.g. three Rs.1,150 claims and one Rs.1,150 receipt, with other
+    same-day pages whose amount is unreadable. Un-allocating them must not hide the possible
+    reuse: each such claim stays visible as a duplicate/reuse review item and none is
+    verified automatically. A claim the matcher confirmed (MATCHED) is judged by the
+    Duplicate Bill Check instead."""
+    check_type = "Shared Bill Check"
+    if (
+        bill is None
+        or document_required is False
+        or bill_match_status == "MATCHED"
+        or len(sharing_claims) < 2
+        or expense not in sharing_claims
+    ):
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No unresolved shared bill.", remarks="Not applicable")
+    others = ", ".join(
+        f"S.No {c.s_no} (date {_fmt_date(c.expense_date)})" for c in sharing_claims if c is not expense
+    )
+    note = (
+        f"The bill on page {bill.page_number} (amount {_fmt(bill.amount)}) also fits the claim(s) {others}. "
+        "The evidence cannot show whether it is one document reused for several claims (a duplicate) or "
+        "separate bills, so it is not verified automatically - confirm which claim it supports."
+    )
+    return CheckResult(
+        check_type=check_type, result=REVIEW_REQUIRED, details=note, remarks=note, source_page=bill.page_number
+    )
+
+
 # ---------- 6. Duplicate bill (report-wide, see pipeline.py for the grouping) ----------
 
 
@@ -587,17 +735,16 @@ def check_catering(*, category: str | None, bill, claimed_amount=None) -> CheckR
     if bill is None:
         return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No confirmed matching bill.", remarks="Not applicable")
 
-    catering_amount = detect_catering_amount(bill.raw_text)
-    if catering_amount is None and getattr(bill, "catering_amount", None) is not None:
-        # No regex-detectable catering line on the bill's own extracted text
-        # (e.g. text recovered via the document_classifier.py fallback, which
-        # doesn't run the same label-pattern regex) - fall back to the
-        # classifier's own catering_amount field, itself already re-parsed
-        # through parse_amount and never a guess (see document_classifier.py
-        # _validate_response). Still just supporting evidence for the same
-        # auditor-review message below, never a different check outcome.
-        catering_amount = float(bill.catering_amount)
-    if catering_amount is None and not mentions_catering(bill.raw_text):
+    # The charge as read from the bill's FULL text at extraction time (stored;
+    # raw_text is capped at 2,000 characters), else the raw_text detector. For a
+    # classifier-derived bill (document_classifier.py fallback, which doesn't run
+    # the same label-pattern regex) the classifier's own catering_amount is still
+    # only the fallback behind the raw_text detector, itself already re-parsed
+    # through parse_amount and never a guess (see document_classifier.py
+    # _validate_response). Still just supporting evidence for the same
+    # auditor-review message below, never a different check outcome.
+    catering_amount, mentioned = _catering_evidence(bill)
+    if catering_amount is None and not mentioned:
         return CheckResult(
             check_type=check_type,
             result=PASS,
@@ -644,6 +791,54 @@ def check_catering(*, category: str | None, bill, claimed_amount=None) -> CheckR
     )
 
 
+# ---------- 7b. Room service / food included in Lodging ----------
+
+
+def check_room_service_food(*, category: str | None, bill, claimed_amount=None) -> CheckResult:
+    """The LODGING counterpart of check_catering: a hotel folio that includes
+    room service or food is REVIEW_REQUIRED (an auditor judgement call), never
+    a confirmed EXCEPTION. Never invents the charge's amount - a mention whose
+    amount can't be read is still flagged, with "amount could not be
+    determined"."""
+    check_type = "Room Service/Food Check"
+    if normalize_category(category) != "LODGING":
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, remarks="Not applicable")
+    if bill is None:
+        return CheckResult(check_type=check_type, result=NOT_APPLICABLE, details="No confirmed matching bill.", remarks="Not applicable")
+
+    charge, mentioned = _room_service_food_evidence(bill)
+    if charge is None and not mentioned:
+        return CheckResult(
+            check_type=check_type,
+            result=PASS,
+            details="No room service or food charges detected in the supporting bill.",
+            remarks="No room service / food charges found",
+            source_page=bill.page_number,
+        )
+    if charge is not None:
+        if claimed_amount is not None:
+            remarks = f"Room service / food included: {_fmt(charge)} of {_fmt(claimed_amount)} total. Requires policy review."
+        else:
+            remarks = f"Room service / food included: {_fmt(charge)}. Requires policy review."
+    else:
+        remarks = "Room service / food charge mentioned; amount could not be determined. Requires policy review."
+    claimed_text = _fmt(claimed_amount) if claimed_amount is not None else "unknown"
+    charge_text = _fmt(charge) if charge is not None else "unable to determine"
+    details = (
+        f"Total claimed amount: {claimed_text}. Room service / food amount: {charge_text}. "
+        "Room service / food component requires separate policy review."
+    )
+    return CheckResult(
+        check_type=check_type,
+        result=REVIEW_REQUIRED,
+        details=details,
+        remarks=remarks,
+        claimed_amount=claimed_amount,
+        bill_amount=charge,
+        source_page=bill.page_number,
+    )
+
+
 # ---------- 8. Batta-to-Trip match (Phase 6) ----------
 
 
@@ -663,7 +858,15 @@ def check_batta_trip_match(
 
     if trip_match_status == "MATCHED":
         if matched_trip is None:
-            return CheckResult(check_type=check_type, result=REVIEW_REQUIRED, details="A trip match was recorded but the matched trip could not be loaded.")
+            # expense_date like every other review result of this check: a manual verification flips the
+            # persisted status to MATCHED (with no loaded trip), so this is the row the next revalidation
+            # produces - it must carry the same typed evidence as the review it was approved on.
+            return CheckResult(
+                check_type=check_type,
+                result=REVIEW_REQUIRED,
+                details="A trip match was recorded but the matched trip could not be loaded.",
+                expense_date=expense_date,
+            )
         if expense_date is None:
             return CheckResult(
                 check_type=check_type,

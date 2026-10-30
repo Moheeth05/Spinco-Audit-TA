@@ -1,0 +1,2173 @@
+{
+ "seed": 1,
+ "note": "SYNTHETIC - construction labels only; not authentic ground truth.",
+ "records": [
+  {
+   "receipt_id": "syn_dev_iocl_thermal_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "iocl_thermal",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Jai Hind Auto Fuels",
+    "pump_alternates": [
+     "INDIAN OIL",
+     "IOCL"
+    ],
+    "date": "2026-06-20",
+    "amount": 4000.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "20/06/2026",
+    "amount_raw": "4000.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_iocl_thermal_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "iocl_thermal",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Gurunanak Filling Station",
+    "pump_alternates": [
+     "INDIAN OIL",
+     "IOCL"
+    ],
+    "date": "2026-05-27",
+    "amount": 800.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "27/05/2026",
+    "amount_raw": "800.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_iocl_thermal_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "iocl_thermal",
+   "split": "dev",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Patel Petroleum Point",
+    "pump_alternates": [
+     "INDIAN OIL",
+     "IOCL"
+    ],
+    "date": "2026-09-18",
+    "amount": 500.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "18-09-2026",
+    "amount_raw": "500.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_iocl_thermal_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "iocl_thermal",
+   "split": "dev",
+   "difficulty": "noise",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Rajdhani Filling Point",
+    "pump_alternates": [
+     "INDIAN OIL",
+     "IOCL"
+    ],
+    "date": "2026-05-16",
+    "amount": 2500.5,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "16-05-2026",
+    "amount_raw": "2500.50"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_iocl_thermal_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "iocl_thermal",
+   "split": "dev",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sri Venkateshwara Auto Fuels",
+    "pump_alternates": [
+     "INDIAN OIL",
+     "IOCL"
+    ],
+    "date": "2026-05-17",
+    "amount": 3000.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17/05/2026",
+    "amount_raw": "3000.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_iocl_thermal_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "iocl_thermal",
+   "split": "dev",
+   "difficulty": "rotated90",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Maa Tara Service Station",
+    "pump_alternates": [
+     "INDIAN OIL",
+     "IOCL"
+    ],
+    "date": "2026-09-20",
+    "amount": 4000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "20-09-2026",
+    "amount_raw": "4000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_hpcl_pos_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "hpcl_pos",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shree Ganesh Petroleum",
+    "pump_alternates": [
+     "HP",
+     "HINDUSTAN PETROLEUM",
+     "HPCL"
+    ],
+    "date": "2026-07-14",
+    "amount": 1200.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "14/07/2026",
+    "amount_raw": "1200.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_hpcl_pos_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "hpcl_pos",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Annapurna Petro Services",
+    "pump_alternates": [
+     "HP",
+     "HINDUSTAN PETROLEUM",
+     "HPCL"
+    ],
+    "date": "2026-09-22",
+    "amount": 3000.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "22/09/2026",
+    "amount_raw": "3000.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_hpcl_pos_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "hpcl_pos",
+   "split": "dev",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Hari Om Auto Care Fuels",
+    "pump_alternates": [
+     "HP",
+     "HINDUSTAN PETROLEUM",
+     "HPCL"
+    ],
+    "date": "2026-06-27",
+    "amount": 4500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "27/06/2026",
+    "amount_raw": "4500.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_hpcl_pos_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "hpcl_pos",
+   "split": "dev",
+   "difficulty": "noise",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shree Ganesh Petroleum",
+    "pump_alternates": [
+     "HP",
+     "HINDUSTAN PETROLEUM",
+     "HPCL"
+    ],
+    "date": "2026-09-17",
+    "amount": 4000.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17/09/2026",
+    "amount_raw": "4000.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_hpcl_pos_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "hpcl_pos",
+   "split": "dev",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Amba Petro Centre",
+    "pump_alternates": [
+     "HP",
+     "HINDUSTAN PETROLEUM",
+     "HPCL"
+    ],
+    "date": "2026-06-25",
+    "amount": 800.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25/06/2026",
+    "amount_raw": "800.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_hpcl_pos_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "hpcl_pos",
+   "split": "dev",
+   "difficulty": "cropped_top",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": null,
+    "pump_alternates": [],
+    "date": "2026-09-13",
+    "amount": 4500.66,
+    "expect_review": true,
+    "review_reason": "header cropped away: pump name absent",
+    "date_raw": "13/09/2026",
+    "amount_raw": "4500.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_bpcl_txn_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "bpcl_txn",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shree Ganesh Petroleum",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-06-28",
+    "amount": 300.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "28-06-2026",
+    "amount_raw": "300.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_bpcl_txn_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "bpcl_txn",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Maa Tara Service Station",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-05-17",
+    "amount": 1200.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17-05-2026",
+    "amount_raw": "1200.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_bpcl_txn_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "bpcl_txn",
+   "split": "dev",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Jai Hind Auto Fuels",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-06-13",
+    "amount": 2500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "13-06-2026",
+    "amount_raw": "2500.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_bpcl_txn_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "bpcl_txn",
+   "split": "dev",
+   "difficulty": "noise",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Patel Petroleum Point",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-08-18",
+    "amount": 500.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "18-08-2026",
+    "amount_raw": "500.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_bpcl_txn_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "bpcl_txn",
+   "split": "dev",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Kaveri Service Station",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-08-18",
+    "amount": 2000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "18-08-2026",
+    "amount_raw": "2000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_bpcl_txn_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "bpcl_txn",
+   "split": "dev",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Rajdhani Filling Point",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-09-25",
+    "amount": 500.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25-09-2026",
+    "amount_raw": "500.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_independent_memo_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "independent_memo",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Patel Petroleum Point",
+    "pump_alternates": [
+     "INDIAN OIL"
+    ],
+    "date": "2026-08-21",
+    "amount": 500.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "21-08-26",
+    "amount_raw": "Rs. 500.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_independent_memo_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "independent_memo",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Lakshmi Fuel Station",
+    "pump_alternates": [
+     "INDIAN OIL"
+    ],
+    "date": "2026-08-13",
+    "amount": 300.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "13-08-26",
+    "amount_raw": "Rs. 300.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_independent_memo_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "independent_memo",
+   "split": "dev",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Jai Hind Auto Fuels",
+    "pump_alternates": [
+     "INDIAN OIL"
+    ],
+    "date": "2026-08-28",
+    "amount": 3500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "28-08-26",
+    "amount_raw": "Rs 3500/-"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_independent_memo_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "independent_memo",
+   "split": "dev",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Amba Petro Centre",
+    "pump_alternates": [
+     "INDIAN OIL"
+    ],
+    "date": "2026-06-13",
+    "amount": 300.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "13-06-26",
+    "amount_raw": "Rs. 300.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_independent_memo_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "independent_memo",
+   "split": "dev",
+   "difficulty": "lowres",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Lakshmi Fuel Station",
+    "pump_alternates": [
+     "INDIAN OIL"
+    ],
+    "date": "2026-07-28",
+    "amount": 3000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "28-07-26",
+    "amount_raw": "Rs 3000/-"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_independent_memo_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "independent_memo",
+   "split": "dev",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Rajdhani Filling Point",
+    "pump_alternates": [
+     "INDIAN OIL"
+    ],
+    "date": "2026-05-25",
+    "amount": 800.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25-05-26",
+    "amount_raw": "Rs 800/-"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_faint_generic_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "faint_generic",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Gurunanak Filling Station",
+    "pump_alternates": [],
+    "date": "2026-08-25",
+    "amount": 300.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25/08/2026",
+    "amount_raw": "300.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_faint_generic_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "faint_generic",
+   "split": "dev",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sagar Fuel Point",
+    "pump_alternates": [],
+    "date": "2026-05-28",
+    "amount": 2000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "28/05/2026",
+    "amount_raw": "2000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_faint_generic_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "faint_generic",
+   "split": "dev",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Jai Hind Auto Fuels",
+    "pump_alternates": [],
+    "date": "2026-09-25",
+    "amount": 1200.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25/09/2026",
+    "amount_raw": "1200.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_faint_generic_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "faint_generic",
+   "split": "dev",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Rajdhani Filling Point",
+    "pump_alternates": [],
+    "date": "2026-07-16",
+    "amount": 2500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "16/07/2026",
+    "amount_raw": "2500.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_faint_generic_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "faint_generic",
+   "split": "dev",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Kaveri Service Station",
+    "pump_alternates": [],
+    "date": "2026-05-14",
+    "amount": 1000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "14/05/2026",
+    "amount_raw": "1000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_dev_faint_generic_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "faint_generic",
+   "split": "dev",
+   "difficulty": "cropped_top",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": null,
+    "pump_alternates": [],
+    "date": "2026-09-19",
+    "amount": 3500.66,
+    "expect_review": true,
+    "review_reason": "header cropped away: pump name absent",
+    "date_raw": "19/09/2026",
+    "amount_raw": "3500.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_nayara_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "nayara",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Maa Tara Service Station",
+    "pump_alternates": [
+     "NAYARA ENERGY",
+     "NAYARA"
+    ],
+    "date": "2026-07-17",
+    "amount": 3000.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17-JUL-2026",
+    "amount_raw": "3000.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_nayara_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "nayara",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Annapurna Petro Services",
+    "pump_alternates": [
+     "NAYARA ENERGY",
+     "NAYARA"
+    ],
+    "date": "2026-09-25",
+    "amount": 800.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25-SEP-2026",
+    "amount_raw": "800.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_nayara_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "nayara",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Lakshmi Fuel Station",
+    "pump_alternates": [
+     "NAYARA ENERGY",
+     "NAYARA"
+    ],
+    "date": "2026-07-20",
+    "amount": 4000.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "20-JUL-2026",
+    "amount_raw": "4000.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_nayara_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "nayara",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Maa Tara Service Station",
+    "pump_alternates": [
+     "NAYARA ENERGY",
+     "NAYARA"
+    ],
+    "date": "2026-07-25",
+    "amount": 1000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25-JUL-2026",
+    "amount_raw": "1000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_nayara_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "nayara",
+   "split": "heldout",
+   "difficulty": "lowres",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sagar Fuel Point",
+    "pump_alternates": [
+     "NAYARA ENERGY",
+     "NAYARA"
+    ],
+    "date": "2026-07-25",
+    "amount": 1500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "25-JUL-2026",
+    "amount_raw": "1500.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_nayara_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "nayara",
+   "split": "heldout",
+   "difficulty": "rotated90",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Maa Tara Service Station",
+    "pump_alternates": [
+     "NAYARA ENERGY",
+     "NAYARA"
+    ],
+    "date": "2026-05-16",
+    "amount": 1800.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "16-MAY-2026",
+    "amount_raw": "1800.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_jiobp_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "jiobp",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "jio-bp Jai Hind Auto Fuels",
+    "pump_alternates": [
+     "JIO-BP",
+     "JIO BP"
+    ],
+    "date": "2026-06-27",
+    "amount": 800.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "27 JUN 2026",
+    "amount_raw": "\u20b9 800.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_jiobp_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "jiobp",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "jio-bp Balaji Petroleum Service",
+    "pump_alternates": [
+     "JIO-BP",
+     "JIO BP"
+    ],
+    "date": "2026-05-17",
+    "amount": 3000.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17 MAY 2026",
+    "amount_raw": "\u20b9 3,000.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_jiobp_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "jiobp",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "jio-bp Rajdhani Filling Point",
+    "pump_alternates": [
+     "JIO-BP",
+     "JIO BP"
+    ],
+    "date": "2026-06-13",
+    "amount": 1800.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "13 JUN 2026",
+    "amount_raw": "\u20b9 1,800.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_jiobp_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "jiobp",
+   "split": "heldout",
+   "difficulty": "noise",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "jio-bp Hari Om Auto Care Fuels",
+    "pump_alternates": [
+     "JIO-BP",
+     "JIO BP"
+    ],
+    "date": "2026-07-22",
+    "amount": 2000.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "22 JUL 2026",
+    "amount_raw": "\u20b9 2,000.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_jiobp_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "jiobp",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "jio-bp Sagar Fuel Point",
+    "pump_alternates": [
+     "JIO-BP",
+     "JIO BP"
+    ],
+    "date": "2026-06-17",
+    "amount": 800.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17 JUN 2026",
+    "amount_raw": "\u20b9 800.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_jiobp_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "jiobp",
+   "split": "heldout",
+   "difficulty": "cropped_top",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": null,
+    "pump_alternates": [],
+    "date": "2026-09-22",
+    "amount": 800.12,
+    "expect_review": true,
+    "review_reason": "header cropped away: pump name absent",
+    "date_raw": "22 SEP 2026",
+    "amount_raw": "\u20b9 800.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_shell_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "shell",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shell Khanna Fuel Centre",
+    "pump_alternates": [
+     "SHELL"
+    ],
+    "date": "2026-07-19",
+    "amount": 800.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "2026-07-19",
+    "amount_raw": "800.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_shell_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "shell",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shell Rajdhani Filling Point",
+    "pump_alternates": [
+     "SHELL"
+    ],
+    "date": "2026-06-17",
+    "amount": 3000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "2026-06-17",
+    "amount_raw": "3,000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_shell_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "shell",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shell Patel Petroleum Point",
+    "pump_alternates": [
+     "SHELL"
+    ],
+    "date": "2026-09-17",
+    "amount": 4000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "2026-09-17",
+    "amount_raw": "4,000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_shell_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "shell",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shell Maa Tara Service Station",
+    "pump_alternates": [
+     "SHELL"
+    ],
+    "date": "2026-06-26",
+    "amount": 500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "2026-06-26",
+    "amount_raw": "500.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_shell_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "shell",
+   "split": "heldout",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shell Amba Petro Centre",
+    "pump_alternates": [
+     "SHELL"
+    ],
+    "date": "2026-07-23",
+    "amount": 2000.5,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "2026-07-23",
+    "amount_raw": "2,000.50"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_shell_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "shell",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shell Balaji Petroleum Service",
+    "pump_alternates": [
+     "SHELL"
+    ],
+    "date": "2026-08-17",
+    "amount": 1200.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "2026-08-17",
+    "amount_raw": "1,200.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_generator_style_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "generator_style",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Amba Petro Centre",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-09-24",
+    "amount": 1200.5,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "24-SEP-2026",
+    "amount_raw": "1200.50 INR"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_generator_style_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "generator_style",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Balaji Petroleum Service",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-08-15",
+    "amount": 3500.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "15-AUG-2026",
+    "amount_raw": "3500.34 INR"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_generator_style_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "generator_style",
+   "split": "heldout",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Rajdhani Filling Point",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-08-13",
+    "amount": 4500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "13-AUG-2026",
+    "amount_raw": "4500.00 INR"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_generator_style_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "generator_style",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Hari Om Auto Care Fuels",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-05-19",
+    "amount": 3000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "19-MAY-2026",
+    "amount_raw": "3000.00 INR"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_generator_style_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "generator_style",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Annapurna Petro Services",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-07-17",
+    "amount": 4000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17-JUL-2026",
+    "amount_raw": "4000.00 INR"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_generator_style_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "generator_style",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shree Ganesh Petroleum",
+    "pump_alternates": [
+     "BHARAT PETROLEUM",
+     "BPCL"
+    ],
+    "date": "2026-08-22",
+    "amount": 3500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "22-AUG-2026",
+    "amount_raw": "3500.00 INR"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_print_vs_txn_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "print_vs_txn",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Rajdhani Filling Point",
+    "pump_alternates": [
+     "HINDUSTAN PETROLEUM",
+     "HPCL",
+     "HP"
+    ],
+    "date": "2026-05-21",
+    "amount": 1000.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "21/05/2026",
+    "amount_raw": "1000.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_print_vs_txn_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "print_vs_txn",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sagar Fuel Point",
+    "pump_alternates": [
+     "HINDUSTAN PETROLEUM",
+     "HPCL",
+     "HP"
+    ],
+    "date": "2026-07-17",
+    "amount": 1200.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17/07/2026",
+    "amount_raw": "1200.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_print_vs_txn_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "print_vs_txn",
+   "split": "heldout",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Patel Petroleum Point",
+    "pump_alternates": [
+     "HINDUSTAN PETROLEUM",
+     "HPCL",
+     "HP"
+    ],
+    "date": "2026-08-28",
+    "amount": 1800.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "28/08/2026",
+    "amount_raw": "1800.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_print_vs_txn_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "print_vs_txn",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sagar Fuel Point",
+    "pump_alternates": [
+     "HINDUSTAN PETROLEUM",
+     "HPCL",
+     "HP"
+    ],
+    "date": "2026-05-18",
+    "amount": 4000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "18/05/2026",
+    "amount_raw": "4000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_print_vs_txn_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "print_vs_txn",
+   "split": "heldout",
+   "difficulty": "blur",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sagar Fuel Point",
+    "pump_alternates": [
+     "HINDUSTAN PETROLEUM",
+     "HPCL",
+     "HP"
+    ],
+    "date": "2026-07-17",
+    "amount": 1500.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "17/07/2026",
+    "amount_raw": "1500.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_print_vs_txn_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "print_vs_txn",
+   "split": "heldout",
+   "difficulty": "cropped_top",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": null,
+    "pump_alternates": [],
+    "date": "2026-09-21",
+    "amount": 1200.12,
+    "expect_review": true,
+    "review_reason": "header cropped away: pump name absent",
+    "date_raw": "21/09/2026",
+    "amount_raw": "1200.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_ambiguous_date_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "ambiguous_date",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sagar Fuel Point",
+    "pump_alternates": [
+     "INDIANOIL",
+     "INDIAN OIL"
+    ],
+    "date": null,
+    "amount": 1200.5,
+    "expect_review": true,
+    "review_reason": "ambiguous day/month order",
+    "date_raw": "03/05/2026",
+    "amount_raw": "1200.50"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_ambiguous_date_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "ambiguous_date",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Balaji Petroleum Service",
+    "pump_alternates": [
+     "INDIANOIL",
+     "INDIAN OIL"
+    ],
+    "date": null,
+    "amount": 1200.66,
+    "expect_review": true,
+    "review_reason": "ambiguous day/month order",
+    "date_raw": "03/06/2026",
+    "amount_raw": "1200.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_ambiguous_date_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "ambiguous_date",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Gurunanak Filling Station",
+    "pump_alternates": [
+     "INDIANOIL",
+     "INDIAN OIL"
+    ],
+    "date": null,
+    "amount": 1500.12,
+    "expect_review": true,
+    "review_reason": "ambiguous day/month order",
+    "date_raw": "03/09/2026",
+    "amount_raw": "1500.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_ambiguous_date_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "ambiguous_date",
+   "split": "heldout",
+   "difficulty": "noise",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shree Ganesh Petroleum",
+    "pump_alternates": [
+     "INDIANOIL",
+     "INDIAN OIL"
+    ],
+    "date": null,
+    "amount": 1000.34,
+    "expect_review": true,
+    "review_reason": "ambiguous day/month order",
+    "date_raw": "09/08/2026",
+    "amount_raw": "1000.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_ambiguous_date_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "ambiguous_date",
+   "split": "heldout",
+   "difficulty": "lowres",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Gurunanak Filling Station",
+    "pump_alternates": [
+     "INDIANOIL",
+     "INDIAN OIL"
+    ],
+    "date": null,
+    "amount": 1000.0,
+    "expect_review": true,
+    "review_reason": "ambiguous day/month order",
+    "date_raw": "11/06/2026",
+    "amount_raw": "1000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_ambiguous_date_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "ambiguous_date",
+   "split": "heldout",
+   "difficulty": "rotated90",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Maa Tara Service Station",
+    "pump_alternates": [
+     "INDIANOIL",
+     "INDIAN OIL"
+    ],
+    "date": null,
+    "amount": 1500.0,
+    "expect_review": true,
+    "review_reason": "ambiguous day/month order",
+    "date_raw": "06/08/2026",
+    "amount_raw": "1500.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_label_split_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "label_split",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Patel Petroleum Point",
+    "pump_alternates": [
+     "IOCL",
+     "INDIAN OIL"
+    ],
+    "date": "2026-06-26",
+    "amount": 800.12,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "26/06/2026",
+    "amount_raw": "800.12"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_label_split_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "label_split",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Patel Petroleum Point",
+    "pump_alternates": [
+     "IOCL",
+     "INDIAN OIL"
+    ],
+    "date": "2026-05-27",
+    "amount": 2500.66,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "27/05/2026",
+    "amount_raw": "2500.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_label_split_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "label_split",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Annapurna Petro Services",
+    "pump_alternates": [
+     "IOCL",
+     "INDIAN OIL"
+    ],
+    "date": "2026-08-21",
+    "amount": 2000.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "21/08/2026",
+    "amount_raw": "2000.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_label_split_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "label_split",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Kaveri Service Station",
+    "pump_alternates": [
+     "IOCL",
+     "INDIAN OIL"
+    ],
+    "date": "2026-06-16",
+    "amount": 1000.0,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "16/06/2026",
+    "amount_raw": "1000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_label_split_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "label_split",
+   "split": "heldout",
+   "difficulty": "lowres",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Shree Ganesh Petroleum",
+    "pump_alternates": [
+     "IOCL",
+     "INDIAN OIL"
+    ],
+    "date": "2026-05-27",
+    "amount": 3000.34,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "27/05/2026",
+    "amount_raw": "3000.34"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_label_split_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "label_split",
+   "split": "heldout",
+   "difficulty": "rotated90",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Annapurna Petro Services",
+    "pump_alternates": [
+     "IOCL",
+     "INDIAN OIL"
+    ],
+    "date": "2026-09-23",
+    "amount": 1800.5,
+    "expect_review": false,
+    "review_reason": null,
+    "date_raw": "23/09/2026",
+    "amount_raw": "1800.50"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_conflicting_annotation_0",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "conflicting_annotation",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Hari Om Auto Care Fuels",
+    "pump_alternates": [
+     "BPCL"
+    ],
+    "date": "2026-08-17",
+    "amount": 1200.0,
+    "expect_review": true,
+    "review_reason": "handwritten number conflicts with printed amount",
+    "date_raw": "17-08-2026",
+    "amount_raw": "1200.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_conflicting_annotation_1",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "conflicting_annotation",
+   "split": "heldout",
+   "difficulty": "clean",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Annapurna Petro Services",
+    "pump_alternates": [
+     "BPCL"
+    ],
+    "date": "2026-09-18",
+    "amount": 3000.66,
+    "expect_review": true,
+    "review_reason": "handwritten number conflicts with printed amount",
+    "date_raw": "18-09-2026",
+    "amount_raw": "3000.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_conflicting_annotation_2",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "conflicting_annotation",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Sagar Fuel Point",
+    "pump_alternates": [
+     "BPCL"
+    ],
+    "date": "2026-07-17",
+    "amount": 1200.0,
+    "expect_review": true,
+    "review_reason": "handwritten number conflicts with printed amount",
+    "date_raw": "17-07-2026",
+    "amount_raw": "1200.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_conflicting_annotation_3",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "conflicting_annotation",
+   "split": "heldout",
+   "difficulty": "skew",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Balaji Petroleum Service",
+    "pump_alternates": [
+     "BPCL"
+    ],
+    "date": "2026-09-19",
+    "amount": 1200.66,
+    "expect_review": true,
+    "review_reason": "handwritten number conflicts with printed amount",
+    "date_raw": "19-09-2026",
+    "amount_raw": "1200.66"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_conflicting_annotation_4",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "conflicting_annotation",
+   "split": "heldout",
+   "difficulty": "faint",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Gurunanak Filling Station",
+    "pump_alternates": [
+     "BPCL"
+    ],
+    "date": "2026-07-26",
+    "amount": 2500.5,
+    "expect_review": true,
+    "review_reason": "handwritten number conflicts with printed amount",
+    "date_raw": "26-07-2026",
+    "amount_raw": "2500.50"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "syn_heldout_conflicting_annotation_5",
+   "source_type": "synthetic",
+   "source_reference": "make_synthetic_fuel.py (invented)",
+   "receipt_family": "conflicting_annotation",
+   "split": "heldout",
+   "difficulty": "rotated90",
+   "kind": "fuel",
+   "truth": {
+    "pump_name": "Patel Petroleum Point",
+    "pump_alternates": [
+     "BPCL"
+    ],
+    "date": "2026-09-14",
+    "amount": 3000.0,
+    "expect_review": true,
+    "review_reason": "handwritten number conflicts with printed amount",
+    "date_raw": "14-09-2026",
+    "amount_raw": "3000.00"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_restaurant_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "restaurant",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_restaurant_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "restaurant",
+   "split": "control",
+   "difficulty": "faint",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_restaurant_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "restaurant",
+   "split": "control",
+   "difficulty": "skew",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_hp_laptop_service_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "hp_laptop_service",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_hp_laptop_service_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "hp_laptop_service",
+   "split": "control",
+   "difficulty": "faint",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_hp_laptop_service_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "hp_laptop_service",
+   "split": "control",
+   "difficulty": "noise",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_shell_restaurant_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "shell_restaurant",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_shell_restaurant_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "shell_restaurant",
+   "split": "control",
+   "difficulty": "blur",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_shell_restaurant_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "shell_restaurant",
+   "split": "control",
+   "difficulty": "skew",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_hotel_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "hotel",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_hotel_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "hotel",
+   "split": "control",
+   "difficulty": "faint",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_hotel_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "hotel",
+   "split": "control",
+   "difficulty": "noise",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_cab_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "cab",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_cab_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "cab",
+   "split": "control",
+   "difficulty": "blur",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_cab_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "cab",
+   "split": "control",
+   "difficulty": "skew",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_pharmacy_bp_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "pharmacy_bp",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_pharmacy_bp_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "pharmacy_bp",
+   "split": "control",
+   "difficulty": "blur",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_pharmacy_bp_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "pharmacy_bp",
+   "split": "control",
+   "difficulty": "skew",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_petrol_adjacent_spares_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "petrol_adjacent_spares",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_petrol_adjacent_spares_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "petrol_adjacent_spares",
+   "split": "control",
+   "difficulty": "blur",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_petrol_adjacent_spares_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "petrol_adjacent_spares",
+   "split": "control",
+   "difficulty": "noise",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_supermarket_0",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "supermarket",
+   "split": "control",
+   "difficulty": "clean",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_supermarket_1",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "supermarket",
+   "split": "control",
+   "difficulty": "blur",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  },
+  {
+   "receipt_id": "ctl_supermarket_2",
+   "source_type": "generic_control",
+   "source_reference": "make_synthetic_fuel.py (invented non-fuel)",
+   "receipt_family": "supermarket",
+   "split": "control",
+   "difficulty": "skew",
+   "kind": "non_fuel",
+   "truth": {
+    "pump_name": null,
+    "date": null,
+    "amount": null,
+    "expect_review": true,
+    "review_reason": "not a fuel receipt"
+   },
+   "annotation_status": "construction_truth"
+  }
+ ]
+}

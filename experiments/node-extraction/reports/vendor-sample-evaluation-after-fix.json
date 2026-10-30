@@ -1,0 +1,140 @@
+{
+  "results": [
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 6,
+      "groundTruthVendor": "HP Auto Care Centre (Bodakdev, Ahmedabad)",
+      "extractedVendor": "BODAKDEV",
+      "abstained": false,
+      "warnings": [
+        "Bill date could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 7,
+      "groundTruthVendor": "Dishant Petroleum Service",
+      "extractedVendor": "af Ni ary",
+      "abstained": false,
+      "warnings": [
+        "Bill amount could not be reliably determined.",
+        "Bill date could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 9,
+      "groundTruthVendor": "ADYAR ANANDA BHAVAN SWEETS (A2B)",
+      "extractedVendor": "\\ fEmiars |",
+      "abstained": false,
+      "warnings": [
+        "Amount label itself was OCR-corrupted (single character) but recovered via fuzzy label matching.",
+        "Bill date could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 15,
+      "groundTruthVendor": "Airport Cab Service",
+      "extractedVendor": "—~—==CAB SERVICE=",
+      "abstained": false,
+      "warnings": []
+    },
+    {
+      "filename": "vivek-bhai-report-ER41220.pdf",
+      "page": 25,
+      "groundTruthVendor": "PANKAJ BALDEVBHAI PARMAR (UPI payee)",
+      "extractedVendor": "PANKAJ BALDEVBHAI ¥500",
+      "abstained": false,
+      "warnings": [
+        "Bill amount could not be reliably determined.",
+        "Bill date could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 6,
+      "groundTruthVendor": "Taxi Operator's Union (Regd.), Pinjore Road Baddi",
+      "extractedVendor": "(iv) Mr RAM MURTI 3,000",
+      "abstained": false,
+      "warnings": [
+        "Bill amount could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 10,
+      "groundTruthVendor": "Home Town Resort",
+      "extractedVendor": "J ZINN",
+      "abstained": false,
+      "warnings": [
+        "Multiple unlabeled amounts found; using the largest (27999.92) as a low-confidence candidate total. Other amounts on the page: 83.33,3333.33,3416.66,3499.99,6833.32,6916.65,6999.98,10333.31,10416.64,10499.97,13833.3,13916.63,13999.96,17333.29,17416.62,17499.95,20833.28,20916.61,20999.94,24333.27,24416.6,24499.93,27833.26,27916.59."
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 12,
+      "groundTruthVendor": "Central Bank of India (card payment slip, Home Town Resort)",
+      "extractedVendor": "I Af SAILSHIED WITH GCCO/SERVICE RECEIVED Ang",
+      "abstained": false,
+      "warnings": [
+        "Multiple unlabeled amounts found; using the largest (35000) as a low-confidence candidate total. Other amounts on the page: 12.",
+        "Bill date could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 20,
+      "groundTruthVendor": "ICICI Bank (Amazon Pay Credit Card statement)",
+      "extractedVendor": "Erg U5; Scan the OR Code, to know about the Credit Card services,",
+      "abstained": false,
+      "warnings": [
+        "This page looks like a multi-transaction statement, not a single bill (statement-balance phrase pair found (/\\bMINIMUM AMOUNT DUE\\b/ + /\\bTOTAL AMOUNT DUE\\b/)) - the individual transaction amount can't be reliably identified from the statement's own balance/total figures, so amount is left unresolved rather than using the statement balance.",
+        "Bill amount could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "ER-40706.pdf",
+      "page": 22,
+      "groundTruthVendor": "KFC (via food-delivery order summary)",
+      "extractedVendor": "IV FASTag E-Statement icici Bank",
+      "abstained": false,
+      "warnings": [
+        "This page looks like a multi-transaction statement, not a single bill (statement-balance phrase pair found (/\\bOPENING BALANCE\\b/ + /\\bCLOSING BALANCE\\b/)) - the individual transaction amount can't be reliably identified from the statement's own balance/total figures, so amount is left unresolved rather than using the statement balance.",
+        "Bill amount could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 3,
+      "groundTruthVendor": "Theneth Auto Fuels (Bharat Petroleum)",
+      "extractedVendor": "THEN ThE AU ELS",
+      "abstained": false,
+      "warnings": [
+        "Bill amount could not be reliably determined.",
+        "Bill date could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "ER-39832.pdf",
+      "page": 6,
+      "groundTruthVendor": "RATHNA ELECTRICALS & HARDWARES",
+      "extractedVendor": "SEs —— H o (9)",
+      "abstained": false,
+      "warnings": [
+        "Bill amount could not be reliably determined.",
+        "Bill date could not be reliably determined."
+      ]
+    },
+    {
+      "filename": "ER-40782.pdf",
+      "page": 3,
+      "groundTruthVendor": "CNG Mother Station (Paytm payment)",
+      "extractedVendor": "Crder ID",
+      "abstained": false,
+      "warnings": [
+        "Bill amount could not be reliably determined."
+      ]
+    }
+  ]
+}

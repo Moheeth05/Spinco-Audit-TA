@@ -1,0 +1,224 @@
+[
+  {
+    "filename": "ER-39832.pdf",
+    "role": "dev",
+    "totalJsLines": 110,
+    "totalPyLines": 110,
+    "totalOverlap": 110,
+    "pageResults": [
+      {
+        "page": 1,
+        "jsLines": 69,
+        "pyLines": 69,
+        "overlap": 69
+      },
+      {
+        "page": 2,
+        "jsLines": 41,
+        "pyLines": 41,
+        "overlap": 41
+      }
+    ]
+  },
+  {
+    "filename": "ER-40223.pdf",
+    "role": "heldout",
+    "totalJsLines": 166,
+    "totalPyLines": 166,
+    "totalOverlap": 166,
+    "pageResults": [
+      {
+        "page": 1,
+        "jsLines": 53,
+        "pyLines": 53,
+        "overlap": 53
+      },
+      {
+        "page": 2,
+        "jsLines": 87,
+        "pyLines": 87,
+        "overlap": 87
+      },
+      {
+        "page": 3,
+        "jsLines": 26,
+        "pyLines": 26,
+        "overlap": 26
+      }
+    ]
+  },
+  {
+    "filename": "ER-40706.pdf",
+    "role": "dev",
+    "totalJsLines": 234,
+    "totalPyLines": 234,
+    "totalOverlap": 232,
+    "pageResults": [
+      {
+        "page": 1,
+        "jsLines": 64,
+        "pyLines": 64,
+        "overlap": 64
+      },
+      {
+        "page": 2,
+        "jsLines": 98,
+        "pyLines": 98,
+        "overlap": 97
+      },
+      {
+        "page": 3,
+        "jsLines": 69,
+        "pyLines": 69,
+        "overlap": 68
+      },
+      {
+        "page": 4,
+        "jsLines": 3,
+        "pyLines": 3,
+        "overlap": 3
+      }
+    ]
+  },
+  {
+    "filename": "ER-40782.pdf",
+    "role": "heldout",
+    "totalJsLines": 458,
+    "totalPyLines": 480,
+    "totalOverlap": 419,
+    "pageResults": [
+      {
+        "page": 1,
+        "jsLines": 70,
+        "pyLines": 70,
+        "overlap": 70
+      },
+      {
+        "page": 2,
+        "jsLines": 26,
+        "pyLines": 26,
+        "overlap": 26
+      },
+      {
+        "page": 3,
+        "jsLines": 41,
+        "pyLines": 41,
+        "overlap": 39
+      },
+      {
+        "page": 4,
+        "jsLines": 30,
+        "pyLines": 40,
+        "overlap": 21
+      },
+      {
+        "page": 5,
+        "jsLines": 67,
+        "pyLines": 69,
+        "overlap": 65
+      },
+      {
+        "page": 6,
+        "jsLines": 42,
+        "pyLines": 45,
+        "overlap": 40
+      },
+      {
+        "page": 7,
+        "jsLines": 52,
+        "pyLines": 58,
+        "overlap": 50
+      },
+      {
+        "page": 8,
+        "jsLines": 38,
+        "pyLines": 36,
+        "overlap": 21
+      },
+      {
+        "page": 9,
+        "jsLines": 41,
+        "pyLines": 42,
+        "overlap": 39
+      },
+      {
+        "page": 10,
+        "jsLines": 51,
+        "pyLines": 53,
+        "overlap": 48
+      }
+    ]
+  },
+  {
+    "filename": "reahul-report-ER40513.pdf",
+    "role": "dev",
+    "totalJsLines": 234,
+    "totalPyLines": 234,
+    "totalOverlap": 234,
+    "pageResults": [
+      {
+        "page": 1,
+        "jsLines": 62,
+        "pyLines": 62,
+        "overlap": 62
+      },
+      {
+        "page": 2,
+        "jsLines": 84,
+        "pyLines": 84,
+        "overlap": 84
+      },
+      {
+        "page": 3,
+        "jsLines": 73,
+        "pyLines": 73,
+        "overlap": 73
+      },
+      {
+        "page": 4,
+        "jsLines": 15,
+        "pyLines": 15,
+        "overlap": 15
+      }
+    ]
+  },
+  {
+    "filename": "vivek-bhai-report-ER41220.pdf",
+    "role": "heldout",
+    "totalJsLines": 393,
+    "totalPyLines": 393,
+    "totalOverlap": 392,
+    "pageResults": [
+      {
+        "page": 1,
+        "jsLines": 65,
+        "pyLines": 65,
+        "overlap": 65
+      },
+      {
+        "page": 2,
+        "jsLines": 99,
+        "pyLines": 99,
+        "overlap": 99
+      },
+      {
+        "page": 3,
+        "jsLines": 95,
+        "pyLines": 95,
+        "overlap": 94
+      },
+      {
+        "page": 4,
+        "jsLines": 98,
+        "pyLines": 98,
+        "overlap": 98
+      },
+      {
+        "page": 5,
+        "jsLines": 36,
+        "pyLines": 36,
+        "overlap": 36
+      }
+    ]
+  }
+]

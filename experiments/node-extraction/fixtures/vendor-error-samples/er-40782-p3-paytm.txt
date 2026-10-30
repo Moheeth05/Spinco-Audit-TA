@@ -1,0 +1,40 @@
+Name
+Payment Successful
+Crder ID
+Card No
+Paytm
+A|D
+Custorner Details
+Bank MID
+24,051
+01 Jul 2026. 10 02 26 AM
+Bank ID
+Paid at CNG Mather Station
+Payrnert Details
+Auth-Code:896336
+Ahnedabad GDC Naroda
+RRN - 618210431849
+App label
+Acqutrig Barik
+Card lype
+202607070109000002790183
+PRANAY PAWAR
+Irarisact on lype
+Seral Na
+MID
+80183096600
+20260701100208028653
+26959443
+.****4843
+5PROUO000/0232:
+PM/92017
+A0000000031010
+RBI Bark
+Merchant Copy
+PAY IN POS VEison | 000
+VISA
+Visa Credit
+SALE
+1494301513
+AutoCa|3638677/034541
+26959443

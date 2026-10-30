@@ -1,0 +1,67 @@
+{
+ "schema": "fuel-review-conflicts/v1",
+ "note": "Append-only. An OPEN event holds the receipt back from human_verified (src/labels.mjs). This script never resolves or deletes events; a person must adjudicate.",
+ "events": [
+  {
+   "status": "open",
+   "detected_at": "2026-10-22T06:10:39.000Z",
+   "receipt_id": "SYNTH-AUTH-001",
+   "kind": "later_review_conflicts_with_existing_verified_label",
+   "fields_in_conflict": [
+    "total_amount"
+   ],
+   "existing_reviewer_id": "REV-R1",
+   "existing_entry": {
+    "reviewer_id": "REV-R1",
+    "authorization_confirmed": true,
+    "identity_assurance": "self_attested",
+    "reviewer_count": 1,
+    "verified_at": "2026-10-22T10:00:00Z",
+    "pump_name": {
+     "status": "read",
+     "value": "SYNTHETIC DEALER ONE",
+     "printed_text": "SYNTHETIC DEALER ONE"
+    },
+    "transaction_date": {
+     "status": "read",
+     "printed_text": "24/09/26",
+     "iso_date": "2026-09-24",
+     "order_provable_from_receipt": true,
+     "order_evidence": "component_gt_12"
+    },
+    "total_amount": {
+     "status": "read",
+     "printed_text": "100.00",
+     "value": 100
+    },
+    "notes": null,
+    "second_reviewer_agreed": false
+   },
+   "incoming_reviewers": "REV-R2",
+   "incoming": [
+    {
+     "reviewer_id": "REV-R2",
+     "entry": {
+      "pump_name": {
+       "status": "read",
+       "value": "SYNTHETIC DEALER ONE",
+       "printed_text": "SYNTHETIC DEALER ONE"
+      },
+      "transaction_date": {
+       "status": "read",
+       "printed_text": "24/09/26",
+       "iso_date": "2026-09-24",
+       "order_provable_from_receipt": true,
+       "order_evidence": "component_gt_12"
+      },
+      "total_amount": {
+       "status": "read",
+       "value": 999
+      },
+      "notes": null
+     }
+    }
+   ]
+  }
+ ]
+}

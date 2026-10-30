@@ -1,0 +1,547 @@
+﻿[
+    {
+        "path":  "corpus-comparison-results.json",
+        "bytes":  28039,
+        "sha256":  "39C3B47F84FFBB6029EF004F2F9A7CA49D813F2E0330B1F2F05FF23C394E77F7"
+    },
+    {
+        "path":  "debug_linear.mjs",
+        "bytes":  404,
+        "sha256":  "C3C149C5F35B2A08A9D1FF6F69C7BEBF573C6C49353866BCF74336BF3537F52B"
+    },
+    {
+        "path":  "debug_page.mjs",
+        "bytes":  444,
+        "sha256":  "AE72DA7F6655F3B905ACC06A2847ADD058370844AE28BA17FD6B1899388076C3"
+    },
+    {
+        "path":  "eng.traineddata",
+        "bytes":  5199098,
+        "sha256":  "5DC5D8D640A212C9D6184921BA103B186F50E0FED9EE716C53E6B312B400D747"
+    },
+    {
+        "path":  "package-lock.json",
+        "bytes":  13628,
+        "sha256":  "6B6859F7F63540C5390021048DCEA1A557E42B1FDAE1ED0C19CF9DC8155F9BB7"
+    },
+    {
+        "path":  "package.json",
+        "bytes":  877,
+        "sha256":  "BD5C47C3B03317E468873F87C1085A74E0EC0BFE0003EF39702B9F112289C542"
+    },
+    {
+        "path":  "parity-test-billparser.mjs",
+        "bytes":  7121,
+        "sha256":  "8BD7E54302AADD23D3BAC3563BF686DD8C261E2AD8EA7558E4F6B6FF7C84510F"
+    },
+    {
+        "path":  "parity-test-expensereport.mjs",
+        "bytes":  4190,
+        "sha256":  "F7F98DA76359C4B6D42C6CB14B9B407F253E012DA82A358D65CE418103FF5005"
+    },
+    {
+        "path":  "parity-test-textextraction.mjs",
+        "bytes":  2495,
+        "sha256":  "6C09EFB1475C5FD42275FE666D5DE8AAD394806E80DA3E1F71C63716140A9341"
+    },
+    {
+        "path":  "parity-test.mjs",
+        "bytes":  4983,
+        "sha256":  "CB5AC5533E1C5B71AA4EBEF2ED33E78E63684E7719D0DAC74C8A88519A8EC6CD"
+    },
+    {
+        "path":  "README.md",
+        "bytes":  7393,
+        "sha256":  "5B88B7EB8A085E40D1220BCE1454E2759921D445DF946DD74CB6D9CFFC5BE024"
+    },
+    {
+        "path":  "real-doc-test-reconstruct-always.mjs",
+        "bytes":  2277,
+        "sha256":  "E681DAAA6B6C761A0A876E544B11C95C767E2139B7705DF8498B9D9A8C67B629"
+    },
+    {
+        "path":  "real-doc-test-textextraction.mjs",
+        "bytes":  2193,
+        "sha256":  "0F5F3742E1FDC818B206E8F5097E85844A7CA9E2B66956C6B56B309720589B58"
+    },
+    {
+        "path":  "run-against-corpus.mjs",
+        "bytes":  6296,
+        "sha256":  "72895E562B9D258B451B3AC8C40FF0C4B62E49633E921C3903B15D1A3A978A74"
+    },
+    {
+        "path":  "smoke_test.mjs",
+        "bytes":  768,
+        "sha256":  "5ACAAF9BC5E6C9AC7CD5A5D3DE7BE57B7E1920DBEBB39AE9441B027A6F4BA991"
+    },
+    {
+        "path":  "summarize_native_only.mjs",
+        "bytes":  616,
+        "sha256":  "142E904428D32077BBACFB2C191F62A7000EFF1204488DE57E1B9A50532EA01B"
+    },
+    {
+        "path":  "test-ocr-render-quality-page6.mjs",
+        "bytes":  3066,
+        "sha256":  "73D458A1AD61BC65DF81D00E58130D00234551FB20F652E3EE43F4CFFA33B3EF"
+    },
+    {
+        "path":  "test-statement-aware-amounts.mjs",
+        "bytes":  7591,
+        "sha256":  "38B3DF78A36F9CC7C5F5BE83851461E36163F4F1673C0BBAA75ADEEF1F4F14A1"
+    },
+    {
+        "path":  "test-usable-native-text.mjs",
+        "bytes":  5537,
+        "sha256":  "711D0896CA31E8389DF0280879EE2CB7B4130DE8FE144A5F2B6EE827211A4D07"
+    },
+    {
+        "path":  "test-vendor-extraction-fix.mjs",
+        "bytes":  9583,
+        "sha256":  "03BB6667E715E0CAA0A605C36D231D2D4DB030AB4456B5F421A083B0496FBE91"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\audit-task2-full-run-2.log",
+        "bytes":  62294,
+        "sha256":  "F1AE74C9C5C76E35302C5212225357B6448FBC990139911B175C95AB230B64F1"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\audit-task2-full-run.log",
+        "bytes":  2122,
+        "sha256":  "C503DC10B9E8285CC1592CFFCA2239DE5E111520C5D5EEBA9057367C65CB3F5C"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\audit-task2-run.log",
+        "bytes":  22780,
+        "sha256":  "71B5FEE8606BA658BC6E03EEC3AA05328FA0A6BCFD6F7382EEF3982AF6BCF700"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\full-suite-audit-run.log",
+        "bytes":  60547,
+        "sha256":  "2EADF93BE5FEFF51829D661A384626EE066B09EBDE5D4C8CC00C4D4426AF7C4C"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\release-build-pretest.log",
+        "bytes":  22595,
+        "sha256":  "2A655670F58930DB1AD00E6A9E5082A6B55B21FBEF83E8BE55666B9DED5473F3"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\REPORT.md",
+        "bytes":  13849,
+        "sha256":  "1E42989AB5DDF3F110B05D0E485732D15A55A7F07C2DF712A2DB5B13EA278DB4"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\results-after-retry.json",
+        "bytes":  4827,
+        "sha256":  "59831D22A4463B0CF77FCAB2C5F8559B90AED23BC014D08563D0990EDF19C659"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\results-raw.json",
+        "bytes":  52372,
+        "sha256":  "208BE2853DC94EFE545BEA4FD3DC26DCEBDF5B166A9F953290346FE3320AF8B4"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\run_benchmark.py",
+        "bytes":  8853,
+        "sha256":  "DEB56E6DDE8974866217647C0A8F4800DA655B98749507CEED9F3CA1B5C75A19"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\task3-issue1-regression.log",
+        "bytes":  25619,
+        "sha256":  "98B15A515589BDBCB78F004C6E37E9FE7C13BDA76913CAE0757C6FF005973EB2"
+    },
+    {
+        "path":  "benchmarks\\dpi-200-vs-300\\verify_retry_after.py",
+        "bytes":  4028,
+        "sha256":  "B4C7D3FF1C434C110BCDA94AE8F29E6A833A8B1DD5183AFF416A141E35D1EDFB"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\dishant_p7.png",
+        "bytes":  3786441,
+        "sha256":  "00FF74B6669413BB7CC76F1C9C8FA62477A0881BCC63B1562B187B362406D0DE"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\full-suite-final.log",
+        "bytes":  65858,
+        "sha256":  "52F5D109E98E11BAA4626B2E63382F4821B6DFE544FDAFD48CF6B6545DEFC438"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\rathna_p6.png",
+        "bytes":  2955939,
+        "sha256":  "5F553F380A0530F6166F408D5BDC1FE5D99BC0CBE8BB2F53C24ED9DE75917085"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\rathna_p6_corrected.png",
+        "bytes":  1346435,
+        "sha256":  "CDF283C4D36C975CC095E3F3E2658951484E383946C35E1026102D8510C10C9A"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\REPORT.md",
+        "bytes":  7058,
+        "sha256":  "DE8D0946E6BAAF94AA35C5EDCA5847B03CC6896E1E03563924DB12D4779456DA"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\results.json",
+        "bytes":  2986,
+        "sha256":  "6046F3E9623CF389A3F3764249B5FE550AB2950BD7EE021F7B5824E317BE9EFD"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\run_evaluation.py",
+        "bytes":  8903,
+        "sha256":  "9E147015A7EF2431C299F5429EC9B765CEA71CF7316C1FB3E8CD53719D9BB54F"
+    },
+    {
+        "path":  "benchmarks\\handwritten-ocr-20261014\\vivek_p28_check.png",
+        "bytes":  784550,
+        "sha256":  "0E309C95558C353C3B007D51DFE0750611F5ED94165830C4F082E7240A4FACD8"
+    },
+    {
+        "path":  "datasets\\annotations.jsonl",
+        "bytes":  72758,
+        "sha256":  "B7658D0F4A02E0C1D4F6D902202D22079966C3FE7C5E9424E94A3BF3F1D90ED1"
+    },
+    {
+        "path":  "datasets\\human-verified-bill-annotations.json",
+        "bytes":  8017,
+        "sha256":  "D415E7369C0387BEA45D1F3DB06937ACCB1BB5B8303AC820BC149F005D750C97"
+    },
+    {
+        "path":  "datasets\\manifest.json",
+        "bytes":  1577,
+        "sha256":  "F24D3AD0FCDE5372CDE7598159B6EB8ED1F46D973A4648C5E79F010AD3C37052"
+    },
+    {
+        "path":  "datasets\\splits.json",
+        "bytes":  1161,
+        "sha256":  "B8F90092FD2B17DF475894D95B6A89A1FD0BF24E950BFCB191DB1271C63BCD17"
+    },
+    {
+        "path":  "fixtures\\reference-pdfs\\ER-39832.pdf",
+        "bytes":  2181810,
+        "sha256":  "3F9C8373634D05596546BF94DCC786457216E06A6377827CC95DA8669486D86C"
+    },
+    {
+        "path":  "fixtures\\reference-pdfs\\ER-40223.pdf",
+        "bytes":  2113220,
+        "sha256":  "473AEEF2254238D51FD8282040E2CFB8D79B8E9F44D9D3610687E15446C19BD3"
+    },
+    {
+        "path":  "fixtures\\reference-pdfs\\ER-40706.pdf",
+        "bytes":  5452630,
+        "sha256":  "1AD983690A97C6F8CB24F9C6121FE1EA8149E350F711E505227C7003CFCECFBD"
+    },
+    {
+        "path":  "fixtures\\reference-pdfs\\ER-40782.pdf",
+        "bytes":  1305576,
+        "sha256":  "96A787AF4805A1645979F750653365BCC60D3F38381FA30E26CE376638C4CBFB"
+    },
+    {
+        "path":  "fixtures\\reference-pdfs\\reahul-report-ER40513.pdf",
+        "bytes":  8105932,
+        "sha256":  "506D7DBF93834D40830ED92F9B4D087BDA0D99D89A49A3D07697E34093625518"
+    },
+    {
+        "path":  "fixtures\\reference-pdfs\\vivek-bhai-report-ER41220.pdf",
+        "bytes":  6157493,
+        "sha256":  "F92B5B21CD721752892499EE39AE8D67869C748B993AB6B4C05A92BF08F3A36E"
+    },
+    {
+        "path":  "fixtures\\statement-samples\\credit-card-statement-ER-40706-p20.txt",
+        "bytes":  4583,
+        "sha256":  "505D9098BA197BEFBD8FDC7E8FA42D0625620D442D49EF1890F85E26FBEEB8C6"
+    },
+    {
+        "path":  "fixtures\\statement-samples\\fastag-statement-ER-40706-p22.txt",
+        "bytes":  3294,
+        "sha256":  "5BE9976DCE67483E08D515E847E3F2EB7DED9978E08029AB9D37C95B9ABBF140"
+    },
+    {
+        "path":  "fixtures\\statement-samples\\README.md",
+        "bytes":  919,
+        "sha256":  "C1C7045CF66E034F345BE7724EB89DA45F7DB62BF42B7130AF26A4C2C98CF8E8"
+    },
+    {
+        "path":  "fixtures\\synthetic\\field_order_variant.pdf",
+        "bytes":  5577,
+        "sha256":  "370401D13B7BC18A941C892C60605B42BA4981C1EC5E9D84258FC065B080BD7E"
+    },
+    {
+        "path":  "fixtures\\synthetic\\ocr_noisy_category.pdf",
+        "bytes":  5584,
+        "sha256":  "41E615E067EA5BC4E17717B29FD0C0386031BF89A3F7A100E8A9FEFA11DABBD5"
+    },
+    {
+        "path":  "fixtures\\vendor-error-samples\\er-40706-p10-hotel-invoice.txt",
+        "bytes":  744,
+        "sha256":  "01EC9A373036AD6942C7BEDF094F5579001EB5192FDB66D19021ECFB1AA90B97"
+    },
+    {
+        "path":  "fixtures\\vendor-error-samples\\er-40706-p12-card-slip.txt",
+        "bytes":  637,
+        "sha256":  "D7275FAB32A1A19052E5064E9576FA2BB143E1EFF42B7D348F01C45087E770CF"
+    },
+    {
+        "path":  "fixtures\\vendor-error-samples\\er-40706-p6-phonepe.txt",
+        "bytes":  314,
+        "sha256":  "9F4209D41A607A0EB100BC958A9D337B38BE97628CC0A71210C07E4280619267"
+    },
+    {
+        "path":  "fixtures\\vendor-error-samples\\er-40782-p3-paytm.txt",
+        "bytes":  525,
+        "sha256":  "3A14DE7807CB56173BA23CE1460E91ADFF79E8DDDE6D524785E76DE3DE51BDF1"
+    },
+    {
+        "path":  "fixtures\\vendor-error-samples\\README.md",
+        "bytes":  1692,
+        "sha256":  "437F0F2EBDAF227B5026CD2434331DD762BA53B42478C8F521B0AAB5D1A61EDE"
+    },
+    {
+        "path":  "fixtures\\vendor-error-samples\\vivek-bhai-p25-phonepe.txt",
+        "bytes":  290,
+        "sha256":  "1B6D9B0EA6DF9684DABEF47BDD0E12233E91215129AD00F043BF859EEA95C62B"
+    },
+    {
+        "path":  "reports\\bill-logic-parity-after-statement-fix.json",
+        "bytes":  1366,
+        "sha256":  "FA779D4EA243C6E8FE64398466B1CEC6C6BCF2705408722D030B061F99DA76F6"
+    },
+    {
+        "path":  "reports\\bill-logic-parity-after-vendor-fix.json",
+        "bytes":  2289,
+        "sha256":  "38146D31E559C87B474B9BEFCEB1E737007FE1BB40B48C354DF26AB0D9E20E20"
+    },
+    {
+        "path":  "reports\\bill-logic-parity.json",
+        "bytes":  188,
+        "sha256":  "E925E089DB4DBC67A4C6E2547B756CAAE04132168CE9957C649D8EB42CA36001"
+    },
+    {
+        "path":  "reports\\field-level-evaluation.json",
+        "bytes":  3165,
+        "sha256":  "088F61BEC9ECFE68603D43AD5EC64356EAB2A8993E46AA969AB9062D2EC8CF45"
+    },
+    {
+        "path":  "reports\\line-overlap-results.json",
+        "bytes":  3920,
+        "sha256":  "A49CA33E94872E6BB7BE8BD53D530665F10798046E33FF7D5280827C727DB25B"
+    },
+    {
+        "path":  "reports\\ocr-sample-evaluation-after-statement-fix.json",
+        "bytes":  6603,
+        "sha256":  "84E9EFA654FF6694B542233189CE169DC77C74A76756FCB9C0754CC4F1AC0EB5"
+    },
+    {
+        "path":  "reports\\ocr-sample-evaluation.json",
+        "bytes":  16977,
+        "sha256":  "87E399AE96B0FF4028F05BF0E241ADA9C378989355DC8E966F6234541D3C0107"
+    },
+    {
+        "path":  "reports\\page-census.json",
+        "bytes":  149236,
+        "sha256":  "CCB2C70D17EF80691A7896FFB2BAD67D379599D360E3141FC99B092444FE8857"
+    },
+    {
+        "path":  "reports\\receipt-extraction-baseline-20261013.json",
+        "bytes":  15505,
+        "sha256":  "7B91AA1E104E71A3E84C0E3711F20FD7E4E9A31506F154F83EDF08FB01D79C82"
+    },
+    {
+        "path":  "reports\\receipt-extraction-baseline-20261013.md",
+        "bytes":  5609,
+        "sha256":  "A21BD84A4F27385B0E412E3D1F1552DF7394A68BA5300F49AB658F3B91124FF9"
+    },
+    {
+        "path":  "reports\\selectable-text-divergence-diagnosis.json",
+        "bytes":  65,
+        "sha256":  "804DC780F4FAD93D89A2C04B0897C0D1210006745DEF6BA7F3D7D8CB86B254C4"
+    },
+    {
+        "path":  "reports\\vendor-sample-evaluation-after-fix.json",
+        "bytes":  5296,
+        "sha256":  "2DEF8DF0AC5BFA4ADCEB2995A23CEE223575290ABAC8FE147B0CA3B5144C0094"
+    },
+    {
+        "path":  "reports\\ocr-diagnostic-page6\\dpi-matrix-results.json",
+        "bytes":  1236,
+        "sha256":  "F47AFF7969E56DEFEC5ADEE1913F1D41A044B241901EEFB10AD89971205FD6A9"
+    },
+    {
+        "path":  "reports\\ocr-diagnostic-page6\\node-render-dpi200.png",
+        "bytes":  1097678,
+        "sha256":  "15677B0AEF631D5C80A39F2F635B2DB79484E71C24ABE1721E2825A43D73F0A2"
+    },
+    {
+        "path":  "reports\\ocr-diagnostic-page6\\python-render-dpi150.png",
+        "bytes":  1325859,
+        "sha256":  "F15A17C93120FF138A8CEAEF3D7130DE7D5FEE377C1A4693A1D1DED1D897AD47"
+    },
+    {
+        "path":  "reports\\ocr-diagnostic-page6\\python-render-dpi200.png",
+        "bytes":  2157930,
+        "sha256":  "5A5112D6A58D4FA2000D27DF34A83EB6EDE5AC28438343E6FF2245ADE029FF41"
+    },
+    {
+        "path":  "reports\\ocr-diagnostic-page6\\python-render-dpi300.png",
+        "bytes":  1430668,
+        "sha256":  "04A9470BB358E52BE1297D3E4DC936BABF6625F5A97BD86BAF4DEDE6609C0DB5"
+    },
+    {
+        "path":  "reports\\ocr-diagnostic-page6\\python-render-dpi400.png",
+        "bytes":  1658885,
+        "sha256":  "848C8BD2B25C43DE31C2411C95BD094625116232DF437210624EA9887F0C1931"
+    },
+    {
+        "path":  "reports\\ocr-diagnostic-page6\\python-render-dpi96.png",
+        "bytes":  641043,
+        "sha256":  "E71E1ED0DF4746CC5ADE7A79CD152AB00DD0BF0A3F2650521DB4E45E80E9C1F6"
+    },
+    {
+        "path":  "scripts\\build-annotations.mjs",
+        "bytes":  4050,
+        "sha256":  "AB490027E0CF087546A7EAD18148F4D35CDE978BBBD07F3C9D5E5227FFFD16AE"
+    },
+    {
+        "path":  "scripts\\build-reference-dataset.mjs",
+        "bytes":  2379,
+        "sha256":  "944C279E288E5C7F449387418FD2BED0066C6C75A77E0E996DD6E3138BF31E0E"
+    },
+    {
+        "path":  "scripts\\build_synthetic_fixtures.py",
+        "bytes":  3517,
+        "sha256":  "97673DF9A33373901A94B73FB0A587280EDB33BD867260E4D7E3B89C0192316C"
+    },
+    {
+        "path":  "scripts\\census-receipt-pages.mjs",
+        "bytes":  5830,
+        "sha256":  "684B6A2D25BDADC3F5B93EE83C0AD70DA9B0CD3A31F64FAA85516BB6F1EB6953"
+    },
+    {
+        "path":  "scripts\\compare-rendered-pixels.mjs",
+        "bytes":  2169,
+        "sha256":  "866A7FBAF5593D8E0ECBF97EE8E2DFD66176CAAFD03E620723BE819C3FFC7DEF"
+    },
+    {
+        "path":  "scripts\\diagnose-dpi-matrix.mjs",
+        "bytes":  1899,
+        "sha256":  "F955013AB74D4836ECB6089F4D4DA3751AE28D91CB778C8C2C34F0D7BE9D2D6F"
+    },
+    {
+        "path":  "scripts\\diagnose-ocr-empty-output.mjs",
+        "bytes":  5478,
+        "sha256":  "DDA1D29C1A34F6B01E99B9D0E9789A8283AC0EBE36296338DFC9FD7EE395BC16"
+    },
+    {
+        "path":  "scripts\\diagnose-row-merge.mjs",
+        "bytes":  949,
+        "sha256":  "3E2F120C4E3BF9667772C51D53DA312575861C9114E5B9BAC451034234F0FA93"
+    },
+    {
+        "path":  "scripts\\diagnose-selectable-text-divergence.mjs",
+        "bytes":  3136,
+        "sha256":  "F9143315F3AF2D9F46DFA42878B09315CB161F71CDE725BE06D49D39745160F8"
+    },
+    {
+        "path":  "scripts\\diagnose-vendor-errors.mjs",
+        "bytes":  866,
+        "sha256":  "59B9629FD08D23C4BDE27163304EDD8674DD8F9B2F41DF95CA94A6BD2825F544"
+    },
+    {
+        "path":  "scripts\\diff-page.mjs",
+        "bytes":  1358,
+        "sha256":  "9E5A1CC878AD10190223E0F3A8D392A0DFAE90DF10890B4EBD1CE85388C573C0"
+    },
+    {
+        "path":  "scripts\\evaluate-bill-fields-after-statement-fix.mjs",
+        "bytes":  5155,
+        "sha256":  "5D5599347C3D45BEA07635F6D2DF5EC9AD777BDB75A2AB5E2A91E04502370FC1"
+    },
+    {
+        "path":  "scripts\\evaluate-bill-fields-after-vendor-fix.mjs",
+        "bytes":  4136,
+        "sha256":  "A8F9B8AFED0557BD099928BBB5E557CDCB4D28DC2C448B6A13760493A75CE9B9"
+    },
+    {
+        "path":  "scripts\\evaluate-bill-fields.mjs",
+        "bytes":  4969,
+        "sha256":  "E157599A222B08CE1A0F949737452FBACB210B373B179E76E9643B4E861FCCBE"
+    },
+    {
+        "path":  "scripts\\evaluate-ocr-sample-after-statement-fix.mjs",
+        "bytes":  4302,
+        "sha256":  "5ED21F92E048A2C4EBDCF421BEE7E6C584656DE0EF2BD97C60BBBBE3305F0C94"
+    },
+    {
+        "path":  "scripts\\evaluate-ocr-sample.mjs",
+        "bytes":  5267,
+        "sha256":  "475FA11DA842ED68EDCEEC0BED506BDFBA1A0922340E3C2E843A244913E9C420"
+    },
+    {
+        "path":  "scripts\\evaluate-parity.mjs",
+        "bytes":  5901,
+        "sha256":  "963296D91E7070786825F4B231EB81D25F0A448C90BAEF911A8F8E9BB6CD3D20"
+    },
+    {
+        "path":  "scripts\\evaluate-synthetic.mjs",
+        "bytes":  1955,
+        "sha256":  "A06FE027CDF95BA5818E7E4A4E00FD94FE46B30B67567D67A3BE270278BD9519"
+    },
+    {
+        "path":  "scripts\\evaluate-vendor-sample-after-fix.mjs",
+        "bytes":  2350,
+        "sha256":  "73B489F65BF13C1CBB8B551E8A62124E26C3C668ACAE1B40A73B857229587481"
+    },
+    {
+        "path":  "scripts\\find-divergence.mjs",
+        "bytes":  1654,
+        "sha256":  "B147C47D6893E4BC62878C79FDD20615C603108B6B8F54EA3141E2CABCA59F48"
+    },
+    {
+        "path":  "scripts\\full-corpus-linetest.mjs",
+        "bytes":  2880,
+        "sha256":  "67A0571260A6CA454056F00385DAA1CB545A9D3A215147C6674BA491AA0CA146"
+    },
+    {
+        "path":  "scripts\\get-statement-page-text.mjs",
+        "bytes":  768,
+        "sha256":  "64020F669D8F535A13008C2606A2AEF51218D6879E715272E9F3F6BEF1DEACD4"
+    },
+    {
+        "path":  "src\\billParser.mjs",
+        "bytes":  29695,
+        "sha256":  "001B80A7F08EC1054CCD57F17F56270140759C51F27F60BBF7CF6EF2A3615C3B"
+    },
+    {
+        "path":  "src\\categoryMap.mjs",
+        "bytes":  4375,
+        "sha256":  "B1D1884A27F8C057034BBC7FBD1328EA199BB7E2D263C10FEA1205E2CC6BBEA0"
+    },
+    {
+        "path":  "src\\dates.mjs",
+        "bytes":  3917,
+        "sha256":  "98059B6A516895E4FDCA9D46041FEBBB9150FCA004FF6DFB1A902FC643C13F54"
+    },
+    {
+        "path":  "src\\expenseReportParser.mjs",
+        "bytes":  10277,
+        "sha256":  "22620A6B1CF6DA1735CFF83DFE4D5E4652C33229552852BEC0522E4A3813CCF2"
+    },
+    {
+        "path":  "src\\money.mjs",
+        "bytes":  1618,
+        "sha256":  "72440C1824B4D96014594948485DF00AE30DECA1BDA0833F9AF72037E0E61A3A"
+    },
+    {
+        "path":  "src\\ocrEngine.mjs",
+        "bytes":  1300,
+        "sha256":  "3599324853D8BB99919AD6C1431AD1401F3C9FE4BF205264B72BDE308A340F17"
+    },
+    {
+        "path":  "src\\pdfExtract.mjs",
+        "bytes":  4424,
+        "sha256":  "E74D77380D4AFC364CED00BD69618D2D7FE825D87207B96753F88CCD2AA1C147"
+    },
+    {
+        "path":  "src\\textExtraction.mjs",
+        "bytes":  14177,
+        "sha256":  "F2DA4410127CB33F646EEFBB1DB366501EE5A98452EE55EEF4EA11097A4A3785"
+    }
+]

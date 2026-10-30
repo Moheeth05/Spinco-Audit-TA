@@ -1,0 +1,236 @@
+{
+ "note": "SYNTHETIC TEST FIXTURES ONLY",
+ "records": [
+  {
+   "receipt_id": "SYNTH-AUTH-001",
+   "source_type": "authentic",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "dev",
+   "kind": "fuel",
+   "annotation_status": "provisional_assistant_read",
+   "fields": {
+    "pump_name": {
+     "raw_value": "SYNTHETIC DEALER ONE",
+     "normalized_value": "SYNTHETIC DEALER ONE",
+     "acceptable_forms": [
+      "SYNTHETIC DEALER ONE"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-09-24",
+     "normalized_value": "2026-09-24",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "100",
+     "normalized_value": 100,
+     "review_required": false
+    }
+   }
+  },
+  {
+   "receipt_id": "SYNTH-AUTH-002",
+   "source_type": "authentic",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "dev",
+   "kind": "fuel",
+   "annotation_status": "provisional_assistant_read",
+   "fields": {
+    "pump_name": {
+     "raw_value": "SYNTHETIC DEALER TWO",
+     "normalized_value": "SYNTHETIC DEALER TWO",
+     "acceptable_forms": [
+      "SYNTHETIC DEALER TWO"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-08-25",
+     "normalized_value": "2026-08-25",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "200",
+     "normalized_value": 200,
+     "review_required": false
+    }
+   }
+  },
+  {
+   "receipt_id": "SYNTH-TPL-001",
+   "source_type": "suspected_template_generated",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "heldout",
+   "kind": "fuel",
+   "annotation_status": "provisional_assistant_read",
+   "fields": {
+    "pump_name": {
+     "raw_value": "SYNTHETIC TEMPLATE DEALER",
+     "normalized_value": "SYNTHETIC TEMPLATE DEALER",
+     "acceptable_forms": [
+      "SYNTHETIC TEMPLATE DEALER"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-07-15",
+     "normalized_value": "2026-07-15",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "300",
+     "normalized_value": 300,
+     "review_required": false
+    }
+   }
+  },
+  {
+   "receipt_id": "SYNTH-FUEL-001",
+   "source_type": "synthetic",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "heldout",
+   "kind": "fuel",
+   "annotation_status": "construction_truth",
+   "fields": {
+    "pump_name": {
+     "raw_value": "SYNTHETIC PUMP",
+     "normalized_value": "SYNTHETIC PUMP",
+     "acceptable_forms": [
+      "SYNTHETIC PUMP"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-06-01",
+     "normalized_value": "2026-06-01",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "500",
+     "normalized_value": 500,
+     "review_required": false
+    }
+   }
+  },
+  {
+   "receipt_id": "SYNTH-CTRL-001",
+   "source_type": "generic_control",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "heldout",
+   "kind": "fuel",
+   "annotation_status": "construction_truth",
+   "fields": {
+    "pump_name": {
+     "raw_value": "SYNTHETIC SHOP",
+     "normalized_value": "SYNTHETIC SHOP",
+     "acceptable_forms": [
+      "SYNTHETIC SHOP"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-05-01",
+     "normalized_value": "2026-05-01",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "50",
+     "normalized_value": 50,
+     "review_required": false
+    }
+   }
+  },
+  {
+   "receipt_id": "SYNTH-WEIRD-001",
+   "source_type": "mystery_type",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "heldout",
+   "kind": "fuel",
+   "annotation_status": "provisional_assistant_read",
+   "fields": {
+    "pump_name": {
+     "raw_value": "X",
+     "normalized_value": "X",
+     "acceptable_forms": [
+      "X"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-01-02",
+     "normalized_value": "2026-01-02",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "10",
+     "normalized_value": 10,
+     "review_required": false
+    }
+   }
+  },
+  {
+   "receipt_id": "SYNTH-NOTYPE-001",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "heldout",
+   "kind": "fuel",
+   "annotation_status": "provisional_assistant_read",
+   "fields": {
+    "pump_name": {
+     "raw_value": "X",
+     "normalized_value": "X",
+     "acceptable_forms": [
+      "X"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-01-02",
+     "normalized_value": "2026-01-02",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "10",
+     "normalized_value": 10,
+     "review_required": false
+    }
+   }
+  },
+  {
+   "receipt_id": "SYNTH-CASE-001",
+   "source_type": "Authentic",
+   "receipt_family": "synthetic_fixture_family",
+   "split": "heldout",
+   "kind": "fuel",
+   "annotation_status": "provisional_assistant_read",
+   "fields": {
+    "pump_name": {
+     "raw_value": "X",
+     "normalized_value": "X",
+     "acceptable_forms": [
+      "X"
+     ],
+     "review_required": false
+    },
+    "transaction_date": {
+     "raw_value": "2026-01-02",
+     "normalized_value": "2026-01-02",
+     "review_required": false,
+     "ambiguous_on_receipt_alone": false
+    },
+    "total_amount": {
+     "raw_value": "10",
+     "normalized_value": 10,
+     "review_required": false
+    }
+   }
+  }
+ ]
+}
