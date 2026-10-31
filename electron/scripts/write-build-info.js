@@ -19,7 +19,10 @@ const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 
 const REPO_ROOT = path.join(__dirname, "..", "..");
-const OUT_DIR = path.join(REPO_ROOT, "electron", "generated");
+// Optional: SPINCO_BUILD_INFO_DIR writes build-info.json there instead of electron/generated (staging workflow).
+const OUT_DIR = process.env.SPINCO_BUILD_INFO_DIR
+  ? path.resolve(process.env.SPINCO_BUILD_INFO_DIR)
+  : path.join(REPO_ROOT, "electron", "generated");
 const OUT_FILE = path.join(OUT_DIR, "build-info.json");
 
 function git(args) {

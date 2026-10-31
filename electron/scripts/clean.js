@@ -25,6 +25,25 @@ const TARGETS = [
   path.join(REPO_ROOT, "electron", "generated"),
 ];
 
+// Safety guard: release/ holds the official release artifacts. A non-empty one is never deleted unless the caller
+// deliberately passes --force (npm run clean -- --force). Checked BEFORE anything is removed, so a refusal deletes nothing.
+const RELEASE_DIR = path.join(REPO_ROOT, "release");
+const FORCE = process.argv.slice(2).includes("--force");
+
+function isNonEmptyDir(dir) {
+  try {
+    return fs.readdirSync(dir).length > 0;
+  } catch {
+    return false; // missing (or not a directory): nothing to protect
+  }
+}
+
+if (!FORCE && isNonEmptyDir(RELEASE_DIR)) {
+  console.error(`[clean] REFUSED: ${RELEASE_DIR} is not empty. Nothing was deleted.`);
+  console.error(`[clean] It holds release artifacts. To delete it on purpose run:  npm run clean -- --force`);
+  process.exit(1);
+}
+
 for (const target of TARGETS) {
   if (fs.existsSync(target)) {
     fs.rmSync(target, { recursive: true, force: true });

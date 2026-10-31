@@ -30,7 +30,9 @@ const path = require("node:path");
 const yaml = require("js-yaml");
 
 const REPO_ROOT = path.join(__dirname, "..", "..");
-const RELEASE_DIR = path.join(REPO_ROOT, "release");
+// Optional: SPINCO_RELEASE_DIR reads the installer + latest.yml from another electron-builder output folder
+// (e.g. a staging run) instead of release/.
+const RELEASE_DIR = process.env.SPINCO_RELEASE_DIR ? path.resolve(process.env.SPINCO_RELEASE_DIR) : path.join(REPO_ROOT, "release");
 const FEED_ROOT = process.env.SPINCO_UPDATE_FEED_DIR || path.join(REPO_ROOT, "update-feed");
 const FEED_DIR = path.join(FEED_ROOT, "spinco-ta-audit");
 

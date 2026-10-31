@@ -26,8 +26,19 @@ const { spawn } = require("node:child_process");
 const yaml = require("js-yaml");
 
 const REPO_ROOT = path.join(__dirname, "..", "..");
-const RELEASE_DIR = path.join(REPO_ROOT, "release");
+// Optional overrides, used by the staging workflow (electron/scripts/dist-staging.js). All unset = the paths below, as always.
+function envPath(name, fallback) {
+  return process.env[name] ? path.resolve(process.env[name]) : fallback;
+}
+const RELEASE_DIR = envPath("SPINCO_RELEASE_DIR", path.join(REPO_ROOT, "release"));
 const UNPACKED_DIR = path.join(RELEASE_DIR, "win-unpacked");
+const BUILD_INFO_DIR = envPath("SPINCO_BUILD_INFO_DIR", path.join(REPO_ROOT, "electron", "generated"));
+const FRONTEND_DIST_DIR = envPath("SPINCO_FRONTEND_DIST", path.join(REPO_ROOT, "frontend", "dist"));
+const BACKEND_DIST_DIR = process.env.SPINCO_BUILD_DIR
+  ? path.join(path.resolve(process.env.SPINCO_BUILD_DIR), "dist_backend")
+  : path.join(REPO_ROOT, "backend", "dist_backend");
+// Where the runtime check puts its throw-away database and storage (default: the OS temp folder).
+const TMP_DIR = envPath("SPINCO_TMP", os.tmpdir());
 
 function fail(msg) {
   console.error(`[verify-release] FAIL: ${msg}`);
@@ -97,7 +108,7 @@ function verifyElectronRuntime() {
 // smoke-test step; this script only ever claims what it can actually check.
 function verifyApplicationFeatures() {
   console.log("\nApplication feature verification (static build-artifact checks - not a substitute for live testing):");
-  const assetsDir = path.join(REPO_ROOT, "frontend", "dist", "assets");
+  const assetsDir = path.join(FRONTEND_DIST_DIR, "assets");
   if (!fs.existsSync(assetsDir)) {
     reportCheck("bundle present", false, `${assetsDir} does not exist - run the frontend build first`);
     return;
@@ -195,8 +206,9 @@ async function verifyRuntimeCacheHeaders() {
   // collides with an actual running instance on the same machine.
   const port = 58799;
   const stamp = Date.now();
-  const tmpDb = path.join(os.tmpdir(), `spinco-verify-release-${stamp}.db`);
-  const tmpStorage = path.join(os.tmpdir(), `spinco-verify-release-storage-${stamp}`);
+  const tmpDb = path.join(TMP_DIR, `spinco-verify-release-${stamp}.db`);
+  const tmpStorage = path.join(TMP_DIR, `spinco-verify-release-storage-${stamp}`);
+  fs.mkdirSync(TMP_DIR, { recursive: true });
   const child = spawn(backendExe, [], {
     env: {
       ...process.env,
@@ -250,7 +262,7 @@ async function verifyRuntimeCacheHeaders() {
 
 async function main() {
   const pkg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "package.json"), "utf8"));
-  const buildInfoPath = path.join(REPO_ROOT, "electron", "generated", "build-info.json");
+  const buildInfoPath = path.join(BUILD_INFO_DIR, "build-info.json");
 
   if (!fs.existsSync(buildInfoPath)) {
     fail(`${buildInfoPath} does not exist - run "npm run write:build-info" (or the full build) first.`);
@@ -285,8 +297,8 @@ async function main() {
   }
 
   const checks = [
-    ["frontend build", path.join(REPO_ROOT, "frontend", "dist", "index.html")],
-    ["backend executable", path.join(REPO_ROOT, "backend", "dist_backend", "spinco-backend", "spinco-backend.exe")],
+    ["frontend build", path.join(FRONTEND_DIST_DIR, "index.html")],
+    ["backend executable", path.join(BACKEND_DIST_DIR, "spinco-backend", "spinco-backend.exe")],
     ["installer", installerPath],
   ];
   for (const [label, filePath] of checks) {

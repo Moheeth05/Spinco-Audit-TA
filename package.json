@@ -18,6 +18,7 @@
     "verify:release": "node electron/scripts/verify-release.js",
     "dist": "npm run test:backend && npm run prepackage && electron-builder --win && npm run verify:release",
     "dist:portable": "npm run prepackage && electron-builder --win portable",
+    "dist:staging": "node electron/scripts/dist-staging.js",
     "release:stage": "node electron/scripts/stage-release.js"
   },
   "devDependencies": {

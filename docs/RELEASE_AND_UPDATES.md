@@ -166,6 +166,51 @@ npm run release:stage
 `npm run dist:portable` builds only the portable target and skips
 `test:backend`/`verify:release` - a quick local sanity build, never a release.
 
+### Clean guard: `release/` is not deleted by accident
+
+`npm run clean` (and therefore `npm run dist` / `prepackage`, which are
+unchanged) **refuses** to run while `release/` is not empty: it prints
+`[clean] REFUSED ...`, deletes nothing (not even the other build folders) and
+exits with an error. To clean it deliberately, run
+`npm run clean -- --force`, then `npm run dist`. The official release output
+stays `D:\Bills\release`.
+
+### Staging builds outside the repository: `npm run dist:staging`
+
+A trial build that must not touch `release/` or put large files in the
+repository. It runs the same steps as `dist` (backend tests, build info,
+frontend, backend, electron-builder, verify, update-feed copy) but writes
+everything into one **new** run folder
+`D:\SpincoTA-artifacts\release-staging\<YYYYMMDD-HHMMSS>-v<version>\`
+(`build\`, `frontend-dist\`, `build-info\`, `release\`, `update-feed\`,
+`tmp\`, `logs\`, the generated electron-builder config and `RUN.json`). An
+existing run folder is never reused (a `-2`, `-3` suffix is added), `clean` and
+`collect:tesseract` are not run (the existing `resources\tesseract` is used as
+it is), and the version is not changed.
+
+```powershell
+npm run dist:staging -- --dry-run     # print the plan; creates and builds nothing
+npm run dist:staging                  # the staging build
+npm run dist:staging -- --skip-tests  # without the backend test suite
+```
+
+Optional environment variables (all unset = the paths used by `npm run dist`;
+the staging script sets them itself for each of its steps):
+
+| Variable | Read by | Effect |
+|---|---|---|
+| `SPINCO_BUILD_DIR` | `build-backend.js`, `verify-release.js` | PyInstaller output goes to `<dir>\dist_backend`, its work files to `<dir>\build` |
+| `SPINCO_BUILD_INFO_DIR` | `write-build-info.js`, `verify-release.js` | `build-info.json` is written to / read from this folder instead of `electron\generated` |
+| `SPINCO_RELEASE_DIR` | `verify-release.js`, `stage-release.js` | electron-builder output folder to verify / take the installer and `latest.yml` from, instead of `release\` |
+| `SPINCO_FRONTEND_DIST` | `verify-release.js` | built frontend folder to check, instead of `frontend\dist` |
+| `SPINCO_TMP` | `verify-release.js` | folder for its throw-away database and storage, instead of the OS temp folder |
+| `SPINCO_UPDATE_FEED_DIR` | `stage-release.js` | update-feed output folder (already existed) |
+| `SPINCO_STAGING_ROOT` | `dist-staging.js` | replaces `D:\SpincoTA-artifacts\release-staging`; must be outside the repository |
+
+For a manual frontend build elsewhere: `npm run build --prefix frontend -- --outDir <folder>`.
+For test runs with scratch files off C:, set `TEMP` and `TMP` to a D: folder first.
+Electron's `userData` stays in `%APPDATA%` and is not affected by any of this.
+
 ## Preventing stale releases
 
 We previously had a build where `release/win-unpacked/` had been rebuilt but

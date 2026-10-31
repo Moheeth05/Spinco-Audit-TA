@@ -17,6 +17,12 @@ const { spawnSync } = require("node:child_process");
 const BACKEND_DIR = path.join(__dirname, "..", "..", "backend");
 const VENV_PYTHON = path.join(BACKEND_DIR, ".venv", "Scripts", "python.exe");
 
+// Optional: SPINCO_BUILD_DIR redirects PyInstaller's output to <dir>\dist_backend and its work files to <dir>\build
+// (used by the staging workflow, electron/scripts/dist-staging.js). Unset = backend/dist_backend and backend/build, as always.
+const BUILD_DIR = process.env.SPINCO_BUILD_DIR ? path.resolve(process.env.SPINCO_BUILD_DIR) : null;
+const DIST_PATH = BUILD_DIR ? path.join(BUILD_DIR, "dist_backend") : "dist_backend";
+const WORK_PATH = BUILD_DIR ? path.join(BUILD_DIR, "build") : "build";
+
 function main() {
   if (!fs.existsSync(VENV_PYTHON)) {
     console.error(`[build-backend] Python venv not found at ${VENV_PYTHON}`);
@@ -25,7 +31,7 @@ function main() {
 
   const result = spawnSync(
     VENV_PYTHON,
-    ["-m", "PyInstaller", "spinco-backend.spec", "--distpath", "dist_backend", "--workpath", "build", "--noconfirm"],
+    ["-m", "PyInstaller", "spinco-backend.spec", "--distpath", DIST_PATH, "--workpath", WORK_PATH, "--noconfirm"],
     { cwd: BACKEND_DIR, stdio: "inherit" }
   );
 
@@ -34,7 +40,7 @@ function main() {
     process.exit(result.status || 1);
   }
 
-  const exePath = path.join(BACKEND_DIR, "dist_backend", "spinco-backend", "spinco-backend.exe");
+  const exePath = path.resolve(BACKEND_DIR, DIST_PATH, "spinco-backend", "spinco-backend.exe");
   if (!fs.existsSync(exePath)) {
     console.error(`[build-backend] Expected output not found at ${exePath}`);
     process.exit(1);
