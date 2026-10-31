@@ -1,0 +1,12 @@
+{
+  "name": "ta-backend",
+  "version": "1.0.0",
+  "description": "TA Backend: Node.js upload server that stores PDFs sorted and de-duplicated with the Spinco TA Audit upload rules (zero dependencies).",
+  "private": true,
+  "main": "index.js",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test test/*.test.js"
+  }
+}

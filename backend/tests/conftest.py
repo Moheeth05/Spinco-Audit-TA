@@ -8,6 +8,10 @@ import pytest
 _TEST_DIR = Path(tempfile.mkdtemp(prefix="spinco_test_"))
 os.environ["SPINCO_DB_PATH"] = str(_TEST_DIR / "test.db")
 os.environ["SPINCO_STORAGE_ROOT"] = str(_TEST_DIR / "storage")
+# The app copies accepted uploads to a TA Backend on 127.0.0.1:4000 by default. Tests upload synthetic AND reference documents
+# through the API, so they must NEVER reach a real TA Backend that happens to be running on the developer's machine.
+# (tests/test_ta_backend_forward.py opts back in against its own throw-away local server.)
+os.environ["TA_BACKEND_URL"] = "off"
 
 # The `client` fixture reseeds (hashes a password) and logs in (verifies a
 # password) on every single test. Argon2's production cost parameters are
@@ -49,6 +53,7 @@ def _hosted_providers_off_and_no_live_http(monkeypatch):
     wins), so a real outbound request from the test suite is impossible."""
     import httpx
 
+    monkeypatch.setenv("TA_BACKEND_URL", "off")  # a test that wants the TA Backend copy opts in with its own setenv (runs after this)
     for name in list(os.environ):
         if name.startswith(("SPINCO_NVIDIA_", "SPINCO_DEEPSEEK_")):
             monkeypatch.delenv(name, raising=False)

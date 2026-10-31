@@ -15,7 +15,7 @@ from app.services.extraction.pipeline import run_extraction
 from app.services.filename_ids import extract_er_id, extract_trip_id
 from app.services.pdf_validation import PdfValidationError, validate_pdf_upload
 from app.services.storage_backend import storage, storage_kind_for
-from app.services import audit
+from app.services import audit, ta_backend_forward
 from app.models.user import User
 from app.services.permissions import UPLOAD_DOCUMENTS, get_current_user, require_permission
 
@@ -122,6 +122,10 @@ def _process_one(
     # row itself - it must never fail the upload response, since the file was
     # genuinely received, validated, and stored successfully.
     background_tasks.add_task(_run_extraction_in_background, EXPENSE if expense else TRIP, row.id)
+
+    # Second, sorted + de-duplicated copy in the TA Backend archive (best effort, own thread: it can never fail or delay
+    # this upload or the extraction - see services/ta_backend_forward.py). Only reached for a file the app itself accepted.
+    ta_backend_forward.forward_upload(expense=expense, filename=original_filename, content=content)
 
     return UploadResultItem(
         filename=original_filename,

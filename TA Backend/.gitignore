@@ -1,0 +1,4 @@
+# Uploaded company PDFs, their index, and secrets are never committed
+storage/
+.env
+node_modules/
