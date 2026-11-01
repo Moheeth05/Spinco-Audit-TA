@@ -21,6 +21,7 @@ from app.api import (
     health,
     policy,
     search,
+    storage,
     trip_reports,
     uploads,
     users,
@@ -104,6 +105,7 @@ app.include_router(uploads.router)
 app.include_router(documents.router)
 app.include_router(expenses.router)
 app.include_router(search.router)
+app.include_router(storage.router)
 
 
 # ---------- Phase 11: serve the production React build (desktop packaging) ----------

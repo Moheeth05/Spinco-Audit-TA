@@ -11,6 +11,7 @@ from app.models.logs import ProcessingLog, AuditLog
 from app.models.evidence import SourceEvidence
 from app.models.bill_match import BillMatchCandidate
 from app.models.trip_match import TripMatchCandidate
+from app.models.storage_record import DocumentStorageRecord, DriveSyncState, StorageEvent
 
 __all__ = [
     "User",
@@ -30,4 +31,7 @@ __all__ = [
     "SourceEvidence",
     "BillMatchCandidate",
     "TripMatchCandidate",
+    "DocumentStorageRecord",
+    "StorageEvent",
+    "DriveSyncState",
 ]

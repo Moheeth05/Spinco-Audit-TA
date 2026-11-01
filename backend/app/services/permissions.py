@@ -42,6 +42,9 @@ MANAGE_ROLES = "MANAGE_ROLES"
 VIEW_AUDIT_LOGS = "VIEW_AUDIT_LOGS"
 MANUAL_CORRECTION = "MANUAL_CORRECTION"
 CHANGE_OWN_PASSWORD = "CHANGE_OWN_PASSWORD"
+# Central storage (Google Drive): restoring an archived document and running storage reconciliation are administrator-only.
+RESTORE_DOCUMENTS = "RESTORE_DOCUMENTS"
+MANAGE_STORAGE = "MANAGE_STORAGE"
 
 _READ_ONLY_BASE = {
     VIEW_DASHBOARD,
@@ -81,6 +84,8 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         MANAGE_USERS,
         MANAGE_ROLES,
         VIEW_AUDIT_LOGS,
+        RESTORE_DOCUMENTS,
+        MANAGE_STORAGE,
     },
 }
 
