@@ -33,14 +33,13 @@ from urllib.parse import parse_qs, urlencode, urlparse
 
 import httpx
 
-from app.services.drive.auth import DriveAuthError
+from app.services.drive.auth import TRANSIENT_TOKEN_STATUSES, DriveAuthError, DriveAuthPermanentError, DriveAuthTransientError, SingleFlightToken, TokenSettings
 
 DEFAULT_AUTH_URI = "https://accounts.google.com/o/oauth2/v2/auth"
 DEFAULT_TOKEN_URI = "https://oauth2.googleapis.com/token"
 _ALLOWED_AUTH_HOSTS = {"accounts.google.com"}
 _ALLOWED_TOKEN_HOSTS = {"oauth2.googleapis.com"}
 _CLIENT_ID_RE = re.compile(r"^[A-Za-z0-9._-]{10,200}$")
-_REFRESH_MARGIN_SECONDS = 120
 _SCOPE_DRIVE = "https://www.googleapis.com/auth/drive"
 _SCOPE_DRIVE_FILE = "https://www.googleapis.com/auth/drive.file"
 TOKEN_FILE_VERSION = 1
@@ -79,20 +78,20 @@ class OAuthClientConfig:
             if not isinstance(data, dict):
                 raise ValueError("malformed")
         except (OSError, ValueError):
-            raise DriveAuthError("The OAuth client file could not be read as JSON.") from None
+            raise DriveAuthPermanentError("The OAuth client file could not be read as JSON.") from None
         section = data.get("installed")
         if not isinstance(section, dict):
-            raise DriveAuthError("The OAuth client file is not a Desktop-app client (expected an 'installed' section).")
+            raise DriveAuthPermanentError("The OAuth client file is not a Desktop-app client (expected an 'installed' section).")
         client_id, secret = section.get("client_id"), section.get("client_secret")
         if not isinstance(client_id, str) or not _CLIENT_ID_RE.match(client_id) or not isinstance(secret, str) or not secret:
-            raise DriveAuthError("The OAuth client file does not contain a usable client id and secret.")
+            raise DriveAuthPermanentError("The OAuth client file does not contain a usable client id and secret.")
         auth_uri = str(section.get("auth_uri") or DEFAULT_AUTH_URI)
         token_uri = str(section.get("token_uri") or DEFAULT_TOKEN_URI)
         for uri, hosts, what in ((auth_uri, _ALLOWED_AUTH_HOSTS, "authorization"), (token_uri, _ALLOWED_TOKEN_HOSTS, "token")):
             parsed = urlparse(uri)
             if parsed.scheme != "https" or parsed.hostname not in hosts:
                 # The client secret is sent to the token endpoint, so it must really be Google's.
-                raise DriveAuthError(f"The OAuth client file names an unexpected {what} endpoint.")
+                raise DriveAuthPermanentError(f"The OAuth client file names an unexpected {what} endpoint.")
         return cls(client_id=client_id, client_secret=secret, auth_uri=auth_uri, token_uri=token_uri)
 
 
@@ -109,13 +108,13 @@ def _system_tool(name: str) -> str:
     return str(Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / name)
 
 
-def _run(args: list[str]) -> "subprocess.CompletedProcess":
-    return subprocess.run(args, capture_output=True, text=True, timeout=30, check=False)
+def _run(args: list[str], timeout: float = 30.0) -> "subprocess.CompletedProcess":
+    return subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
 
 
-def _windows_user() -> tuple[str, str]:
+def _windows_user(timeout: float = 30.0) -> tuple[str, str]:
     """(DOMAIN\\name, SID) of the account running this process."""
-    result = _run([_system_tool("whoami.exe"), "/user", "/fo", "csv", "/nh"])
+    result = _run([_system_tool("whoami.exe"), "/user", "/fo", "csv", "/nh"], timeout)
     row = next(csv.reader([result.stdout.strip()]), [])
     if result.returncode != 0 or len(row) < 2:
         raise OSError("could not identify the current Windows user")
@@ -139,28 +138,36 @@ def restrict_to_current_user(path: Path) -> None:
         raise DriveAuthError(problem)
 
 
-def permission_problem(path: Path, subject: str = "an OAuth token file") -> str | None:
-    """None when only the current user (plus SYSTEM / Administrators on Windows) can access the file; otherwise a fail-closed explanation."""
+def _permission_check(path: Path, subject: str, timeout: float) -> tuple[str | None, bool]:
+    """(problem, transient). `problem` is None when only the current user (plus SYSTEM / Administrators on Windows) can access the file, otherwise a
+    fail-closed explanation. `transient` is True when the problem is only that the permissions could not be READ (a helper process timed out or
+    failed): that may pass, whereas a file that other accounts can open needs a person. Each helper process is limited to `timeout` seconds."""
     path = Path(path)
+    unreadable = f"The permissions of {path} could not be read."
     if not _IS_WINDOWS:
         try:
             mode = stat.S_IMODE(path.stat().st_mode)
         except OSError:
-            return f"The permissions of {path} could not be read."
-        return None if not mode & 0o077 else f"{path} is accessible to other users (mode {oct(mode)}); it must be 0600."
+            return unreadable, True
+        return (None, False) if not mode & 0o077 else (f"{path} is accessible to other users (mode {oct(mode)}); it must be 0600.", False)
     try:
-        me, _sid = _windows_user()
-        result = _run([_system_tool("icacls.exe"), str(path)])
-    except (OSError, subprocess.SubprocessError):
-        return f"The permissions of {path} could not be read."
+        me, _sid = _windows_user(timeout)
+        result = _run([_system_tool("icacls.exe"), str(path)], timeout)
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError):  # a helper whose output cannot be decoded: the permissions cannot be READ now (transient)
+        return unreadable, True
     if result.returncode != 0:
-        return f"The permissions of {path} could not be read."
+        return unreadable, True
     listing = re.sub(re.escape(str(path)), "", result.stdout, flags=re.IGNORECASE)
     principals = {p.strip().lower() for p in re.findall(r"^\s*(\S[^:\r\n]*?):\(", listing, flags=re.MULTILINE)}
     others = sorted(principals - {me.lower()} - _ALLOWED_OTHER_PRINCIPALS)
     if others:
-        return f"{path} is accessible to other accounts ({', '.join(others)}); only the current user may access {subject}."
-    return None
+        return f"{path} is accessible to other accounts ({', '.join(others)}); only the current user may access {subject}.", False
+    return None, False
+
+
+def permission_problem(path: Path, subject: str = "an OAuth token file", timeout: float = 30.0) -> str | None:
+    """None when only the current user (plus SYSTEM / Administrators on Windows) can access the file; otherwise a fail-closed explanation."""
+    return _permission_check(path, subject, timeout)[0]
 
 
 # --------------------------------------------------------------------------------------------------------------------- token file
@@ -190,22 +197,43 @@ class OAuthTokenStore:
     def exists(self) -> bool:
         return self.path.is_file()
 
-    def load(self) -> StoredToken:
-        if not self.exists():
-            raise DriveAuthError(f"No stored Google authorization was found at {self.path}. {REAUTHORIZE_HINT}")
-        problem = permission_problem(self.path)
-        if problem:
-            raise DriveAuthError(problem)
+    def load(self, timeout: float = 30.0) -> StoredToken:
+        """The stored token, or a typed sign-in failure that follows the token-hardening rules and NEVER carries the file's path, an account name or the
+        text of the underlying exception (these messages are persisted in records and events):
+          * the file is not there                              -> permanent (a person must authorize): there is nothing to wait for;
+          * the file is not valid, or others may open it       -> permanent (a person must repair or re-authorize);
+          * the file or its permissions CANNOT BE READ now     -> transient (a locked file, a busy disk, a helper that timed out): it may pass by itself,
+            costs no retry budget, and is retried on the deferral schedule. A refusal that never passes shows up as a long deferral for an administrator.
+        The operator-facing detail (which path, which accounts) stays available to the command-line tools through `permission_problem()`."""
         try:
-            data = json.loads(self.path.read_text(encoding="utf-8"))
+            present = self.path.is_file()
+        except OSError:  # even asking about the file was refused or failed
+            raise DriveAuthTransientError("The OAuth token file could not be accessed right now; this is retried automatically.") from None
+        if not present:
+            raise DriveAuthPermanentError("No stored Google authorization was found. " + REAUTHORIZE_HINT)
+        problem, transient = _permission_check(self.path, "an OAuth token file", timeout)
+        if problem:
+            if transient:
+                raise DriveAuthTransientError("The permissions of the OAuth token file could not be read right now; this is retried automatically.")
+            raise DriveAuthPermanentError("The OAuth token file is accessible to other accounts or other users; restrict it to the current user. " + REAUTHORIZE_HINT)
+        try:
+            raw = self.path.read_text(encoding="utf-8")
+        except FileNotFoundError:  # removed between the checks and the read
+            raise DriveAuthPermanentError("No stored Google authorization was found. " + REAUTHORIZE_HINT) from None
+        except UnicodeDecodeError:  # the bytes were READ and are not valid UTF-8: the content is wrong, and waiting will not change that (a ValueError, not an OSError)
+            raise DriveAuthPermanentError("The OAuth token file is not valid. " + REAUTHORIZE_HINT) from None
+        except OSError:  # PermissionError, a sharing violation, an I/O error: the content is unknown, not wrong
+            raise DriveAuthTransientError("The OAuth token file could not be read right now; this is retried automatically.") from None
+        try:
+            data = json.loads(raw)
             if not isinstance(data, dict) or data.get("version") != TOKEN_FILE_VERSION or data.get("type") != "authorized_user":
                 raise ValueError("unsupported")
             refresh, client_id, scope = data["refresh_token"], data["client_id"], data["scope"]
             if not all(isinstance(v, str) and v for v in (refresh, client_id, scope)):
                 raise ValueError("malformed")
             return StoredToken(refresh_token=refresh, client_id=client_id, scope=scope, created_at=str(data.get("created_at", "")))
-        except (OSError, ValueError, KeyError):
-            raise DriveAuthError("The OAuth token file is not valid. " + REAUTHORIZE_HINT) from None
+        except (ValueError, KeyError, RecursionError):  # RecursionError: absurdly deep nesting in the JSON is not a token file either
+            raise DriveAuthPermanentError("The OAuth token file is not valid. " + REAUTHORIZE_HINT) from None
 
     def save_new(self, token: StoredToken) -> None:
         self._write(token, replace=False)
@@ -216,9 +244,9 @@ class OAuthTokenStore:
     def _write(self, token: StoredToken, *, replace: bool) -> None:
         directory = self.path.parent
         if not directory.is_dir():
-            raise DriveAuthError(f"The folder for the OAuth token file does not exist: {directory}")
+            raise DriveAuthError("The folder for the OAuth token file does not exist.")
         if not replace and self.path.exists():
-            raise DriveAuthError(f"An OAuth token file already exists at {self.path}; it is never overwritten. Move it aside to authorize again.")
+            raise DriveAuthError("An OAuth token file already exists; it is never overwritten. Move it aside to authorize again.")
         temp = directory / f".{self.path.name}.{secrets.token_hex(6)}.tmp"
         try:
             # Created empty and locked down BEFORE the secret is written, so it is never readable by another account, not even briefly.
@@ -234,7 +262,7 @@ class OAuthTokenStore:
             else:
                 os.link(temp, self.path)  # atomic and refuses to overwrite
         except FileExistsError:
-            raise DriveAuthError(f"An OAuth token file already exists at {self.path}; it is never overwritten.") from None
+            raise DriveAuthError("An OAuth token file already exists; it is never overwritten.") from None
         except OSError:
             raise DriveAuthError("The OAuth token file could not be written.") from None
         finally:
@@ -273,91 +301,114 @@ def _scope_covers(granted: set[str], wanted: str) -> bool:
 # ------------------------------------------------------------------------------------------------------------------ token endpoint
 
 
-def _token_request(client: OAuthClientConfig, http: httpx.Client, form: dict, *, what: str, attempts: int = 1, sleep=time.sleep) -> dict:
-    """POSTs to Google's token endpoint. Retries only network errors / 429 / 5xx (when `attempts` > 1); everything else is final."""
+def _token_request(client: OAuthClientConfig, http: httpx.Client, form: dict, *, what: str, attempts: int = 1, sleep=time.sleep, budget=None, settings: TokenSettings | None = None) -> dict:
+    """POSTs to Google's token endpoint. Retries only network errors / 429 / 5xx (when `attempts` > 1); everything else is final.
+
+    `budget` (a callable returning the seconds left of the caller's deadline) makes the WHOLE call - every request, every retry and every sleep - fit
+    that deadline: each request gets timeouts that add up to what is left, a retry pause that does not fit is not started (the call fails instead),
+    and nothing is attempted once the budget is spent. Without a budget (the interactive authorization exchange) a request has a flat 20 s timeout.
+    Network errors, timeouts, 429 and 5xx end as DriveAuthTransientError; every other refusal (invalid_grant, invalid_client, ...) as DriveAuthPermanentError."""
     data = {**form, "client_id": client.client_id, "client_secret": client.client_secret}
+
+    def pause(attempt: int) -> bool:
+        """Sleeps before the next attempt. False = there is no time for it (the caller then reports the failure it already has)."""
+        delay = 2.0 ** (attempt - 1)
+        if budget is not None and delay >= budget():
+            return False
+        sleep(delay)
+        return True
+
     for attempt in range(1, attempts + 1):
+        if budget is None:
+            timeout = 20.0
+        else:
+            remaining = budget()
+            if remaining <= 0:
+                raise DriveAuthTransientError("Google's token endpoint did not answer in time.")
+            timeout = (settings or TokenSettings()).post_timeout(remaining)
         try:
-            response = http.post(client.token_uri, data=data, timeout=20.0)
-        except httpx.HTTPError:
-            if attempt < attempts:
-                sleep(2.0 ** (attempt - 1))
+            response = http.post(client.token_uri, data=data, timeout=timeout)
+        except httpx.HTTPError:  # timeouts included; the exception text can carry request data, so none is kept
+            if attempt < attempts and pause(attempt):
                 continue
-            raise DriveAuthError("Could not reach the Google token endpoint.") from None
+            raise DriveAuthTransientError("Could not reach the Google token endpoint.") from None
         if response.status_code == 200:
             try:
                 body = response.json()
             except ValueError:
                 body = None
             if not isinstance(body, dict) or not isinstance(body.get("access_token"), str) or not body["access_token"]:
-                raise DriveAuthError(f"Google's {what} response was not understood.")
+                raise DriveAuthTransientError(f"Google's {what} response was not understood.")
             return body
         code = "unknown"
         try:
             code = _safe_code(response.json().get("error"))
         except (ValueError, AttributeError):
             pass
-        if (response.status_code == 429 or response.status_code >= 500) and attempt < attempts:
-            sleep(2.0 ** (attempt - 1))
-            continue
+        if response.status_code in TRANSIENT_TOKEN_STATUSES or response.status_code >= 500:  # 408/425/429 and every 5xx: not now, try again
+            if attempt < attempts and pause(attempt):
+                continue
+            raise DriveAuthTransientError(f"Google rejected the {what} ({code}).")
         if code == "invalid_grant":
-            raise DriveAuthError(f"Google rejected the {what} (invalid_grant): the authorization was revoked or has expired. {REAUTHORIZE_HINT}")
-        raise DriveAuthError(f"Google rejected the {what} ({code}).")
-    raise DriveAuthError(f"Google's {what} did not complete.")  # unreachable; keeps the type checker honest
+            raise DriveAuthPermanentError(f"Google rejected the {what} (invalid_grant): the authorization was revoked or has expired. {REAUTHORIZE_HINT}")
+        raise DriveAuthPermanentError(f"Google rejected the {what} ({code}).")
+    raise DriveAuthTransientError(f"Google's {what} did not complete.")  # unreachable; keeps the type checker honest
 
 
 # ------------------------------------------------------------------------------------------------------------------------ provider
 
 
-class UserOAuthTokenProvider:
-    """Drop-in alternative to auth.TokenProvider (same `get_token()` / `invalidate()`), signing in as a person through their stored refresh token."""
+class UserOAuthTokenProvider(SingleFlightToken):
+    """Drop-in alternative to auth.TokenProvider (same `get_token()` / `invalidate()`), signing in as a person through their stored refresh token.
+    Refreshes in a single flight within a hard deadline (see auth.py's module docstring)."""
 
-    def __init__(self, client: OAuthClientConfig, store: OAuthTokenStore, scope: str, http: httpx.Client, clock=time.time, sleep=time.sleep):
+    def __init__(
+        self,
+        client: OAuthClientConfig,
+        store: OAuthTokenStore,
+        scope: str,
+        http: httpx.Client,
+        clock=time.time,
+        sleep=time.sleep,
+        *,
+        settings: TokenSettings | None = None,
+        monotonic=time.monotonic,
+    ):
+        super().__init__(settings, clock, monotonic)
         self._client = client
         self._store = store
         self._scope = scope
         self._http = http
-        self._clock = clock
         self._sleep = sleep
-        self._lock = threading.Lock()
-        self._token: str | None = None
-        self._expires_at = 0.0
 
     def __repr__(self) -> str:
         return "UserOAuthTokenProvider(<hidden>)"
 
-    def _stored_token(self) -> StoredToken:
-        stored = self._store.load()  # checks the permissions first; re-read at every refresh, so a re-authorization is picked up
+    def _stored_token(self, timeout: float = 30.0) -> StoredToken:
+        stored = self._store.load(timeout)  # checks the permissions first; re-read at every refresh, so a re-authorization is picked up
         if stored.client_id != self._client.client_id:
-            raise DriveAuthError("The stored authorization belongs to a different OAuth client. " + REAUTHORIZE_HINT)
+            raise DriveAuthPermanentError("The stored authorization belongs to a different OAuth client. " + REAUTHORIZE_HINT)
         if not _scope_covers(set(stored.scope.split()), self._scope):
-            raise DriveAuthError("The stored authorization does not cover the configured Drive scope. " + REAUTHORIZE_HINT)
+            raise DriveAuthPermanentError("The stored authorization does not cover the configured Drive scope. " + REAUTHORIZE_HINT)
         return stored
 
-    def get_token(self) -> str:
-        with self._lock:
-            now = self._clock()
-            if self._token and now < self._expires_at - _REFRESH_MARGIN_SECONDS:
-                return self._token
-            stored = self._stored_token()
-            body = _token_request(
-                self._client, self._http, {"grant_type": "refresh_token", "refresh_token": stored.refresh_token}, what="token refresh", attempts=3, sleep=self._sleep
-            )
-            rotated = body.get("refresh_token")
-            if isinstance(rotated, str) and rotated and not hmac.compare_digest(rotated.encode("utf-8"), stored.refresh_token.encode("utf-8")):  # bytes: str input must be ASCII
-                self._store.replace(StoredToken(refresh_token=rotated, client_id=stored.client_id, scope=stored.scope, created_at=stored.created_at))
-            try:
-                expires_in = float(body.get("expires_in", 3600))
-            except (TypeError, ValueError):
-                expires_in = 3600.0
-            self._token = body["access_token"]
-            self._expires_at = now + expires_in
-            return self._token
-
-    def invalidate(self) -> None:
-        with self._lock:
-            self._token = None
-            self._expires_at = 0.0
+    def _refresh(self, budget) -> tuple[str, float]:
+        # The file checks (on Windows two helper processes) are inside the deadline too: each is limited to a small share of what is left.
+        stored = self._stored_token(max(0.5, min(5.0, 0.2 * budget())))
+        body = _token_request(
+            self._client, self._http, {"grant_type": "refresh_token", "refresh_token": stored.refresh_token},
+            what="token refresh", attempts=3, sleep=self._sleep, budget=budget, settings=self._settings,
+        )
+        rotated = body.get("refresh_token")
+        if isinstance(rotated, str) and rotated and not hmac.compare_digest(rotated.encode("utf-8"), stored.refresh_token.encode("utf-8")):  # bytes: str input must be ASCII
+            # Deliberately NOT bounded by the deadline: once Google has issued a new refresh token, losing it would lock the account out. Only this
+            # one (single-flight) thread ever gets here, and the other threads are limited by their own wait.
+            self._store.replace(StoredToken(refresh_token=rotated, client_id=stored.client_id, scope=stored.scope, created_at=stored.created_at))
+        try:
+            expires_in = float(body.get("expires_in", 3600))
+        except (TypeError, ValueError):
+            expires_in = 3600.0
+        return body["access_token"], expires_in
 
 
 # ------------------------------------------------------------------------------------------------------------ interactive authorization

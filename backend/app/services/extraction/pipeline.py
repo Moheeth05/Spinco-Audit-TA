@@ -14,6 +14,7 @@ from app.models.evidence import SourceEvidence
 from app.models.expense_report import Expense, ExpenseReport
 from app.models.logs import ProcessingLog
 from app.models.trip import Trip, TripReport
+from app.services import central_storage, fk_safety
 from app.services.document_ref import EXPENSE, TRIP
 from app.services.exception_engine import evaluate_report
 from app.services.excel_generator import generate_workbook
@@ -128,8 +129,9 @@ def _resolve_category(db: Session, raw_category: str | None, merchant: str | Non
     return raw_category
 
 
-def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
-    pdf_path = Path(row.source_path)
+def _extract_expense_report(db: Session, row: ExpenseReport, pdf_path: Path | None = None) -> None:
+    if pdf_path is None:
+        pdf_path = Path(row.source_path)
     pages = _text_extractor.content_pages(pdf_path)
     combined_text = "\n".join(p["text"] for p in pages)
     detected_type = classify_text(combined_text)
@@ -182,6 +184,7 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
     # verification_carryover.py for why a manual verification must follow its claim.
     verification_snapshot = verification_carryover.snapshot(db, row.id)
     candidate_cleanup.delete_candidates_for_expense_ids(db, old_expense_ids)
+    fk_safety.detach_expenses(db, old_expense_ids)  # no-op on SQLite; on PostgreSQL clears the bills' / validation results' / exceptions' pointers to these expenses first
     db.query(Expense).filter(Expense.expense_report_id == row.id).delete()
     new_expenses = [
         Expense(
@@ -219,7 +222,7 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
     content_last_page = expense_report_parser.find_report_summary_page(pages)
     if content_last_page is None:
         content_last_page = pages[-1]["page_number"] if pages else 0
-    warnings.extend(bill_pipeline.extract_and_match_bills(db, row, _text_extractor, content_last_page))
+    warnings.extend(bill_pipeline.extract_and_match_bills(db, row, _text_extractor, content_last_page, pdf_path=pdf_path))
 
     existing_embedded = (
         db.query(TripReport)
@@ -267,6 +270,7 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
         # id is about to stop existing, so any TripMatchCandidate row
         # referencing it (trip_report_id) would otherwise be orphaned.
         candidate_cleanup.delete_trip_match_candidates_for_trip_report_ids(db, [existing_embedded.id])
+        fk_safety.detach_trip_report(db, existing_embedded.id)  # no-op on SQLite
         db.delete(existing_embedded)
         db.commit()
 
@@ -320,8 +324,9 @@ def _extract_expense_report(db: Session, row: ExpenseReport) -> None:
         pass
 
 
-def _extract_trip_report(db: Session, row: TripReport) -> None:
-    pdf_path = Path(row.source_path)
+def _extract_trip_report(db: Session, row: TripReport, pdf_path: Path | None = None) -> None:
+    if pdf_path is None:
+        pdf_path = Path(row.source_path)
     pages = _text_extractor.content_pages(pdf_path)
     details = trip_report_parser.extract_trip_details(pages)
 
@@ -410,7 +415,13 @@ def _extract_trip_report(db: Session, row: TripReport) -> None:
         pass
 
 
-def run_extraction(db: Session, kind: str, pk: int) -> None:
+EXTRACTION_OK, EXTRACTION_RETRYABLE, EXTRACTION_FAILED = "OK", "RETRYABLE", "FAILED"
+
+
+def run_extraction(db: Session, kind: str, pk: int) -> str:
+    """Runs the OCR / extraction / audit pipeline on one stored document and returns EXTRACTION_OK, EXTRACTION_RETRYABLE (the PDF could not be obtained from central
+    storage RIGHT NOW - an outage, a sign-in problem; the row goes back to NOT_PROCESSED and the original is untouched) or EXTRACTION_FAILED (permanent). Existing callers ignore
+    the result; the durable job worker uses it to decide between "done", "try again later" and "failed"."""
     model = ExpenseReport if kind == EXPENSE else TripReport
     row = db.get(model, pk)
     if row is None:
@@ -429,13 +440,14 @@ def run_extraction(db: Session, kind: str, pk: int) -> None:
     )
 
     try:
-        if not row.source_path or not Path(row.source_path).exists():
-            raise FileNotFoundError("Stored PDF file could not be found.")
+        # The PDF comes through the central storage layer: the recorded local file when central storage is off (exactly as before), otherwise a
+        # checksum-verified working copy that is rebuilt from the central Drive record when this machine does not hold it.
+        pdf_path = central_storage.local_file_for(db, kind, row)
 
         if kind == EXPENSE:
-            _extract_expense_report(db, row)
+            _extract_expense_report(db, row, pdf_path)
         else:
-            _extract_trip_report(db, row)
+            _extract_trip_report(db, row, pdf_path)
 
         _log(
             db,
@@ -445,6 +457,25 @@ def run_extraction(db: Session, kind: str, pk: int) -> None:
             status="PROCESSED",
             message=f"Extraction completed: status={row.extraction_status}, confidence={row.extraction_confidence}.",
         )
+        return EXTRACTION_OK
+    except central_storage.CentralUnavailable as exc:
+        retryable = exc.retryable
+        row.extraction_status = "NOT_PROCESSED" if retryable else "FAILED"  # the job (processing_jobs) carries the "waiting to retry" state
+        row.extraction_confidence = None
+        row.extraction_notes = (
+            "Waiting for central storage; extraction will be retried automatically." if retryable
+            else "Extraction could not start: the central copy of the PDF is not available. The original is unchanged."
+        )
+        db.commit()
+        _log(
+            db,
+            expense_report_id=row.id if kind == EXPENSE else None,
+            trip_report_id=row.id if kind == TRIP else None,
+            filename=filename,
+            status="DEFERRED" if retryable else "FAILED",
+            message=f"Central storage: {exc.detail}",
+        )
+        return EXTRACTION_RETRYABLE if retryable else EXTRACTION_FAILED
     except Exception as exc:  # noqa: BLE001 - deliberately broad: one bad document must never break the batch
         row.extraction_status = "FAILED"
         row.extraction_confidence = None
@@ -458,3 +489,4 @@ def run_extraction(db: Session, kind: str, pk: int) -> None:
             status="FAILED",
             message=f"{type(exc).__name__}: {exc}",
         )
+        return EXTRACTION_FAILED

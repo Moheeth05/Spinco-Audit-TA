@@ -9,6 +9,7 @@ from app.models.user import User
 from app.schemas.auth import ChangePasswordRequest, LoginRequest, LoginResponse
 from app.schemas.user import UserOut
 from app.services import audit
+from app.services.hardening import login_throttle
 from app.services.auth import (
     SESSION_COOKIE_NAME,
     create_session,
@@ -41,6 +42,16 @@ def _set_session_cookie(response: Response, raw_token: str) -> None:
     )
 
 
+def _count_failure(db: Session, email: str, client_ip: str, user: User | None) -> None:
+    """Counts a failed sign-in; the moment it triggers a lock-out one audit row says so (later refused attempts are not logged one by one, so a flood cannot fill the audit log)."""
+    login_throttle.record_failure(email, client_ip)
+    if login_throttle.retry_after(email, client_ip) is not None:
+        audit.log_action(
+            db, user_id=user.id if user else None, action=audit.AUTH_LOGIN_FAILURE, entity_type="User", entity_id=str(user.id) if user else None,
+            details="Sign-in locked for a while after repeated failed attempts",
+        )
+
+
 @router.post("/login", response_model=LoginResponse)
 def login(payload: LoginRequest, request: Request, response: Response, db: Session = Depends(get_db)):
     # Deliberately generic failure message/behavior throughout this function -
@@ -49,9 +60,21 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
     generic_error = HTTPException(status_code=401, detail="Invalid email or password.")
 
     email = (payload.email or "").strip().lower()
+    client_ip = request.client.host if request.client else "unknown"
+
+    # Throttle BEFORE any password is checked: a locked account/address cannot be used to guess (correct passwords are refused too until the lock-out ends).
+    wait = login_throttle.retry_after(email, client_ip)
+    if wait is not None:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Too many failed sign-in attempts. Try again in {max(1, (wait + 59) // 60)} minute(s).",
+            headers={"Retry-After": str(wait)},
+        )
+
     user = db.query(User).filter(User.email == email).first()
 
     if user is None or not user.password_hash or not verify_password(payload.password, user.password_hash):
+        _count_failure(db, email, client_ip, user)
         audit.log_action(
             db, user_id=user.id if user else None, action=audit.AUTH_LOGIN_FAILURE, entity_type="User",
             entity_id=str(user.id) if user else None, details=f"Failed login attempt for {email!r}",
@@ -63,6 +86,7 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
         raise generic_error
 
     if not user.is_active:
+        _count_failure(db, email, client_ip, user)
         audit.log_action(
             db, user_id=user.id, action=audit.AUTH_LOGIN_FAILURE, entity_type="User", entity_id=str(user.id),
             details="Login attempt on a deactivated account",
@@ -70,6 +94,7 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
         db.commit()
         raise generic_error
 
+    login_throttle.record_success(email, client_ip)
     raw_token, csrf_token, _session = create_session(db, user)
     user.last_login_at = datetime.now(timezone.utc)
     audit.log_action(db, user_id=user.id, action=audit.AUTH_LOGIN_SUCCESS, entity_type="User", entity_id=str(user.id))

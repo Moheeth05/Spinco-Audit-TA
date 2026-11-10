@@ -251,7 +251,9 @@ def test_phase1_policy_api_regression(client):
 
 
 def test_phase1_health_regression(client):
-    assert client.get("/api/health").json() == {"status": "ok"}
+    body = client.get("/api/health").json()
+    assert body["status"] == "ok"  # the field the desktop shell waits for (unchanged)
+    assert set(body) == {"status", "environment", "central_storage"}  # the release candidate adds what KIND of backend answered (no secret, no path)
 
 
 def test_phase1_users_regression(client):

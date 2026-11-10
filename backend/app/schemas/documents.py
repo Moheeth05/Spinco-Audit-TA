@@ -33,3 +33,10 @@ class DocumentDetail(BaseModel):
     verified_expense_count: int | None = None
     exception_count: int | None = None
     review_required_count: int | None = None
+    # --- central storage phase (all additive) ---
+    uploaded_at_ist: str | None = None
+    uploaded_by_id: int | None = None
+    uploaded_by_name: str | None = None
+    storage_state: str | None = None  # NOT_CENTRAL | PENDING | STORED | FAILED | ARCHIVED | MISSING_EXTERNAL
+    processing_state: str | None = None  # NONE | QUEUED | RUNNING | DONE | DEFERRED | FAILED
+    duplicate_count: int = 0

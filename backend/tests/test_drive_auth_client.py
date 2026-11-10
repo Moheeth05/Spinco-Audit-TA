@@ -263,7 +263,7 @@ def test_an_unexpected_upload_session_address_is_refused_and_no_token_is_sent_th
         return httpx.Response(200, json={"id": "x"})
 
     http = httpx.Client(transport=httpx.MockTransport(handler))
-    client = DriveClient(stack.config, TokenProvider(ServiceAccountCredentials.from_file(stack.credentials_path), stack.config.scope, http), http, sleep=lambda s: None)
+    client = DriveClient(stack.config, TokenProvider(ServiceAccountCredentials.from_file(stack.credentials_path), stack.config.scope, http), http, sleep=lambda s: None, unguarded=True)
     with pytest.raises(DriveError, match="unexpected upload session"):
         client.upload_file(file_id="fakeid000000000001", name="a.pdf", parent_id=stack.config.root_folder_id, content=b"x")
     assert not [c for c in calls if c.url.host == "evil.example"]  # nothing was ever sent to the foreign host

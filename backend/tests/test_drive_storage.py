@@ -54,7 +54,7 @@ def test_the_folder_structure_is_created_once_under_the_root_and_never_duplicate
     assert structure == again
     root = stack.config.root_folder_id
     top_level = sorted(f["name"] for f in stack.fake.files.values() if root in f["parents"])
-    assert top_level == ["Archive", "Excel Exports", "Expense Reports", "Trip Reports", "_quarantine"]
+    assert top_level == ["Archive", "Duplicates", "Excel Exports", "Expense Reports", "Trip Reports", "_quarantine"]
     assert len([f for f in stack.fake.files.values() if f["name"] == "Archive"]) == 1
     assert len([f for f in stack.fake.files.values() if f["name"] == "Expense Reports" and root in f["parents"]]) == 1
     archive = folder_named(stack, "Archive")
@@ -94,7 +94,7 @@ def test_save_stores_a_verified_file_in_the_active_folder_with_integrity_metadat
     content = pdf_bytes("one")
     location = stack.storage.save(KIND, sha(content), "ER-86005 report.pdf", content)
     assert location.startswith("gdrive:")
-    obj = stack.storage.info(location)
+    obj = stack.storage.inspect_unchecked(location)
     assert obj.parents == (stack.folders.active(KIND),)
     assert obj.name == f"{sha(content)[:12]}_ER-86005 report.pdf"
     assert obj.size == len(content) and obj.md5 == hashlib.md5(content).hexdigest()
@@ -174,9 +174,10 @@ def test_streaming_supports_ranges(tmp_path):
     stack = make_stack(tmp_path)
     content = b"%PDF-" + bytes(range(256)) * 4
     location = stack.storage.save(KIND, sha(content), "a.pdf", content)
-    with stack.storage.open_stream(location, range_header="bytes=0-9") as download:
+    checksum = hashlib.md5(content).hexdigest()  # 3A.2-E.1: a document is served only against its RECORDED checksum; ranges are cut from the verified copy
+    with stack.storage.open_stream(location, expected_md5=checksum, expected_size=len(content), range_header="bytes=0-9") as download:
         assert download.status == 206 and b"".join(download.iter_bytes()) == content[:10]
-    with stack.storage.open_stream(location) as download:
+    with stack.storage.open_stream(location, expected_md5=checksum, expected_size=len(content)) as download:
         assert download.status == 200 and b"".join(download.iter_bytes()) == content
 
 

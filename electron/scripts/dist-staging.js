@@ -108,6 +108,10 @@ function buildBuilderConfig(pkgBuild, L, repoRoot = REPO_ROOT) {
     if (!from) throw new Error(`package.json build.extraResources has an entry this script does not know how to redirect: ${entry.from}`);
     return { ...entry, from };
   });
+  // LAN-demo build only (SPINCO_DEMO_BUILD=1): bundle the file that makes an installation with no settings of its own look for a demo host. The company build never has it.
+  if (process.env.SPINCO_DEMO_BUILD === "1") {
+    cfg.extraResources.push({ from: path.join(repoRoot, "electron", "demo", "demo-defaults.json"), to: "demo-defaults.json" });
+  }
   return cfg;
 }
 

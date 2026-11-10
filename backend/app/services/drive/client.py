@@ -4,6 +4,7 @@ Every call passes supportsAllDrives=true so the same code works in My Drive fold
 supplied folder is must be established by the live spike, not assumed). Nothing here logs a request body, a token or a credential.
 """
 
+import os
 import random
 import re
 import threading
@@ -16,40 +17,31 @@ import httpx
 
 from app.services.drive.auth import DriveAuthError, TokenProvider
 from app.services.drive.config import DriveConfig
+from app.services.drive.errors import (
+    DriveChangeTokenExpired,
+    DriveConflict,
+    DriveError,
+    DriveIdentityMismatch,
+    DriveIncompleteListing,
+    DriveIntegrityError,
+    DriveNotFound,
+    DrivePermissionError,
+    DriveQuotaError,
+    DriveTransientError,
+    UnguardedClientRefused,
+)
+from app.services.drive.guard import MAX_HIERARCHY_DEPTH, DriveTargetGuard
 
 FOLDER_MIME = "application/vnd.google-apps.folder"
 FILE_FIELDS = (
     "id,name,mimeType,size,md5Checksum,parents,trashed,explicitlyTrashed,modifiedTime,createdTime,appProperties,driveId,ownedByMe,"
     "capabilities(canEdit,canTrash,canAddChildren,canMoveItemWithinDrive,canDownload)"
 )
+_UNGUARDED_ENVIRONMENTS = frozenset({"dev", "staging"})  # the ONLY environments in which a harness/fake may opt out of the destination guard
+_READ_METHODS = frozenset({"GET", "HEAD"})  # every OTHER method is a write and is refused unless the destination guard has verified the destination
 _RETRYABLE_STATUS = {408, 429, 500, 502, 503, 504}
 _RETRYABLE_403_REASONS = {"rateLimitExceeded", "userRateLimitExceeded", "sharingRateLimitExceeded", "backendError", "internalError"}
 _QUOTA_REASONS = {"storageQuotaExceeded", "dailyLimitExceeded", "quotaExceeded"}
-
-
-class DriveError(Exception):
-    # What Google itself said, when the failure was an HTTP answer. Always passed through safe_text(), so it carries no token, e-mail address or key.
-    detail = ""  # Google's error message
-    google_status = ""  # e.g. PERMISSION_DENIED
-    detail_reason = ""  # the machine reason inside `details`, e.g. SERVICE_DISABLED
-
-    def __init__(self, message: str, *, status: int | None = None, reason: str = "", retryable: bool = False):
-        super().__init__(message)
-        self.status = status
-        self.reason = reason
-        self.retryable = retryable
-
-
-class DriveNotFound(DriveError): ...
-class DrivePermissionError(DriveError): ...
-class DriveQuotaError(DriveError): ...
-class DriveConflict(DriveError): ...
-class DriveTransientError(DriveError): ...
-class DriveChangeTokenExpired(DriveError): ...
-
-
-class DriveIntegrityError(DriveError):
-    """Bytes in Drive do not match what was sent (checksum or size). Never retried blindly."""
 
 
 @dataclass(frozen=True)
@@ -186,7 +178,12 @@ class DriveDownload:
         self.headers = dict(response.headers)
 
     def iter_bytes(self, chunk_size: int = 256 * 1024):
-        yield from self._response.iter_bytes(chunk_size)
+        """The body, chunk by chunk. A network failure while reading it is a typed, retryable DriveTransientError (never a raw httpx error, whose text
+        can carry request details)."""
+        try:
+            yield from self._response.iter_bytes(chunk_size)
+        except httpx.HTTPError:
+            raise DriveTransientError("The download was interrupted.", retryable=True) from None
 
     def close(self) -> None:
         self._response.close()
@@ -199,39 +196,147 @@ class DriveDownload:
 
 
 class DriveClient:
-    def __init__(self, config: DriveConfig, tokens: TokenProvider, http: httpx.Client, *, sleep=time.sleep, monotonic=time.monotonic, rng=random.random):
+    """A Drive client always has a destination guard, and it OWNS it: the guard is built here from `config.expected_drive_id` and
+    `config.root_folder_id`, so the client and the guard can never disagree about the destination, and there is no way to swap or clear it.
+
+    The only way to get a client WITHOUT a guard is `unguarded=True` (and a config without an expected drive). That exists for the live-test
+    harnesses and the fakes, which have their own checks; it is refused whenever the environment is production, and it is never used by
+    application code (a test scans for it)."""
+
+    def __init__(
+        self,
+        config: DriveConfig,
+        tokens: TokenProvider,
+        http: httpx.Client,
+        *,
+        sleep=time.sleep,
+        monotonic=time.monotonic,
+        rng=random.random,
+        unguarded: bool = False,
+        guard_clock=time.monotonic,
+        guard_max_depth: int = MAX_HIERARCHY_DEPTH,
+    ):
         self._config = config
         self._tokens = tokens
         self._http = http
         self._sleep = sleep
+        self._monotonic = monotonic
         self._rng = rng
         self._limiter = _RateLimiter(config.rate_limit_per_second, monotonic, sleep)
+        # Captured ONCE: later changes to `_config` (a test, a careless caller) cannot move the drive that listings and the change feed are scoped to.
+        self._expected_drive_id = config.expected_drive_id
+        self._write_guard: DriveTargetGuard | None = None
+        if config.expected_drive_id is None:
+            if not unguarded:
+                raise UnguardedClientRefused(
+                    "A Drive client needs the expected Shared Drive in its configuration (expected_drive_id). Only a test harness or a fake may pass unguarded=True."
+                )
+            # The opt-out exists only where the environment is EXPLICITLY dev or staging. Unset, production, prod, live or any unknown value is refused:
+            # "not production" is never inferred from the absence of a setting.
+            if os.environ.get("SPINCO_ENVIRONMENT", "").strip().lower() not in _UNGUARDED_ENVIRONMENTS or config.environment not in _UNGUARDED_ENVIRONMENTS:
+                raise UnguardedClientRefused("An unguarded Drive client is allowed only when SPINCO_ENVIRONMENT is explicitly 'dev' or 'staging'.")
+        else:
+            if unguarded:
+                raise UnguardedClientRefused("unguarded=True contradicts a configured expected Shared Drive.")
+            self._write_guard = DriveTargetGuard(
+                self,
+                config.root_folder_id,
+                config.expected_drive_id,
+                ttl_seconds=config.guard_ttl_seconds,
+                failure_window_seconds=config.guard_failure_window_seconds,
+                verify_attempts=config.guard_verify_attempts,
+                verify_deadline_seconds=config.guard_verify_deadline_seconds,
+                verify_max_backoff_seconds=config.guard_verify_max_backoff_seconds,
+                waiter_seconds=config.guard_waiter_seconds,
+                clock=guard_clock,
+                max_depth=guard_max_depth,
+            )
 
     def __repr__(self) -> str:
         return "DriveClient(<hidden>)"
 
+    @property
+    def write_guard(self) -> "DriveTargetGuard | None":
+        """Read-only: there is deliberately no setter."""
+        return self._write_guard
+
+    @property
+    def guarded_root(self) -> str | None:
+        """The root folder this client's GUARD verifies (None only for an explicitly unguarded harness client). It comes from the guard itself, never
+        from the mutable configuration, so the folder structure can only ever be bound to the destination that is actually verified."""
+        return self._write_guard.root_folder_id if self._write_guard is not None else None
+
+    def confirm_adoptable(self, found: "DriveObject") -> "DriveObject":
+        """Before an EXISTING object is adopted as ours: it must belong to the expected Shared Drive and be live. Returns the object, or raises
+        DriveTargetError (not retryable). A client without a guard (a harness) adopts as before."""
+        if self._write_guard is not None:
+            self._write_guard.assert_adoptable(found)
+        return found
+
+    @property
+    def expected_drive_id(self) -> str | None:
+        """The Shared Drive this client was built for (captured at construction; None only for an explicitly unguarded harness client)."""
+        return self._expected_drive_id
+
+    def _guard_objects(self, *file_ids: str | None, allow_trashed: bool = False) -> None:
+        """Before a write: each object it touches or writes into must itself be a live object of the expected Shared Drive."""
+        if self._write_guard is not None:
+            for file_id in file_ids:
+                if file_id:
+                    self._write_guard.assert_object_in_drive(file_id, allow_trashed=allow_trashed)
+
+    def _confirmed(self, written: "DriveObject") -> "DriveObject":
+        """After a write: Drive's own answer must report the expected drive (otherwise further writes are refused)."""
+        if self._write_guard is not None:
+            self._write_guard.confirm(written)
+        return written
+
     # ------------------------------------------------------------------ transport
 
-    def _backoff(self, attempt: int, retry_after: str | None) -> float:
+    def _backoff(self, attempt: int, retry_after: str | None, max_backoff: float | None = None) -> float:
+        """Seconds to wait before the next attempt. Google's Retry-After is honoured up to 120 s for ordinary calls; a call that passes `max_backoff`
+        (the destination verification reads) never waits longer than that, whatever Google asks for."""
+        delay: float | None = None
         if retry_after:
             try:
-                return min(120.0, max(0.0, float(retry_after)))
+                delay = min(120.0, max(0.0, float(retry_after)))
             except ValueError:
-                pass
-        return min(60.0, 2.0 ** (attempt - 1)) * (0.5 + 0.5 * self._rng())
+                delay = None
+        if delay is None:
+            delay = min(60.0, 2.0 ** (attempt - 1)) * (0.5 + 0.5 * self._rng())
+        return delay if max_backoff is None else min(delay, max_backoff)
 
-    def _request(self, method: str, url: str, *, params=None, json_body=None, content=None, headers=None, transfer=False, stream=False, ok=(200,), send_token_to=None):
-        timeout = httpx.Timeout(
-            connect=self._config.connect_timeout,
-            read=self._config.transfer_timeout if transfer else self._config.read_timeout,
-            write=self._config.transfer_timeout if transfer else self._config.read_timeout,
-            pool=self._config.connect_timeout,
-        )
+    def _request(self, method: str, url: str, *, params=None, json_body=None, content=None, headers=None, transfer=False, stream=False, ok=(200,), send_token_to=None,
+                 max_attempts: int | None = None, max_backoff: float | None = None, budget: float | None = None):
+        """`max_attempts`, `max_backoff` and `budget` bound one call for the destination verification reads: fewer attempts, a cap on each pause and an
+        overall wall-clock budget (seconds) for the call as a whole. When the budget cannot cover the next pause the last error is raised at once."""
+        attempts = max_attempts or self._config.max_attempts
+        started = self._monotonic()
+
+        def remaining() -> float | None:
+            return None if budget is None else budget - (self._monotonic() - started)
+
         refreshed = False
         last_error: DriveError | None = None
-        for attempt in range(1, self._config.max_attempts + 1):
+        is_write = method.upper() not in _READ_METHODS
+        for attempt in range(1, attempts + 1):
+            if is_write and self._write_guard is not None:
+                self._write_guard.assert_ready()  # the ONE choke point: every create, upload, rename, move, trash, archive and restore passes here
+            left = remaining()
+            if left is not None and left <= 0:
+                raise last_error or DriveTransientError("Drive verification ran out of time.", retryable=True)
+            # A bounded call never lets ONE socket wait outlast what is left of its budget.
+            read = self._config.transfer_timeout if transfer else self._config.read_timeout
+            timeout = httpx.Timeout(
+                connect=self._config.connect_timeout if left is None else min(self._config.connect_timeout, left),
+                read=read if left is None else min(read, left),
+                write=read if left is None else min(read, left),
+                pool=self._config.connect_timeout if left is None else min(self._config.connect_timeout, left),
+            )
             self._limiter.wait()
-            token = self._tokens.get_token()  # DriveAuthError is not retryable and propagates
+            # DriveAuthError propagates (a refresh in progress or a failed one is a DriveAuthTransientError). A bounded call (a verification read) lets
+            # the token wait share ITS budget, so that the deadline covers token acquisition too.
+            token = self._tokens.get_token() if left is None else self._tokens.get_token(max_wait=left)
             request_headers = dict(headers or {})
             if send_token_to is None or urlparse(url).hostname == send_token_to:
                 request_headers["Authorization"] = f"Bearer {token}"
@@ -240,9 +345,11 @@ class DriveClient:
                 response = self._http.send(request, stream=stream)
             except httpx.TransportError as exc:
                 last_error = DriveTransientError(f"Network error talking to Drive ({type(exc).__name__}).", retryable=True)
-                if attempt >= self._config.max_attempts:
+                pause = self._backoff(attempt, None, max_backoff)
+                left = remaining()
+                if attempt >= attempts or (left is not None and pause >= left):
                     raise last_error from None
-                self._sleep(self._backoff(attempt, None))
+                self._sleep(pause)
                 continue
             if response.status_code in ok:
                 return response
@@ -255,13 +362,19 @@ class DriveClient:
             response.close()
             if status == 401 and not refreshed:
                 refreshed = True
-                self._tokens.invalidate()
+                self._tokens.invalidate(token)  # compare-and-drop: if another thread already replaced this rejected token, do not force yet another refresh
                 continue
             error = _classify(status, reason, message)
             error.detail, error.google_status, error.detail_reason = info["message"], info["google_status"], info["detail_reason"]
-            if error.retryable and attempt < self._config.max_attempts:
+            if is_write and self._write_guard is not None and isinstance(error, (DriveNotFound, DrivePermissionError)):
+                self._write_guard.invalidate()  # the destination may have moved or access changed: do not trust the cached verification
+            if error.retryable and attempt < attempts:
                 last_error = error
-                self._sleep(self._backoff(attempt, retry_after))
+                pause = self._backoff(attempt, retry_after, max_backoff)
+                left = remaining()
+                if left is not None and pause >= left:
+                    raise error  # the budget cannot cover another pause: fail now instead of waiting past the deadline
+                self._sleep(pause)
                 continue
             raise error
         raise last_error or DriveError("Drive request failed.")
@@ -273,23 +386,38 @@ class DriveClient:
         return list(response.json()["ids"])
 
     def get_file(self, file_id: str, fields: str = FILE_FIELDS) -> DriveObject:
+        """The file's metadata. The answer must describe the file that was ASKED for: an answer whose id differs is refused (DriveIdentityMismatch)
+        before any field of it can be used."""
         response = self._request("GET", f"{self._config.api_base}/files/{file_id}", params={"fields": fields, "supportsAllDrives": "true"})
-        return DriveObject.from_api(response.json())
+        described = DriveObject.from_api(response.json())
+        if described.id != file_id:
+            raise DriveIdentityMismatch()
+        return described
 
     def list_files(self, query: str, *, fields: str = FILE_FIELDS, page_size: int = 100):
+        """Lists files. A guarded client searches ONLY the configured expected Shared Drive (`corpora=drive` + `driveId`): the destination is that
+        drive, so there is nothing to gain from searching every drive the account can see, and `corpora=allDrives` is documented to be able to
+        return an incomplete result. A harness client (no expected drive) keeps the broad search. Either way an `incompleteSearch` answer is
+        NEVER used: it raises DriveIncompleteListing before any item of that page is returned (fail closed)."""
         token = None
         while True:
             params = {
                 "q": query,
-                "fields": f"nextPageToken,files({fields})",
+                "fields": f"nextPageToken,incompleteSearch,files({fields})",
                 "pageSize": page_size,
                 "supportsAllDrives": "true",
                 "includeItemsFromAllDrives": "true",
-                "corpora": "allDrives",
             }
+            if self._expected_drive_id is not None:
+                params["corpora"] = "drive"
+                params["driveId"] = self._expected_drive_id
+            else:
+                params["corpora"] = "allDrives"
             if token:
                 params["pageToken"] = token
             body = self._request("GET", f"{self._config.api_base}/files", params=params).json()
+            if body.get("incompleteSearch"):
+                raise DriveIncompleteListing()
             for item in body.get("files", []):
                 yield DriveObject.from_api(item)
             token = body.get("nextPageToken")
@@ -314,8 +442,9 @@ class DriveClient:
             body["id"] = file_id
         if app_properties:
             body["appProperties"] = app_properties
+        self._guard_objects(parent_id)
         response = self._request("POST", f"{self._config.api_base}/files", params={"supportsAllDrives": "true", "fields": FILE_FIELDS}, json_body=body)
-        return DriveObject.from_api(response.json())
+        return self._confirmed(DriveObject.from_api(response.json()))
 
     def upload_file(self, *, file_id: str, name: str, parent_id: str, content: bytes, mime_type: str = "application/pdf", app_properties: dict | None = None) -> DriveObject:
         """Resumable upload with a caller-chosen (pre-generated) id. A second attempt with the same id answers 409 (DriveConflict),
@@ -323,6 +452,7 @@ class DriveClient:
         metadata = {"id": file_id, "name": name, "parents": [parent_id], "mimeType": mime_type}
         if app_properties:
             metadata["appProperties"] = app_properties
+        self._guard_objects(parent_id)
         init = self._request(
             "POST",
             f"{self._config.upload_base}/files",
@@ -337,7 +467,7 @@ class DriveClient:
         response = self._request(
             "PUT", session_url, content=content, headers={"Content-Type": mime_type}, transfer=True, ok=(200, 201), send_token_to=host
         )
-        return DriveObject.from_api(response.json())
+        return self._confirmed(DriveObject.from_api(response.json()))
 
     @contextmanager
     def open_download(self, file_id: str, *, range_header: str | None = None):
@@ -368,14 +498,21 @@ class DriveClient:
             params["addParents"] = add_parents
         if remove_parents:
             params["removeParents"] = remove_parents
+        # The object being changed may be in the trash only when this very update RESTORES it (trashed=False); every folder it is moved INTO must be live.
+        self._guard_objects(file_id, allow_trashed=trashed is False)
+        self._guard_objects(*[p for p in (add_parents or "").split(",") if p])
         response = self._request("PATCH", f"{self._config.api_base}/files/{file_id}", params=params, json_body=body)
-        return DriveObject.from_api(response.json())
+        return self._confirmed(DriveObject.from_api(response.json()))
 
     # ------------------------------------------------------------------ read-only diagnostics (used by the live spike)
 
-    def get_raw(self, file_id: str, fields: str) -> dict:
-        """Raw metadata for the given fields (e.g. capabilities, owners, driveId). Read-only."""
-        return self._request("GET", f"{self._config.api_base}/files/{file_id}", params={"fields": fields, "supportsAllDrives": "true"}).json()
+    def get_raw(self, file_id: str, fields: str, *, attempts: int | None = None, max_backoff: float | None = None, budget: float | None = None) -> dict:
+        """Raw metadata for the given fields (e.g. capabilities, owners, driveId). Read-only. `attempts`, `max_backoff` (cap on each pause, Retry-After
+        included) and `budget` (overall seconds) bound this one read; the destination guard uses them so that an outage cannot hold a caller for long."""
+        return self._request(
+            "GET", f"{self._config.api_base}/files/{file_id}", params={"fields": fields, "supportsAllDrives": "true"},
+            max_attempts=attempts, max_backoff=max_backoff, budget=budget,
+        ).json()
 
     def list_permissions(self, file_id: str) -> list[dict]:
         """Who can access the file: only the permission type and role are requested, never e-mail addresses. Read-only; the caller
@@ -395,10 +532,20 @@ class DriveClient:
 
     # ------------------------------------------------------------------ change tracking
 
+    def _change_scope(self, drive_id: str | None) -> str | None:
+        """The Shared Drive a change request is scoped to. A guarded client is scoped to its expected drive ONLY: a start token or change list for
+        any other scope (the user's whole account, another drive) would describe different objects, so asking for one is refused."""
+        if self._expected_drive_id is None:
+            return drive_id
+        if drive_id is not None and drive_id != self._expected_drive_id:
+            raise ValueError("A guarded Drive client reads changes only for its expected Shared Drive.")
+        return self._expected_drive_id
+
     def get_start_page_token(self, drive_id: str | None = None) -> str:
         params = {"supportsAllDrives": "true"}
-        if drive_id:
-            params["driveId"] = drive_id
+        scope = self._change_scope(drive_id)
+        if scope:
+            params["driveId"] = scope
         return self._request("GET", f"{self._config.api_base}/changes/startPageToken", params=params).json()["startPageToken"]
 
     def list_changes(self, page_token: str, *, drive_id: str | None = None, page_size: int = 100) -> dict:
@@ -410,8 +557,9 @@ class DriveClient:
             "includeRemoved": "true",
             "fields": f"nextPageToken,newStartPageToken,changes(fileId,removed,time,file({FILE_FIELDS}))",
         }
-        if drive_id:
-            params["driveId"] = drive_id
+        scope = self._change_scope(drive_id)
+        if scope:
+            params["driveId"] = scope
         try:
             return self._request("GET", f"{self._config.api_base}/changes", params=params).json()
         except DriveError as exc:
@@ -420,19 +568,24 @@ class DriveClient:
             raise
 
 
-__all__ = [
+__all__ = [  # the error types live in errors.py and are re-exported here: existing `from ...client import DriveError` imports keep working
     "DriveAuthError",
     "DriveChangeTokenExpired",
     "DriveClient",
     "DriveConflict",
     "DriveDownload",
     "DriveError",
+    "DriveIdentityMismatch",
+    "DriveIncompleteListing",
     "DriveIntegrityError",
     "DriveNotFound",
     "DriveObject",
     "DrivePermissionError",
     "DriveQuotaError",
     "DriveTransientError",
+    "FILE_FIELDS",
     "FOLDER_MIME",
+    "UnguardedClientRefused",
     "escape_query",
+    "safe_text",
 ]

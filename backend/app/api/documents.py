@@ -1,6 +1,6 @@
-from pathlib import Path
+import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -23,9 +23,12 @@ from app.services.extraction.shared import text_extractor
 from app.services.storage_backend import storage
 from app.services.validation.pipeline import validate_expense_report
 from app.models.user import User
-from app.services import audit, verification_history
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.services import audit, central_storage, fk_safety, processing_jobs, upload_history, verification_history
 from app.services.permissions import DELETE_DOCUMENTS, REPROCESS_DOCUMENTS, VIEW_DOCUMENTS, require_permission
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 _view = Depends(require_permission(VIEW_DOCUMENTS))
 _reprocess = Depends(require_permission(REPROCESS_DOCUMENTS))
@@ -48,7 +51,20 @@ def _load(db: Session, document_id: str):
 def get_document(document_id: str, db: Session = Depends(get_db), _user: User = _view):
     ref, row = _load(db, document_id)
     is_expense = ref.kind == EXPENSE
+    cfg = central_storage.config()
+    uploader = db.get(User, row.uploaded_by_id) if row.uploaded_by_id else None
+    try:
+        job_state = processing_jobs.state_for(db, [(ref.kind, row.id)]).get((ref.kind, row.id), "NONE") if cfg.active else "NONE"
+        duplicate_count = upload_history.duplicate_counts(db, [(ref.kind, row.id)]).get((ref.kind, row.id), 0)
+    except SQLAlchemyError:
+        job_state, duplicate_count = "NONE", 0
     return DocumentDetail(
+        uploaded_at_ist=upload_history.to_ist_iso(row.uploaded_at),
+        uploaded_by_id=row.uploaded_by_id,
+        uploaded_by_name=uploader.name if uploader else None,
+        storage_state=central_storage.storage_labels(db, [(ref.kind, row.file_hash)]).get((ref.kind, row.file_hash), central_storage.NOT_CENTRAL),
+        processing_state=job_state,
+        duplicate_count=duplicate_count,
         document_id=document_id,
         source_type="EXPENSE_REPORT" if is_expense else "TRIP_REPORT",
         filename=row.filename or "",
@@ -76,8 +92,19 @@ def get_document(document_id: str, db: Session = Depends(get_db), _user: User = 
 
 
 @router.get("/{document_id}/file")
-def get_document_file(document_id: str, download: bool = False, db: Session = Depends(get_db), _user: User = _view):
-    _, row = _load(db, document_id)
+def get_document_file(document_id: str, request: Request, download: bool = False, db: Session = Depends(get_db), _user: User = _view):
+    ref, row = _load(db, document_id)
+    if central_storage.config().mode == central_storage.SERVE:
+        # Central Drive is authoritative: the verified file comes from the central record ONLY. A missing / archived / unavailable central copy is an explicit
+        # error (404 / 410 / 502 / 503); this machine's local copy is never served in its place.
+        try:
+            response = central_storage.serve_response(db, ref.kind, row, request.headers.get("range"))
+        except central_storage.CentralUnavailable as exc:
+            raise HTTPException(status_code=exc.status, detail=exc.detail)
+        disposition = "attachment" if download else "inline"
+        safe_name = "".join(ch for ch in (row.original_filename or "document.pdf") if ch.isprintable() and ch not in '"\\/\r\n')[:200] or "document.pdf"
+        response.headers["Content-Disposition"] = f'{disposition}; filename="{safe_name}"'
+        return response
     if not row.source_path or not storage.exists(row.source_path):
         raise HTTPException(status_code=404, detail="The stored file could not be found.")
 
@@ -353,14 +380,18 @@ def rematch_bills(document_id: str, db: Session = Depends(get_db), user: User = 
     ref, row = _load(db, document_id)
     if ref.kind != EXPENSE:
         raise HTTPException(status_code=400, detail="Bill matching only applies to Expense Report documents.")
-    if not row.source_path or not Path(row.source_path).exists():
+    try:
+        pdf_path = central_storage.local_file_for(db, ref.kind, row)  # the recorded local file (mode off) or a verified working copy rebuilt from central storage
+    except FileNotFoundError:
         raise HTTPException(status_code=404, detail="The stored file could not be found.")
+    except central_storage.CentralUnavailable as exc:
+        raise HTTPException(status_code=exc.status, detail=exc.detail)
 
-    content_pages = text_extractor.content_pages(Path(row.source_path))
+    content_pages = text_extractor.content_pages(pdf_path)
     content_last_page = find_report_summary_page(content_pages)
     if content_last_page is None:
         content_last_page = content_pages[-1]["page_number"] if content_pages else 0
-    extract_and_match_bills(db, row, text_extractor, content_last_page)
+    extract_and_match_bills(db, row, text_extractor, content_last_page, pdf_path=pdf_path)
     try:
         validate_expense_report(db, row.id)
         evaluate_report(db, row.id)
@@ -400,6 +431,17 @@ def delete_document(document_id: str, db: Session = Depends(get_db), user: User 
     ref, row = _load(db, document_id)
     source_location = row.source_path
     filename = row.original_filename
+    file_hash = row.file_hash
+    cfg = central_storage.config()
+    archived_centrally = False
+    if cfg.mode == central_storage.SERVE:
+        # Drive is authoritative: the central original is ARCHIVED (reversible, nothing is destroyed in Drive) BEFORE the document row goes. If Drive refuses, nothing
+        # is deleted and the caller gets an explicit error; if the database step then fails, the archive is undone.
+        try:
+            archived_centrally = central_storage.label_for(central_storage.lookup(db, ref.kind, file_hash)) == central_storage.STORED
+            central_storage.archive_document(db, ref.kind, file_hash, user.id)
+        except central_storage.CentralUnavailable as exc:
+            raise HTTPException(status_code=exc.status, detail=exc.detail)
 
     # Cleanup BEFORE delete, same transaction - see candidate_cleanup.py /
     # docs/ORPHAN_RECORD_INVESTIGATION.md. ORM cascade correctly removes this
@@ -418,17 +460,31 @@ def delete_document(document_id: str, db: Session = Depends(get_db), user: User 
         # none may outlive its report: each is kept as history and its live row removed, in this transaction
         # (see verification_history.py). The audit event below lists the ids only - never a note.
         retired_verification_ids = verification_history.retire_for_report(db, row.id, user.id)
+        fk_safety.detach_report_dependents(db, row.id, expense_ids, bill_ids)  # no-op on SQLite; PostgreSQL enforces the foreign keys that point at these rows
     else:
         candidate_cleanup.delete_trip_match_candidates_for_trip_report_ids(db, [row.id])
+        fk_safety.detach_trip_report(db, row.id)  # no-op on SQLite
 
     db.delete(row)
     audit.log_action(
         db, user_id=user.id, action=audit.DOCUMENT_DELETED,
         entity_type="ExpenseReport" if ref.kind == EXPENSE else "TripReport", entity_id=document_id,
         details=f"filename={filename!r}"
-        + (f"; retired_verification_ids={retired_verification_ids}" if retired_verification_ids else ""),
+        + (f"; retired_verification_ids={retired_verification_ids}" if retired_verification_ids else "")
+        + ("; central copy archived" if archived_centrally else ""),
     )
-    db.commit()
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        if archived_centrally:
+            central_storage.restore_document(db, ref.kind, file_hash, user.id)  # the document is still there, so its central copy must be too
+        raise
+    if cfg.mode == central_storage.SHADOW:
+        try:  # the Drive copy is a secondary copy in shadow mode: archiving it is best effort and never fails the delete
+            central_storage.archive_document(db, ref.kind, file_hash, user.id)
+        except central_storage.CentralUnavailable:
+            logger.warning("The Drive copy of a deleted document could not be archived (it stays in Drive; an administrator can archive it)")
 
     if source_location:
         try:

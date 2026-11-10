@@ -10,7 +10,7 @@ from app.database import get_db
 from app.models.excel import ExcelReport
 from app.models.user import User
 from app.schemas.excel import ExcelReportOut, ExcelSheetInfo, ExcelSheetPreviewOut, ExcelSheetsOut
-from app.services import audit
+from app.services import audit, central_storage
 from app.services.excel_generator import SHEET_NAMES, WORKBOOK_FILENAME, generate_workbook
 from app.services.permissions import DOWNLOAD_EXCEL, GENERATE_EXCEL, VIEW_EXCEL, require_permission
 from app.services.storage import EXCEL_DIR
@@ -60,7 +60,17 @@ def generate(db: Session = Depends(get_db), user: User = Depends(require_permiss
         raise HTTPException(status_code=500, detail="Workbook generation failed. See server logs for detail.")
     audit.log_action(db, user_id=user.id, action=audit.EXCEL_GENERATED, entity_type="ExcelReport", entity_id=None)
     db.commit()  # log_action only flushes now - see docs/CENTRALIZED_ARCHITECTURE.md §16
-    return record
+    out = ExcelReportOut.model_validate(record, from_attributes=True)
+    if central_storage.config().active:
+        # Central modes: also keep a verified copy in the Drive folder "Excel Exports" (best effort; the workbook the users preview and download is this server's).
+        try:
+            content = _workbook_path(record).read_bytes()
+        except (OSError, HTTPException):
+            content = None
+        out.central_copy = central_storage.store_export(db, content, record.filename, user.id) if content else central_storage.FAILED
+    else:
+        out.central_copy = central_storage.NOT_CENTRAL
+    return out
 
 
 @router.get("/sheets", response_model=ExcelSheetsOut)

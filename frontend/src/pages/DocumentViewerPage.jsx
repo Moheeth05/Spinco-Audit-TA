@@ -17,16 +17,18 @@ import { Document, Page } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useCentralMode } from '../api/central'
 import { apiFetch, apiPost } from '../api/client'
 import { documentFileUrl, fetchDocument, fetchExtraction, reprocessDocument } from '../api/uploads'
 import { useApi } from '../api/useApi'
 import { useAuth } from '../auth/AuthContext'
 import { Button } from '../components/ui/Button'
+import { ProcessingStateBadge, StorageStateBadge } from '../components/ui/CentralBadges'
 import { ErrorState } from '../components/ui/ErrorState'
 import { LoadingState } from '../components/ui/LoadingState'
 import { Modal } from '../components/ui/Modal'
 import { StatusBadge } from '../components/ui/StatusBadge'
-import { formatISTDateTime } from '../lib/datetime'
+import { formatISTDateTime, formatISTLabel } from '../lib/datetime'
 
 const VERIFY_ROLES = new Set(['ADMIN', 'AUDITOR'])
 
@@ -879,6 +881,8 @@ export default function DocumentViewerPage() {
   const [tab, setTab] = useState('pdf')
   const [fileData, setFileData] = useState(null)
   const [fileLoadError, setFileLoadError] = useState(false)
+  const [fileErrorDetail, setFileErrorDetail] = useState(null) // server's own message for a failed /file request, if any
+  const centralMode = useCentralMode()
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [pageInput, setPageInput] = useState('1')
@@ -907,13 +911,20 @@ export default function DocumentViewerPage() {
     // Fetched ourselves (rather than handed a bare URL to react-pdf/pdf.js) so a missing
     // or unreadable file surfaces as a normal, catchable error instead of an uncaught
     // exception from inside pdf.js's own fetch/worker pipeline.
+    setFileErrorDetail(null)
     apiFetch(`/documents/${encodeURIComponent(documentId)}/file`)
       .then((res) => res.arrayBuffer())
       .then((buf) => {
         if (!cancelledRef?.current) setFileData(buf)
       })
-      .catch(() => {
-        if (!cancelledRef?.current) setFileLoadError(true)
+      .catch((err) => {
+        if (cancelledRef?.current) return
+        // apiFetch throws the server's `detail` (e.g. "central file missing", "failed
+        // verification", "central storage temporarily unavailable") with an HTTP .status;
+        // its generic "Request failed with status N" fallback is not worth showing.
+        const detail = typeof err?.status === 'number' && err.message && !err.message.startsWith('Request failed with status') ? err.message : null
+        setFileErrorDetail(detail)
+        setFileLoadError(true)
       })
   }
 
@@ -1102,7 +1113,7 @@ export default function DocumentViewerPage() {
               <div className="card" style={{ gridColumn: '1 / span 2' }}>
                 <ErrorState
                   title="This document's PDF file is unavailable"
-                  description="The stored file could not be found or read. Try Reprocess from Extracted Details, or contact an administrator."
+                  description={fileErrorDetail || 'The stored file could not be found or read. Try Reprocess from Extracted Details, or contact an administrator.'}
                 />
               </div>
             ) : !fileData ? (
@@ -1172,8 +1183,38 @@ export default function DocumentViewerPage() {
               </div>
               <div className="viewer-meta-row">
                 <span className="viewer-meta-label">Uploaded</span>
-                <span className="viewer-meta-value">{formatISTDateTime(doc.uploaded_at)}</span>
+                <span className="viewer-meta-value">{doc.uploaded_at ? formatISTLabel(doc.uploaded_at) : doc.uploaded_at_ist || '-'}</span>
               </div>
+              {doc.uploaded_by_name && (
+                <div className="viewer-meta-row">
+                  <span className="viewer-meta-label">Uploaded By</span>
+                  <span className="viewer-meta-value">{doc.uploaded_by_name}</span>
+                </div>
+              )}
+              {centralMode !== 'off' && (
+                <>
+                  <div className="viewer-meta-row">
+                    <span className="viewer-meta-label">Storage</span>
+                    <span className="viewer-meta-value">
+                      <StorageStateBadge state={doc.storage_state} />
+                    </span>
+                  </div>
+                  {doc.processing_state && doc.processing_state !== 'NONE' && (
+                    <div className="viewer-meta-row">
+                      <span className="viewer-meta-label">Central Processing</span>
+                      <span className="viewer-meta-value">
+                        <ProcessingStateBadge state={doc.processing_state} />
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+              {doc.duplicate_count > 0 && (
+                <div className="viewer-meta-row">
+                  <span className="viewer-meta-label">Duplicate Uploads</span>
+                  <span className="viewer-meta-value">{doc.duplicate_count}</span>
+                </div>
+              )}
               <div className="viewer-meta-row">
                 <span className="viewer-meta-label">File Hash (SHA-256)</span>
                 <span className="viewer-meta-value" style={{ fontSize: 11, fontWeight: 500, fontFamily: 'monospace' }}>

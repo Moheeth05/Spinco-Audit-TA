@@ -783,12 +783,13 @@ def test_29_verification_survives_reprocessing(client):
     assert resp.status_code == 200
 
     exceptions_after = client.get(f"/api/expense-reports/{report_id}/exceptions").json()
+    # Matched by type + the unique note, NOT by expense_id: reprocessing re-creates the expense rows, SQLite happens to hand out the same ids again after the delete,
+    # a PostgreSQL sequence never does (found by running this suite on PostgreSQL). What must survive is the verification, wherever the claim's row id ended up.
     same = next(
         e for e in exceptions_after
-        if e["expense_id"] == review_required["expense_id"] and e["exception_type"] == review_required["exception_type"]
+        if e["exception_type"] == review_required["exception_type"] and e["verification_note"] == "kept across reprocessing"
     )
     assert same["status"] == "RESOLVED"
-    assert same["verification_note"] == "kept across reprocessing"
 
 
 def test_30_verifying_a_confirmed_exception_requires_a_note(client):

@@ -1,7 +1,20 @@
 import { Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useConnectionStatus } from '../api/connection'
 import { useAuth } from '../auth/AuthContext'
+import { ConnectionChip } from '../components/layout/ConnectionBanner'
+
+/** Says what actually went wrong. A rejected password stays deliberately generic (it never reveals whether the account exists); the other causes are not secrets. */
+function loginErrorMessage(err) {
+  const status = err?.status
+  if (status === 401) return 'Invalid email or password.'
+  if (status === 429) return err.message || 'Too many failed sign-in attempts. Try again in a few minutes.'
+  if (status === 503) return 'The server is busy or not ready. Please try again in a moment.'
+  if (status >= 500) return 'The server reported an error. Please try again, or contact your administrator.'
+  if (status === undefined) return 'Cannot reach the server. Check your network connection (and VPN, if you use one) and try again.'
+  return 'Sign-in failed. Please try again.'
+}
 
 export default function LoginPage() {
   const { isAuthenticated, loading, login } = useAuth()
@@ -13,6 +26,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const connection = useConnectionStatus()
 
   if (!loading && isAuthenticated) {
     const redirectTo = location.state?.from?.pathname || '/'
@@ -26,9 +40,8 @@ export default function LoginPage() {
     try {
       await login(email.trim(), password)
       navigate(location.state?.from?.pathname || '/', { replace: true })
-    } catch {
-      // Deliberately generic - never reveals whether the account exists.
-      setError('Invalid email or password.')
+    } catch (err) {
+      setError(loginErrorMessage(err))
     } finally {
       setSubmitting(false)
     }
@@ -98,6 +111,9 @@ export default function LoginPage() {
             {submitting ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+        <div className="login-connection">
+          <ConnectionChip connection={connection} />
+        </div>
       </div>
     </div>
   )

@@ -17,6 +17,13 @@ MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB
 PDF_MAGIC = b"%PDF-"
 
 
+def max_file_size_bytes() -> int:
+    """The per-file upload limit: SPINCO_MAX_UPLOAD_MB (default 25 MB, see services/hardening.py)."""
+    from app.services import hardening
+
+    return hardening.max_upload_bytes()
+
+
 class PdfValidationError(Exception):
     """Raised with a user-safe message - never a raw stack trace or library exception text."""
 
@@ -33,8 +40,9 @@ def validate_pdf_upload(filename: str, content: bytes) -> PdfValidationResult:
     if len(content) == 0:
         raise PdfValidationError("The uploaded file is empty.")
 
-    if len(content) > MAX_FILE_SIZE_BYTES:
-        limit_mb = MAX_FILE_SIZE_BYTES // (1024 * 1024)
+    limit = max_file_size_bytes()
+    if len(content) > limit:
+        limit_mb = limit // (1024 * 1024)
         raise PdfValidationError(f"File exceeds the {limit_mb} MB upload limit.")
 
     if not content.startswith(PDF_MAGIC):

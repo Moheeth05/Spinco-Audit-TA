@@ -320,3 +320,80 @@
     padding: 18px;
   }
 }
+
+
+/* ---------- Connection status (header chip, alert bar, login page) ---------- */
+.connection-chip {
+  max-width: 340px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.connection-chip svg {
+  flex-shrink: 0;
+}
+
+.connection-alerts {
+  display: flex;
+  flex-direction: column;
+}
+
+.connection-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  font-size: 13px;
+  line-height: 1.45;
+  border-bottom: 1px solid var(--border);
+}
+
+.connection-alert svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.connection-alert-error {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.connection-alert-warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.connection-alert-button {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 5px 12px;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.connection-alert-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.login-connection {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .connection-alert {
+    padding: 10px 16px;
+  }
+}

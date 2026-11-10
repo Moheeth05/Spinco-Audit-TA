@@ -606,7 +606,9 @@ def test_a_missing_client_file_or_token_folder_is_reported(tmp_path):
 
 
 def test_the_drive_client_interface_is_unchanged():
-    assert list(inspect.signature(DriveClient.__init__).parameters) == ["self", "config", "tokens", "http", "sleep", "monotonic", "rng"]
+    # Phase 3A.1.1: the client now OWNS its destination guard. Everything up to `rng` is unchanged; the keyword-only additions are the explicit
+    # harness/fake opt-out (`unguarded`) and two test hooks for the guard. There is deliberately NO way to pass, swap or clear a guard.
+    assert list(inspect.signature(DriveClient.__init__).parameters) == ["self", "config", "tokens", "http", "sleep", "monotonic", "rng", "unguarded", "guard_clock", "guard_max_depth"]
     for method in ("get_token", "invalidate"):
         assert callable(getattr(UserOAuthTokenProvider, method)) and callable(getattr(TokenProvider, method))
 
@@ -620,7 +622,7 @@ def test_a_whole_drive_stack_runs_on_oauth_tokens_including_the_401_refresh_path
     authorize_interactively(client_config, OAuthTokenStore(config.oauth_token_file), config.scope, http=http, open_browser=browser(google), timeout=10)
 
     tokens = build_token_provider(config, http)
-    client = DriveClient(config, tokens, http, sleep=lambda s: None, rng=lambda: 0.5)
+    client = DriveClient(config, tokens, http, sleep=lambda s: None, rng=lambda: 0.5, unguarded=True)  # a fake-backed provider test: not the destination guard
     storage = GoogleDriveStorage(client, DriveFolders(client, config.root_folder_id), temp_root=tmp_path)
     content = pdf_bytes("oauth")
     digest = hashlib.sha256(content).hexdigest()

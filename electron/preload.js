@@ -20,6 +20,18 @@ contextBridge.exposeInMainWorld("spincoApp", {
   getVersion: () => ipcRenderer.invoke("app:get-version"),
   getBuildInfo: () => ipcRenderer.invoke("app:get-build-info"),
 
+  // Which central server this window is connected to ({ mode: "local" } in the standalone app). Host, environment label and
+  // an "insecure" flag only - never a URL with credentials, a path or a token.
+  getConnectionInfo: () => ipcRenderer.invoke("app:get-connection-info"),
+
+  // Used ONLY by the shell's own connection-problem page (electron/connection-error.html); the main process refuses these
+  // channels from any other page, including the central server's.
+  getConnectionState: () => ipcRenderer.invoke("connection:get-state"),
+  retryConnection: () => ipcRenderer.invoke("connection:retry"),
+  manualConnect: (address) => ipcRenderer.invoke("connection:manual-connect", address), // LAN demo fallback
+  openSettingsFolder: () => ipcRenderer.invoke("connection:open-settings-folder"),
+  quitApp: () => ipcRenderer.invoke("connection:quit"),
+
   // Update lifecycle - see electron/updater.js for the actual autoUpdater
   // wiring this talks to. checkForUpdates/downloadUpdate/installUpdate are
   // three distinct, separately user-triggered steps (see updater.js's

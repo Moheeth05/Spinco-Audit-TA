@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spinco TA Audit - connection problem</title>
+<style>
+  :root { color-scheme: light dark; --bg:#0a1628; --card:#13233d; --text:#f2f5fa; --muted:#a9b6cc; --accent:#4da3ff; --warn:#ffb454; --bad:#ff6b6b; }
+  @media (prefers-color-scheme: light) { :root { --bg:#eef2f8; --card:#fff; --text:#12233b; --muted:#53627a; --accent:#1769c2; --warn:#9a5b00; --bad:#b3261e; } }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font-family: "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 8vh 24px 24px; }
+  .card { background:var(--card); border-radius:12px; padding:28px 28px 22px; box-shadow:0 8px 30px rgba(0,0,0,.25); }
+  h1 { font-size:20px; margin:0 0 6px; }
+  .cat { display:inline-block; font-size:12px; letter-spacing:.04em; padding:2px 8px; border-radius:999px; border:1px solid var(--bad); color:var(--bad); margin-bottom:12px; }
+  p.msg { font-size:15px; line-height:1.5; margin:0 0 14px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:18px 0 6px; }
+  ul { margin:0; padding-left:20px; line-height:1.55; font-size:14px; }
+  dl { display:grid; grid-template-columns:max-content 1fr; gap:4px 14px; margin:0; font-size:13px; color:var(--muted); }
+  dd { margin:0; color:var(--text); word-break:break-all; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
+  button { font:inherit; font-size:14px; padding:9px 16px; border-radius:8px; border:1px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; }
+  button:disabled { opacity:.55; cursor:default; }
+  .note { margin-top:16px; font-size:12px; color:var(--muted); line-height:1.5; }
+  .warn { color:var(--warn); }
+</style>
+</head>
+<body>
+<main>
+  <div class="card" role="alert">
+    <span class="cat" id="cat">&nbsp;</span>
+    <h1 id="title">Spinco TA Audit could not connect</h1>
+    <p class="msg" id="msg"></p>
+    <h2>What you can do</h2>
+    <ul id="advice"></ul>
+    <h2>Details</h2>
+    <dl id="details"></dl>
+    <div id="manual" hidden>
+      <h2>Connect manually</h2>
+      <div class="row" style="margin-top:6px">
+        <input id="addr" type="text" placeholder="host address : port (shown on the host laptop)" autocomplete="off" spellcheck="false" style="flex:1;min-width:220px;font:inherit;padding:9px 12px;border-radius:8px;border:1px solid var(--muted);background:transparent;color:var(--text)" />
+        <button id="connect">Connect</button>
+      </div>
+      <p class="note warn" id="manualerr" hidden></p>
+    </div>
+    <div class="row">
+      <button class="primary" id="retry">Try again</button>
+      <button id="folder">Open settings folder</button>
+      <button id="quit">Quit</button>
+    </div>
+    <p class="note">This app is set up to use a central company server. It does <b>not</b> switch to a local copy of the data when the server cannot be reached, so
+    nothing you do here is saved on this PC. To use a different server, edit <b>central-backend.json</b> in the settings folder and press <b>Try again</b>.</p>
+    <p class="note warn" id="insecure" hidden>Development connection (plain HTTP): use synthetic documents only.</p>
+  </div>
+</main>
+<script>
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const labels = { env: "Environment", host: "Server", source: "Configured by", attempts: "Attempts", at: "Checked at", http: "HTTP status" };
+  const sources = { env: "environment variable", file: "central-backend.json (this user)", "machine-file": "central-backend.json (all users on this PC)" };
+
+  function row(dl, k, v) {
+    if (v === null || v === undefined || v === "") return;
+    const dt = document.createElement("dt"); dt.textContent = k;
+    const dd = document.createElement("dd"); dd.textContent = String(v);
+    dl.append(dt, dd);
+  }
+
+  function render(s) {
+    if (!s) { $("msg").textContent = "No connection details are available."; return; }
+    $("cat").textContent = s.category.replace(/_/g, " ");
+    $("title").textContent = s.title;
+    $("msg").textContent = s.message;
+    const ul = $("advice"); ul.textContent = "";
+    for (const a of s.advice || []) { const li = document.createElement("li"); li.textContent = a; ul.append(li); }
+    const dl = $("details"); dl.textContent = "";
+    row(dl, labels.host, s.host);
+    row(dl, labels.env, s.environment || "not specified");
+    row(dl, labels.source, sources[s.source] || s.source);
+    row(dl, labels.http, s.httpStatus);
+    row(dl, labels.attempts, s.attempts);
+    row(dl, labels.at, s.checkedAt && new Date(s.checkedAt).toLocaleString());
+    $("insecure").hidden = !s.insecure;
+    $("manual").hidden = !s.allowManual;
+  }
+
+  async function load() {
+    try { render(await window.spincoApp.getConnectionState()); }
+    catch { $("msg").textContent = "The connection details could not be read."; }
+  }
+
+  $("retry").addEventListener("click", async () => {
+    $("retry").disabled = true; $("retry").textContent = "Connecting...";
+    try { await window.spincoApp.retryConnection(); } catch { /* the page reloads itself */ }
+    $("retry").disabled = false; $("retry").textContent = "Try again";
+    load();
+  });
+  $("connect").addEventListener("click", async () => {
+    $("manualerr").hidden = true;
+    $("connect").disabled = true;
+    try {
+      const r = await window.spincoApp.manualConnect($("addr").value);
+      if (r && !r.ok) { $("manualerr").textContent = r.reason; $("manualerr").hidden = false; }
+    } catch { /* the page reloads itself */ }
+    $("connect").disabled = false;
+    load();
+  });
+  $("folder").addEventListener("click", () => window.spincoApp.openSettingsFolder());
+  $("quit").addEventListener("click", () => window.spincoApp.quitApp());
+  load();
+</script>
+</body>
+</html>

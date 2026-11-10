@@ -14,6 +14,9 @@ class ExcelReportOut(BaseModel):
     total_claimed: float | None
     status: str
     last_updated: UTCDateTime
+    # State of the copy kept in the central Drive folder "Excel Exports" after a generation (STORED / PENDING / FAILED);
+    # NOT_CENTRAL when central storage is off, None on every other endpoint.
+    central_copy: str | None = None
 
 
 class ExcelSheetInfo(BaseModel):

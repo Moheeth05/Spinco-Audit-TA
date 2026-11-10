@@ -1,0 +1,4 @@
+# Extra dependencies for running the CENTRAL backend on PostgreSQL (the company Windows Server).
+# NOT part of the desktop installer (the desktop app keeps its own SQLite database in local mode and never uses PostgreSQL).
+#   pip install -r requirements.txt -r requirements-postgres.txt
+psycopg[binary]==3.3.8

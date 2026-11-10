@@ -147,7 +147,7 @@ def build(ctx: Context):
     sys.path.insert(0, str(BACKEND_DIR))
     from app.database import Base, SessionLocal, engine
     from app.services.drive.auth import DriveAuthError, ServiceAccountCredentials, TokenProvider
-    from app.services.drive.client import DriveClient, DriveError
+    from app.services.drive.client import DriveClient, DriveError, UnguardedClientRefused
     from app.services.drive.config import DriveConfigError, DriveConfig, load_config
     from app.services.drive.lifecycle import StorageManager
     from app.services.drive.storage import DriveFolders, GoogleDriveStorage
@@ -199,7 +199,13 @@ def build(ctx: Context):
         sleep = ctx.sleeps.append
     http = httpx.Client(transport=injector)
     tokens = TokenProvider(credentials, config.scope, http)
-    client = DriveClient(config, tokens, http, sleep=sleep)
+    try:
+        # A harness has its own checks and is ISOLATED from the application's destination guard: it must say so explicitly, and the client
+        # allows this opt-out ONLY when SPINCO_ENVIRONMENT is explicitly dev or staging (unset, production or anything else is refused), so this script cannot write to a production Drive.
+        client = DriveClient(config, tokens, http, sleep=sleep, unguarded=True)
+    except UnguardedClientRefused as exc:
+        ctx.blocked_reason, ctx.blocked_kind = f"Not run: {exc}", "environment"
+        return False
     ctx.config, ctx.injector, ctx.client, ctx.tokens = config, injector, client, tokens
     try:
         tokens.get_token()
@@ -269,7 +275,7 @@ def t02_upload(ctx, r: Result):
 
 
 def t03_metadata_checksum(ctx, r: Result):
-    obj = ctx.storage.info(ensure_uploaded(ctx).location)
+    obj = ctx.storage.inspect_unchecked(ensure_uploaded(ctx).location)
     md5, size = hashlib.md5(ctx.upload_content).hexdigest(), len(ctx.upload_content)
     r.evidence.update(md5_matches=obj.md5 == md5, size_matches=obj.size == size, not_trashed=not obj.trashed)
     r.status, r.detail = ("PASS", "Drive's md5Checksum and size equal the locally computed values.") if obj.md5 == md5 and obj.size == size else ("FAIL", "Checksum or size mismatch.")
@@ -279,7 +285,7 @@ def t04_download_sha256(ctx, r: Result):
     uploaded = ensure_uploaded(ctx)
     data = ctx.storage.retrieve(uploaded.location)
     same = hashlib.sha256(data).hexdigest() == hashlib.sha256(ctx.upload_content).hexdigest()
-    with ctx.storage.open_stream(uploaded.location, range_header="bytes=0-9") as download:
+    with ctx.storage.open_stream(uploaded.location, expected_md5=hashlib.md5(ctx.upload_content).hexdigest(), expected_size=len(ctx.upload_content), range_header="bytes=0-9") as download:  # verified copy, cut here (3A.2-E.1)
         part = b"".join(download.iter_bytes())
         r.evidence.update(range_status=download.status, range_bytes_ok=part == ctx.upload_content[:10])
     r.evidence["sha256_round_trip"] = same
@@ -329,7 +335,7 @@ def t07_archive(ctx, r: Result):
     record_id = ensure_archived(ctx)
     with new_db(ctx) as db:
         record = db.get(ctx.DocumentStorageRecord, record_id)
-        obj = ctx.storage.info(record.location)
+        obj = ctx.storage.inspect_unchecked(record.location)
         in_archive = obj.parents == (ctx.folders.archive(KIND),)
         r.evidence.update(state=record.state, in_archive_folder=in_archive, trashed=obj.trashed)
         r.status, r.detail = ("PASS", "Archive moved the file into 'Archive/Expense Reports' (not trashed) and set ARCHIVED.") if in_archive and not obj.trashed and record.state == "ARCHIVED" else ("FAIL", "Archive did not behave as designed.")
@@ -339,7 +345,7 @@ def t08_restore(ctx, r: Result):
     with new_db(ctx) as db:
         record = db.get(ctx.DocumentStorageRecord, ensure_archived(ctx))
         ctx.manager.restore(db, record.id, user_id=None)
-        obj = ctx.storage.info(record.location)
+        obj = ctx.storage.inspect_unchecked(record.location)
         back = obj.parents == (ctx.folders.active(KIND),)
         r.evidence.update(state=record.state, back_in_active_folder=back)
         r.status, r.detail = ("PASS", "Restore moved the file back to the active folder and set STORED.") if back and record.state == "STORED" else ("FAIL", "Restore did not behave as designed.")
@@ -401,7 +407,7 @@ def t11_interrupted_upload(ctx, r: Result):
         parts.update(adopted=report.adopted_uploads, reuploaded=report.reuploaded, state_a=rec_a.state, state_b=rec_b.state)
         # (c) the question the design left open: what does REAL Drive answer when a file id is reused?
         try:
-            ctx.client.upload_file(file_id=ctx.storage.info(rec_a.location).id, name="reuse.pdf", parent_id=ctx.folders.active(KIND), content=content_a)
+            ctx.client.upload_file(file_id=ctx.storage.inspect_unchecked(rec_a.location).id, name="reuse.pdf", parent_id=ctx.folders.active(KIND), content=content_a)
             parts["id_reuse_observed"] = "Drive ACCEPTED a second create with the same id (no 409) - the adopt-on-409 path is not what happens; see report"
             parts["id_reuse_status"] = "accepted"
         except ctx.DriveError as exc:
@@ -506,7 +512,7 @@ def t14_offline(ctx, r: Result):
         ctx.injector.block = False
         recovered = None
         if record is not None:
-            record.created_at = datetime(2000, 1, 1)
+            record.created_at = record.updated_at = datetime(2000, 1, 1)  # time has passed: past the stale threshold AND the retry backoff of the failed attempt
             db.commit()
             report = ctx.manager.reconcile(db, stale_after_seconds=0)
             db.refresh(record)

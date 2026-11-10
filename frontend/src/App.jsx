@@ -5,6 +5,7 @@ import AccessDeniedPage from './pages/AccessDeniedPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import AuditLogsPage from './pages/AuditLogsPage'
 import DocumentViewerPage from './pages/DocumentViewerPage'
+import DuplicatesPage from './pages/DuplicatesPage'
 import ExcelFilesPage from './pages/ExcelFilesPage'
 import ExpenseReportMonthPage from './pages/ExpenseReportMonthPage'
 import ExpenseReportsPage from './pages/ExpenseReportsPage'
@@ -12,6 +13,7 @@ import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import PolicyMasterPage from './pages/PolicyMasterPage'
 import SettingsPage from './pages/SettingsPage'
+import StorageAdminPage from './pages/StorageAdminPage'
 import TripReportMonthPage from './pages/TripReportMonthPage'
 import TripReportsPage from './pages/TripReportsPage'
 import UploadPage from './pages/UploadPage'
@@ -34,12 +36,14 @@ export default function App() {
           <Route path="/policy-master" element={<PolicyMasterPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/excel-files" element={<ExcelFilesPage />} />
+          <Route path="/duplicates" element={<DuplicatesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/access-denied" element={<AccessDeniedPage />} />
 
           <Route element={<ProtectedRoute adminOnly />}>
             <Route path="/users-roles" element={<UsersRolesPage />} />
             <Route path="/audit-logs" element={<AuditLogsPage />} />
+            <Route path="/storage" element={<StorageAdminPage />} />
           </Route>
         </Route>
       </Route>

@@ -163,7 +163,7 @@ def build(ctx: Context) -> bool:
     sys.path.insert(0, str(BACKEND_DIR))
     from app.services.drive import config as drive_config
     from app.services.drive.auth import DriveAuthError
-    from app.services.drive.client import DriveClient, DriveError
+    from app.services.drive.client import DriveClient, DriveError, UnguardedClientRefused
     from app.services.drive.oauth import OAuthClientConfig, OAuthTokenStore, authorize_interactively, inspect_token_file
     from app.services.drive.runtime import build_token_provider
     from app.services.drive.storage import DriveFolders, GoogleDriveStorage
@@ -215,7 +215,14 @@ def build(ctx: Context) -> bool:
     ctx.config, ctx.http = config, http
     ctx.token_file_bytes_before = config.oauth_token_file.read_bytes()
     ctx.provider = build_token_provider(config, http)
-    ctx.client = DriveClient(config, ctx.provider, http, sleep=sleep)
+    try:
+        # A harness is ISOLATED from the application's destination guard (it has its own --require-shared-drive check) and says so explicitly; the client
+        # allows this opt-out ONLY when SPINCO_ENVIRONMENT is explicitly dev or staging (unset, production or anything else is refused), so this script
+        # cannot write to a production Drive.
+        ctx.client = DriveClient(config, ctx.provider, http, sleep=sleep, unguarded=True)
+    except UnguardedClientRefused as exc:
+        ctx.blocked_reason, ctx.blocked_kind = f"Not run: {exc}", "environment"
+        return False
     try:
         ctx.provider.get_token()
     except DriveAuthError as exc:
@@ -468,7 +475,7 @@ def t03_upload_pdf(ctx: Context, r: Result):
 def t04_ownership_and_checksum(ctx: Context, r: Result):
     uploaded = ensure_uploaded(ctx)
     meta = ctx.client.get_raw(uploaded.obj.id, "id,ownedByMe,driveId,md5Checksum,size,capabilities(canTrash)")
-    obj = ctx.storage.info(uploaded.location)
+    obj = ctx.storage.inspect_unchecked(uploaded.location)
     md5_ok = obj.md5 == hashlib.md5(ctx.upload_content).hexdigest() and obj.size == len(ctx.upload_content)
     r.evidence.update(owned_by_signed_in_user=meta.get("ownedByMe"), drive_type="SHARED DRIVE" if meta.get("driveId") else "MY DRIVE", md5_and_size_match=md5_ok)
     if not md5_ok:
@@ -483,7 +490,7 @@ def t05_download_sha256_and_range(ctx: Context, r: Result):
     uploaded = ensure_uploaded(ctx)
     data = ctx.storage.retrieve(uploaded.location)
     same = hashlib.sha256(data).hexdigest() == hashlib.sha256(ctx.upload_content).hexdigest()
-    with ctx.storage.open_stream(uploaded.location, range_header="bytes=0-9") as download:
+    with ctx.storage.open_stream(uploaded.location, expected_md5=hashlib.md5(ctx.upload_content).hexdigest(), expected_size=len(ctx.upload_content), range_header="bytes=0-9") as download:  # verified copy, cut here (3A.2-E.1)
         part = b"".join(download.iter_bytes())
         r.evidence.update(range_status=download.status, range_bytes_ok=part == ctx.upload_content[:10])
     r.evidence.update(sha256_uploaded=hashlib.sha256(ctx.upload_content).hexdigest(), sha256_downloaded=hashlib.sha256(data).hexdigest(), sha256_equal=same)
@@ -551,7 +558,7 @@ def t09_token_persistence_and_permissions(ctx: Context, r: Result):
 
 def t10_expired_access_token_recovery(ctx: Context, r: Result):
     ctx.provider.invalidate()  # what the client does on a 401: drop the cached access token and sign in again
-    ctx.storage.info(ensure_uploaded(ctx).location)
+    ctx.storage.inspect_unchecked(ensure_uploaded(ctx).location)
     r.evidence["metadata_read_after_invalidate"] = True
     r.status, r.detail = "PASS", "After the cached access token was discarded, the next Drive call signed in again with the refresh token and succeeded."
 
@@ -560,7 +567,7 @@ def t11_cleanup_archive(ctx: Context, r: Result):
     """Reversible cleanup: moves the synthetic file into this run's own Archive folder. Nothing is trashed or deleted; the folder and file remain."""
     uploaded = ensure_uploaded(ctx)
     archived = ctx.storage.archive(uploaded.location, KIND)
-    final = ctx.storage.info(uploaded.location)
+    final = ctx.storage.inspect_unchecked(uploaded.location)
     in_archive = archived.parents == (ctx.folders.archive(KIND),) and not archived.trashed
     intact = final.md5 == hashlib.md5(ctx.upload_content).hexdigest() and final.size == len(ctx.upload_content)
     r.evidence.update(

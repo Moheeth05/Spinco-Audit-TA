@@ -28,7 +28,7 @@ from app.database import Base, DATABASE_URL  # noqa: E402
 import app.models  # noqa: E402,F401 - populates Base.metadata with every table
 
 config = context.config
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))  # configparser treats % specially (a URL-encoded password has them)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

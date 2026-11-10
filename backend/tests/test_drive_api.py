@@ -84,9 +84,17 @@ def test_status_reports_misconfiguration_precisely_and_without_secrets(client, t
     assert status["enabled"] and not status["configured"] and "SPINCO_GDRIVE_ROOT_FOLDER_ID" in status["config_error"]
     monkeypatch.setenv("SPINCO_GDRIVE_ROOT_FOLDER_ID", "1SyntheticRootFolderId_0001")
     monkeypatch.setenv("SPINCO_GDRIVE_CREDENTIALS_FILE", str(write_service_account_file(tmp_path)))
+    for name in ("SPINCO_ENVIRONMENT", "SPINCO_GDRIVE_EXPECTED_DRIVE_ID_STAGING", "SPINCO_GDRIVE_EXPECTED_DRIVE_ID_PRODUCTION"):
+        monkeypatch.delenv(name, raising=False)
+    status = client.get("/api/storage/status").json()  # the destination guard's settings are mandatory too: no environment, not configured
+    assert status["enabled"] and not status["configured"] and "SPINCO_ENVIRONMENT" in status["config_error"]
+    monkeypatch.setenv("SPINCO_ENVIRONMENT", "staging")
+    status = client.get("/api/storage/status").json()
+    assert not status["configured"] and "SPINCO_GDRIVE_EXPECTED_DRIVE_ID_STAGING" in status["config_error"]
+    monkeypatch.setenv("SPINCO_GDRIVE_EXPECTED_DRIVE_ID_STAGING", "0ASyntheticSharedDrive01")
     status = client.get("/api/storage/status").json()
     assert status["configured"] and status["config_error"] is None
-    assert "BEGIN" not in json.dumps(status) and "client_email" not in json.dumps(status)
+    assert "BEGIN" not in json.dumps(status) and "client_email" not in json.dumps(status) and "0ASyntheticSharedDrive01" not in json.dumps(status)
     # (deliberately no call that would build the real manager: that would contact Google, which no test may do)
 
 
@@ -194,6 +202,67 @@ def test_archived_missing_and_unknown_documents_cannot_be_streamed(client, drive
     assert client.get("/api/storage/records/99999/file").status_code == 404
 
 
+def test_the_stream_endpoint_refuses_a_document_that_no_longer_matches_its_recorded_checksum(client, drive):
+    """3A.2-E.1: the document is verified (identity, recorded checksum, size) BEFORE the first byte is sent; a mismatch is a generic 502 with no content."""
+    record_id, content = stored(drive, "tamper-file")
+    with SessionLocal() as db:
+        from app.models.storage_record import DocumentStorageRecord
+
+        file_id = parse_location(db.get(DocumentStorageRecord, record_id).location)
+    drive.fake.external_modify(file_id, b"%PDF-1.4 TAMPERED CONTENT THAT IS NOT THE DOCUMENT")
+    response = client.get(f"/api/storage/records/{record_id}/file")
+    assert response.status_code == 502 and response.json()["detail"] == "The stored document could not be verified and was not served."
+    assert b"TAMPERED" not in response.content and b"%PDF" not in response.content
+    for forbidden in ("gdrive:", file_id, "md5", "checksum_mismatch", "googleapis"):
+        assert forbidden not in response.text
+
+
+def test_the_stream_endpoint_refuses_when_the_recorded_checksum_is_not_the_one_of_the_stored_file(client, drive):
+    record_id, content = stored(drive, "record-differs")
+    with SessionLocal() as db:
+        from app.models.storage_record import DocumentStorageRecord
+
+        record = db.get(DocumentStorageRecord, record_id)
+        record.md5 = "f" * 32
+        db.commit()
+    response = client.get(f"/api/storage/records/{record_id}/file")
+    assert response.status_code == 502 and content[:8] not in response.content
+
+
+def test_the_stream_endpoint_refuses_a_record_with_no_recorded_checksum(client, drive):
+    record_id, content = stored(drive, "no-checksum-recorded")
+    with SessionLocal() as db:
+        from app.models.storage_record import DocumentStorageRecord
+
+        db.get(DocumentStorageRecord, record_id).md5 = ""
+        db.commit()
+    response = client.get(f"/api/storage/records/{record_id}/file")
+    assert response.status_code == 502 and b"%PDF" not in response.content
+
+
+def test_the_stream_endpoint_answers_a_range_beyond_the_document_with_416_and_never_sends_unverified_ranges(client, drive):
+    record_id, content = stored(drive, "range-416")
+    beyond = client.get(f"/api/storage/records/{record_id}/file", headers={"Range": f"bytes={len(content) + 10}-"})
+    assert beyond.status_code == 416 and beyond.content == b"" and beyond.headers["content-range"] == f"bytes */{len(content)}"
+    tail = client.get(f"/api/storage/records/{record_id}/file", headers={"Range": "bytes=-5"})
+    assert tail.status_code == 206 and tail.content == content[-5:]
+    assert all(r["range"] is None for r in drive.fake.requests if r["query"].get("alt") == "media")  # Drive is only ever asked for the whole file
+
+
+def test_the_stream_endpoint_does_not_serve_a_trashed_or_non_document_item(client, drive):
+    record_id, content = stored(drive, "not-served")
+    with SessionLocal() as db:
+        from app.models.storage_record import DocumentStorageRecord
+
+        file_id = parse_location(db.get(DocumentStorageRecord, record_id).location)
+    drive.fake.files[file_id]["mimeType"] = "application/vnd.google-apps.folder"
+    response = client.get(f"/api/storage/records/{record_id}/file")
+    assert response.status_code == 404 and b"%PDF" not in response.content
+    drive.fake.files[file_id]["mimeType"] = "application/pdf"
+    drive.fake.external_trash(file_id)
+    assert client.get(f"/api/storage/records/{record_id}/file").status_code == 404
+
+
 # ------------------------------------------------------------------------------------------------------------ lifecycle through the API
 
 
@@ -265,7 +334,9 @@ def test_no_drive_id_url_or_credential_ever_appears_in_a_response(client, drive)
             assert forbidden not in text, f"{forbidden!r} leaked in {response.request.url.path}"
         assert not {"location", "x-goog-hash"} & {h.lower() for h in response.headers}
     listing = client.get("/api/storage/records?state=all").json()
-    assert set(listing[0]) == {"id", "kind", "original_filename", "size", "state", "last_error", "document_kind", "document_pk", "created_at", "stored_at", "archived_at", "restored_at", "missing_detected_at", "last_verified_at"}
+    base = {"id", "kind", "original_filename", "size", "state", "last_error", "document_kind", "document_pk", "created_at", "stored_at", "archived_at", "restored_at", "missing_detected_at", "last_verified_at"}
+    admin_progress = {"failure_class", "attempts", "deferrals", "next_attempt_at", "needs_attention"}  # central storage phase: an administrator also sees the upload's progress (never an id, location or checksum)
+    assert set(listing[0]) == base | admin_progress
 
 
 def test_drive_outages_surface_as_generic_503_without_google_details(client, drive):
@@ -278,3 +349,37 @@ def test_drive_outages_surface_as_generic_503_without_google_details(client, dri
         assert "backendError" not in response.text and "injected" not in response.text
     drive.fake.faults.clear()
     assert client.get(f"/api/storage/records/{record_id}/file").status_code == 200  # recovers by itself when Drive returns
+
+
+# ------------------------------------------------------------------------------------------------------------ destination guard (Phase 3A.1)
+
+
+def test_a_refused_destination_gives_a_generic_503_and_changes_nothing(client, drive):
+    """An unverified Drive destination refuses the write BEFORE any Drive change; the API answer is generic (no id, no reason code, no path)."""
+    from drive_testkit import guarded_view
+
+    users = make_users(client)
+    record_id, _ = stored(drive, "guard-api")
+    strict = guarded_view(drive, "0AOtherSharedDrive0002")  # a guarded client over the same fake; the fake is a My Drive, so the guard can never verify it
+    app.dependency_overrides[get_storage_manager] = lambda: strict.manager  # the `drive` fixture removes the override afterwards
+
+    def drive_writes():  # the sign-in token exchange (/token) is not a Drive write
+        return [r for r in drive.fake.requests if r["method"] != "GET" and r["path"] != "/token"]
+
+    changes_before = drive_writes()
+    as_role(client, users, "ADMIN")
+    response = client.post(f"/api/storage/records/{record_id}/archive")
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Drive storage refused the write: the destination could not be verified."
+    assert "0AOther" not in response.text and drive.config.root_folder_id not in response.text and "my_drive" not in response.text
+    assert drive_writes() == changes_before  # not one write reached Drive
+    with SessionLocal() as db:
+        from app.models.storage_record import DocumentStorageRecord
+
+        assert db.get(DocumentStorageRecord, record_id).state == "STORED"
+    # 3A.1.2: a document is served only while Drive says it is in the expected Shared Drive. This guarded client expects a different drive than the one the
+    # fake file lives in, so the read is refused with the same generic "not found" answer (no id, no drive) and nothing is changed.
+    response = client.get(f"/api/storage/records/{record_id}/file")
+    assert response.status_code == 404 and "0AOther" not in response.text and drive.config.root_folder_id not in response.text
+    app.dependency_overrides[get_storage_manager] = lambda: drive.manager
+    assert client.get(f"/api/storage/records/{record_id}/file").status_code == 200  # the ordinary (in-drive) client still serves it

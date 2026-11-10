@@ -61,6 +61,9 @@ def store(stack, db, marker="a", user_id=None):
 
 def backdate(db, record, seconds=3600):
     record.created_at = datetime.now(timezone.utc) - timedelta(seconds=seconds)
+    record.updated_at = datetime.now(timezone.utc) - timedelta(seconds=seconds)
+    if record.next_attempt_at is not None:  # 3A.2-B: a failed attempt waits for its own schedule (next_attempt_at); "the backoff has passed" moves it into the past
+        record.next_attempt_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=seconds)
     db.commit()
 
 
@@ -110,9 +113,13 @@ def test_a_retry_after_an_outage_completes_the_same_record_with_exactly_one_file
     stack.storage.reserve_id()  # prime the id pool, so the intent can still be recorded while Drive is down
     stack.fake.fail_next(100, 503)
     content = pdf_bytes("retry")
-    with pytest.raises(StorageUploadError):
+    with pytest.raises(StorageUploadError) as failed:
         stack.manager.store(db, kind=KIND, content=content, original_filename="a.pdf")
     stack.fake.faults.clear()  # Drive is back
+    waiting = stack.manager.store(db, kind=KIND, content=content, original_filename="a.pdf")
+    # 3A.2-B corrections: submitting the same file again is not an administrator's retry, so it waits for the record's backoff like the automatic retry does
+    assert waiting.duplicate and not waiting.created and waiting.record.state == sr.UPLOADING
+    backdate(db, failed.value.record)  # the backoff has passed
     result = stack.manager.store(db, kind=KIND, content=content, original_filename="a.pdf")
     assert result.duplicate and result.record.state == sr.STORED
     assert db.execute(select(func.count()).select_from(DocumentStorageRecord)).scalar() == 1
@@ -128,13 +135,18 @@ def test_when_drive_cannot_even_reserve_an_id_nothing_is_recorded_and_the_caller
     assert db.execute(select(func.count()).select_from(DocumentStorageRecord)).scalar() == 0
     assert not list((tmp_path / "spool").glob("*")) if (tmp_path / "spool").exists() else True
 
-def test_a_permission_failure_is_a_visible_non_retryable_failed_state(tmp_path, db):
+def test_a_permission_refusal_is_a_visible_deferral_that_uses_no_retry_budget(tmp_path, db):
+    # 3A.2-B: a permission refusal says something about the account or the folder, not about this upload. It used to end in FAILED after one try; now the
+    # record keeps its bytes, uses no retry budget, waits on a slow schedule and is retried once someone fixes the permission.
     stack = make_stack(tmp_path)
     stack.fake.read_only = True
     with pytest.raises(StorageUploadError) as exc:
         stack.manager.store(db, kind=KIND, content=pdf_bytes("perm"), original_filename="a.pdf")
-    assert not exc.value.retryable and exc.value.record.state == sr.FAILED
-    assert "Permission" in exc.value.record.last_error
+    record = exc.value.record
+    assert exc.value.retryable and record.state == sr.UPLOADING and record.attempts == 0
+    assert record.failure_class == "permission" and record.deferrals == 1 and record.deferred_since is not None and record.next_attempt_at is not None
+    assert record.lease_owner is None and record.lease_expires_at is None  # nothing is left held
+    assert "Permission" in record.last_error
 
 
 def test_an_integrity_failure_is_failed_and_quarantined_never_stored(tmp_path, db):
@@ -229,6 +241,7 @@ def test_reconcile_retries_from_the_spooled_copy_when_nothing_reached_drive(tmp_
     stack = make_stack(tmp_path)
     content = pdf_bytes("died-before")
     record = _intent(db, stack, content, uploaded=False, spool=True)
+    stack.manager.initialise_structure()  # reconcile never creates folders itself: here the structure already exists (see test_drive_guard.py for the case where it does not)
     report = stack.manager.reconcile(db)
     db.refresh(record)
     assert report.reuploaded == 1 and record.state == sr.STORED and stack.fake.file_count() == 1
@@ -365,7 +378,7 @@ def test_a_hard_deleted_file_is_detected_too_and_cannot_be_restored(tmp_path, db
     stack.manager.reconcile(db)
     db.refresh(result.record)
     assert result.record.state == sr.MISSING_EXTERNAL
-    with pytest.raises(StorageStateError, match="re-uploaded"):
+    with pytest.raises(StorageStateError, match="does not replace it"):  # 3A.2-E: the old text promised that re-uploading repairs it, which it cannot
         stack.manager.restore(db, result.record.id, user_id=user.id)
     db.refresh(result.record)
     assert result.record.state == sr.MISSING_EXTERNAL
@@ -490,6 +503,7 @@ def test_offline_uploads_wait_visibly_and_complete_when_the_network_returns(tmp_
         stack.storage.exists(exc.value.record.location)
     stack.fake.faults.clear()  # network is back: the periodic reconcile finishes the job from the spooled copy
     backdate(db, exc.value.record)
+    stack.manager.initialise_structure()  # the folders never existed (Drive was down from the start): creating them is explicit, reconcile will not
     report = stack.manager.reconcile(db)
     db.refresh(exc.value.record)
     assert report.reuploaded == 1 and exc.value.record.state == sr.STORED and stack.fake.file_count() == 1

@@ -5,7 +5,7 @@ import base64
 import hashlib
 import hmac
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -64,20 +64,82 @@ class Stack:
     credentials_path: Path
 
 
-def make_stack(tmp_path: Path, *, max_attempts: int = 6, drive_id: str | None = None, rate: float = 1000.0, with_spool: bool = True, clock=None) -> Stack:
+def _client(config: DriveConfig, tokens, http, sleeps: list, *, guard_clock=None, guard_max_depth=None) -> DriveClient:
+    """A test client. With an expected drive in the config it is GUARDED (the client builds its own guard); without one it is explicitly
+    `unguarded=True`, the harness/fake opt-out that application code never uses."""
+    options = {}
+    if guard_clock is not None:
+        options["guard_clock"] = guard_clock
+    if guard_max_depth is not None:
+        options["guard_max_depth"] = guard_max_depth
+    return DriveClient(config, tokens, http, sleep=sleeps.append, rng=lambda: 0.5, unguarded=config.expected_drive_id is None, **options)
+
+
+def make_stack(
+    tmp_path: Path,
+    *,
+    max_attempts: int = 6,
+    drive_id: str | None = None,
+    rate: float = 1000.0,
+    with_spool: bool = True,
+    clock=None,
+    expected_drive_id: str | None = None,
+    guard_ttl: float = 300.0,
+    guard_failure_window: float = 15.0,
+    guard_clock=None,
+    guard_max_depth: int | None = None,
+    guard_options: dict | None = None,
+    max_upload_attempts: int = 10,
+    retry_backoff: float = 60.0,
+    now=None,
+    manager_options: dict | None = None,  # extra StorageManager settings (lease_seconds, rng, ...)
+) -> Stack:
+    """A Drive stack on a FakeDrive. Unguarded by default (most tests exercise the adapter, not the destination guard); pass `expected_drive_id`
+    to get a client that builds its own destination guard, exactly as the application's runtime does."""
     fake = FakeDrive(service_account_public_key=rsa_key().public_key(), drive_id=drive_id)
     root = next(iter(fake.files))
     credentials_path = write_service_account_file(tmp_path)
-    config = DriveConfig(root_folder_id=root, credentials_file=credentials_path, scope=DEFAULT_SCOPE, rate_limit_per_second=rate, max_attempts=max_attempts)
+    config = DriveConfig(
+        root_folder_id=root, credentials_file=credentials_path, scope=DEFAULT_SCOPE, rate_limit_per_second=rate, max_attempts=max_attempts,
+        expected_drive_id=expected_drive_id, guard_ttl_seconds=guard_ttl, guard_failure_window_seconds=guard_failure_window,
+        **(guard_options or {}),  # guard_verify_deadline_seconds, guard_verify_max_backoff_seconds, guard_waiter_seconds, guard_verify_attempts
+    )
     http = httpx.Client(transport=fake.transport())
     credentials = ServiceAccountCredentials.from_file(credentials_path)
     tokens = TokenProvider(credentials, config.scope, http, **({"clock": clock} if clock else {}))
     sleeps: list = []
-    client = DriveClient(config, tokens, http, sleep=sleeps.append, rng=lambda: 0.5)
+    client = _client(config, tokens, http, sleeps, guard_clock=guard_clock, guard_max_depth=guard_max_depth)
     folders = DriveFolders(client, root)
     storage = GoogleDriveStorage(client, folders, temp_root=tmp_path)
-    manager = StorageManager(storage, spool_dir=(tmp_path / "spool") if with_spool else None)
+    manager = StorageManager(
+        storage, spool_dir=(tmp_path / "spool") if with_spool else None, max_upload_attempts=max_upload_attempts, retry_backoff_seconds=retry_backoff,
+        **({"now": now} if now else {}), **(manager_options or {}),
+    )
     return Stack(fake, config, http, tokens, client, folders, storage, manager, sleeps, credentials_path)
+
+
+def guarded_view(
+    stack: Stack,
+    expected_drive_id: str,
+    *,
+    root_folder_id: str | None = None,
+    ttl: float = 300.0,
+    failure_window: float = 15.0,
+    clock=None,
+    max_depth: int | None = None,
+    guard_options: dict | None = None,
+) -> Stack:
+    """A SECOND, GUARDED client over the same fake Drive. A test creates objects with the plain stack, then drives this one to see what the guard
+    allows (the guard is owned by its client, so it cannot be installed on an existing one)."""
+    config = replace(
+        stack.config, expected_drive_id=expected_drive_id, root_folder_id=root_folder_id or stack.config.root_folder_id,
+        guard_ttl_seconds=ttl, guard_failure_window_seconds=failure_window, **(guard_options or {}),
+    )
+    client = _client(config, stack.tokens, stack.http, stack.sleeps, guard_clock=clock, guard_max_depth=max_depth)
+    folders = DriveFolders(client, config.root_folder_id)
+    storage = GoogleDriveStorage(client, folders, temp_root=stack.storage._temp_root)
+    manager = StorageManager(storage, spool_dir=stack.manager._spool_dir)
+    return Stack(stack.fake, config, stack.http, stack.tokens, client, folders, storage, manager, stack.sleeps, stack.credentials_path)
 
 
 SYNTHETIC_CLIENT_ID = "synthetic-client-0001.apps.googleusercontent.com"

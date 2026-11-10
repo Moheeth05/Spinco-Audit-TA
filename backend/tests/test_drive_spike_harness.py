@@ -64,7 +64,7 @@ def test_a_failed_upload_is_reported_as_that_failure_never_as_a_missing_attribut
 
     # Complete stubs: Python evaluates `ctx.storage.info` / `ctx.client.get_raw` BEFORE their arguments, so a stub missing them would raise an
     # AttributeError of its own and test the wrong thing. Only `upload` fails, exactly like a real upload failure.
-    ctx.storage = types.SimpleNamespace(upload=failing_upload, info=lambda location: None, retrieve=lambda location: b"", open_stream=lambda *a, **k: None)
+    ctx.storage = types.SimpleNamespace(upload=failing_upload, inspect_unchecked=lambda location: None, retrieve=lambda location: b"", open_stream=lambda *a, **k: None)
     ctx.client = types.SimpleNamespace(get_raw=lambda *a, **k: {}, get_about=lambda: {})
     ctx.folders = types.SimpleNamespace(active=lambda kind: "folder")
     ctx.root_meta = {}

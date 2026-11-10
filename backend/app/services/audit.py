@@ -57,11 +57,17 @@ USER_PASSWORD_CHANGED = "USER_PASSWORD_CHANGED"
 ADMIN_PASSWORD_RESET = "ADMIN_PASSWORD_RESET"
 
 DOCUMENT_UPLOADED = "DOCUMENT_UPLOADED"
+DOCUMENT_DUPLICATE_ATTEMPT = "DOCUMENT_DUPLICATE_ATTEMPT"  # an exact duplicate was uploaded (recorded in upload_attempts; no second document was created)
+DOCUMENT_UPLOAD_REFUSED = "DOCUMENT_UPLOAD_REFUSED"  # an upload was not accepted (central storage unavailable, integrity failure)
+STORAGE_JOB_RETRIED = "STORAGE_JOB_RETRIED"  # an administrator re-queued a failed background job
 DOCUMENT_REPROCESSED = "DOCUMENT_REPROCESSED"
 DOCUMENT_DELETED = "DOCUMENT_DELETED"
 DOCUMENT_ARCHIVED = "DOCUMENT_ARCHIVED"
 DOCUMENT_RESTORED = "DOCUMENT_RESTORED"
 STORAGE_RECONCILED = "STORAGE_RECONCILED"
+STORAGE_RETRY_ACCEPTED = "STORAGE_RETRY_ACCEPTED"  # an administrator's manual retry of a stored-document upload was honoured (who, which record, from which state)
+STORAGE_RETRY_REJECTED = "STORAGE_RETRY_REJECTED"  # ... and one that was refused (with the reason)
+STORAGE_RESUBMITTED = "STORAGE_RESUBMITTED"  # the same file was submitted again while its upload was unfinished (what happened; the actor when known, "unknown" otherwise)
 
 REPORT_VALIDATED = "REPORT_VALIDATED"
 REPORT_REVALIDATED = "REPORT_REVALIDATED"

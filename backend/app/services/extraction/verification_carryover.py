@@ -42,7 +42,7 @@ from sqlalchemy.orm import Session
 
 from app.models.expense_report import Expense
 from app.models.validation import ExceptionVerification
-from app.services import audit
+from app.services import audit, fk_safety
 from app.services.category_map import normalize_category
 
 FACTS_CHANGED = "facts_changed"
@@ -154,6 +154,8 @@ def reserve_ids(db: Session, new_expenses: list[Expense], the_plan: Plan) -> Non
     old rows are deleted and before the new ones are added."""
     if not the_plan.protected_ids or not new_expenses:
         return
+    if db.get_bind().dialect.name != "sqlite":
+        return  # a server database never reuses an id (sequences only grow), and explicit ids would collide with the sequence's next values
     current_max = db.query(func.max(Expense.id)).scalar() or 0
     start = max(current_max, max(the_plan.protected_ids)) + 1
     for offset, expense in enumerate(new_expenses):
@@ -165,6 +167,8 @@ def apply(db: Session, report_id: int, the_plan: Plan) -> None:
     matches (a single UPDATE of expense_id on the existing row - verifier, timestamp, note,
     original severity/reason and the row id are untouched) and writes one system audit event
     per verification. Never commits."""
+    # PostgreSQL only: verifications parked by fk_safety.detach_expenses before the old expense rows were deleted ({verification id: (old expense id, original type)}).
+    parked: dict[int, tuple[int, str]] = fk_safety.take_parked(db)
     per_outcome: list[tuple[Outcome, list[ExceptionVerification]]] = []
     for outcome in the_plan.outcomes:
         rows = (
@@ -173,6 +177,18 @@ def apply(db: Session, report_id: int, the_plan: Plan) -> None:
             .order_by(ExceptionVerification.id)
             .all()
         )
+        parked_ids = [vid for vid, (old_id, _type) in parked.items() if old_id == outcome.old_expense_id]
+        if parked_ids:
+            rows += (
+                db.query(ExceptionVerification)
+                .filter(
+                    ExceptionVerification.expense_report_id == report_id,
+                    ExceptionVerification.id.in_(parked_ids),
+                    ExceptionVerification.exception_type.like(fk_safety.PARKED + "%"),  # still parked (a rolled-back attempt must not be "restored")
+                )
+                .order_by(ExceptionVerification.id)
+                .all()
+            )
         per_outcome.append((outcome, rows))
 
     moves: list[tuple[ExceptionVerification, int, int]] = []  # (row, old id, new id)
@@ -187,6 +203,8 @@ def apply(db: Session, report_id: int, the_plan: Plan) -> None:
         row.expense_id = None
     db.flush()
     for row, _old, new_id in moves:
+        if row.id in parked:  # a parked verification gets its real exception_type back together with its new claim
+            row.exception_type = parked[row.id][1]
         row.expense_id = new_id
     db.flush()
     for row, old_id, new_id in moves:
@@ -218,7 +236,7 @@ def _not_carried_details(report_id: int, row: ExceptionVerification, outcome: Ou
         f"reason={outcome.reason}",
         f"report_id={report_id}",
         f"verification_id={row.id}",
-        f"exception_type={row.exception_type}",
+        f"exception_type={row.exception_type.removeprefix(fk_safety.PARKED)}",
         f"old_expense_id={outcome.old_expense_id}",
     ]
     if old is not None:

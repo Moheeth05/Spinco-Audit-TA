@@ -1,0 +1,4 @@
+{
+  "discoverDemoHost": true,
+  "note": "Bundled ONLY into the LAN-demo build (SPINCO_DEMO_BUILD=1). It makes an installation with no settings of its own look for a Spinco demo host on the local network. A settings file or SPINCO_REMOTE_BACKEND_URL always wins; the company build does not contain this file."
+}

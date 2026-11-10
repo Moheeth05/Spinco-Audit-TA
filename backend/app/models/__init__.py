@@ -12,6 +12,8 @@ from app.models.evidence import SourceEvidence
 from app.models.bill_match import BillMatchCandidate
 from app.models.trip_match import TripMatchCandidate
 from app.models.storage_record import DocumentStorageRecord, DriveSyncState, StorageEvent
+from app.models.upload_attempt import UploadAttempt
+from app.models.processing_job import ProcessingJob
 
 __all__ = [
     "User",
@@ -34,4 +36,6 @@ __all__ = [
     "DocumentStorageRecord",
     "StorageEvent",
     "DriveSyncState",
+    "UploadAttempt",
+    "ProcessingJob",
 ]

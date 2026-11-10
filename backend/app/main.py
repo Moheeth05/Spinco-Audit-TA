@@ -3,8 +3,9 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.exc import OperationalError
 from starlette.datastructures import MutableHeaders
 
 from app import models  # noqa: F401  (register all models on Base before create_all)
@@ -26,9 +27,14 @@ from app.api import (
     uploads,
     users,
 )
-from app.database import Base, engine
+from app.api import central
+from app.database import IS_SQLITE, Base, SessionLocal, engine
 from app.seed import seed_all
+from app.logging_config import configure_logging
+from app.services import central_storage, hardening, processing_jobs, startup_checks
 from app.services.db_migrations import run_light_migrations
+
+configure_logging()  # message redaction (always) + optional SPINCO_LOG_LEVEL / SPINCO_LOG_DIR
 
 app = FastAPI(title="SPINCO TA / Travel Expense Audit & Automation System")
 
@@ -38,7 +44,7 @@ app = FastAPI(title="SPINCO TA / Travel Expense Audit & Automation System")
 # constraint rather than relying on that browser behavior silently).
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5200", "http://127.0.0.1:5200"],
+    allow_origins=hardening.cors_origins(),  # SPINCO_CORS_ORIGINS; unset = the Vite dev origins on a loopback backend, none on a network-reachable one
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,13 +87,57 @@ class SecurityHeadersMiddleware:
 
 
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(hardening.RequestSizeLimitMiddleware)  # an upload that declares a body above SPINCO_MAX_REQUEST_MB is refused with 413 before it is read
+
+# Central backend: only answer requests addressed to the configured host NAME(S) (SPINCO_ALLOWED_HOSTS, comma separated). Unset (local desktop / development) = no restriction.
+_allowed_hosts = startup_checks.allowed_hosts()
+if _allowed_hosts:
+    from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts + ["localhost", "127.0.0.1"])
+
+
+@app.exception_handler(OperationalError)
+async def database_busy(request, exc: OperationalError):
+    """A write that could not get the SQLite lock in time is a TEMPORARY condition: answer 503 + Retry-After (the caller simply retries) instead of an opaque 500.
+    Any other database error is not handled here and stays a 500, exactly as before."""
+    if "database is locked" not in str(exc).lower():
+        raise exc
+    return JSONResponse(status_code=503, content={"detail": "The server is busy. Please try again in a moment."}, headers={"Retry-After": "2"})
+
+
+class SchemaNotReady(RuntimeError):
+    pass
+
+
+def _verify_schema_strict() -> None:
+    """Central modes (and SPINCO_SCHEMA_MODE=strict): the database must ALREADY be in the shape the code needs. Nothing is created, altered or repaired here - the schema
+    is changed only on purpose, by an operator (backend/tools/init_central_staging_db.py for a new disposable database, or a migration run). Anything else refuses to start."""
+    problems = central_storage.schema_problems()
+    if problems:
+        raise SchemaNotReady("The database schema is not ready for central storage (" + "; ".join(problems) + "). Nothing was changed. See docs/CENTRAL-BACKEND.md.")
 
 
 @app.on_event("startup")
 def on_startup():
-    run_light_migrations(engine)
-    Base.metadata.create_all(bind=engine)
+    central = central_storage.config()
+    # A server database (PostgreSQL) is ALWAYS strict: the application never creates or alters tables in it - the schema is created and migrated by an operator (see docs).
+    strict = central.active or not IS_SQLITE or os.environ.get("SPINCO_SCHEMA_MODE", "").strip().lower() == "strict"
+    if strict:
+        _verify_schema_strict()  # never create_all / light migrations on a database that holds (or will hold) central records
+    else:
+        run_light_migrations(engine)
+        Base.metadata.create_all(bind=engine)
+    with SessionLocal() as db:
+        startup_checks.run_checks(db)  # a network-reachable backend refuses development defaults (see services/startup_checks.py)
     seed_all()
+    if processing_jobs.worker_enabled():
+        processing_jobs.start_worker()  # durable background work: extraction and the shadow copy to Drive; restart-safe (jobs are rows)
+
+
+@app.on_event("shutdown")
+def on_shutdown():
+    processing_jobs.stop_worker()
 
 
 app.include_router(health.router)
@@ -106,6 +156,7 @@ app.include_router(documents.router)
 app.include_router(expenses.router)
 app.include_router(search.router)
 app.include_router(storage.router)
+app.include_router(central.router)
 
 
 # ---------- Phase 11: serve the production React build (desktop packaging) ----------

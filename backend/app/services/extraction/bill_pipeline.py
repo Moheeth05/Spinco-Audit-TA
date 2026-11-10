@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.models.bill import Bill
 from app.models.bill_match import BillMatchCandidate
 from app.models.expense_report import Expense, ExpenseReport
-from app.services import category_map
+from app.services import category_map, fk_safety
 from app.services.category_map import normalize_category
 from app.services.extraction import bill_grouping, bill_matcher, bill_parser, candidate_cleanup, dates, document_classifier
 from app.services.extraction.text_extraction import PyMuPDFTextExtractor
@@ -154,13 +154,16 @@ def _find_strong_duplicates(entries: list[tuple[Bill, str, "bill_parser.ParsedBi
 
 
 def extract_and_match_bills(
-    db: Session, row: ExpenseReport, text_extractor: PyMuPDFTextExtractor, content_last_page: int
+    db: Session, row: ExpenseReport, text_extractor: PyMuPDFTextExtractor, content_last_page: int, *, pdf_path: Path | None = None
 ) -> list[str]:
     """Replaces this report's bills and match results wholesale, then returns
     a short list of warning strings for the caller to fold into the report's
-    own extraction_notes."""
+    own extraction_notes. `pdf_path` is the local working copy supplied by the
+    central storage layer (central_storage.local_file_for); without it the
+    recorded local path is used, exactly as before."""
     warnings: list[str] = []
-    pdf_path = Path(row.source_path)
+    if pdf_path is None:
+        pdf_path = Path(row.source_path)
 
     bill_pages = text_extractor.bill_pages_from(pdf_path, content_last_page + 1)
 
@@ -170,6 +173,7 @@ def extract_and_match_bills(
     # otherwise be orphaned permanently.
     old_bill_ids = [b.id for b in db.query(Bill.id).filter(Bill.expense_report_id == row.id).all()]
     candidate_cleanup.delete_bill_match_candidates_for_bill_ids(db, old_bill_ids)
+    fk_safety.detach_bills(db, old_bill_ids)  # no-op on SQLite; on PostgreSQL clears the expenses' / exceptions' pointers to these bills first
     db.query(Bill).filter(Bill.expense_report_id == row.id).delete()
     db.commit()
 

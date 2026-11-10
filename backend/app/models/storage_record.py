@@ -7,7 +7,7 @@ extraction_status (which keep their current meaning): UPLOADING | STORED | ARCHI
 
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -28,6 +28,9 @@ def _now() -> datetime:
 class DocumentStorageRecord(Base):
     __tablename__ = "document_storage"
     # The same bytes may legitimately exist as an expense report AND as a trip report, as today (dedupe is per kind).
+    # No index on the retry columns: a composite (state, next_attempt_at) index was designed for the sweep, but the real sweep query (an OR on the schedule,
+    # an OR on the lease, ORDER BY id) never chooses it - the plan and timing are identical with and without it (200 000 rows, 300 and 20 000 pending) while
+    # every claim/settle pays to maintain it. The pending set is small and ix_document_storage_state already finds it. Removed in the 3A.2-B corrections.
     __table_args__ = (UniqueConstraint("kind", "sha256", name="uq_document_storage_kind_sha256"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -39,7 +42,16 @@ class DocumentStorageRecord(Base):
     location: Mapped[str] = mapped_column(String(200))  # opaque gdrive:<id>; reserved BEFORE the upload so a crash leaves a trace
     state: Mapped[str] = mapped_column(String(20), default=UPLOADING, index=True)
     last_error: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    attempts: Mapped[int] = mapped_column(default=0)
+    attempts: Mapped[int] = mapped_column(default=0)  # the RETRY BUDGET: charged when an attempt is claimed, kept only by a genuine transient failure
+
+    # Retry bookkeeping (Phase 3A.2-B; schema revision c3a9f0b17d42). Every column is NULL (deferrals: 0) for a row that predates it.
+    failure_class: Mapped[str | None] = mapped_column(String(20), nullable=True)  # why progress last stopped; see app.services.drive.failures
+    deferrals: Mapped[int] = mapped_column(default=0, server_default=text("0"))  # waits that did NOT consume the retry budget (sign-in, guard, permission, quota)
+    deferred_since: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # start of the current uninterrupted deferral episode
+    next_attempt_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # explicit schedule; NULL = due now (not indexed: see __table_args__)
+    last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # when the most recent attempt was claimed
+    lease_owner: Mapped[str | None] = mapped_column(String(40), nullable=True)  # one claim = one unique owner token; releases are owner-checked
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # an expired lease may be taken over by the next claimer
 
     # Link to the application's document row once it exists (set by the upload flow after the file is STORED).
     document_kind: Mapped[str | None] = mapped_column(String(10), nullable=True)  # expense | trip

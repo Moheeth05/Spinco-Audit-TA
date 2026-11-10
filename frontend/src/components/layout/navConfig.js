@@ -1,6 +1,8 @@
 import {
   BarChart3,
   ClipboardList,
+  Copy,
+  Database,
   FileSpreadsheet,
   FileText,
   Home,
@@ -21,6 +23,7 @@ export const PRIMARY_NAV = [
   { to: '/policy-master', label: 'Policy Master', icon: ShieldCheck },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/excel-files', label: 'Excel Files', icon: FileSpreadsheet },
+  { to: '/duplicates', label: 'Duplicates', icon: Copy },
 ]
 
 export const SETTINGS_NAV = [{ to: '/settings', label: 'Settings', icon: Settings }]
@@ -28,6 +31,7 @@ export const SETTINGS_NAV = [{ to: '/settings', label: 'Settings', icon: Setting
 export const ADMIN_NAV = [
   { to: '/users-roles', label: 'Users & Roles', icon: Users },
   { to: '/audit-logs', label: 'Audit Logs', icon: ClipboardList },
+  { to: '/storage', label: 'Central Storage', icon: Database },
 ]
 
 export const ALL_NAV = [...PRIMARY_NAV, ...SETTINGS_NAV, ...ADMIN_NAV]
