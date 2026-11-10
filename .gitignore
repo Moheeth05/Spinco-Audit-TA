@@ -57,3 +57,18 @@ Thumbs.db
 
 # Logs
 *.log
+
+# ---------------------------------------------------------------------------
+# Generated build / release / backup artefacts - NEVER version-controlled
+# (kept on disk locally; GitHub rejects files over 100 MB, and installers are
+# build outputs, not source). Specific paths only: no blanket *.exe / *.zip.
+# ---------------------------------------------------------------------------
+/release-*/
+/backups/pre-*/
+/backups/release-*/
+/packaging-validation-*/build/
+/packaging-validation-*/debug_probe/
+/packaging-validation-*/tmp*/
+/packaging-validation-*/userdata*/
+**/win-unpacked/
+*.exe.backup-*
